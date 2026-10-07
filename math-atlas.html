@@ -1,0 +1,1347 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="day">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="一张可以逛的现代数学知识全景手绘地图：15 大板块、上百个领域、跨域桥梁与数学史时间线。">
+<title>数学大陆 · 现代数学知识全景图</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%A7%AD%3C/text%3E%3C/svg%3E">
+<style>
+/* ============ 主题变量：白天 = 羊皮纸 / 夜晚 = 夜航图 ============ */
+:root{
+  --tbh: 60px;
+  --paper:#f3e7cb; --paper-2:#ecdcb6; --panel:#f8f0dc; --panel-2:#f1e4c6;
+  --ink:#3d3428; --ink-2:#6d6048; --ink-3:#9a8b6d;
+  --line:#b19b74; --seal:#a34c2e;
+  --reg-a:.16; --reg-a-h:.28;
+  --shadow:0 10px 28px rgba(61,52,40,.16);
+  --shadow-soft:0 4px 14px rgba(61,52,40,.12);
+  --backdrop:rgba(46,38,26,.34);
+  --noise-o:.5;
+}
+html[data-theme="night"]{
+  --paper:#211d28; --paper-2:#272231; --panel:#2b2534; --panel-2:#332c3e;
+  --ink:#ecdfc2; --ink-2:#c5b493; --ink-3:#93846a;
+  --line:#6f6350; --seal:#d9906b;
+  --reg-a:.24; --reg-a-h:.36;
+  --shadow:0 12px 32px rgba(0,0,0,.5);
+  --shadow-soft:0 4px 16px rgba(0,0,0,.4);
+  --backdrop:rgba(8,6,12,.55);
+  --noise-o:.35;
+}
+/* ============ 基础 ============ */
+*{box-sizing:border-box}
+html,body{height:100%}
+body{
+  margin:0; background:var(--paper); color:var(--ink); overflow:hidden;
+  font-family:"Kaiti SC","STKaiti","KaiTi","楷体","Songti SC",serif;
+  font-size:16px; line-height:1.75;
+  -webkit-font-smoothing:antialiased; overscroll-behavior:none;
+}
+button{font-family:inherit; color:inherit; cursor:pointer}
+button, input, .region, .crosslink, .pp-backdrop{touch-action:manipulation}
+p{margin:0}
+.hidden{display:none!important}
+/* ============ 顶栏 ============ */
+#topbar{
+  position:fixed; left:0; right:0; top:0; height:var(--tbh); z-index:60;
+  display:flex; align-items:center; gap:10px; padding:0 14px;
+  background:var(--panel); border-bottom:2px solid var(--line);
+  box-shadow:var(--shadow-soft);
+}
+#brand{display:flex; align-items:baseline; gap:8px; background:none; border:none; padding:2px 4px; white-space:nowrap}
+#brand .b-main{font-size:24px; font-weight:700; letter-spacing:2px}
+#brand .b-sub{font-size:12px; color:var(--ink-2); letter-spacing:1px}
+.searchbox{position:relative; flex:1; max-width:520px; margin:0 auto}
+.searchbox input{
+  width:100%; height:38px; padding:0 14px 0 36px; border-radius:10px 4px 10px 4px;
+  border:2px solid var(--line); background:var(--paper); color:var(--ink);
+  font-family:"Microsoft YaHei","PingFang SC",sans-serif; font-size:14px; outline:none;
+}
+.searchbox input:focus{border-color:var(--seal)}
+.searchbox .s-ico{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--ink-3); font-size:14px; pointer-events:none}
+#searchDrop{
+  position:absolute; top:46px; left:0; right:0; z-index:80; max-height:320px; overflow:auto;
+  background:var(--panel); border:2px solid var(--line); border-radius:6px 14px 8px 14px;
+  box-shadow:var(--shadow); display:none;
+}
+#searchDrop.open{display:block}
+.sd-item{display:flex; align-items:center; gap:10px; width:100%; text-align:left; background:none; border:none; padding:9px 12px; border-bottom:1px dashed var(--line)}
+.sd-item:last-child{border-bottom:none}
+.sd-item:hover{background:var(--panel-2)}
+.sd-kind{flex:none; font-size:11px; padding:1px 8px; border:1.5px solid var(--line); border-radius:8px 3px 8px 3px; color:var(--ink-2)}
+.sd-kind.f{border-color:var(--seal); color:var(--seal)}
+.sd-name{font-size:15px}
+.sd-empty{padding:12px; color:var(--ink-2); font-size:14px}
+#topTools{display:flex; align-items:center; gap:8px; white-space:nowrap}
+.tbtn{
+  height:38px; padding:0 12px; background:var(--panel); border:2px solid var(--line);
+  border-radius:10px 4px 10px 4px; font-size:14px; letter-spacing:1px;
+}
+.tbtn:hover{border-color:var(--seal); transform:translateY(-1px)}
+.tbtn[aria-pressed="true"]{background:var(--ink); color:var(--panel); border-color:var(--ink)}
+.tbtn.icon{padding:0; width:38px; font-size:16px}
+.seg{display:flex; border:2px solid var(--line); border-radius:12px 5px 12px 5px; overflow:hidden}
+.seg .tbtn{border:none; border-radius:0; height:34px}
+.seg .tbtn + .tbtn{border-left:2px solid var(--line)}
+/* ============ 舞台 ============ */
+#stage{position:fixed; left:0; right:0; top:var(--tbh); bottom:0}
+#viewport{
+  position:absolute; inset:0; overflow:hidden; touch-action:none; cursor:grab;
+  background-color:var(--paper);
+  background-image:
+    radial-gradient(120% 90% at 50% 8%, rgba(255,255,255,.28), transparent 60%),
+    radial-gradient(140% 120% at 50% 100%, rgba(97,74,41,.12), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.30 0 0 0 0 0.24 0 0 0 0 0.14 0 0 0 0.055 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html[data-theme="night"] #viewport{
+  background-image:
+    radial-gradient(120% 90% at 50% 8%, rgba(120,110,160,.14), transparent 60%),
+    radial-gradient(140% 120% at 50% 100%, rgba(0,0,0,.4), transparent 55%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.9 0 0 0 0 0.85 0 0 0 0 0.7 0 0 0 0.04 0'/%3E%3C/filter%3E%3Crect width='260' height='260' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+#viewport::after{ /* 四角阴影（灯光感） */
+  content:""; position:absolute; inset:0; pointer-events:none;
+  box-shadow:inset 0 0 140px rgba(74,55,26,.22);
+}
+html[data-theme="night"] #viewport::after{box-shadow:inset 0 0 160px rgba(0,0,0,.55)}
+#world{position:absolute; left:0; top:0; width:2650px; height:1850px; transform-origin:0 0; user-select:none}
+#mapSvg{display:block}
+/* ---- 板块区域 ---- */
+.region{cursor:pointer}
+.reg-path{fill:var(--c); fill-opacity:var(--reg-a); stroke:var(--c); stroke-width:2.6; transition:fill-opacity .25s}
+.reg-sketch{fill:none; stroke:var(--c); stroke-opacity:.3; stroke-width:1.1}
+.region:hover .reg-path{fill-opacity:var(--reg-a-h)}
+.region.active .reg-path{stroke-width:4; fill-opacity:var(--reg-a-h)}
+.label-rect{fill:var(--panel); stroke:var(--ink-2); stroke-width:1.6; opacity:.94}
+.label-name{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif; fill:var(--ink); font-weight:700; letter-spacing:2px}
+.label-sub{font-family:"Microsoft YaHei","PingFang SC",sans-serif; fill:var(--ink-2); letter-spacing:1px}
+/* ---- 跨域航路 ---- */
+#linksLayer{pointer-events:none}
+body.links-on #linksLayer{pointer-events:auto}
+.crosslink{fill:none; stroke:var(--ink-2); stroke-width:2; stroke-dasharray:9 8; opacity:0; transition:opacity .35s, stroke .2s}
+body.links-on .crosslink{opacity:.75}
+body.links-on .crosslink:hover{stroke:var(--seal); stroke-width:3.2; opacity:1}
+#tip{
+  position:fixed; z-index:90; display:none; max-width:340px; padding:8px 12px; pointer-events:none;
+  background:var(--panel); border:2px solid var(--seal); border-radius:8px 3px 8px 3px;
+  box-shadow:var(--shadow-soft); font-size:13.5px; line-height:1.6; transform:translate(-50%,-130%);
+}
+/* ---- 图例 / 版权 ---- */
+#legend{
+  position:absolute; left:14px; bottom:12px; z-index:20; max-width:330px;
+  background:var(--panel); border:2px solid var(--line); border-radius:10px 4px 10px 4px;
+  box-shadow:var(--shadow-soft); padding:8px 12px; font-size:12.5px; color:var(--ink-2);
+}
+#legend b{color:var(--ink); font-weight:700}
+#credits{position:absolute; right:14px; bottom:12px; z-index:20; font-size:12px; color:var(--ink-3); text-align:right}
+/* ---- 便签提示 ---- */
+#hint{
+  position:absolute; top:14px; left:50%; transform:translateX(-50%); z-index:30;
+  display:flex; align-items:center; gap:12px; padding:10px 14px 10px 18px;
+  background:var(--panel); border:2px solid var(--line); border-radius:4px 14px 6px 16px;
+  box-shadow:var(--shadow-soft); font-size:14.5px; max-width:min(560px,92vw);
+}
+#hint::before{ /* 胶带 */
+  content:""; position:absolute; top:-9px; left:34px; width:74px; height:18px;
+  background:rgba(163,76,46,.28); border-left:1px dashed rgba(163,76,46,.4); border-right:1px dashed rgba(163,76,46,.4);
+  transform:rotate(-3deg);
+}
+#hint button{flex:none; height:30px; padding:0 12px; background:none; border:2px solid var(--seal); color:var(--seal); border-radius:8px 3px 8px 3px; font-size:13px}
+/* ============ 板块详情（侧栏 / 底部抽屉） ============ */
+#province{
+  position:fixed; z-index:70; width:min(440px,94vw);
+  top:calc(var(--tbh) + 12px); bottom:12px; right:12px;
+  background:var(--panel); border:2.5px solid var(--ink-2); border-radius:8px 20px 10px 16px;
+  box-shadow:var(--shadow); padding:16px 18px; overflow-y:auto;
+  transform:translateX(24px); opacity:0; pointer-events:none; transition:transform .3s, opacity .3s;
+}
+#province.open{transform:none; opacity:1; pointer-events:auto}
+.p-head{display:flex; align-items:center; gap:12px; margin-bottom:6px}
+.p-seal{flex:none; width:22px; height:22px; border-radius:50% 44% 52% 46%; border:2px solid var(--ink); transform:rotate(-8deg)}
+.p-name{font-size:28px; font-weight:700; letter-spacing:2px; line-height:1.3}
+.p-close{margin-left:auto; flex:none; width:34px; height:34px; background:none; border:2px solid var(--line); border-radius:50% 44% 50% 46%; font-size:15px}
+.p-close:hover{border-color:var(--seal); color:var(--seal)}
+.p-intro{color:var(--ink-2); font-size:14.5px; line-height:1.8; padding-bottom:10px; border-bottom:2px dashed var(--line)}
+.p-count{font-size:12.5px; color:var(--ink-3); padding:8px 0 4px; letter-spacing:1px}
+.p-list{display:flex; flex-direction:column; gap:9px; padding-top:4px}
+.fcard{
+  text-align:left; background:var(--panel-2); border:2px solid var(--line);
+  border-left:7px solid var(--c,var(--ink-2)); border-radius:4px 12px 6px 12px;
+  padding:9px 13px; display:flex; flex-direction:column; gap:2px;
+  transition:transform .15s, border-color .15s;
+}
+.fcard:hover{transform:translateX(4px); border-color:var(--c,var(--seal))}
+.fname{font-size:19px; font-weight:700; letter-spacing:1px}
+.fone{font-size:13px; color:var(--ink-2); line-height:1.6; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden}
+.p-empty{color:var(--ink-3); font-size:14px; padding:14px 4px; line-height:2}
+/* ============ 领域名片弹窗 ============ */
+#popupWrap{position:fixed; inset:0; z-index:100; display:none}
+#popupWrap.open{display:block}
+.pp-backdrop{position:absolute; inset:0; background:var(--backdrop)}
+#popup{
+  position:absolute; left:50%; top:50%; transform:translate(-50%,-50%) rotate(-.4deg);
+  width:min(610px,93vw); max-height:82vh; overflow-y:auto;
+  background:var(--panel); border:2.5px solid var(--ink-2); border-radius:8px 22px 10px 18px;
+  box-shadow:var(--shadow); padding:20px 24px 16px;
+  animation:pp-in .22s ease-out;
+}
+@keyframes pp-in{from{opacity:0; transform:translate(-50%,-48%) rotate(-.4deg) scale(.96)} to{opacity:1; transform:translate(-50%,-50%) rotate(-.4deg) scale(1)}}
+.pp-head{display:flex; align-items:center; gap:12px; padding-bottom:10px; border-bottom:2px dashed var(--line)}
+.pp-seal{flex:none; width:18px; height:18px; border-radius:50% 44% 52% 46%; border:2px solid var(--ink); transform:rotate(-8deg)}
+.pp-name{font-size:29px; font-weight:700; letter-spacing:2px; line-height:1.25}
+.pp-block{font-size:12.5px; color:var(--ink-3); letter-spacing:1px}
+.pp-close{margin-left:auto; flex:none; width:36px; height:36px; background:none; border:2px solid var(--line); border-radius:50% 44% 50% 46%; font-size:16px}
+.pp-close:hover{border-color:var(--seal); color:var(--seal)}
+.pp-sec{padding:12px 0 2px}
+.pp-label{
+  display:inline-block; font-family:"Microsoft YaHei","PingFang SC",sans-serif;
+  font-size:12px; letter-spacing:2px; color:var(--panel); background:var(--ink);
+  padding:1.5px 12px; border-radius:10px 4px 10px 4px; transform:rotate(-1.2deg); margin-bottom:8px;
+}
+.pp-sec p{font-size:16px; line-height:1.85}
+.pp-sec.metaphor p{font-size:16.5px; border-left:4px solid var(--seal); padding-left:12px; color:var(--ink)}
+.chips{display:flex; flex-wrap:wrap; gap:8px; padding-top:2px}
+.chip{
+  font-size:14.5px; padding:3px 13px; background:var(--panel-2);
+  border:1.8px solid var(--ink-2); border-radius:12px 4px 12px 4px;
+}
+.chips .chip:nth-child(odd){transform:rotate(-1.1deg)}
+.chips .chip:nth-child(even){transform:rotate(1.1deg)}
+button.chip{cursor:pointer}
+button.chip:hover{border-color:var(--seal); color:var(--seal)}
+.bridge{
+  display:flex; flex-direction:column; align-items:flex-start; gap:1px; width:100%;
+  text-align:left; background:var(--panel-2); border:2px solid var(--line);
+  border-radius:4px 12px 6px 12px; padding:8px 12px; margin-bottom:8px;
+}
+.bridge:hover{border-color:var(--seal); transform:translateX(3px)}
+.bridge span{font-size:16px; font-weight:700}
+.bridge span::after{content:" ↗"; color:var(--seal)}
+.bridge em{font-style:normal; font-size:12.5px; color:var(--ink-2)}
+.pp-neigh{font-size:13px; color:var(--ink-3); padding:2px 0 4px}
+.pp-foot{display:flex; align-items:center; gap:12px; padding-top:12px; margin-top:6px; border-top:2px dashed var(--line)}
+.pp-back{height:32px; padding:0 12px; background:none; border:2px solid var(--line); border-radius:8px 3px 8px 3px; font-size:13px}
+.pp-back:hover{border-color:var(--seal); color:var(--seal)}
+.pp-foot-note{margin-left:auto; font-size:12px; color:var(--ink-3)}
+/* ============ 时间线 ============ */
+#timelineView{
+  position:absolute; inset:0; overflow-y:auto; z-index:10; display:none;
+  padding:34px 18px 60px; background:transparent;
+}
+body.view-timeline #timelineView{display:block}
+body.view-timeline #viewport, body.view-timeline #legend, body.view-timeline #credits, body.view-timeline #hint{display:none}
+#tlInner{max-width:860px; margin:0 auto; border-left:3px dashed var(--line); padding-left:30px}
+#tlTitle{font-size:26px; font-weight:700; letter-spacing:3px; margin:0 0 4px}
+#tlSub{color:var(--ink-3); font-size:13.5px; margin-bottom:26px}
+.tl-era{position:relative; margin-bottom:40px}
+.tl-era::before{
+  content:""; position:absolute; left:-41px; top:8px; width:16px; height:16px;
+  background:var(--seal); border:2.5px solid var(--ink); border-radius:50% 42% 55% 45%;
+}
+.tl-period{font-size:21px; font-weight:700; letter-spacing:1px; margin-bottom:2px}
+.tl-era-name{font-size:13px; color:var(--ink-3); letter-spacing:2px; margin-bottom:12px}
+.tl-item{display:flex; gap:12px; padding:7px 0; border-bottom:1px dashed var(--line)}
+.tl-item:last-child{border-bottom:none}
+.tl-year{
+  flex:none; min-width:86px; text-align:right; padding-top:2px;
+  font-family:Georgia,"Times New Roman",serif; font-style:italic; font-weight:700;
+  color:var(--seal); font-size:14.5px; letter-spacing:0;
+}
+.tl-text{font-size:15.5px; line-height:1.75}
+.tl-tags{display:flex; flex-wrap:wrap; gap:6px; padding-top:6px}
+.chip.sm{font-size:12.5px; padding:1px 10px; border-width:1.5px}
+/* ============ 响应式 ============ */
+@media (max-width:920px){
+  :root{--tbh:104px}
+  #topbar{flex-wrap:wrap; padding:6px 10px; gap:6px}
+  #brand .b-main{font-size:20px}
+  #brand .b-sub{display:none}
+  .searchbox{order:10; flex:1 1 100%; max-width:none; margin:0}
+  #topTools{margin-left:auto}
+  .tbtn{height:34px; padding:0 9px; font-size:13px}
+  .tbtn.icon{width:34px}
+  #province{
+    top:auto; left:8px; right:8px; bottom:8px; width:auto; max-height:62vh;
+    border-radius:16px 8px 18px 10px; transform:translateY(24px);
+  }
+  #province.open{transform:none}
+  #popup{top:auto; bottom:0; left:0; right:0; width:auto; max-height:78vh;
+    transform:none; border-radius:18px 18px 0 0; padding:18px 18px 14px;}
+  @keyframes pp-in{from{opacity:0; transform:translateY(30px)} to{opacity:1; transform:none}}
+  #legend{display:none}
+  #credits{display:none}
+  #hint{top:8px; font-size:13px; padding:8px 12px}
+}
+@media print{
+  #topbar,#legend,#credits,#hint,#province,#popupWrap{display:none!important}
+}
+</style>
+</head>
+<body>
+
+<!-- ================= 顶栏 ================= -->
+<header id="topbar">
+  <button id="brand" aria-label="回到全景">
+    <span class="b-main">数学大陆</span>
+    <span class="b-sub">现代数学知识全景图</span>
+  </button>
+  <div class="searchbox">
+    <span class="s-ico">🔍</span>
+    <input id="search" type="text" placeholder="搜领域或概念，比如「黎曼」「群论」……" autocomplete="off" aria-label="搜索领域">
+    <div id="searchDrop"></div>
+  </div>
+  <div id="topTools">
+    <button class="tbtn" id="btnLinks" aria-pressed="false" title="显示著名跨域联系">跨域航路</button>
+    <div class="seg">
+      <button class="tbtn" id="btnMap" aria-pressed="true">地图</button>
+      <button class="tbtn" id="btnTimeline" aria-pressed="false">时间线</button>
+    </div>
+    <button class="tbtn icon" id="btnTheme" title="切换白天 / 夜晚">☾</button>
+    <button class="tbtn icon" id="btnZoomIn" title="放大">＋</button>
+    <button class="tbtn icon" id="btnZoomOut" title="缩小">－</button>
+    <button class="tbtn icon" id="btnReset" title="复位视野">⟲</button>
+  </div>
+</header>
+
+<!-- ================= 舞台 ================= -->
+<main id="stage">
+
+  <div id="viewport">
+    <div id="world">
+      <svg id="mapSvg" width="2650" height="1850" viewBox="0 0 2650 1850" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <filter id="wobble" x="-25%" y="-25%" width="150%" height="150%">
+            <feTurbulence type="fractalNoise" baseFrequency="0.013" numOctaves="4" seed="7" result="n"/>
+            <feDisplacementMap in="SourceGraphic" in2="n" scale="9"/>
+          </filter>
+        </defs>
+        <g id="linksLayer"></g>
+        <g id="regionsLayer"></g>
+        <g id="decoLayer">
+          <!-- 罗盘 -->
+          <g transform="translate(1520,1755) rotate(-4)" opacity="0.55">
+            <circle r="62" fill="none" stroke="var(--ink-2)" stroke-width="2.4"/>
+            <circle r="48" fill="none" stroke="var(--ink-2)" stroke-width="1" stroke-dasharray="5 6"/>
+            <path d="M0,-60 L11,-11 L60,0 L11,11 L0,60 L-11,11 L-60,0 L-11,-11 Z" fill="none" stroke="var(--ink-2)" stroke-width="2"/>
+            <text y="-72" text-anchor="middle" font-size="20" fill="var(--ink-2)" style="font-family:'Kaiti SC','KaiTi','楷体',serif">北</text>
+          </g>
+          <text x="60" y="1810" font-size="19" fill="var(--ink-3)" style="font-family:'Kaiti SC','KaiTi','楷体',serif" opacity="0.8">图纸有边，数学无涯 —— 本图为示意地貌，非学术分类标准</text>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <section id="timelineView" aria-label="数学史时间线">
+    <div id="tlInner">
+      <h2 id="tlTitle">数学史长河</h2>
+      <div id="tlSub">从结绳记事到朗兰兹纲领——学科是怎么一个个长出来的。点标签可跳回地图里的领域。</div>
+      <div id="tlList"></div>
+    </div>
+  </section>
+
+  <div id="legend">
+    <b>怎么逛：</b>拖拽平移 · 滚轮 / 双指缩放 · 点大陆看领域 · 点领域翻开名片
+    <span id="legendLinks" class="hidden"> · 虚线＝跨域航路，悬停看故事</span>
+  </div>
+  <div id="credits">分类骨架参考 MSC2020 · 手绘示意图 · 生成于 2026-10-06</div>
+
+  <div id="hint" class="hidden">
+    <span>🧭 <b>先点一块大陆</b>看看它的领域，<b>再点领域</b>翻开一张名片；试试右上角的「跨域航路」和「时间线」。</span>
+    <button id="hintOk">知道了</button>
+  </div>
+</main>
+
+<!-- ================= 板块侧栏 ================= -->
+<aside id="province" aria-label="板块详情">
+  <div class="p-head">
+    <span class="p-seal"></span>
+    <div class="p-name"></div>
+    <button class="p-close" aria-label="关闭">✕</button>
+  </div>
+  <p class="p-intro"></p>
+  <div class="p-count"></div>
+  <div class="p-list"></div>
+</aside>
+
+<!-- ================= 领域名片 ================= -->
+<div id="popupWrap" role="dialog" aria-modal="true">
+  <div class="pp-backdrop"></div>
+  <article id="popup"></article>
+</div>
+
+<div id="tip"></div>
+
+<!-- ================= 数据（可直接改这里） ================= -->
+<script type="application/json" id="map-data">
+{
+  "canvas": {"w": 2650, "h": 1850},
+  "blocks": [
+    {"id":"foundations","name":"基础与逻辑","color":"#8B8578","cx":400,"cy":400,"w":430,"h":280,"seed":11,
+     "intro":"数学的地基与宪法：逻辑管推理，集合论管对象，范畴论管结构。",
+     "fields":[
+       {"id":"set-theory","name":"集合论","one":"无穷的算术：比较无穷集合的大小，探索基数与序数的层级。","metaphor":"无穷也分大小：有的无穷，比别的无穷「更无穷」。","concepts":["康托尔","连续统假设","力迫法"]},
+       {"id":"model-theory","name":"模型论","one":"把数学结构当作逻辑语言的「模型」，研究理论与模型如何相互映照。","metaphor":"先定一套语言规则，再看哪些世界里它成立。","concepts":["紧致性定理","超积","完备理论"]},
+       {"id":"computability","name":"可计算性理论","one":"算法的能力极限：哪些问题原则上无法用程序解决。","metaphor":"有些题不是难，而是根本「算不了」——图灵给机器划了红线。","concepts":["图灵机","停机问题","不可判定性"]},
+       {"id":"proof-theory","name":"证明论与构造性数学","one":"把「证明」本身当数学对象解剖，衡量公理系统能证明什么。","metaphor":"不只看证明对不对，还把证明放上手术台仔细研究。","concepts":["哥德尔不完备定理","切消定理","序数分析"]},
+       {"id":"modal-logic","name":"一般逻辑与模态逻辑","one":"从命题演算到直觉主义逻辑，刻画「必然」「可证」等概念。","metaphor":"给「可能」「必然」这类词颁发数学身份证。","concepts":["布尔运算","克里普克语义","直觉主义逻辑"]},
+       {"id":"algebraic-logic","name":"代数逻辑","one":"用布尔代数等代数结构给逻辑系统建模，逻辑与代数的双向通道。","metaphor":"换一副代数眼镜，逻辑规则看得更清楚。","concepts":["布尔代数","对偶理论","林登鲍姆构造"]},
+       {"id":"nonstandard-analysis","name":"非标准分析","one":"用超实数让「无穷小」合法回归微积分。","metaphor":"给三百年前被赶走的「无穷小」平反，请它光荣返场。","concepts":["超实数","转移原理","鲁宾逊"]},
+       {"id":"phil-foundations","name":"数学哲学与基础","one":"数学对象是否真实存在？柏拉图主义、形式主义与构造主义之争。","metaphor":"数学是发现还是发明？这场辩论持续了两千多年。","concepts":["希尔伯特纲领","ZFC 公理系统","结构主义"]},
+       {"id":"math-history","name":"数学史与传记","one":"概念的历史演化与数学家群像，数学的人性一面。","metaphor":"看课本之外的故事：数学家也会偏执、争吵与浪漫。","concepts":["希尔伯特问题","《九章算术》","诺特"]}
+     ]},
+    {"id":"algebra","name":"代数","color":"#B3543F","cx":960,"cy":420,"w":460,"h":300,"seed":23,
+     "intro":"研究运算与结构的省份：把「加法乘法」抽象成群、环、域、模。",
+     "fields":[
+       {"id":"groups","name":"群论","one":"研究对称性的数学语言：对象在变换下保持不变的那些性质。","metaphor":"就像玩魔方——不管你怎么拧，背后那套「拧的规则」始终岿然不动。","concepts":["群作用","拉格朗日定理","有限单群分类"]},
+       {"id":"representation","name":"表示论","one":"把抽象代数「实现」为具体矩阵，用线性代数破解群与李代数。","metaphor":"给抽象的群拍一张「矩阵照片」，难题常常一眼看穿。","concepts":["不可约表示","特征标","舒尔引理"]},
+       {"id":"rings","name":"环与结合代数","one":"可加可乘的代数世界：整数、多项式、矩阵的共同抽象。","metaphor":"整数是原型，环论研究各种各样「像整数一样」的系统。","concepts":["理想","诺特环","模与张量积"]},
+       {"id":"fields","name":"域论与多项式","one":"解方程背后的结构：域扩张解释了「五次方程无根式解」。","metaphor":"方程的脾气藏在「域」里：扩张到哪里，根才能解到哪里。","concepts":["伽罗瓦理论","域扩张","有限域"]},
+       {"id":"linear","name":"线性与多重线性代数","one":"向量空间与矩阵的几何，几乎所有数学与应用学科的底层工具。","metaphor":"数学世界的「普通话」：谁都得说上两句。","concepts":["特征值与谱","矩阵与行列式","张量"]},
+       {"id":"lie-alg","name":"非结合代数与李代数","one":"乘法不满足结合律的代数；李代数是连续对称性的核心。","metaphor":"换个乘法规则，也能长出一门漂亮理论。","concepts":["李括号","Kac–Moody 代数","若尔当代数"]},
+       {"id":"category","name":"范畴论与同调代数","one":"用「对象＋箭头」统一描述数学结构，当代数学的通用语法。","metaphor":"不看「是什么」，只看「怎么连」——数学的结构语法学。","concepts":["函子与自然变换","导出范畴","高阶范畴"]},
+       {"id":"k-theory","name":"K 理论","one":"通过模与向量丛的「稳定分类」提取不变量。","metaphor":"把几何对象粗粗归类——粗粒度的世界里反而藏着深刻不变量。","concepts":["格罗滕迪克群","拓扑 K 理论","算子 K 理论"]},
+       {"id":"lie-groups","name":"李群与拓扑群","one":"既是群又是流形：连续对称性的代数与几何两面。","metaphor":"能「平滑转动」的对称群——连续旋转的数学肖像。","concepts":["李代数","根系统","紧李群"]},
+       {"id":"semigroups","name":"半群、群胚与推广","one":"放宽群的公理得到的各种「乘法宇宙」。","metaphor":"不是所有操作都能反悔——不能撤销的去处，也有大用场。","concepts":["半群","群胚","拟群"]},
+       {"id":"order-lattices","name":"序与格","one":"「序关系」的代数，与一切代数系统的共同定律。","metaphor":"给「谁大谁小」立规矩，顺便整理代数家族的族谱。","concepts":["格与布尔代数","序结构","通用代数簇"]}
+     ]},
+    {"id":"number-theory","name":"数论","color":"#C49A3C","cx":390,"cy":860,"w":410,"h":280,"seed":31,
+     "intro":"整数与素数的国度，最古老也最令人着迷的问题聚集地。",
+     "fields":[
+       {"id":"elementary","name":"初等数论","one":"只用整数与整除的语言研究素数、同余与不定方程。","metaphor":"用一把最朴素的钥匙，去开最古老的那把锁。","concepts":["同余与剩余","费马小定理","二次互反律"]},
+       {"id":"analytic","name":"解析数论","one":"用分析（极限、积分、复函数）的工具研究整数的分布规律。","metaphor":"拿显微镜看素数：放大到无穷，规律才慢慢显形。","concepts":["黎曼ζ函数","素数定理","圆法"]},
+       {"id":"algebraic","name":"代数数论","one":"把整数推广到代数数域，在更大的世界里谈整除与素数。","metaphor":"整数不够用了？那就造一批「新整数」接着数。","concepts":["理想类群","类域论","p 进数"]},
+       {"id":"arithmetic-geom","name":"算术几何","one":"用几何方法研究丢番图方程，数论与代数几何的联姻。","metaphor":"整数方程穿上几何外衣，难题忽然有了「形状」。","concepts":["椭圆曲线","费马大定理","莫德尔定理"]},
+       {"id":"modular-forms","name":"模形式与自守形式","one":"拥有惊人对称性的解析函数，通往朗兰兹纲领的大门。","metaphor":"在变换下跳芭蕾的函数——跳出数论最深的秘密。","concepts":["模形式","赫克算子","朗兰兹对应"]},
+       {"id":"diophantine","name":"丢番图方程与逼近","one":"整数方程的解，与「用有理数逼近实数」的精细理论。","metaphor":"追问：这个数离那个有理数，到底有多近？","concepts":["佩尔方程","罗斯定理","超越数"]},
+       {"id":"additive","name":"加性数论与分拆","one":"把整数拆解成数论对象的和：哥德巴赫、华林与分拆。","metaphor":"把整数当积木，拆开又拼上，看能拼出多少花样。","concepts":["哥德巴赫猜想","华林问题","整数分拆"]},
+       {"id":"quadratic-forms","name":"二次型与数的几何","one":"二次型的算术与格点几何的交汇。","metaphor":"在格点上数数：既要代数功底，也要几何眼力。","concepts":["二次型","闵可夫斯基定理","格点"]},
+       {"id":"finite-fields","name":"有限域与特征和","one":"有限世界里的代数与指数和估计。","metaphor":"有限的沙盘里演大戏——韦伊猜想的起点。","concepts":["有限域","韦伊猜想","特征和"]},
+       {"id":"computational-nt","name":"计算数论","one":"因子分解、素性检验等算法：现代密码学的算术地基。","metaphor":"让计算机替你数素数，顺便撑起银行加密的屋顶。","concepts":["RSA 加密","素性测试","椭圆曲线密码"]},
+       {"id":"prob-nt","name":"概率与度量数论","one":"用概率与测度语言描述整数与素因子的「典型行为」。","metaphor":"不追单个数字，只关心一整批数字的「平均态」。","concepts":["埃尔德什–卡茨定理","连分数统计","正规数"]},
+       {"id":"nt-logic","name":"数论与逻辑","one":"数论与可计算性、模型论的相互渗透。","metaphor":"两个看似遥远的分支，互相递梯子。","concepts":["希尔伯特第十问题","丢番图可判定性","模型论方法"]}
+     ]},
+    {"id":"algebraic-geometry","name":"代数几何","color":"#8E5C96","cx":970,"cy":1000,"w":440,"h":290,"seed":41,
+     "intro":"用几何的眼光看方程的解，现代数学的中心地带之一。",
+     "fields":[
+       {"id":"schemes","name":"概形与代数族","one":"多项式方程组的解集几何；概形把「空间」与交换环融为一体。","metaphor":"每个环，都是某张空间地图的暗号。","concepts":["希尔伯特零点定理","概形","格罗滕迪克"]},
+       {"id":"sheaves","name":"层与上同调","one":"把局部信息粘成整体结构的工具，代数几何的神经系统。","metaphor":"一砖一瓦拼出全局图景；拼法不对，就换一种「上同调」。","concepts":["层","导出函子","上同调理论"]},
+       {"id":"birational","name":"双有理几何","one":"研究代数簇在「几乎同构」意义下的分类与改造。","metaphor":"允许「揉捏」的空间分类学。","concepts":["极小模型纲领","奇点消解","莫里理论"]},
+       {"id":"curves","name":"曲线与曲面","one":"低维代数簇的精细分类；黎曼面就是复代数曲线。","metaphor":"一维与二维的果园，收成最甜。","concepts":["黎曼–罗赫定理","椭圆曲线","K3 曲面"]},
+       {"id":"abelian","name":"阿贝尔簇与模空间","one":"高维「甜甜圈」代数群与它们的参数空间。","metaphor":"给每一类几何对象发「身份证」的地方。","concepts":["阿贝尔簇","模曲线","BSD 猜想"]},
+       {"id":"alg-groups","name":"代数群","one":"代数方程定义的对称群，连通代数与表示论。","metaphor":"用公式定义的旋转与翻折。","concepts":["约化群","根数据","旗簇"]},
+       {"id":"enumerative","name":"射影与枚举几何","one":"数一数几何构型有多少：从相交理论到现代计数几何。","metaphor":"几何世界的「人口普查」：有多少条线、多少个圆。","concepts":["贝祖定理","格罗莫夫–威滕不变量","计数几何"]},
+       {"id":"real-ag","name":"实代数几何","one":"实解集的拓扑与多项式正性理论。","metaphor":"只看实数解：形状比代数更「凶险」，也更直观。","concepts":["希尔伯特第十七问题","半代数集","平方和"]},
+       {"id":"tropical","name":"热带几何","one":"把加法变取最值的「退化几何」，连接组合与代数几何。","metaphor":"盛夏的数学：曲线被「热」得只剩一副折线骨架。","concepts":["热带曲线","扇与多面体","镜像对称"]},
+       {"id":"computational-ag","name":"计算代数几何","one":"Gröbner 基等算法让代数几何可以「编程」。","metaphor":"给方程装上发动机，让电脑替你做消元。","concepts":["Gröbner 基","结式","多项式系统求解"]},
+       {"id":"commutative-alg","name":"交换代数","one":"理想、局部化与同调方法，为几何与数论提供引擎。","metaphor":"代数几何的锅炉房：看不见，但动力全部来自这里。","concepts":["诺特环","局部化","Krull 维数"]}
+     ]},
+    {"id":"geometry","name":"几何","color":"#38948C","cx":1420,"cy":640,"w":450,"h":300,"seed":53,
+     "intro":"研究形状、距离与曲率的学问，从平面直线到弯曲的宇宙。",
+     "fields":[
+       {"id":"classical-diffgeom","name":"经典微分几何","one":"三维空间中的曲线与曲面：曲率、挠率与活动标架。","metaphor":"给曲线测「弯度」，给曲面量「隆起」。","concepts":["高斯曲率","极小曲面","活动标架"]},
+       {"id":"riemannian","name":"黎曼几何","one":"有「长度与角度」的弯曲空间，广义相对论的舞台。","metaphor":"在卷曲的纸上做勾股定理。","concepts":["黎曼度量","测地线","曲率张量"]},
+       {"id":"symplectic","name":"辛几何与接触几何","one":"经典力学的几何骨架：保持面积与体积的几何。","metaphor":"行星怎么走，由这套几何说了算。","concepts":["辛流形","哈密顿流","拉格朗日子流形"]},
+       {"id":"geometric-analysis","name":"几何分析与几何流","one":"用微分方程研究几何；里奇流让几何「随时间演化」。","metaphor":"让形状自己「流动」，流着流着就把难题熨平了。","concepts":["里奇流","极小曲面","山边问题"]},
+       {"id":"convex","name":"凸几何","one":"凸体的大小、形状与体积不等式。","metaphor":"没有凹坑的世界：越简单，越深刻。","concepts":["布伦–闵可夫斯基不等式","等周不等式","闵可夫斯基和"]},
+       {"id":"polytopes","name":"多面体与离散几何","one":"多面体、铺砌与点集构型的组合几何。","metaphor":"魔方、瓷砖与蜂巢的数学。","concepts":["欧拉公式","沃罗诺伊图","德恩–佐默维尔关系"]},
+       {"id":"finite-geom","name":"有限几何与关联结构","one":"有限点、线、面上的「平面几何」，与编码和设计相连。","metaphor":"一副只有七个点的「扑克牌」，也能玩出射影平面。","concepts":["射影平面","斯坦纳系统","有限域"]},
+       {"id":"non-euclidean","name":"公理几何与非欧几何","one":"打破第五公设的双曲革命与几何的公理化重建。","metaphor":"平行线也会分道扬镳的世界。","concepts":["双曲几何","希尔伯特公理","罗巴切夫斯基"]},
+       {"id":"metric-geom","name":"度量与距离几何","one":"只保留「距离」的抽象几何，现代几何分析的入口。","metaphor":"抛开形状，只留一把尺子，也能辨认空间的骨架。","concepts":["格罗莫夫–豪斯多夫距离","CAT(0) 空间","度量嵌入"]},
+       {"id":"geo-group","name":"几何群论","one":"把无限群画成几何图形来研究（与群论交叉）。","metaphor":"给群画像：群的代数难题，用几何直觉攻破。","concepts":["双曲群","凯莱图","拟等距"]}
+     ]},
+    {"id":"topology","name":"拓扑","color":"#5A6ABF","cx":1850,"cy":960,"w":430,"h":280,"seed":61,
+     "intro":"「橡皮泥几何」：只看连续与连通，不看长度和角度。",
+     "fields":[
+       {"id":"general-top","name":"一般拓扑","one":"连续性的最一般框架：开集、紧致、连通与分离性。","metaphor":"橡皮泥几何的语法书。","concepts":["紧致性","连通性","分离公理"]},
+       {"id":"algebraic-top","name":"代数拓扑","one":"用代数不变量给空间「拍 X 光」：同伦、同调与上同调。","metaphor":"数洞：一个洞、两个洞、扭着花的洞。","concepts":["基本群","同调群","上同调环"]},
+       {"id":"homotopy","name":"同伦论","one":"研究连续变形本身的代数结构。","metaphor":"「变形记」的代数版：变形之间还能再变形。","concepts":["同伦群","谱","稳定同伦论"]},
+       {"id":"manifold-top","name":"流形拓扑","one":"局部像欧氏空间的几何世界及其分类。","metaphor":"每一小块都像平地，整体却可能是个宇宙。","concepts":["手术理论","h 配边定理","庞加莱对偶"]},
+       {"id":"knot","name":"纽结理论与低维拓扑","one":"绳结的数学：不变量、辫群与三维流形。","metaphor":"给绳结编「指纹」：不剪断绳子，怎么分辨两个结？","concepts":["琼斯多项式","辫群","三维流形"]},
+       {"id":"diff-top","name":"微分拓扑","one":"光滑流形的拓扑：横截、配边与怪球面。","metaphor":"光滑世界的「怪客」：七维球面上竟有多种光滑结构。","concepts":["横截性","配边","米尔诺怪球"]},
+       {"id":"bundles","name":"纤维丛与示性类","one":"空间如何「扭曲地」叠在另一个空间之上。","metaphor":"莫比乌斯带教你：叠法不同，世界就不同。","concepts":["向量丛","施蒂费尔–惠特尼类","陈类"]},
+       {"id":"spectral-seq","name":"谱序列","one":"逐层逼近同调的强大「计算机器」。","metaphor":"一层层剥洋葱，剥到最后真相大白。","concepts":["谱序列","滤过","莱雷谱序列"]},
+       {"id":"top-engineering","name":"拓扑与科学工程","one":"拓扑方法在材料、机器人、数据中的应用。","metaphor":"绳结理论去帮机器人打结，拓扑去给数据「相面」。","concepts":["拓扑数据分析","材料缺陷","柔性机构"]},
+       {"id":"transformation-groups","name":"拓扑变换群","one":"群在空间上的作用：对称性如何塑造空间结构。","metaphor":"让对称性转起来，空间自己会显出形状。","concepts":["群作用","齐性空间","轨道空间"]}
+     ]},
+    {"id":"analysis","name":"分析","color":"#588C3C","cx":1530,"cy":260,"w":450,"h":280,"seed":71,
+     "intro":"研究极限、连续与无穷的省份，微积分是它的市中心。",
+     "fields":[
+       {"id":"real-analysis","name":"实分析","one":"实数世界的函数解剖：连续、可微与不等式。","metaphor":"把函数放上解剖台，看它哪里断了、哪里滑了。","concepts":["连续与可微","病态函数","不等式"]},
+       {"id":"measure","name":"测度与积分","one":"给「大小」严格定义，勒贝格积分统治现代分析。","metaphor":"重新发明「面积」：连碎成尘埃的集合也能称重。","concepts":["勒贝格测度","可测函数","收敛定理"]},
+       {"id":"complex-analysis","name":"复分析","one":"复平面上的解析函数：刚性、留数与黎曼面。","metaphor":"复数世界的函数格外守规矩——守规矩到令人惊叹。","concepts":["柯西积分公式","留数定理","黎曼映射定理"]},
+       {"id":"several-complex","name":"多复变与复几何","one":"高维复空间的刚性世界，复几何与代数几何的邻居。","metaphor":"一维复分析进了高维：规矩更多，戏也更多。","concepts":["全纯函数","解析空间","复流形"]},
+       {"id":"potential","name":"位势论","one":"拉普拉斯方程解的理论：引力、静电与调和函数。","metaphor":"万有引力与静电场的共同数学灵魂。","concepts":["调和函数","狄利克雷问题","牛顿势"]},
+       {"id":"functional","name":"泛函分析","one":"无穷维空间与算子，量子力学与偏微分方程的共同语言。","metaphor":"把「函数」本身当成点，无限维里也有几何。","concepts":["巴拿赫空间","希尔伯特空间","对偶理论"]},
+       {"id":"operator","name":"算子理论","one":"无穷维「矩阵」的谱、分类与代数。","metaphor":"无限大的矩阵也有「特征值」——量子力学全靠它。","concepts":["谱定理","自伴算子","算子代数"]},
+       {"id":"harmonic","name":"调和分析","one":"把函数分解成波：傅里叶分析的现代形态。","metaphor":"任何声音都能拆成纯音的组合——函数也一样。","concepts":["傅里叶变换","小波","极大算子"]},
+       {"id":"special-functions","name":"特殊函数","one":"物理与数论中反复出现的「明星函数」家族。","metaphor":"数学界的常驻嘉宾：哪儿都有它们的身影。","concepts":["超几何函数","正交多项式","贝塞尔函数"]},
+       {"id":"approximation","name":"逼近论","one":"用简单函数逼近复杂函数：数值分析的数学底座。","metaphor":"用几块积木搭出任意形状——误差还要说得清。","concepts":["最佳逼近","插值","样条"]},
+       {"id":"integral-eq","name":"积分方程与变换","one":"未知函数藏在积分号里，以及拉普拉斯变换等工具。","metaphor":"把微积分装进「变换机」，难题一按按钮就简化。","concepts":["弗雷德霍姆理论","伏尔泰拉方程","拉普拉斯变换"]},
+       {"id":"global-analysis","name":"大范围分析","one":"把微积分与方程搬到弯曲流形与无穷维空间上。","metaphor":"微积分坐上飞船，在弯曲空间里继续工作。","concepts":["椭圆算子","指标定理","莫尔斯理论"]},
+       {"id":"series","name":"序列与级数","one":"无穷和的收敛与「广义求和」的艺术。","metaphor":"1−1+1−1+… 到底等于几？规矩不同，答案不同。","concepts":["收敛判别法","阿贝尔求和","陶伯定理"]}
+     ]},
+    {"id":"dynamics","name":"微分方程与动力系统","color":"#CB7A2B","cx":1390,"cy":1250,"w":470,"h":290,"seed":83,
+     "intro":"描述「变化」的语言：从行星轨道到天气、心跳与混沌。",
+     "fields":[
+       {"id":"ode","name":"常微分方程","one":"单变量变化率的方程：解的存在唯一与定性行为。","metaphor":"给「变化」写日记：明天由今天决定。","concepts":["初值问题","斯图姆–刘维尔问题","极限环"]},
+       {"id":"pde","name":"偏微分方程","one":"场与连续介质的方程：椭圆、抛物、双曲三大类型。","metaphor":"热怎么传、波怎么走、势怎么稳——各有一类方程。","concepts":["弱解","索伯列夫空间","能量方法"]},
+       {"id":"mp-equations","name":"数学物理方程","one":"物理「明星」方程：薛定谔、KdV 与纳维–斯托克斯。","metaphor":"物理学家的官方语言课。","concepts":["薛定谔方程","KdV 方程","纳维–斯托克斯方程"]},
+       {"id":"dynamical-systems","name":"动力系统","one":"系统随时间演化的长期行为：轨道、吸引子与混沌。","metaphor":"蝴蝶扇一下翅膀，风暴就换了剧本。","concepts":["洛伦兹吸引子","蝴蝶效应","分岔"]},
+       {"id":"ergodic","name":"遍历理论","one":"确定性系统的统计规律：时间平均何时等于空间平均。","metaphor":"一个粒子跑很久，能替全体粒子做「民意调查」。","concepts":["伯克霍夫定理","混合性","熵"]},
+       {"id":"complex-dynamics","name":"复动力系统","one":"复平面迭代的华丽世界：曼德博与朱利亚集。","metaphor":"复数上迭代两次，就长出一片无穷花纹。","concepts":["朱利亚集","曼德博集","分形"]},
+       {"id":"hamiltonian","name":"哈密顿与可积系统","one":"能量守恒系统的几何力学与孤子。","metaphor":"能量守恒的世界里，方程优雅得像芭蕾。","concepts":["KAM 定理","孤子","完全可积"]},
+       {"id":"inf-dim-ds","name":"无穷维动力系统","one":"耗散偏微分方程的长期行为：吸引子与惯性流形。","metaphor":"无穷维的「天气」，最终也会收敛到有限的「气候」。","concepts":["全局吸引子","惯性流形","耗散系统"]},
+       {"id":"random-ds","name":"随机动力系统","one":"受随机扰动影响的演化系统。","metaphor":"在方程里撒一把骰子，看系统怎么跳舞。","concepts":["随机吸引子","噪声","随机稳定性"]},
+       {"id":"difference-eq","name":"差分与函数方程","one":"离散时间演化与函数满足的关系式。","metaphor":"时间的齿轮一格一格走，数列的规律就是它的轨道。","concepts":["递推","迭代","函数方程"]}
+     ]},
+    {"id":"probability","name":"概率论","color":"#B55F73","cx":540,"cy":1240,"w":420,"h":280,"seed":91,
+     "intro":"给随机与不确定性建立严格法律的王国。",
+     "fields":[
+       {"id":"prob-foundations","name":"概率论基础","one":"用公理把「随机」严格化：概率空间、独立性、条件化。","metaphor":"给「运气」立法：掷骰子从此有法可依。","concepts":["科尔莫戈洛夫公理","条件概率","独立性"]},
+       {"id":"limit-theorems","name":"极限定理","one":"大量随机因素叠加后必然出现的规律。","metaphor":"一个人掷骰子看运气，一亿个人掷骰子看规律。","concepts":["大数定律","中心极限定理","大偏差"]},
+       {"id":"stochastic-process","name":"随机过程","one":"随时间演化的随机现象：随机游走、布朗运动、鞅。","metaphor":"醉汉的回家路：每一步随机，整体却有规律。","concepts":["布朗运动","鞅","平稳过程"]},
+       {"id":"stochastic-analysis","name":"随机分析","one":"随机世界里的微积分：伊藤公式与随机微分方程。","metaphor":"给随机游走发明「导数」——于是金融有了定价公式。","concepts":["伊藤积分","随机微分方程","费曼–卡茨公式"]},
+       {"id":"markov","name":"马尔可夫过程","one":"「无记忆」的随机演化：从排队到分子运动。","metaphor":"不记仇的过程：下一步只看现在，不看过去。","concepts":["马尔可夫链","泊松过程","扩散过程"]},
+       {"id":"distributions","name":"分布论与概率不等式","one":"概率分布家族与集中现象的一般理论。","metaphor":"给各种「随机形状」编制图鉴。","concepts":["正态分布","特征函数","集中不等式"]},
+       {"id":"geom-prob","name":"几何概率与随机几何","one":"随机点、随机线、随机图形的几何。","metaphor":"往地板上随便扔针，竟能算出圆周率。","concepts":["蒲丰投针","随机镶嵌","随机几何"]}
+     ]},
+    {"id":"discrete","name":"离散数学与组合","color":"#8D6B52","cx":1010,"cy":1550,"w":440,"h":270,"seed":97,
+     "intro":"数数与连线的艺术：图、组合与离散结构的乐园。",
+     "fields":[
+       {"id":"enumerative","name":"计数组合","one":"数数的高级艺术：生成函数与组合恒等式。","metaphor":"数羊是幼稚园，数结构才是艺术。","concepts":["生成函数","卡特兰数","整数分拆"]},
+       {"id":"graph-theory","name":"图论","one":"点与线的科学：连通、着色、平面性与网络。","metaphor":"朋友圈的数学：谁认识谁，六度分隔是真的。","concepts":["四色定理","匹配","谱图论"]},
+       {"id":"extremal","name":"极值组合","one":"在约束之下，结构最多或最少能有多少。","metaphor":"同样一堆积木，怎么摆放能装下最多东西。","concepts":["图兰定理","容器方法","塞迈雷迪正则引理"]},
+       {"id":"ramsey","name":"拉姆齐理论","one":"「完全的无序不可能」：大结构中必然出现的秩序。","metaphor":"人足够多，必有三个互相认识或互相不认识。","concepts":["拉姆齐定理","范德瓦尔登定理","拉姆齐数"]},
+       {"id":"designs","name":"组合设计","one":"平衡安排的精巧构造，实验设计与编码的基石。","metaphor":"办运动会排赛程：公平与效率的数学。","concepts":["区组设计","拉丁方","有限射影平面"]},
+       {"id":"alg-comb","name":"代数组合","one":"代数与组合的双向通道。","metaphor":"两种语言互相翻译，两边都恍然大悟。","concepts":["对称函数","杨表","组合霍普夫代数"]},
+       {"id":"probabilistic-method","name":"随机方法与随机图","one":"用随机性证明存在性，随机结构的相变现象。","metaphor":"随机撒一张大网，证明「好东西」一定存在。","concepts":["埃尔德什","随机图","局部引理"]},
+       {"id":"matroid","name":"拟阵","one":"抽象「独立结构」，连接组合、代数与几何。","metaphor":"把「独立」「张成」从向量里提炼出来，通用天下。","concepts":["拟阵","贪心算法","特征多项式"]},
+       {"id":"inf-comb","name":"无穷组合","one":"无穷集合上的组合与拉姆齐现象。","metaphor":"无穷人参加派对，秩序的保证更加玄妙。","concepts":["无穷拉姆齐定理","基数不变量","力迫法"]},
+       {"id":"additive-comb","name":"加性组合","one":"集合的和集与差集：数论与组合的混血。","metaphor":"A 加 A 能有多大？这个问题深不见底。","concepts":["和集","弗雷曼定理","高尔尔斯范数"]}
+     ]},
+    {"id":"statistics","name":"统计学","color":"#85883F","cx":560,"cy":1580,"w":420,"h":270,"seed":103,
+     "intro":"从数据里提炼真相的手艺：估计、检验与预测。",
+     "fields":[
+       {"id":"inference","name":"参数推断","one":"从数据反推未知规律：估计与检验的严谨框架。","metaphor":"拿一勺汤，判断整锅的味道。","concepts":["极大似然","置信区间","假设检验"]},
+       {"id":"nonparam","name":"非参数统计","one":"不做分布假设的稳健统计方法。","metaphor":"不知道锅的形状，也能估计汤咸不咸。","concepts":["核密度估计","秩检验","自助法"]},
+       {"id":"regression","name":"回归与多元分析","one":"变量关系建模与高维数据的几何。","metaphor":"在数据云里找方向：哪条线最能解释变化？","concepts":["最小二乘","主成分分析","聚类"]},
+       {"id":"bayes","name":"贝叶斯统计","one":"用先验与数据不断更新「信念」的统计范式。","metaphor":"先带着成见，再让数据慢慢说服你。","concepts":["先验与后验","马尔可夫链蒙特卡洛","共轭先验"]},
+       {"id":"design","name":"试验设计与抽样","one":"如何「聪明地」收集数据：随机化实验与抽样调查。","metaphor":"问对问题之前，先设计好怎么问。","concepts":["随机化","方差分析","抽样理论"]},
+       {"id":"time-series","name":"时间序列与生存分析","one":"相关数据与「事件发生时间」的建模。","metaphor":"预测明天之前，先读懂昨天的脾气。","concepts":["ARIMA 模型","谱分析","生存函数"]},
+       {"id":"hd-top-stat","name":"高维与拓扑统计","one":"面向现代数据的几何与拓扑统计（新兴方向）。","metaphor":"数据太多、太弯？就用「形状」去理解它们。","concepts":["拓扑数据分析","函数型数据","稀疏方法"]}
+     ]},
+    {"id":"computing","name":"计算与信息","color":"#4479A5","cx":2340,"cy":820,"w":440,"h":290,"seed":109,
+     "intro":"数学与机器交汇的海岸：算法、复杂性、信息与密码。",
+     "fields":[
+       {"id":"numerical","name":"数值分析","one":"让数学「能算」：误差、稳定性与收敛速度。","metaphor":"精确解不存在时，「够用」就是胜利——但要量化「够用」。","concepts":["浮点误差","迭代法","稳定性"]},
+       {"id":"numerical-linear","name":"数值线性代数","one":"大规模矩阵计算的算法工程。","metaphor":"让电脑驯服百万阶的矩阵怪兽。","concepts":["LU/QR 分解","特征值算法","稀疏矩阵"]},
+       {"id":"numerical-pde","name":"微分方程数值解","one":"让计算机解方程：有限差分、有限元与谱方法。","metaphor":"把连续的世界切成小片，一片一片算。","concepts":["有限元","龙格–库塔","守恒格式"]},
+       {"id":"numerical-opt","name":"优化的数值方法","one":"求最优解的算法家族。","metaphor":"蒙眼下山：每一步都往最陡的方向滑一点。","concepts":["内点法","梯度下降","信赖域"]},
+       {"id":"probabilistic-num","name":"概率数值方法","one":"蒙特卡洛与随机模拟。","metaphor":"算不动就撒骰子——用随机逼近确定。","concepts":["蒙特卡洛方法","拟蒙特卡洛","随机模拟"]},
+       {"id":"complexity","name":"计算复杂性","one":"问题「有多难」的数学：P 与 NP 的疆界。","metaphor":"有些题，答案好验，但找到答案比登天还难。","concepts":["NP 完全性","归约","电路复杂性"]},
+       {"id":"algorithms","name":"算法与数据结构","one":"计算机科学的数学内核：算法设计与分析。","metaphor":"做菜的菜谱与刀工：好算法省下百万台电脑。","concepts":["近似算法","随机算法","图算法"]},
+       {"id":"data-theory","name":"数据理论","one":"数据的组织、检索与隐私。","metaphor":"信息世界的图书馆学：怎么存放、怎么查、怎么保密。","concepts":["索引结构","压缩","数据隐私"]},
+       {"id":"ai-theory","name":"人工智能与学习理论","one":"学习算法的数学基础。","metaphor":"机器怎么「学会」一件事？样本、误差与泛化。","concepts":["PAC 学习","神经网络","泛化理论"]},
+       {"id":"crypto","name":"密码学与编码","one":"用数学保护与修复信息。","metaphor":"秘密的锁，与破损消息的创可贴。","concepts":["RSA 加密","椭圆曲线密码","纠错码"]},
+       {"id":"information","name":"信息论","one":"信息的量化：熵、信道容量与压缩极限。","metaphor":"信息可以称重：一条消息值几「比特」？","concepts":["香农熵","信道编码","率失真"]},
+       {"id":"quantum-comp","name":"量子计算与量子信息","one":"用量子力学加速计算与通信（与数学物理交叉）。","metaphor":"0 和 1 之外还能叠加——另一种算力的世界。","concepts":["量子比特","秀尔算法","量子纠错"]},
+       {"id":"symbolic-math","name":"计算机代数与形式化","one":"让机器做公式推导与证明验证。","metaphor":"机器替你推公式，还替你检查证明有没有漏洞。","concepts":["Gröbner 基","证明助手","形式化数学"]}
+     ]},
+    {"id":"optimization","name":"优化与运筹","color":"#3F8C6B","cx":2250,"cy":1290,"w":430,"h":280,"seed":113,
+     "intro":"在约束中寻找最优：让资源、路线与决策更聪明。",
+     "fields":[
+       {"id":"math-programming","name":"数学规划","one":"在约束之下寻找最优解的系统理论。","metaphor":"预算有限、条件一堆，怎么活到最好。","concepts":["线性规划","凸优化","对偶理论"]},
+       {"id":"calculus-variations","name":"变分法与最优控制","one":"在无穷多可能中寻找「最优路径」。","metaphor":"从无数条路里，找出最省油的那条。","concepts":["欧拉–拉格朗日方程","庞特里亚金极大值原理","HJB 方程"]},
+       {"id":"operations-research","name":"运筹学","one":"用数学管理有限资源：排队、库存、调度、物流。","metaphor":"让外卖更快、库存更省——都是数学在值守。","concepts":["排队论","网络流","调度"]},
+       {"id":"game-theory","name":"博弈论","one":"多个理性决策者相互博弈的数学。","metaphor":"你猜我怎么想，我猜你怎么猜——纳什均衡是终点。","concepts":["纳什均衡","零和博弈","演化博弈"]},
+       {"id":"econ-math","name":"数理经济学","one":"市场、拍卖与激励机制的数学刻画。","metaphor":"给「看不见的手」画一张数学骨骼图。","concepts":["一般均衡","社会选择","拍卖理论"]},
+       {"id":"social-math","name":"社会与行为科学中的数学","one":"社会学、心理学等领域的数学模型。","metaphor":"人心难测，但群体的选择可以建模。","concepts":["社会网络","博弈实验","心理测量"]},
+       {"id":"finance","name":"金融数学与精算","one":"给风险与衍生品定价的数学。","metaphor":"把「未来的不确定」折算成今天的价格。","concepts":["布莱克–斯科尔斯","期权定价","风险管理"]},
+       {"id":"control","name":"控制理论","one":"让系统按我们的意愿运行：反馈、可控性与稳定性。","metaphor":"恒温器的智慧：测一测、比一比、调一调。","concepts":["反馈","李雅普诺夫稳定性","状态空间"]},
+       {"id":"stochastic-control","name":"随机系统与控制","one":"不确定性之下的控制与决策。","metaphor":"雾天开车：看不清，也要稳稳地走。","concepts":["卡尔曼滤波","随机控制","马尔可夫决策过程"]},
+       {"id":"combinatorial-opt","name":"组合优化","one":"离散结构上的最优解搜索。","metaphor":"给快递员规划路线：绕一圈最短怎么走？","concepts":["旅行商问题","匹配","近似算法"]}
+     ]},
+    {"id":"math-physics","name":"数学物理","color":"#7C6BB5","cx":2320,"cy":340,"w":440,"h":290,"seed":127,
+     "intro":"为物理定律提供数学骨架，也因物理催生出新数学。",
+     "fields":[
+       {"id":"quantum-foundations","name":"量子力学数学基础","one":"用希尔伯特空间与算子语言重写量子力学。","metaphor":"给量子世界的怪现象，盖一座严格的数学房子。","concepts":["薛定谔方程","谱理论","量子化"]},
+       {"id":"qft","name":"量子场论","one":"无穷自由度的量子系统；数学灵感的金矿。","metaphor":"物理学家先挖出金矿，数学家在旁边提炼黄金。","concepts":["路径积分","重整化","共形场论"]},
+       {"id":"quantum-info","name":"量子信息","one":"纠缠、量子通信与量子算法。","metaphor":"两个粒子心有灵犀——爱因斯坦称它「幽灵般的超距作用」。","concepts":["纠缠熵","贝尔不等式","量子纠错"]},
+       {"id":"scattering","name":"量子散射理论","one":"碰撞与散射的谱理论。","metaphor":"把粒子撞一撞，从碎片里读出相互作用。","concepts":["散射矩阵","共振","逆散射"]},
+       {"id":"integrable","name":"对称性与可积模型","one":"可解模型的代数结构。","metaphor":"稀有而珍贵的模型：能像积木一样精确搭出答案。","concepts":["量子群","杨–巴克斯特方程","贝特拟设"]},
+       {"id":"stat-mech","name":"平衡态统计力学","one":"大量粒子的集体行为与相变。","metaphor":"水结成冰：一个粒子守口如瓶，亿万个粒子才揭晓秘密。","concepts":["伊辛模型","配分函数","相变"]},
+       {"id":"noneq-stat","name":"非平衡统计力学","one":"时间演化、涨落与输运。","metaphor":"热量怎么跑、电流怎么流——离开平衡才见真章。","concepts":["主方程","涨落定理","输运理论"]},
+       {"id":"gr","name":"广义相对论与引力","one":"时空弯曲的几何理论与爱因斯坦方程。","metaphor":"质量告诉时空怎么弯，时空告诉质量怎么走。","concepts":["爱因斯坦方程","黑洞","奇点定理"]},
+       {"id":"quantum-gravity","name":"量子引力","one":"引力的量子化难题与统一理论。","metaphor":"两套最成功的理论碰头，却怎么也握不上手。","concepts":["圈量子引力","弦论","全息原理"]},
+       {"id":"cosmology","name":"相对论宇宙学","one":"宇宙的大尺度几何与演化。","metaphor":"用方程回放宇宙的成长录像。","concepts":["大爆炸","暗能量","FLRW 度规"]}
+     ]},
+    {"id":"applications","name":"应用与交叉","color":"#A5783F","cx":1920,"cy":1600,"w":460,"h":270,"seed":131,
+     "intro":"数学驶向他方海域：生物、金融、经济与社会科学。",
+     "fields":[
+       {"id":"classical-mechanics","name":"经典与分析力学","one":"质点与刚体运动：从牛顿到拉格朗日、哈密顿。","metaphor":"投石问路的老手艺，升级成了优美的数学体系。","concepts":["拉格朗日方程","哈密顿力学","三体问题"]},
+       {"id":"solid-mechanics","name":"固体力学与材料","one":"可变形固体的应力、变形与破坏。","metaphor":"桥为什么不断、冰为什么会裂，都由它解释。","concepts":["弹性力学","有限元","断裂力学"]},
+       {"id":"fluid","name":"流体力学","one":"液体与气体的运动方程：从层流到湍流。","metaphor":"从涓涓细流到滔天巨浪，同一套方程的不同脾气。","concepts":["纳维–斯托克斯方程","湍流","激波"]},
+       {"id":"optics","name":"光学与电磁理论","one":"麦克斯韦方程与光波的数学。","metaphor":"光、电、磁本是一家——麦克斯韦把它们缝在一起。","concepts":["麦克斯韦方程","散射","波导"]},
+       {"id":"thermo","name":"热力学与传热","one":"热现象的宏观数学描述。","metaphor":"热量往哪儿跑、跑多快，方程说了算。","concepts":["热传导方程","熵","相变"]},
+       {"id":"astro","name":"天体物理与天体力学","one":"天体运动与宇宙天体的数学。","metaphor":"行星会排队、彗星会返场，背后是摄动理论。","concepts":["开普勒问题","恒星结构","引力波"]},
+       {"id":"geophysics","name":"地球物理中的数学","one":"用反问题与波动方程「透视」地球。","metaphor":"给地球做 CT：地震波是探针。","concepts":["地震波","反演","位场理论"]},
+       {"id":"math-bio","name":"数学生物学","one":"用方程与概率刻画生命现象。","metaphor":"草原上的狼与羊，也能写成微分方程。","concepts":["种群动力学","反应扩散","生态模型"]},
+       {"id":"medical","name":"生理与医学中的数学","one":"生理建模与医学成像。","metaphor":"心跳、血流、肿瘤生长，都可以是方程的解。","concepts":["医学成像","药代动力学","肿瘤模型"]},
+       {"id":"genetics","name":"遗传与群体动力学","one":"进化的数学：遗传漂变与系统发生。","metaphor":"用统计与方程，重演几十亿年的进化剧本。","concepts":["群体遗传","系统发生树","溯祖理论"]},
+       {"id":"chemistry","name":"化学中的数学","one":"分子结构与化学过程的数学方法。","metaphor":"分子的形状、反应的快慢，都有数学的笔迹。","concepts":["量子化学","分子图论","反应动力学"]},
+       {"id":"math-education","name":"数学教育","one":"数学教与学的研究：人们如何理解数学。","metaphor":"研究「数学为什么难」，本身也是一门学问。","concepts":["数学教学","学习心理","教育技术"]}
+     ]}
+  ],
+  "links": [
+    {"a":"b:number-theory","b":"b:algebraic-geometry","text":"朗兰兹纲领：数论、表示论与代数几何的世纪联姻"},
+    {"a":"b:topology","b":"b:analysis","text":"阿蒂亚–辛格指标定理：用拓扑给分析方程「数解」"},
+    {"a":"b:number-theory","b":"b:analysis","text":"素数分布的秘密，藏在复分析的 ζ 函数里"},
+    {"a":"b:algebra","b":"b:geometry","text":"埃尔朗根纲领：几何就是研究变换群"},
+    {"a":"b:geometry","b":"b:topology","text":"里奇流与庞加莱猜想：让几何流给拓扑分类"},
+    {"a":"b:probability","b":"b:analysis","text":"费曼–卡茨公式：布朗运动与热方程握手"},
+    {"a":"b:probability","b":"b:statistics","text":"概率是地基，统计是手艺"},
+    {"a":"b:statistics","b":"b:computing","text":"核方法、机器学习：统计与计算互相成就"},
+    {"a":"b:topology","b":"b:statistics","text":"拓扑数据分析：持续同调给数据「相面」"},
+    {"a":"b:probability","b":"b:discrete","text":"概率方法：埃尔德什用掷骰子证明存在性"},
+    {"a":"b:discrete","b":"b:computing","text":"图论与算法：离散世界的双人舞"},
+    {"a":"b:optimization","b":"b:computing","text":"运筹与算法：寻找最优解的两副引擎"},
+    {"a":"b:math-physics","b":"b:geometry","text":"广义相对论：黎曼几何的宇宙级应用"},
+    {"a":"b:math-physics","b":"b:algebra","text":"量子场论不断催生新的代数结构"},
+    {"a":"b:algebra","b":"b:number-theory","text":"月光猜想：魔群与模形式的神秘联系"},
+    {"a":"b:foundations","b":"b:computing","text":"柯里–霍华德对应：证明 = 程序 = 对象"},
+    {"a":"b:foundations","b":"b:algebra","text":"范畴论：当代数学的通用语法"},
+    {"a":"b:foundations","b":"b:number-theory","text":"模型论方法证明莫德尔–朗猜想"},
+    {"a":"b:dynamics","b":"b:math-physics","text":"物理定律，就是写给微分方程的情书"},
+    {"a":"b:dynamics","b":"b:analysis","text":"解方程的每一步，都踩在分析的台阶上"},
+    {"a":"b:algebraic-geometry","b":"b:topology","text":"上同调：两大门派共享的母语"},
+    {"a":"b:number-theory","b":"b:probability","text":"素数像掷骰子：随机矩阵连起零点与能级"},
+    {"a":"b:algebra","b":"b:topology","text":"几何群论：把群画成空间来研究"},
+    {"a":"b:applications","b":"b:probability","text":"金融数学：在随机波动里给期权定价"},
+    {"a":"b:applications","b":"b:dynamics","text":"生物数学：从传染病到心跳，都是动力系统"},
+    {"a":"b:applications","b":"b:optimization","text":"物流与调度：运筹之光照进现实世界"},
+    {"a":"b:geometry","b":"b:dynamics","text":"哈密顿系统：几何与动力系统的共舞"},
+    {"a":"b:algebraic-geometry","b":"b:math-physics","text":"镜像对称：枚举几何与弦论互相出题"}
+  ],
+  "bridges": [
+    {"a":"f:algebra.representation","b":"f:number-theory.modular-forms","text":"朗兰兹纲领：表示论与自守形式的世纪通道"},
+    {"a":"f:number-theory.modular-forms","b":"f:number-theory.arithmetic-geom","text":"模性与椭圆曲线：怀尔斯证明费马大定理的必经之路"},
+    {"a":"f:number-theory.analytic","b":"f:analysis.complex-analysis","text":"ζ 函数住在复平面里：解析数论的分析靠山"},
+    {"a":"f:number-theory.analytic","b":"f:probability.distributions","text":"随机矩阵理论：ζ 零点与特征值统计如出一辙"},
+    {"a":"f:number-theory.algebraic","b":"f:number-theory.arithmetic-geom","text":"代数数论与算术几何：同一战线的两支部队"},
+    {"a":"f:number-theory.diophantine","b":"f:algebraic-geometry.abelian","text":"莫德尔–韦伊定理：丢番图问题长在阿贝尔簇上"},
+    {"a":"f:number-theory.finite-fields","b":"f:computing.crypto","text":"有限域：椭圆曲线密码的运算场"},
+    {"a":"f:number-theory.prob-nt","b":"f:probability.limit-theorems","text":"埃尔德什–卡茨定理：素数因子个数也服从正态"},
+    {"a":"f:number-theory.nt-logic","b":"f:foundations.computability","text":"希尔伯特第十问题：数论递给可计算性的难题"},
+    {"a":"f:number-theory.elementary","b":"f:algebra.rings","text":"同余式就是整数环里的运算：代数从这里取经"},
+    {"a":"f:algebra.fields","b":"f:number-theory.algebraic","text":"伽罗瓦理论在数论的主场：数域与数环"},
+    {"a":"f:algebra.groups","b":"f:geometry.geo-group","text":"几何群论：群论与几何的双向馈赠"},
+    {"a":"f:algebra.lie-alg","b":"f:math-physics.quantum-foundations","text":"李代数与量子力学：连续对称性的物理法庭"},
+    {"a":"f:algebra.lie-groups","b":"f:geometry.riemannian","text":"李群与黎曼几何：对称空间的几何学"},
+    {"a":"f:algebra.linear","b":"f:computing.numerical-linear","text":"线性代数：数值线性代数的理论底稿"},
+    {"a":"f:algebra.k-theory","b":"f:topology.bundles","text":"K 理论与示性类：向量丛的两条侦察路线"},
+    {"a":"f:algebra.category","b":"f:topology.homotopy","text":"高阶范畴与同伦论：两种「高」，殊途同归"},
+    {"a":"f:algebra.order-lattices","b":"f:foundations.algebraic-logic","text":"布尔代数：逻辑与代数的第一次握手"},
+    {"a":"f:algebra.rings","b":"f:algebraic-geometry.schemes","text":"每个环都是一张几何地图：环论与概形握手"},
+    {"a":"f:algebraic-geometry.schemes","b":"f:foundations.model-theory","text":"模型论与概形：逻辑方法证算术定理"},
+    {"a":"f:algebraic-geometry.curves","b":"f:analysis.complex-analysis","text":"黎曼面：复分析与代数曲线是同一个物件的两张脸"},
+    {"a":"f:algebraic-geometry.tropical","b":"f:geometry.polytopes","text":"热带几何住在多面体的骨架里"},
+    {"a":"f:algebraic-geometry.enumerative","b":"f:math-physics.qft","text":"镜像对称：枚举几何与弦论互相出题"},
+    {"a":"f:geometry.symplectic","b":"f:dynamics.hamiltonian","text":"辛几何与哈密顿力学：同一结构的静动两面"},
+    {"a":"f:geometry.geometric-analysis","b":"f:topology.manifold-top","text":"里奇流与庞加莱猜想：分析流给拓扑分类"},
+    {"a":"f:geometry.convex","b":"f:optimization.math-programming","text":"凸优化：凸几何开的工程分店"},
+    {"a":"f:geometry.polytopes","b":"f:discrete.matroid","text":"多面体与拟阵：同一枚硬币的两面"},
+    {"a":"f:geometry.non-euclidean","b":"f:geometry.riemannian","text":"从非欧几何到黎曼几何：曲率思想的接力棒"},
+    {"a":"f:geometry.finite-geom","b":"f:discrete.designs","text":"有限射影平面：几何与设计的共同体"},
+    {"a":"f:geometry.metric-geom","b":"f:topology.general-top","text":"只靠一把尺子也能做几何：度量空间的骨架"},
+    {"a":"f:topology.algebraic-top","b":"f:algebraic-geometry.sheaves","text":"上同调：拓扑与代数几何共享的母语"},
+    {"a":"f:topology.knot","b":"f:math-physics.qft","text":"琼斯多项式：纽结理论里的量子场论基因"},
+    {"a":"f:topology.spectral-seq","b":"f:algebraic-geometry.sheaves","text":"谱序列：上同调计算的涡轮增压器"},
+    {"a":"f:topology.top-engineering","b":"f:statistics.hd-top-stat","text":"拓扑数据分析：持续同调给数据「相面」"},
+    {"a":"f:topology.transformation-groups","b":"f:algebra.lie-groups","text":"李群作用在空间上：对称性的几何现场"},
+    {"a":"f:analysis.measure","b":"f:probability.prob-foundations","text":"测度论：概率论的立法机构"},
+    {"a":"f:analysis.functional","b":"f:math-physics.quantum-foundations","text":"希尔伯特空间：量子力学的数学舞台"},
+    {"a":"f:analysis.operator","b":"f:analysis.functional","text":"算子理论：泛函分析里长出的独立王国"},
+    {"a":"f:analysis.complex-analysis","b":"f:dynamics.complex-dynamics","text":"同一张复平面，两种游戏：解析与迭代"},
+    {"a":"f:analysis.harmonic","b":"f:computing.data-theory","text":"傅里叶变换：信号与数据的第一工具"},
+    {"a":"f:analysis.approximation","b":"f:computing.numerical","text":"数值分析与逼近论：同一位师父"},
+    {"a":"f:analysis.global-analysis","b":"f:topology.algebraic-top","text":"阿蒂亚–辛格指标定理：分析与拓扑的世纪握手"},
+    {"a":"f:analysis.potential","b":"f:probability.markov","text":"随机游走停在边界：位势论的概率解读"},
+    {"a":"f:probability.stochastic-analysis","b":"f:dynamics.pde","text":"费曼–卡茨公式：布朗运动与热方程握手"},
+    {"a":"f:probability.stochastic-process","b":"f:optimization.finance","text":"随机过程走进华尔街：期权定价的引擎"},
+    {"a":"f:probability.limit-theorems","b":"f:statistics.inference","text":"中心极限定理：统计推断的骨架"},
+    {"a":"f:probability.geom-prob","b":"f:geometry.convex","text":"随机撒点与凸体：积分几何的双人舞"},
+    {"a":"f:statistics.bayes","b":"f:computing.ai-theory","text":"贝叶斯：机器学习的老祖宗之一"},
+    {"a":"f:statistics.regression","b":"f:computing.ai-theory","text":"回归是一条线的哲学，学习理论把它推进神经网络"},
+    {"a":"f:discrete.graph-theory","b":"f:computing.algorithms","text":"图论与图算法：理论与工程手拉手"},
+    {"a":"f:discrete.probabilistic-method","b":"f:probability.prob-foundations","text":"用概率证明存在性：埃尔德什的名场面"},
+    {"a":"f:discrete.additive-comb","b":"f:number-theory.additive","text":"加性组合与加性数论：同一片战场"},
+    {"a":"f:discrete.ramsey","b":"f:discrete.inf-comb","text":"有限拉姆齐与无穷拉姆齐：一步之遥"},
+    {"a":"f:computing.complexity","b":"f:computing.quantum-comp","text":"量子计算冲着难问题而来：复杂度是靶心"},
+    {"a":"f:computing.crypto","b":"f:computing.information","text":"香农熵是密码学的度量衡"},
+    {"a":"f:computing.numerical-pde","b":"f:dynamics.pde","text":"理论写方程，数值解方程"},
+    {"a":"f:computing.numerical-opt","b":"f:optimization.math-programming","text":"优化算法的两副键盘：理论与实现"},
+    {"a":"f:optimization.calculus-variations","b":"f:dynamics.hamiltonian","text":"最小作用量原理：自然界的懒惰哲学"},
+    {"a":"f:optimization.control","b":"f:dynamics.ode","text":"控制理论：给微分方程装上方向盘"},
+    {"a":"f:optimization.stochastic-control","b":"f:probability.stochastic-analysis","text":"随机控制与随机分析：决策遇上噪声"},
+    {"a":"f:optimization.game-theory","b":"f:optimization.econ-math","text":"纳什均衡走进经济学：博弈论的黄金年代"},
+    {"a":"f:optimization.combinatorial-opt","b":"f:discrete.graph-theory","text":"旅行商问题：组合优化与图论的十字路口"},
+    {"a":"f:math-physics.stat-mech","b":"f:probability.prob-foundations","text":"统计力学：概率论穿上了物理制服"},
+    {"a":"f:math-physics.quantum-info","b":"f:computing.quantum-comp","text":"量子信息与量子计算：理论与机器的赛跑"},
+    {"a":"f:math-physics.scattering","b":"f:analysis.operator","text":"散射矩阵住在算子理论里"},
+    {"a":"f:math-physics.cosmology","b":"f:applications.astro","text":"宇宙学与天体物理：抬头看同一个月亮"},
+    {"a":"f:applications.math-bio","b":"f:dynamics.dynamical-systems","text":"种群动力学：生态写在动力系统里"},
+    {"a":"f:applications.fluid","b":"f:dynamics.pde","text":"纳维–斯托克斯方程：流体力学的王者"},
+    {"a":"f:applications.solid-mechanics","b":"f:computing.numerical-pde","text":"有限元：工程与数值分析的握手"},
+    {"a":"f:applications.thermo","b":"f:dynamics.pde","text":"热传导方程：傅里叶的成名作"},
+    {"a":"f:applications.medical","b":"f:analysis.integral-eq","text":"CT 重建：医学成像是一道积分反问题"},
+    {"a":"f:applications.genetics","b":"f:probability.stochastic-process","text":"溯祖理论：谱系是一棵随机树"},
+    {"a":"f:applications.chemistry","b":"f:math-physics.quantum-foundations","text":"量子化学：薛定谔方程的化学生意"},
+    {"a":"f:math-physics.quantum-gravity","b":"f:math-physics.gr","text":"量子引力：把两套最伟大的理论缝起来"},
+    {"a":"f:foundations.proof-theory","b":"f:computing.symbolic-math","text":"形式化验证：证明论开出的机器花"},
+    {"a":"f:math-physics.qft","b":"f:algebraic-geometry.sheaves","text":"规范场论与层论：物理与几何的量子时代联姻"}
+  ],
+  "timeline": [
+    {"period":"约前3000—前500","title":"文明的黎明","items":[
+      {"year":"约前1800","text":"巴比伦泥板上的二次方程：人们已经会「配方」求解","tags":["b:number-theory"]},
+      {"year":"约前1650","text":"丈量土地催生几何：古埃及人的实用测量术","tags":["b:geometry"]},
+      {"year":"约前1000","text":"《周髀算经》里的勾股定理：东方版本悄然登场","tags":["b:geometry"]},
+      {"year":"约前500","text":"进位制与数字诞生：人类学会把「数」写下来","tags":["b:number-theory"]}
+    ]},
+    {"period":"约前600—公元200","title":"希腊的理性","items":[
+      {"year":"约前585","text":"泰勒斯说出第一句「因为它所以它」：证明的意识觉醒","tags":["b:foundations"]},
+      {"year":"约前470","text":"不可通约量危机：无理数被迫登场","tags":["b:number-theory"]},
+      {"year":"约前300","text":"欧几里得《几何原本》：公理化方法的开山之作","tags":["b:geometry","b:foundations"]},
+      {"year":"约前250","text":"阿基米德用「穷竭法」逼近圆与面积：极限思想的最早闪光","tags":["b:analysis"]}
+    ]},
+    {"period":"公元1—1300","title":"东方与阿拉伯的接力","items":[
+      {"year":"约100","text":"《九章算术》成书：算法化的数学传统","tags":["b:number-theory"]},
+      {"year":"约263","text":"刘徽「割圆术」：用多边形逼近圆","tags":["b:geometry"]},
+      {"year":"约480","text":"祖冲之把圆周率算到小数点后七位，领先世界近千年","tags":["b:geometry"]},
+      {"year":"约820","text":"花拉子米写下《代数学》：「代数」一词从这里出发","tags":["b:algebra"]}
+    ]},
+    {"period":"1400—1600","title":"方程与符号的竞赛","items":[
+      {"year":"1545","text":"卡尔达诺发表三次、四次方程解法：意大利人的擂台赛收官","tags":["b:algebra"]},
+      {"year":"1572","text":"邦贝利驯服虚数：从「不可能之数」到得力工具","tags":["b:algebra"]},
+      {"year":"1591","text":"韦达引入符号代数：字母开始代表数","tags":["b:algebra"]}
+    ]},
+    {"period":"1600—1700","title":"变革的世纪","items":[
+      {"year":"1637","text":"笛卡尔与费马：解析几何让代数与几何握手","tags":["b:geometry","b:algebra"]},
+      {"year":"1637","text":"费马在书页边写下：「我证明了，但这里空白太小」","tags":["b:number-theory"]},
+      {"year":"1654","text":"帕斯卡与费马的书信往来：概率论诞生","tags":["b:probability"]},
+      {"year":"1665—1675","text":"牛顿与莱布尼茨先后发明微积分：世界从此可以「连续变化」","tags":["b:analysis"]}
+    ]},
+    {"period":"1700—1800","title":"欧拉的时代","items":[
+      {"year":"1736","text":"七桥问题被欧拉解决：拓扑学的第一缕曙光","tags":["b:topology"]},
+      {"year":"1748","text":"欧拉写出「最美公式」：把 e、i、π、1、0 缝在一起","tags":["b:analysis"]},
+      {"year":"1788","text":"拉格朗日力学：用分析的语言重写物理","tags":["b:math-physics"]},
+      {"year":"1798","text":"高斯《算术研究》：数论第一次穿上正装","tags":["b:number-theory"]}
+    ]},
+    {"period":"1800—1900","title":"严格的浪潮","items":[
+      {"year":"1829","text":"非欧几何诞生：平行公设走下神坛","tags":["b:geometry"]},
+      {"year":"1832","text":"伽罗瓦遗稿：群论从方程求解中破壳而出","tags":["b:algebra"]},
+      {"year":"1854","text":"黎曼就职演讲：弯曲空间的宣言书","tags":["b:geometry"]},
+      {"year":"1870s","text":"柯西、魏尔斯特拉斯给分析补上严密地基","tags":["b:analysis"]},
+      {"year":"1874","text":"康托尔集合论：无穷第一次有了等级","tags":["b:foundations"]}
+    ]},
+    {"period":"1900—1950","title":"抽象的时代","items":[
+      {"year":"1900","text":"希尔伯特提出 23 个问题，为世纪数学立下路标","tags":["b:foundations"]},
+      {"year":"1904","text":"庞加莱猜想提出：拓扑学立下世纪之约","tags":["b:topology"]},
+      {"year":"1921","text":"诺特与抽象代数：结构第一次成为主角","tags":["b:algebra"]},
+      {"year":"1931","text":"哥德尔不完备定理：希尔伯特纲领遭遇转折","tags":["b:foundations"]},
+      {"year":"1933","text":"柯尔莫哥洛夫给概率论公理化：随机终于有法可依","tags":["b:probability"]},
+      {"year":"1936","text":"图灵提出图灵机模型：计算第一次有了数学定义","tags":["b:foundations","b:computing"]}
+    ]},
+    {"period":"1950—2000","title":"结构的时代","items":[
+      {"year":"1960s","text":"格罗滕迪克革命：代数几何被推倒重建，概形登上舞台","tags":["b:algebraic-geometry"]},
+      {"year":"1963","text":"混沌理论：洛伦茨发现确定性里的意外","tags":["b:dynamics"]},
+      {"year":"1967","text":"朗兰兹写下那封信：数论大一统纲领启程","tags":["b:number-theory","b:algebraic-geometry"]},
+      {"year":"1971","text":"P 与 NP 问题提出：计算能力的边界之问","tags":["b:computing"]},
+      {"year":"1990s","text":"随机分析走进华尔街与生命科学","tags":["b:probability","b:applications"]},
+      {"year":"1994","text":"怀尔斯证明费马大定理：三百多年悬念落幕","tags":["b:number-theory"]}
+    ]},
+    {"period":"2000—今","title":"现在进行时","items":[
+      {"year":"2003","text":"佩雷尔曼证明庞加莱猜想，随后淡出领奖台","tags":["b:topology"]},
+      {"year":"2005","text":"四色定理完成机器形式化验证：证明进入「可检验」时代","tags":["b:computing"]},
+      {"year":"2014","text":"开普勒猜想历经多年被完全形式化：机器审校时代来临","tags":["b:computing"]},
+      {"year":"2020s","text":"机器学习与数学互为工具、互为问题","tags":["b:computing"]},
+      {"year":"——","text":"黎曼猜想、纳维–斯托克斯方程……仍在等下一个名字","tags":["b:number-theory","b:dynamics"]}
+    ]}
+  ]
+}
+</script>
+
+<!-- ================= 应用逻辑 ================= -->
+<script>
+(function(){
+"use strict";
+var $ = function(s){ return document.querySelector(s); };
+var DATA = JSON.parse(document.getElementById('map-data').textContent);
+var SVGNS = 'http://www.w3.org/2000/svg';
+
+/* ---------- 索引 ---------- */
+var B = {}, F = {};
+DATA.blocks.forEach(function(b){
+  B[b.id] = b;
+  (b.fields || []).forEach(function(f){
+    f._ref = b.id + '.' + f.id;
+    f._block = b;
+    F[f._ref] = f;
+  });
+});
+function refBlock(r){ if(r.indexOf('b:') === 0) return r.slice(2); var s = r.slice(2); return s.slice(0, s.indexOf('.')); }
+function refFieldKey(r){ return r.indexOf('f:') === 0 ? r.slice(2) : null; }
+
+/* ---------- 视图变换 ---------- */
+var viewport = $('#viewport'), world = $('#world');
+var CW = DATA.canvas.w, CH = DATA.canvas.h;
+var scale = 1, tx = 0, ty = 0, interacted = false;
+
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+function apply(anim){
+  world.style.transition = anim ? 'transform .7s cubic-bezier(.22,.75,.25,1)' : 'none';
+  world.style.transform = 'translate(' + tx + 'px,' + ty + 'px) scale(' + scale + ')';
+}
+function fitView(anim){
+  var r = viewport.getBoundingClientRect();
+  var s = Math.min(r.width / CW, r.height / CH) * 0.99;
+  scale = s; tx = (r.width - CW * s) / 2; ty = (r.height - CH * s) / 2;
+  apply(anim);
+}
+function zoomAt(px, py, f){
+  var s2 = clamp(scale * f, 0.28, 2.6), k = s2 / scale;
+  tx = px - (px - tx) * k;
+  ty = py - (py - ty) * k;
+  scale = s2; apply(false); interacted = true;
+}
+function flyToBlock(b){
+  var r = viewport.getBoundingClientRect();
+  var mobile = r.width <= 920;
+  var panelW = (!mobile && province.classList.contains('open')) ? Math.min(460, r.width * 0.40) : 0;
+  var availW = r.width - panelW;
+  var s = clamp(Math.min(availW * 0.72 / b.w, r.height * 0.66 / b.h), 0.45, 2.1);
+  scale = s;
+  tx = availW / 2 - b.cx * s;
+  ty = r.height * (mobile ? 0.40 : 0.52) - b.cy * s;
+  apply(true); interacted = true;
+}
+
+/* ---------- 手绘路径生成 ---------- */
+function mulberry32(a){
+  return function(){
+    a |= 0; a = a + 0x6D2B79F5 | 0;
+    var t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function blobPath(cx, cy, w, h, seed){
+  var rnd = mulberry32(seed), n = 16, pts = [], i;
+  for(i = 0; i < n; i++){
+    var a = i / n * Math.PI * 2, f = 0.88 + 0.2 * rnd();
+    pts.push([cx + Math.cos(a) * w / 2 * f, cy + Math.sin(a) * h / 2 * f]);
+  }
+  var d = 'M' + pts[0][0].toFixed(1) + ' ' + pts[0][1].toFixed(1);
+  for(i = 0; i < n; i++){
+    var p0 = pts[(i + n - 1) % n], p1 = pts[i], p2 = pts[(i + 1) % n], p3 = pts[(i + 2) % n];
+    var c1x = p1[0] + (p2[0] - p0[0]) / 6, c1y = p1[1] + (p2[1] - p0[1]) / 6;
+    var c2x = p2[0] - (p3[0] - p1[0]) / 6, c2y = p2[1] - (p3[1] - p1[1]) / 6;
+    d += 'C' + c1x.toFixed(1) + ' ' + c1y.toFixed(1) + ' ' + c2x.toFixed(1) + ' ' + c2y.toFixed(1) + ' ' + p2[0].toFixed(1) + ' ' + p2[1].toFixed(1);
+  }
+  return d + 'Z';
+}
+function svg(tag, attrs){
+  var el = document.createElementNS(SVGNS, tag);
+  if(attrs) for(var k in attrs) el.setAttribute(k, attrs[k]);
+  return el;
+}
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+/* ---------- 绘制板块 ---------- */
+var regionsLayer = $('#regionsLayer'), regionEls = {};
+DATA.blocks.forEach(function(b){
+  var g = svg('g', { 'class': 'region', 'data-id': b.id });
+  g.style.setProperty('--c', b.color);
+  var d = blobPath(b.cx, b.cy, b.w, b.h, b.seed || 7);
+  var gf = svg('g', { filter: 'url(#wobble)' });
+  gf.appendChild(svg('path', { d: d, 'class': 'reg-sketch', transform: 'translate(2.5 3.5)' }));
+  gf.appendChild(svg('path', { d: d, 'class': 'reg-path' }));
+  g.appendChild(gf);
+
+  var hasSub = (b.fields || []).length > 0;
+  var tw = b.name.length * 40 + 52, rh = hasSub ? 86 : 62;
+  var lg = svg('g', { transform: 'rotate(-1.6 ' + b.cx + ' ' + b.cy + ')' });
+  lg.appendChild(svg('rect', {
+    x: b.cx - tw / 2, y: b.cy - rh / 2, width: tw, height: rh,
+    rx: 14, ry: 16, 'class': 'label-rect'
+  }));
+  var t = svg('text', {
+    x: b.cx, y: hasSub ? b.cy - 13 : b.cy, 'text-anchor': 'middle',
+    'dominant-baseline': 'middle', 'class': 'label-name', 'font-size': 40
+  });
+  t.textContent = b.name;
+  lg.appendChild(t);
+  if(hasSub){
+    var st = svg('text', {
+      x: b.cx, y: b.cy + 24, 'text-anchor': 'middle',
+      'dominant-baseline': 'middle', 'class': 'label-sub', 'font-size': 18
+    });
+    st.textContent = b.fields.length + ' 个领域';
+    lg.appendChild(st);
+  }
+  g.appendChild(lg);
+  g.addEventListener('click', function(e){
+    if(dragMoved > 8 || e.detail > 1) return;
+    openProvince(b.id);
+  });
+  regionsLayer.appendChild(g);
+  regionEls[b.id] = g;
+});
+
+/* ---------- 跨域航路 ---------- */
+var linksLayer = $('#linksLayer'), tip = $('#tip');
+(function buildLinks(){
+  var pairCount = {};
+  (DATA.links || []).forEach(function(l){
+    var pb = refBlock(l.a), qb = refBlock(l.b);
+    if(pb === qb || !B[pb] || !B[qb]) return;
+    var key = [pb, qb].sort().join('|');
+    pairCount[key] = (pairCount[key] || 0) + 1;
+    var n = pairCount[key];
+    var pB = B[pb], qB = B[qb];
+    var dx = qB.cx - pB.cx, dy = qB.cy - pB.cy;
+    var len = Math.hypot(dx, dy) || 1;
+    var nx = -dy / len, ny = dx / len;
+    var k = Math.floor(n / 2);
+    var off = (n === 1) ? 0 : (n % 2 === 0 ? k * 46 : -k * 46);
+    var mx = (pB.cx + qB.cx) / 2 + nx * (54 + off);
+    var my = (pB.cy + qB.cy) / 2 + ny * (54 + off);
+    var path = svg('path', {
+      d: 'M' + pB.cx + ' ' + pB.cy + ' Q ' + mx.toFixed(1) + ' ' + my.toFixed(1) + ' ' + qB.cx + ' ' + qB.cy,
+      'class': 'crosslink'
+    });
+    path.addEventListener('mouseenter', function(){
+      tip.textContent = l.text;
+      tip.style.display = 'block';
+    });
+    path.addEventListener('mousemove', function(e){
+      tip.style.left = e.clientX + 'px';
+      tip.style.top = e.clientY + 'px';
+    });
+    path.addEventListener('mouseleave', function(){ tip.style.display = 'none'; });
+    linksLayer.appendChild(path);
+  });
+})();
+
+/* ---------- 板块侧栏 ---------- */
+var province = $('#province');
+var renderProvince = function(b){
+  province.querySelector('.p-name').textContent = b.name;
+  province.querySelector('.p-intro').textContent = b.intro || '';
+  province.querySelector('.p-seal').style.background = b.color;
+  var list = province.querySelector('.p-list');
+  list.innerHTML = '';
+  var fs = b.fields || [];
+  province.querySelector('.p-count').textContent = fs.length ? ('共 ' + fs.length + ' 个领域 · 点开一张张名片') : '';
+  if(!fs.length){
+    var ph = document.createElement('div');
+    ph.className = 'p-empty';
+    ph.textContent = '这一片大陆的领域名片还在最后誊抄中……（先看看别处，或打开「跨域航路」看它与邻居的关系）';
+    list.appendChild(ph);
+  }
+  fs.forEach(function(f){
+    var btn = document.createElement('button');
+    btn.className = 'fcard';
+    btn.style.setProperty('--c', b.color);
+    var n1 = document.createElement('span'); n1.className = 'fname'; n1.textContent = f.name;
+    var n2 = document.createElement('span'); n2.className = 'fone'; n2.textContent = f.one || '';
+    btn.appendChild(n1); btn.appendChild(n2);
+    btn.addEventListener('click', function(e){
+      if(e.detail > 1) return;
+      openField(f._ref);
+    });
+    list.appendChild(btn);
+  });
+};
+function highlightRegion(id){
+  for(var k in regionEls) regionEls[k].classList.toggle('active', k === id);
+}
+function openProvince(id){
+  var b = B[id];
+  if(!b) return;
+  renderProvince(b);
+  highlightRegion(id);
+  province.classList.add('open');
+  flyToBlock(b);
+}
+function closeProvince(){
+  province.classList.remove('open');
+  highlightRegion(null);
+}
+province.querySelector('.p-close').addEventListener('click', function(e){
+  if(e.detail > 1) return;
+  closeProvince();
+});
+
+/* ---------- 领域名片 ---------- */
+var popWrap = $('#popupWrap'), popEl = $('#popup');
+var popStack = [], popupOpenedAt = 0, popupReturnFocus = null, popupReturnIdx = -1;
+function openField(refKey){
+  if(!F[refKey]) return;
+  if(!popWrap.classList.contains('open')){
+    /* 记录是谁打开的名片：关闭时把焦点还给它（卡片会被重绘，故记序号） */
+    var ae = document.activeElement;
+    popupReturnFocus = null; popupReturnIdx = -1;
+    if(ae && ae !== document.body && ae.isConnected && !popWrap.contains(ae)){
+      if(province.contains(ae)){
+        var cards = province.querySelectorAll('.fcard');
+        for(var i = 0; i < cards.length; i++){ if(cards[i] === ae){ popupReturnIdx = i; break; } }
+      } else {
+        popupReturnFocus = ae;
+      }
+    }
+  }
+  popStack.push(refKey);
+  renderPopup();
+  popWrap.classList.add('open');
+  popupOpenedAt = Date.now();   /* 免死窗口：刚落笔的名片，不被双击第二击误关 */
+  var f = F[refKey];
+  flyToBlock(f._block);
+  if(province.classList.contains('open')){
+    renderProvince(f._block);
+    highlightRegion(f._block.id);
+  }
+}
+function closeAllPopup(){
+  popStack = [];
+  popWrap.classList.remove('open');
+  var target = popupReturnFocus;
+  if(!target && popupReturnIdx >= 0){
+    var cards = province.querySelectorAll('.fcard');
+    target = cards[popupReturnIdx] || null;
+  }
+  popupReturnFocus = null; popupReturnIdx = -1;
+  if(target && target.isConnected){ try{ target.focus({preventScroll:true}); }catch(err){} }
+}
+function renderPopup(){
+  var refKey = popStack[popStack.length - 1];
+  var f = F[refKey], b = f._block;
+  var h = '';
+  h += '<div class="pp-head"><span class="pp-seal" style="background:' + b.color + '"></span>'
+     + '<div><div class="pp-name">' + esc(f.name) + '</div>'
+     + '<div class="pp-block">' + esc(b.name) + ' · 领域名片</div></div>'
+     + '<button class="pp-close" aria-label="关闭">✕</button></div>';
+  h += '<div class="pp-sec"><span class="pp-label">研究什么</span><p>' + esc(f.one || '') + '</p></div>';
+  if(f.metaphor){
+    h += '<div class="pp-sec metaphor"><span class="pp-label">打个比方</span><p>' + esc(f.metaphor) + '</p></div>';
+  }
+  if(f.concepts && f.concepts.length){
+    h += '<div class="pp-sec"><span class="pp-label">代表概念 · 定理</span><div class="chips">'
+       + f.concepts.map(function(c){ return '<span class="chip">' + esc(c) + '</span>'; }).join('')
+       + '</div></div>';
+  }
+  /* 关联：精确桥梁 + 邻居板块 */
+  var bridges = [];
+  (DATA.bridges || []).forEach(function(l){
+    if(l.a === 'f:' + refKey) bridges.push({to: refFieldKey(l.b), txt: l.text});
+    else if(l.b === 'f:' + refKey) bridges.push({to: refFieldKey(l.a), txt: l.text});
+  });
+  bridges = bridges.filter(function(x){ return x.to && F[x.to]; }).slice(0, 5);
+  var neigh = [], seen = {};
+  (DATA.links || []).concat(DATA.bridges || []).forEach(function(l){
+    var pb = refBlock(l.a), qb = refBlock(l.b);
+    var other = (pb === b.id) ? qb : (qb === b.id ? pb : null);  /* 只留与当前板块相连的那一端 */
+    if(other && other !== b.id && !seen[other] && B[other]){ seen[other] = 1; neigh.push(other); }
+  });
+  if(bridges.length || neigh.length){
+    h += '<div class="pp-sec"><span class="pp-label">去哪串门</span>';
+    bridges.forEach(function(x){
+      h += '<button class="bridge" data-to="' + x.to + '"><span>' + esc(F[x.to].name) + '</span><em>' + esc(x.txt) + '</em></button>';
+    });
+    if(neigh.length){
+      if(bridges.length) h += '<div class="pp-neigh">邻居大陆：</div>';
+      h += '<div class="chips">' + neigh.slice(0, 4).map(function(nid){
+        return '<button class="chip nei" data-block="' + nid + '">去看看「' + esc(B[nid].name) + '」</button>';
+      }).join('') + '</div>';
+    }
+    h += '</div>';
+  }
+  h += '<div class="pp-foot">';
+  if(popStack.length > 1) h += '<button class="pp-back">↩ 返回上一张</button>';
+  h += '<span class="pp-foot-note">' + esc(b.name) + ' 板块</span></div>';
+  popEl.innerHTML = h;
+  popEl.scrollTop = 0;
+  popEl.querySelector('.pp-close').addEventListener('click', function(e){
+    if(e.detail > 1) return;
+    closeAllPopup();
+  });
+  var bk = popEl.querySelector('.pp-back');
+  if(bk) bk.addEventListener('click', function(e){
+    if(e.detail > 1) return;
+    popStack.pop();
+    renderPopup();
+    var f2 = F[popStack[popStack.length - 1]];
+    flyToBlock(f2._block);
+    if(province.classList.contains('open')){ renderProvince(f2._block); highlightRegion(f2._block.id); }
+  });
+  popEl.querySelectorAll('.bridge').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      if(e.detail > 1) return;
+      openField(btn.getAttribute('data-to'));
+    });
+  });
+  popEl.querySelectorAll('.nei').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      if(e.detail > 1) return;
+      closeAllPopup();
+      openProvince(btn.getAttribute('data-block'));
+    });
+  });
+}
+popWrap.querySelector('.pp-backdrop').addEventListener('click', function(e){
+  if(Date.now() - popupOpenedAt < 400 || e.detail > 1) return;  /* 幽灵双击免死窗口 */
+  closeAllPopup();
+});
+
+/* ---------- 搜索 ---------- */
+var sInput = $('#search'), sDrop = $('#searchDrop');
+var idx = [];
+DATA.blocks.forEach(function(b){
+  idx.push({ t: 'b', id: b.id, name: b.name, hay: (b.name + ' ' + (b.intro || '')).toLowerCase() });
+  (b.fields || []).forEach(function(f){
+    idx.push({ t: 'f', ref: f._ref, name: f.name,
+      hay: (f.name + ' ' + (f.one || '') + ' ' + ((f.concepts || []).join(' '))).toLowerCase() });
+  });
+});
+function hideDrop(){ sDrop.classList.remove('open'); sDrop.innerHTML = ''; }
+function showDrop(res, q){
+  if(!res.length){
+    sDrop.innerHTML = '<div class="sd-empty">没有找到「' + esc(q) + '」——换个词试试，比如「数论」「黎曼」「对称」</div>';
+    sDrop.classList.add('open');
+    return;
+  }
+  sDrop.innerHTML = res.map(function(it){
+    if(it.t === 'b'){
+      return '<button class="sd-item" data-t="b" data-id="' + it.id + '"><span class="sd-kind">板块</span><span class="sd-name">' + esc(it.name) + '</span></button>';
+    }
+    return '<button class="sd-item" data-t="f" data-ref="' + it.ref + '"><span class="sd-kind f">领域</span><span class="sd-name">' + esc(it.name) + '</span></button>';
+  }).join('');
+  sDrop.classList.add('open');
+  sDrop.querySelectorAll('.sd-item').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var t = btn.getAttribute('data-t');
+      if(t === 'b'){ hideDrop(); sInput.blur(); openProvince(btn.getAttribute('data-id')); }
+      else { hideDrop(); sInput.blur(); openField(btn.getAttribute('data-ref')); }
+    });
+  });
+}
+sInput.addEventListener('input', function(){
+  var q = sInput.value.trim().toLowerCase();
+  if(!q){ hideDrop(); return; }
+  var res = idx.filter(function(it){ return it.hay.indexOf(q) >= 0; }).slice(0, 12);
+  showDrop(res, q);
+});
+sInput.addEventListener('keydown', function(e){
+  if(e.key === 'Enter'){
+    var first = sDrop.querySelector('.sd-item');
+    if(first) first.click();
+  }
+});
+document.addEventListener('click', function(e){
+  if(!e.target.closest('.searchbox')) hideDrop();
+});
+
+/* ---------- 主题 ---------- */
+var themeBtn = $('#btnTheme');
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  themeBtn.textContent = (t === 'night') ? '☀' : '☾';
+  try{ localStorage.setItem('mathmap-theme', t); }catch(e){}
+}
+themeBtn.addEventListener('click', function(){
+  setTheme(document.documentElement.getAttribute('data-theme') === 'night' ? 'day' : 'night');
+});
+var savedTheme = null;
+try{ savedTheme = localStorage.getItem('mathmap-theme'); }catch(e){}
+setTheme(savedTheme || ((window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches) ? 'night' : 'day'));
+
+/* ---------- 工具按钮 ---------- */
+var btnLinks = $('#btnLinks'), legendLinks = $('#legendLinks');
+btnLinks.addEventListener('click', function(){
+  var on = document.body.classList.toggle('links-on');
+  btnLinks.setAttribute('aria-pressed', on);
+  legendLinks.classList.toggle('hidden', !on);
+  tip.style.display = 'none';
+});
+$('#btnZoomIn').addEventListener('click', function(){
+  var r = viewport.getBoundingClientRect();
+  zoomAt(r.width / 2, r.height / 2, 1.25);
+});
+$('#btnZoomOut').addEventListener('click', function(){
+  var r = viewport.getBoundingClientRect();
+  zoomAt(r.width / 2, r.height / 2, 1 / 1.25);
+});
+$('#btnReset').addEventListener('click', function(){
+  closeAllPopup(); closeProvince(); fitView(true); interacted = false;
+});
+$('#brand').addEventListener('click', function(){
+  closeAllPopup(); closeProvince(); fitView(true); interacted = false;
+});
+
+/* ---------- 拖拽 / 缩放 ---------- */
+var pts = new Map(), dragMoved = 0, pinchPrev = null, capturedId = null;
+viewport.addEventListener('pointerdown', function(e){
+  if(e.target.closest('#regionsLayer') === null && e.target.closest('#linksLayer') === null){ /* 仍允许平移 */ }
+  pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+  dragMoved = 0;
+  /* 不立刻捕获指针：否则 click 会被重定向到 viewport，板块单击失效 */
+});
+viewport.addEventListener('pointermove', function(e){
+  if(e.buttons === 0){
+    /* 指针已在窗口外释放等漏掉 pointerup 的情况：清掉残留，防「粘滞拖拽」 */
+    if(pts.delete(e.pointerId)) pinchPrev = null;
+    if(capturedId === e.pointerId){
+      try{ viewport.releasePointerCapture(e.pointerId); }catch(err){}
+      capturedId = null;
+    }
+    return;
+  }
+  if(!pts.has(e.pointerId)) return;
+  var prev = pts.get(e.pointerId);
+  var r = viewport.getBoundingClientRect();
+  if(pts.size === 1){
+    var dx = e.clientX - prev.x, dy = e.clientY - prev.y;
+    if(Math.abs(dx) + Math.abs(dy) > 0){
+      tx += dx; ty += dy; dragMoved += Math.abs(dx) + Math.abs(dy);
+      pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      apply(false); interacted = true;
+      if(dragMoved > 6 && capturedId !== e.pointerId){  /* 拖动超过阈值才捕获指针 */
+        try{ viewport.setPointerCapture(e.pointerId); capturedId = e.pointerId; }catch(err){}
+      }
+    }
+  } else if(pts.size === 2){
+    pts.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    var arr = Array.from(pts.values());
+    var d = Math.hypot(arr[0].x - arr[1].x, arr[0].y - arr[1].y);
+    if(pinchPrev){
+      var mid = { x: (arr[0].x + arr[1].x) / 2 - r.left, y: (arr[0].y + arr[1].y) / 2 - r.top };
+      zoomAt(mid.x, mid.y, d / pinchPrev);
+    }
+    pinchPrev = d;
+  }
+});
+['pointerup','pointercancel'].forEach(function(t){
+  viewport.addEventListener(t, function(e){
+    pts.delete(e.pointerId);
+    pinchPrev = null;
+    if(capturedId === e.pointerId) capturedId = null;
+  });
+});
+viewport.addEventListener('wheel', function(e){
+  e.preventDefault();
+  var r = viewport.getBoundingClientRect();
+  zoomAt(e.clientX - r.left, e.clientY - r.top, e.deltaY < 0 ? 1.12 : 1 / 1.12);
+}, { passive: false });
+
+/* ---------- 视图切换 / 时间线 ---------- */
+var btnMap = $('#btnMap'), btnTimeline = $('#btnTimeline');
+function setView(v){
+  document.body.classList.toggle('view-timeline', v === 'timeline');
+  btnMap.setAttribute('aria-pressed', v === 'map');
+  btnTimeline.setAttribute('aria-pressed', v === 'timeline');
+  if(v === 'timeline') closeAllPopup();
+}
+btnMap.addEventListener('click', function(){ setView('map'); });
+btnTimeline.addEventListener('click', function(){ setView('timeline'); });
+
+(function buildTimeline(){
+  var list = $('#tlList'), h = '';
+  DATA.timeline.forEach(function(era){
+    h += '<div class="tl-era"><div class="tl-period">' + esc(era.period) + '</div>'
+       + '<div class="tl-era-name">' + esc(era.title) + '</div>';
+    era.items.forEach(function(it){
+      h += '<div class="tl-item"><div class="tl-year">' + esc(it.year) + '</div><div>'
+         + '<div class="tl-text">' + esc(it.text) + '</div>';
+      if(it.tags && it.tags.length){
+        h += '<div class="tl-tags">' + it.tags.map(function(tg){
+          var label = '';
+          if(tg.indexOf('b:') === 0){ label = B[refBlock(tg)] ? B[refBlock(tg)].name : ''; }
+          else { var fk = refFieldKey(tg); label = (fk && F[fk]) ? F[fk].name : ''; }
+          return label ? '<button class="chip sm" data-tag="' + tg + '">' + esc(label) + '</button>' : '';
+        }).join('') + '</div>';
+      }
+      h += '</div></div>';
+    });
+    h += '</div>';
+  });
+  list.innerHTML = h;
+  list.querySelectorAll('.chip').forEach(function(btn){
+    btn.addEventListener('click', function(e){
+      if(e.detail > 1) return;
+      var tg = btn.getAttribute('data-tag');
+      if(tg.indexOf('f:') === 0){
+        openField(refFieldKey(tg));
+      } else {
+        closeAllPopup();
+        setView('map');
+        openProvince(refBlock(tg));
+      }
+    });
+  });
+})();
+
+/* ---------- 键盘 / 提示 ---------- */
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape'){
+    if(popWrap.classList.contains('open')) closeAllPopup();
+    else if(province.classList.contains('open')) closeProvince();
+    else if(sDrop.classList.contains('open')) hideDrop();
+    else if(document.body.classList.contains('view-timeline')){}
+  }
+});
+var hint = $('#hint');
+var hintSeen = false;
+try{ hintSeen = localStorage.getItem('mathmap-hint') === '1'; }catch(e){}
+if(!hintSeen) hint.classList.remove('hidden');
+$('#hintOk').addEventListener('click', function(){
+  hint.classList.add('hidden');
+  try{ localStorage.setItem('mathmap-hint', '1'); }catch(e){}
+});
+
+/* ---------- 启动 ---------- */
+fitView(false);
+window.addEventListener('resize', function(){
+  if(!interacted) fitView(false);
+});
+
+/* ---------- 深链：分享 & 自动截图（#viewport 参数：view=timeline&theme=night&links=1&b=algebra&f=number-theory.analytic） ---------- */
+(function applyHash(){
+  var h = location.hash.replace(/^#/, '');
+  if(!h) return;
+  var q = {};
+  h.split('&').forEach(function(kv){
+    var p = kv.split('=');
+    if(p[0]) q[decodeURIComponent(p[0])] = decodeURIComponent(p[1] || '');
+  });
+  hint.classList.add('hidden');
+  if(q.theme === 'night' || q.theme === 'day') setTheme(q.theme);
+  if(q.links === '1'){
+    document.body.classList.add('links-on');
+    btnLinks.setAttribute('aria-pressed', 'true');
+    legendLinks.classList.remove('hidden');
+  }
+  if(q.view === 'timeline'){
+    setView('timeline');
+  } else {
+    if(q.b && B[q.b]) openProvince(q.b);
+    if(q.f && F[q.f]) openField(q.f);
+  }
+})();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>不确定性游玩指南 · 黑天鹅 · 反脆弱 · 杠铃 · 凯利 · 老虎机 · Minimax</title>
+<meta name="description" content="六个让你在随机世界里少踩坑、多接住好运的思维工具（黑天鹅/反脆弱/杠铃/凯利/老虎机/Minimax），每个都配了一台可交互的数学实验室。">
+<script>
+(function(){
+  try{
+    var q=location.search||'';
+    var m=q.match(/theme=(dark|light)/);
+    var t=m?m[1]:(localStorage.getItem('ug-theme')||(window.matchMedia&&matchMedia('(prefers-color-scheme: light)').matches?'light':'dark'));
+    document.documentElement.dataset.theme=t;
+    if(/nosmooth/.test(q))document.documentElement.style.scrollBehavior='auto';
+  }catch(e){document.documentElement.dataset.theme='dark'}
+})();
+</script>
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#070a11; --card:#0e1424; --card-2:#0a101c;
+  --border:#1c2740; --border-strong:#2c3c5e;
+  --text:#e8eefb; --muted:#8b9cc0; --faint:#5a6a8c;
+  --grid:rgba(139,156,192,.13);
+  --c1:#b48cff; --c2:#3fe0a0; --c3:#ffb454; --c4:#5ac3ff; --c5:#ff7ab0; --c6:#2fe5c8;
+  --good:#3fe0a0; --bad:#ff6b6b;
+  --l1:#7f9cff; --l2:#b48cff; --l3:#3fe0a0; --l4:#ffb454; --l5:#ff7ab0; --l6:#ff6b6b;
+  --safe:#9fb0d8;
+}
+[data-theme="light"]{
+  color-scheme:light;
+  --bg:#f6f8fd; --card:#ffffff; --card-2:#f2f5fb;
+  --border:#e3e8f4; --border-strong:#c9d3e8;
+  --text:#131a2a; --muted:#5b6883; --faint:#8c97b3;
+  --grid:rgba(19,26,42,.09);
+  --c1:#7a3ff2; --c2:#0d9d61; --c3:#c47c12; --c4:#0f83c9; --c5:#d5427c; --c6:#0d9488;
+  --good:#0d9d61; --bad:#e04545;
+  --l1:#3b64d9; --l2:#8a4de8; --l3:#0d9d61; --l4:#c47c12; --l5:#d5427c; --l6:#e04545;
+  --safe:#6f7f9f;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:
+  radial-gradient(820px 420px at 10% -6%, color-mix(in srgb, var(--c1) 10%, transparent), transparent 62%),
+  radial-gradient(760px 400px at 92% -2%, color-mix(in srgb, var(--c4) 9%, transparent), transparent 60%),
+  radial-gradient(700px 460px at 50% 112%, color-mix(in srgb, var(--c2) 7%, transparent), transparent 65%);}
+.wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+/* ---------- top nav ---------- */
+.top{position:sticky;top:0;z-index:60;backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:color-mix(in srgb, var(--bg) 74%, transparent);border-bottom:1px solid var(--border)}
+.top-in{max-width:1120px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:9px 20px}
+.brand{font-weight:800;letter-spacing:.3px;font-size:15.5px;white-space:nowrap;margin-right:auto}
+.nav{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;flex-wrap:nowrap}
+.nav::-webkit-scrollbar{display:none}
+.nav a{font-size:14px;color:var(--muted);text-decoration:none;padding:6px 11px;border-radius:999px;border:1px solid transparent;white-space:nowrap}
+.nav a:hover{color:var(--text);border-color:var(--border-strong)}
+.nav a.active{color:var(--text);background:var(--card);border-color:var(--border-strong)}
+.icon-btn{appearance:none;border:1px solid var(--border-strong);background:var(--card);color:var(--muted);
+  padding:6px 12px;border-radius:999px;font-size:14px;cursor:pointer;white-space:nowrap}
+.icon-btn:hover{color:var(--text)}
+/* ---------- hero ---------- */
+.hero{max-width:1120px;margin:0 auto;padding:64px 20px 34px}
+.eyebrow{display:inline-flex;gap:8px;align-items:center;font-size:14px;color:var(--muted);border:1px solid var(--border-strong);
+  padding:6px 13px;border-radius:999px;background:color-mix(in srgb, var(--card) 65%, transparent)}
+h1{font-size:clamp(34px,6vw,62px);line-height:1.14;margin:20px 0 12px;letter-spacing:-1.5px}
+.grad{background:linear-gradient(100deg,var(--c1),var(--c4) 48%,var(--c2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{font-size:clamp(16px,2.2vw,20px);color:var(--muted);max-width:820px;margin:0}
+.hero-meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:22px}
+.pill{font-size:13.5px;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:999px;padding:5px 13px}
+.route{display:flex;flex-wrap:wrap;gap:8px;align-items:stretch;margin-top:30px}
+.stop{display:flex;flex-direction:column;gap:1px;padding:10px 15px;border:1px solid var(--border);border-radius:14px;
+  background:var(--card);font-size:14.5px;text-decoration:none;color:var(--text);transition:.15s}
+.stop:hover{border-color:var(--border-strong);transform:translateY(-2px)}
+.stop b{display:flex;align-items:center;gap:7px}
+.stop b::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--sec)}
+.stop small{color:var(--faint);font-size:12.5px}
+.arrow{color:var(--faint);align-self:center;font-size:14px}
+/* ---------- sections ---------- */
+.sec{max-width:1120px;margin:0 auto;padding:62px 20px 6px;scroll-margin-top:64px}
+.sec-head{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.chip{display:inline-flex;align-items:center;gap:8px;align-self:flex-start;font-size:13.5px;color:var(--sec);
+  border:1px solid color-mix(in srgb, var(--sec) 45%, transparent);background:color-mix(in srgb, var(--sec) 12%, transparent);
+  padding:5px 12px;border-radius:999px;font-weight:700}
+h2{font-size:clamp(26px,4vw,40px);margin:0;letter-spacing:-.6px;line-height:1.25}
+.hook{color:var(--muted);font-size:clamp(15.5px,2vw,18px);max-width:880px;margin:0}
+/* ---------- cards & layout ---------- */
+.card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:18px 20px}
+.lab{margin-top:16px;background:linear-gradient(180deg,color-mix(in srgb, var(--sec) 6%, var(--card)), var(--card));
+  border:1px solid var(--border);border-radius:20px;padding:16px 18px}
+.lab-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.lab-title{font-weight:800;font-size:17px}
+.badge{font-size:12.5px;padding:3px 10px;border-radius:999px;background:color-mix(in srgb, var(--sec) 14%, transparent);
+  color:var(--sec);border:1px solid color-mix(in srgb, var(--sec) 38%, transparent)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+.mini{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:14px 16px}
+.mini h4{margin:0 0 6px;font-size:16.5px}
+.mini p{margin:0;font-size:14.5px;color:var(--muted)}
+.mini b{color:var(--text)}
+/* ---------- controls ---------- */
+.controls{display:grid;grid-template-columns:repeat(auto-fit,minmax(236px,1fr));gap:14px;margin:4px 0 14px}
+.ctrl{background:var(--card-2);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+.ctrl>label{display:flex;justify-content:space-between;gap:8px;font-size:14.5px;color:var(--muted);margin-bottom:8px;align-items:baseline}
+.ctrl output{color:var(--sec);font-weight:800;font-size:15.5px;font-variant-numeric:tabular-nums;white-space:nowrap}
+input[type=range]{width:100%;-webkit-appearance:none;appearance:none;background:transparent;height:34px;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:8px;border-radius:99px;background:color-mix(in srgb, var(--sec) 20%, transparent);border:1px solid var(--border-strong)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--sec);border:3px solid var(--card);box-shadow:0 0 0 2px color-mix(in srgb, var(--sec) 60%, transparent),0 3px 10px rgba(0,0,0,.35);margin-top:-8px;transition:transform .12s}
+input[type=range]:active::-webkit-slider-thumb{transform:scale(1.18)}
+input[type=range]::-moz-range-track{height:8px;border-radius:99px;background:color-mix(in srgb, var(--sec) 20%, transparent);border:1px solid var(--border-strong)}
+input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--sec);border:3px solid var(--card);box-shadow:0 0 0 2px color-mix(in srgb, var(--sec) 60%, transparent)}
+input[type=range]:disabled{opacity:.4;cursor:not-allowed}
+.hint{font-size:13.5px;color:var(--faint);margin:7px 0 0}
+.hint b{color:var(--muted)}
+.muted-ink{color:var(--faint);font-size:13px}
+.btn{appearance:none;border:1px solid var(--border-strong);background:var(--card-2);color:var(--text);
+  padding:10px 18px;border-radius:12px;font-size:14.5px;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:hover{border-color:var(--sec);color:var(--sec);transform:translateY(-1px)}
+.btn.primary{background:color-mix(in srgb, var(--sec) 16%, transparent);border-color:color-mix(in srgb, var(--sec) 52%, transparent)}
+.btn.on{background:color-mix(in srgb, var(--c5) 18%, transparent);border-color:var(--c5);color:var(--c5)}
+/* ---------- canvases ---------- */
+.cv-card{background:var(--card-2);border:1px solid var(--border);border-radius:16px;padding:12px 12px 10px}
+.cv-title{font-size:13px;color:var(--muted);margin:0 2px 8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline}
+canvas{width:100%;display:block}
+#bsTail,#bsRace{height:320px}
+#afCanvas{height:350px}
+#bbC1,#bbC2{height:230px}
+#bbC3{height:340px}
+#klCurve{height:340px}
+#klS1,#klS2,#klS3{height:220px}
+#mbChart{height:340px}
+#mmView,#mmGuarantee{height:290px}
+/* ---------- stats ---------- */
+.stats{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:9px 14px;font-size:13px;color:var(--muted);min-width:146px}
+.stat b{display:block;font-size:20px;color:var(--text);font-variant-numeric:tabular-nums;margin:1px 0}
+.stat span{display:block}
+/* ---------- math ---------- */
+.math{font-family:ui-monospace,SFMono-Regular,Consolas,"Cascadia Mono",Menlo,monospace;
+  background:var(--card-2);border:1px dashed var(--border-strong);border-radius:12px;padding:12px 14px;margin:10px 0;
+  font-size:14.5px;overflow-x:auto;color:var(--text);line-height:2.05}
+.math em{color:var(--sec);font-style:normal;font-weight:700}
+/* ---------- deep dive ---------- */
+details.deep{margin-top:14px;border:1px solid var(--border);border-radius:14px;background:var(--card-2);padding:11px 15px}
+details.deep summary{cursor:pointer;font-size:14.5px;color:var(--muted);font-weight:700}
+details.deep[open] summary{color:var(--text);margin-bottom:6px}
+details.deep p,details.deep ul{font-size:14.2px;color:var(--muted);margin:6px 0}
+details.deep b{color:var(--text)}
+/* ---------- mix bar / table / flow / bandit ---------- */
+.mixbar{display:flex;height:36px;border-radius:11px;overflow:hidden;border:1px solid var(--border-strong);margin:12px 0 2px;font-size:12.5px}
+.mixbar>div{display:flex;align-items:center;justify-content:center;gap:4px;white-space:nowrap;overflow:hidden;transition:width .2s}
+.mixbar .safe{background:linear-gradient(90deg,#31405f,#4d6088);color:#dbe6ff}
+[data-theme="light"] .mixbar .safe{background:linear-gradient(90deg,#c8d3ea,#aebcdc);color:#1c2740}
+.mixbar .wild{background:linear-gradient(90deg,#b8741a,#ffb454);color:#241503}
+.tablewrap{overflow-x:auto;border:1px solid var(--border);border-radius:16px;background:var(--card)}
+table{border-collapse:collapse;width:100%;min-width:780px;font-size:14.5px}
+th,td{padding:12px 14px;text-align:left;border-bottom:1px solid var(--border);vertical-align:top}
+th{color:var(--muted);font-weight:700;font-size:13.3px;background:var(--card-2)}
+tr:last-child td{border-bottom:none}
+td .tname{font-weight:800;white-space:nowrap}
+td .tname i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;background:var(--tc,var(--c2))}
+.flow{display:flex;flex-wrap:wrap;gap:9px;align-items:stretch}
+.step{background:var(--card-2);border:1px solid var(--border);border-radius:13px;padding:10px 13px;font-size:14.2px;font-weight:700;display:flex;flex-direction:column;gap:2px;max-width:210px}
+.step p{margin:0;font-size:13px;color:var(--faint);font-weight:400}
+.flow .ar{color:var(--faint);align-self:center}
+.legend{display:flex;gap:11px;flex-wrap:wrap}
+.lg{display:inline-flex;align-items:center;gap:6px;color:var(--muted);font-size:13px;font-variant-numeric:tabular-nums}
+.lg i{width:10px;height:10px;border-radius:3px;display:inline-block}
+.lg b{color:var(--text)}
+.mb-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:14px}
+@media(max-width:1000px){.mb-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:600px){.mb-grid{grid-template-columns:1fr}}
+.mb-card{background:var(--card-2);border:1px solid var(--border);border-radius:14px;padding:12px 13px}
+.mb-card h5{margin:0 0 9px;font-size:14.2px;display:flex;justify-content:space-between;gap:6px;align-items:center;flex-wrap:wrap}
+.mb-card .dot{width:9px;height:9px;border-radius:50%;display:inline-block;margin-right:6px}
+.tag{font-size:11.5px;padding:2px 8px;border-radius:999px;border:1px solid var(--border-strong);color:var(--muted);font-weight:400}
+.tag.ok{color:var(--good);border-color:color-mix(in srgb, var(--good) 50%, transparent)}
+.tag.no{color:var(--bad);border-color:color-mix(in srgb, var(--bad) 45%, transparent)}
+.armrow{display:grid;grid-template-columns:46px 1fr 110px;gap:8px;align-items:center;font-size:12.8px;color:var(--muted);margin:6px 0}
+.armrow.best{color:var(--text);font-weight:700}
+.armbar{height:13px;border-radius:7px;background:var(--card);border:1px solid var(--border);overflow:hidden}
+.armbar i{display:block;height:100%;border-radius:6px;opacity:.6;transition:width .15s}
+.armrow.best .armbar i{opacity:1}
+/* ---------- footer ---------- */
+.foot{max-width:1120px;margin:56px auto 0;padding:24px 20px 60px;color:var(--faint);font-size:14px;border-top:1px solid var(--border)}
+.foot p{margin:6px 0}
+/* ---------- callout / story / minimax ---------- */
+.callout{border-left:4px solid var(--sec);background:color-mix(in srgb, var(--sec) 9%, transparent);
+  padding:10px 15px;border-radius:0 12px 12px 0;font-size:14.5px;margin:12px 0 0;color:var(--text);line-height:1.75}
+.callout b{color:var(--sec)}
+.callout em{font-style:normal;color:var(--sec);font-weight:700}
+.story{margin-top:12px;border:1px solid var(--border);border-left:4px solid var(--sec);border-radius:0 14px 14px 0;
+  padding:12px 17px;background:var(--card);font-size:14.5px;line-height:1.85}
+.story h5{margin:0 0 6px;font-size:15px;color:var(--sec)}
+.story p{margin:4px 0;color:var(--muted)}
+.story b{color:var(--text)}
+.mm-mat{margin:6px 0 2px}
+.mm-mat table{min-width:0;width:auto;margin:0 auto;border:1px solid var(--border);border-radius:12px;overflow:hidden;font-size:15px}
+.mm-mat th,.mm-mat td{padding:9px 20px;text-align:center;border-bottom:1px solid var(--border)}
+.mm-mat thead th{background:var(--card-2);color:var(--muted);font-size:13.5px}
+.mm-mat thead th.hot{color:var(--sec);background:color-mix(in srgb, var(--sec) 12%, transparent)}
+.mm-mat tbody th{text-align:left;color:var(--muted);font-size:14px;background:var(--card-2)}
+.mm-mat td{font-weight:800;font-size:18px;font-variant-numeric:tabular-nums}
+.mm-mat tr:last-child td,.mm-mat tr:last-child th{border-bottom:none}
+.mm-mat td.win{color:var(--good)}
+.mm-mat td.lose{color:var(--bad)}
+.mm-tip{text-align:center;font-size:13px;color:var(--faint);margin-top:6px}
+@media (prefers-reduced-motion: reduce){*{transition:none !important;animation:none !important}}
+</style>
+</head>
+<body>
+
+<nav class="top">
+  <div class="top-in">
+    <span class="brand">🎲 不确定性游玩指南</span>
+    <div class="nav">
+      <a href="#sec-blackswan">🦢 黑天鹅</a>
+      <a href="#sec-antifragile">💪 反脆弱</a>
+      <a href="#sec-barbell">🏋️ 杠铃</a>
+      <a href="#sec-kelly">🎯 凯利</a>
+      <a href="#sec-bandit">🎰 老虎机</a>
+      <a href="#sec-minimax">🧭 Minimax</a>
+      <a href="#sec-summary">🗺️ 小抄</a>
+    </div>
+    <button class="icon-btn" id="themeBtn" title="切换明暗主题">🌙 夜间</button>
+  </div>
+</nav>
+
+<header class="hero">
+  <span class="eyebrow">🧪 六个数学工具 · 六台交互实验室</span>
+  <h1>随机世界里的<br><span class="grad">生存与发财手册</span></h1>
+  <p class="lede">黑天鹅、反脆弱、杠铃策略、凯利公式、多臂老虎机、Minimax——每个概念都配了一台「游戏机」：拖滑块、按按钮，图形全部由你的浏览器现场计算。玩完这一页，你对不确定性的直觉会换一副眼镜。</p>
+  <div class="hero-meta">
+    <span class="pill">🖱️ 全靠拖</span><span class="pill">🎲 随机数现场开赌</span><span class="pill">📱 手机友好</span><span class="pill">🌗 明暗双主题</span>
+  </div>
+  <div class="route">
+    <a class="stop" style="--sec:var(--c1)" href="#sec-blackswan"><b>① 黑天鹅</b><small>世界有多「胖」</small></a>
+    <span class="arrow">→</span>
+    <a class="stop" style="--sec:var(--c2)" href="#sec-antifragile"><b>② 反脆弱</b><small>波动是敌是友</small></a>
+    <span class="arrow">→</span>
+    <a class="stop" style="--sec:var(--c3)" href="#sec-barbell"><b>③ 杠铃</b><small>保命 + 博命</small></a>
+    <span class="arrow">→</span>
+    <a class="stop" style="--sec:var(--c4)" href="#sec-kelly"><b>④ 凯利公式</b><small>该下多大注</small></a>
+    <span class="arrow">→</span>
+    <a class="stop" style="--sec:var(--c5)" href="#sec-bandit"><b>⑤ 老虎机</b><small>边玩边学</small></a>
+    <span class="arrow">→</span>
+    <a class="stop" style="--sec:var(--c6)" href="#sec-minimax"><b>⑥ Minimax</b><small>最坏情况保底</small></a>
+  </div>
+  <p class="hint" style="margin-top:18px">建议按顺序玩：先认清世界（黑天鹅），再调整姿势（反脆弱），然后摆好阵型（杠铃）和下注尺寸（凯利），学会在未知里学习（老虎机），最后补一堂「概率完全不可信」时的保底课（Minimax）。</p>
+</header>
+
+<main>
+
+<!-- ================= ① 黑天鹅 ================= -->
+<section class="sec" id="sec-blackswan" style="--sec:var(--c1)">
+  <div class="sec-head">
+    <span class="chip">① 认识敌人 · 黑天鹅</span>
+    <h2>世界比你想象的更「胖」</h2>
+    <p class="hook">你以为极端事件是十亿分之一的奇迹？在肥尾世界里，它可能年年上新闻。先学会分辨：你活在哪一种世界里。</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini"><h4>🦃 火鸡的 1000 天</h4><p>火鸡被连续喂了 1000 天，它「验证」出人类是善良的。第 1001 天是感恩节。<br><b>稳定持续得越久，越要问：我的「1000 天」会不会藏着一个第 1001 天？</b></p></div>
+    <div class="mini"><h4>🎯 黑天鹅三件套</h4><p><b>①</b> 极其罕见：超出常规预期<br><b>②</b> 冲击巨大：能改写总量<br><b>③</b> 事后可解释：人人都像早就知道</p></div>
+    <div class="mini"><h4>⚖️ 两种世界</h4><p><b>温和世界（正态）</b>：极端事件的概率像跳崖一样塌缩。<br><b>极端世界（幂律）</b>：极端事件「罕见但不见外」，而且一次能抵十次用。</p></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 1A · 两种世界的尾巴</span><span class="badge">拖动 α，把尾巴调肥</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>尾巴指数 α <output id="bsAlphaOut">1.5</output></label>
+        <input type="range" id="bsAlpha" min="0.5" max="3" step="0.1" value="1.5">
+        <p class="hint">α 越小，尾巴越肥：α ≤ 2 时方差无穷大，<b>α ≤ 1 连均值都不存在</b>。把 α 拖到 1 以下，亲眼看看「平均值」是怎么坏掉的。</p>
+      </div>
+      <div class="ctrl">
+        <label>怎么读这张图</label>
+        <p class="hint" style="margin-top:2px"><b style="color:var(--l1)">蓝线 = 温和世界（正态）</b>，<b style="color:var(--l4)">橙线 = 极端世界（幂律）</b>。横轴：事件大小（以典型波动为 1 个单位，对数刻度）；纵轴：发生概率，从 100% 一路到十亿分之一。曲线掉得越慢，世界越凶险。</p>
+      </div>
+    </div>
+    <div class="cv-card">
+      <div class="cv-title"><span>「超过某个大小」的概率（双对数坐标）</span></div>
+      <canvas id="bsTail" role="img" aria-label="正态分布与幂律分布的尾部概率对比"></canvas>
+      <p class="callout" id="bsTailNote">—</p>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 1B · 1000 天累加赛</span><span class="badge">看看谁在「一步登天」</span></div>
+    <div class="cv-card">
+      <div class="cv-title"><span>累计总量（横轴＝第几天）</span><span class="muted-ink"><b style="color:var(--l1)">蓝线：温和世界（|正态| 累加）</b> · <b style="color:var(--l4)">橙线：极端世界（幂律累加）</b></span></div>
+      <canvas id="bsRace" role="img" aria-label="两个世界各抽1000次的累计总量对比"></canvas>
+      <div class="stats" id="bsRaceStats"></div>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn primary" id="bsRedraw">🎲 重新抽 1000 天</button>
+    </div>
+    <p class="hint">看出差别了吗：温和世界的总量老老实实爬坡；极端世界的总量平时躺平，靠个别几天「一步登天」。<b>黑天鹅不是概率题，是「占比题」——真正决定命运的，是那条尾巴。</b></p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      正态尾部：P(X &gt; x) ≈ e<sup>−x²/2</sup> —— 指数级塌缩，6σ 约等于「十亿分之一」<br>
+      幂律尾部：P(X &gt; x) ∝ x<sup>−α</sup> —— 幂级减速，6 倍事件还有 <em>6<sup>−α</sup></em> 的概率<br>
+      α ≤ 2 → 方差无穷大；α ≤ 1 → 均值无穷大（历史平均值自己都不收敛）<br>
+      最大值法则：n 个样本里的最大值量级 ~ n<sup>1/α</sup> —— 样本翻 100 倍，最大值只翻 100<sup>1/α</sup> 倍
+    </div>
+    <details class="deep"><summary>深入一层：为什么肥尾世界里的「平均值」靠不住？</summary>
+      <p>因为样本均值由最大值主导：在 α=1.5 时，1000 个样本里最大的那个大约占总和的很大一块，而且这个「最大」本身会随样本数缓慢增长（~n<sup>1/α</sup>）。你永远在等待还没出现的最大样本——所以均值估计永远偏低，方差永远低估。<b>传统统计的「样本够多就收敛」在这里失效。</b></p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「历史上没发生过 = 不可能发生」；「数据够多就能估准风险」。在肥尾世界里，样本均值会跟着最大的一两个样本到处乱跑。</p>
+  </div>
+</section>
+
+<!-- ================= ② 反脆弱 ================= -->
+<section class="sec" id="sec-antifragile" style="--sec:var(--c2)">
+  <div class="sec-head">
+    <span class="chip">② 转变姿态 · 反脆弱</span>
+    <h2>波动是燃料，前提是你的曲线向上弯</h2>
+    <p class="hook">同样一场风波，有人被拍进土里，有人越打越强。区别不在运气，在收益曲线的形状：凹的怕波动，凸的爱波动。</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini"><h4>🧊 脆弱（凹）</h4><p>玻璃杯、满仓杠杆、「一次定终身」。波动一来就碎，且碎了不能复原——<b>曲线向下弯</b>。</p></div>
+    <div class="mini"><h4>🪨 坚韧（线性）</h4><p>石头、分散的现金、结实的系统。摔一下还是石头，但也仅此而已——<b>波动不会让你更好</b>。</p></div>
+    <div class="mini"><h4>💪 反脆弱（凸）</h4><p>肌肉、免疫系统、九头蛇、期权、一串小赌注。冲击来了不但不死，还把冲击吃成营养——<b>曲线向上弯</b>。</p></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 2 · 曲率调节器</span><span class="badge">先拖曲率 k，再拖波动 σ</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>曲率 k（收益 = 冲击<sup>k</sup>） <output id="afKOut">k = 2.00（凸）</output></label>
+        <input type="range" id="afK" min="0.1" max="3" step="0.05" value="2">
+        <p class="hint">k &gt; 1 向上弯（凸、反脆弱）｜k = 1 直线（坚韧）｜k &lt; 1 向下弯（凹、脆弱）——试试两极：k=0.1 是「玻璃杯」，k=3 是「超级肌肉」。</p>
+      </div>
+      <div class="ctrl">
+        <label>波动 σ（冲击的不确定程度） <output id="afSigOut">σ = 0.45</output></label>
+        <input type="range" id="afSig" min="0" max="1.2" step="0.03" value="0.45">
+        <p class="hint">σ = 0 时没有波动，凹凸看不出差别——<b>波动是暴露曲率的显影液</b>。</p>
+      </div>
+      <div class="ctrl">
+        <label>换一批冲击</label>
+        <div style="margin-top:6px"><button class="btn" id="afResample">🎲 重新采样（28 次冲击）</button></div>
+        <p class="hint">每个圆点 = 某次冲击落在曲线上的结果；所有冲击的平均固定为 μ = 1。</p>
+      </div>
+    </div>
+    <div class="cv-card">
+      <div class="cv-title"><span>收益曲线 f(x) = xᵏ 与实测点</span><span class="muted-ink">灰色虚线 = 平均冲击下的固定结果 f(μ)</span></div>
+      <canvas id="afCanvas" role="img" aria-label="凸凹函数与波动关系的交互演示"></canvas>
+      <div class="stats">
+        <div class="stat"><span>固定世界的结果 f(μ)</span><b id="afMuVal">1.00</b></div>
+        <div class="stat"><span>波动世界的平均结果 E[f(X)]</span><b id="afMeanVal">1.00</b></div>
+        <div class="stat"><span>凸性红利 Δ</span><b id="afGapVal">+0.00</b></div>
+      </div>
+      <p class="callout" id="afVerdict">—</p>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      二阶泰勒：E[f(X)] ≈ f(μ) + ½·f″(μ)·σ² —— <em>波动 × 曲率 = 额外收益（或损失）</em><br>
+      琴生不等式（Jensen）：f 凸 → E[f(X)] ≥ f(E[X])；f 凹 → E[f(X)] ≤ f(E[X])<br>
+      凸性的现实别名：可选性（optionality）——损失封顶、收益开口
+    </div>
+    <details class="deep"><summary>深入一层：为什么「波动 × 曲率」是最重要的一句话？</summary>
+      <p>把 f 在均值 μ 处做泰勒展开并取期望：一次项期望为零（波动是零均值的），剩下的第一项就是 ½·f″(μ)·σ²。这意味着：<b>你既不需要预测波动的方向，也不需要预测它的时间</b>——只要 f″ &gt; 0（凸）且 σ 存在，波动本身就贡献正收益。这就是「反脆弱」的全部数学。</p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「稳定压倒一切」——稳定对脆弱系统是续命，对反脆弱系统是扼杀。先分清你手里的是玻璃杯还是肌肉。</p>
+  </div>
+</section>
+
+<!-- ================= ③ 杠铃 ================= -->
+<section class="sec" id="sec-barbell" style="--sec:var(--c3)">
+  <div class="sec-head">
+    <span class="chip">③ 摆好阵型 · 杠铃策略</span>
+    <h2>90% 极度安全 + 10% 极度激进，中间是陷阱</h2>
+    <p class="hook">如果左尾能保命、右尾能翻身，那为什么只要一头？塔勒布的答案：两头都要，中间不要。</p>
+  </div>
+
+  <div class="card">
+    <p style="margin:0 0 6px">直觉：把资金切成两段——大头放在「无聊到不会死」的地方（现金、国债），小头押在「输了不心疼、赢了一辈子」的凸性机会上。组合的下限被安全垫钉死，上限交给小注去博。<br>最惨的是中间档「中庸配置」：<b>黑天鹅来了它也腰斩，行情来了它也涨不到天上去。</b></p>
+    <p class="hint" style="margin:0">下面用 1200 条模拟人生 × 20 年，同时跑三种配置。玩到一半，别忘了按「放黑天鹅」。</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 3 · 二十年人生模拟器</span><span class="badge">拖比例，放黑天鹅</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>安全垫比例 w <output id="bbWOut">90%</output></label>
+        <input type="range" id="bbW" min="0.7" max="0.98" step="0.01" value="0.9">
+        <div class="mixbar">
+          <div class="safe" id="bbMixSafe" style="width:90%">🛡️ 保命 <span id="bbMixSafeTxt">90%</span></div>
+          <div class="wild" id="bbMixWild" style="width:10%">🚀 博命 <span id="bbMixWildTxt">10%</span></div>
+        </div>
+        <p class="hint">小注的年度命运：90% 小亏 −30% ｜ 9% 爆发 ×5 ｜ 1% 传说 ×40。保命部分年化 2%。</p>
+      </div>
+      <div class="ctrl">
+        <label>「中庸」资产的年化波动 σ <output id="bbSigOut">20%</output></label>
+        <input type="range" id="bbSig" min="0.08" max="0.3" step="0.01" value="0.2">
+        <p class="hint">它平时年化预期 7%，看着体面——直到黑天鹅出现。</p>
+      </div>
+      <div class="ctrl">
+        <label>剧情按钮</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <button class="btn" id="bbShock">🦢 放出一只黑天鹅</button>
+          <button class="btn" id="bbRerun">🎲 换一批行情</button>
+        </div>
+        <p class="hint">黑天鹅剧本：第 11 年「中庸」资产 −60%；同一年，杠铃的小注全部清零（连创业项目全灭都算上）。</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="cv-card">
+        <div class="cv-title"><span>🛡️ 全仓安全（2%/年）</span><span class="muted-ink">无聊，但几乎不会死</span></div>
+        <canvas id="bbC1" role="img" aria-label="全仓安全资产的二十年轨迹"></canvas>
+        <div class="stats" id="bbS1"></div>
+      </div>
+      <div class="cv-card">
+        <div class="cv-title"><span>⚖️ 中庸配置（100% 中风险）</span><span class="muted-ink">体面，直到黑天鹅敲门</span></div>
+        <canvas id="bbC2" role="img" aria-label="中庸配置的二十年轨迹"></canvas>
+        <div class="stats" id="bbS2"></div>
+      </div>
+    </div>
+    <div class="cv-card" style="margin-top:14px">
+      <div class="cv-title"><span>🏋️ 杠铃（w 保命 + 小注博命）· 放大细看</span><span class="muted-ink">粉色线 = 一位代表性选手的人生；圆圈 = 他的小注爆发年份</span></div>
+      <canvas id="bbC3" role="img" aria-label="杠铃组合的二十年轨迹与爆发年份细节"></canvas>
+      <div class="stats" id="bbS3"></div>
+    </div>
+    <div class="story" id="bbStory"><h5>📣 本局解说</h5><p>加载中…</p></div>
+    <p class="hint" id="bbVerdict" style="margin-top:12px">深色线 = 中位数轨迹；浅色带 = 25–75% 与 5–95% 人群范围；虚线 = 本金线 ×1。按下「放黑天鹅」，看三条命运线怎么分叉。</p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      组合上限 ≈ w·(1+2%) + (1−w)·小注爆发 ——「无顶」<br>
+      组合下限 ≈ w·(1+2%) + (1−w)·0 ——「有底」：最坏一年亏损约 (1−w)<br>
+      要点：两端都要「极端」。中间的伪安全资产 = 既保不了命，也没有爆发力
+    </div>
+    <details class="deep"><summary>深入一层：为什么「中庸资产」比想象中脆弱？</summary>
+      <p>中风险资产（企业债、混合基金、加杠杆的「稳健理财」）看上去波动温和，但它们内嵌了期限错配和隐性杠杆，且左尾是「断崖」式的（信用事件、挤兑、流动性消失）。平时它们用小波动给你发糖，黑天鹅来临时把几年的糖一次性收走——<b>收益有顶、损失没底，正是杠铃要绕开的那一段。</b></p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「杠铃 = 激进」——恰恰相反，它第一条军规是「无论如何别死」；「随便买点彩票就行」——要的是损失有界、收益开口的凸性押注，而不是纯负期望的消费。</p>
+  </div>
+</section>
+
+<!-- ================= ④ 凯利 ================= -->
+<section class="sec" id="sec-kelly" style="--sec:var(--c4)">
+  <div class="sec-head">
+    <span class="chip">④ 下注尺寸 · 凯利公式</span>
+    <h2>赌得对，还要下得「刚刚好」</h2>
+    <p class="hook">优势再大，下注太大也会破产。凯利算的不是赚最多的比例，而是「活得最久、滚得最快」的比例——长期复利增长的最优解。</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini"><h4>🐢 下太小</h4><p>优势被浪费，雪球滚得像散步。安全，但你在用速度换心安。</p></div>
+    <div class="mini"><h4>🐇 下太大</h4><p>哪怕赌局对你有利，波动也会先把你洗出局。<b>双倍凯利的长期中位数，约等于原地踏步。</b></p></div>
+    <div class="mini"><h4>🎯 刚刚好</h4><p>f* 位置：每局对数增长最大。现实中 p 靠估计 → 高手默认再打个折（半凯利）。</p></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 4A · 增长率曲线</span><span class="badge">拖 p、b、f 三个旋钮</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>胜率 p <output id="klPOut">55%</output></label>
+        <input type="range" id="klP" min="0.3" max="0.8" step="0.01" value="0.55">
+        <p class="hint">每局赢的概率。</p>
+      </div>
+      <div class="ctrl">
+        <label>净赔率 b（赢一把 = 吃下本金的 b 倍） <output id="klBOut">1.00</output></label>
+        <input type="range" id="klB" min="0.5" max="4" step="0.05" value="1">
+        <p class="hint">b = 1 即「猜硬币，赢赚一倍，输赔一倍」。</p>
+      </div>
+      <div class="ctrl">
+        <label>你的下注比例 f <output id="klFOut">10%</output></label>
+        <input type="range" id="klF" min="0" max="1" step="0.01" value="0.1">
+        <p class="hint">蓝色大点 = 你的选择；绿线 = 凯利最优 f*。试试把 f 拖到 2f* 以外。</p>
+      </div>
+    </div>
+    <div class="cv-card">
+      <div class="cv-title"><span>每局对数增长率 G(f)（越高＝雪球滚得越快）</span><span class="muted-ink">低于 0 ＝哪怕有优势也长期必亏</span></div>
+      <canvas id="klCurve" role="img" aria-label="凯利增长率曲线"></canvas>
+      <div class="stats">
+        <div class="stat"><span>凯利最优 f*</span><b id="klFstar">—</b></div>
+        <div class="stat"><span>你的每局增速 G(f)</span><b id="klG">—</b></div>
+        <div class="stat"><span>本金翻倍所需局数</span><b id="klDoubles">—</b></div>
+      </div>
+      <p class="hint" id="klMsg">—</p>
+    </div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 4B · 三档下注模拟</span><span class="badge">300 局 × 200 条命，同场竞技</span></div>
+    <div class="grid3">
+      <div class="cv-card"><div class="cv-title"><span>🌿 半凯利 f*/2</span></div><canvas id="klS1" role="img" aria-label="半凯利的模拟结果"></canvas><div class="stats" id="klStat1"></div></div>
+      <div class="cv-card"><div class="cv-title"><span>🎯 全凯利 f*</span></div><canvas id="klS2" role="img" aria-label="全凯利的模拟结果"></canvas><div class="stats" id="klStat2"></div></div>
+      <div class="cv-card"><div class="cv-title"><span>🔥 双倍凯利 2f*</span></div><canvas id="klS3" role="img" aria-label="双倍凯利的模拟结果"></canvas><div class="stats" id="klStat3"></div></div>
+    </div>
+    <div style="margin-top:12px"><button class="btn primary" id="klRun">🔁 再来 300 局</button></div>
+    <p class="hint">盯住双倍凯利：中位数贴地飞行（每局对数增长为负），深水概率却一路飙升——这就是「过度下注」的数学死刑。<b>胜率越高、赔率越好，越要警惕手痒；现实中 p 是估出来的，所以老手常用半凯利。</b></p>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      凯利比例：<em>f* = (b·p − q) / b = p − q/b</em>（q = 1−p）<br>
+      对数增长率：G(f) = p·ln(1+b·f) + q·ln(1−f)，f* 处取最大值<br>
+      本金翻倍局数 ≈ ln 2 / G(f*) ｜ 前提：赌局可重复、概率稳定、p 不会偷偷变
+    </div>
+    <details class="deep"><summary>深入一层：f* 是怎么推出来的？（两行微积分）</summary>
+      <p>求导：G′(f) = p·b/(1+bf) − q/(1−f) = 0 → 解出 f* = (bp − q)/b。<br>
+      二阶导 G″(f) = −p·b²/(1+bf)² − q/(1−f)² &lt; 0 恒成立，所以 f* 是唯一的全局最大值——这就是「双倍凯利为什么惨」的数学根源：对称地远离极大值，左半边增长变慢，右半边直接滑向负增长。<br>
+      顺带一提：q/b 就是「赔率对胜率的要求」，f* &gt; 0 等价于 p·b &gt; q，即赌局有正期望。</p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「胜率 90% 就该下 90%」——赔率同样决定 f*；「凯利教你收益最大化」——它最大化的是长期几何增长率，为此宁愿放慢一点速度，换取「永不归零」。</p>
+  </div>
+</section>
+
+<!-- ================= ⑤ 多臂老虎机 ================= -->
+<section class="sec" id="sec-bandit" style="--sec:var(--c5)">
+  <div class="sec-head">
+    <span class="chip">⑤ 边玩边学 · 多臂老虎机</span>
+    <h2>胜率未知时，先把「试探」当成投资</h2>
+    <p class="hook">现实里没人告诉你 p。于是问题变成：先拉哪台？拉几次？什么时候换台？——这就是探索与利用的权衡。</p>
+  </div>
+
+  <div class="card">
+    <p style="margin:0">想象面前 4 台老虎机，胜率各不相同但你不知道。每拉一次都在花掉一次机会：<b>试冷门臂 = 交学费换信息</b>，<b>拉熟悉的臂 = 兑现已知收益</b>。纯贪心会卡在第一次的好运上；纯探索永远在交学费。UCB 给「不确定性」标了价，汤普森让你按「当前相信的程度」掷骰子——都在做同一件事：让错过的好运（遗憾）增长得尽可能慢。</p>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 5 · 四策略擂台</span><span class="badge">1500 回合，看谁遗憾少</span></div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>ε（ε-贪心的探索率） <output id="mbEpsOut">10%</output></label>
+        <input type="range" id="mbEps" min="0" max="0.5" step="0.01" value="0.1">
+        <p class="hint">ε = 0 退化成纯贪心；ε 越大越爱乱试。改动从下一回合生效。</p>
+      </div>
+      <div class="ctrl">
+        <label>速度（每帧推进回合数） <output id="mbSpeedOut">6</output></label>
+        <input type="range" id="mbSpeed" min="1" max="40" step="1" value="6">
+        <p class="hint">想快进就拉到 40；想一帧一帧看策略怎么变，就调到 1。</p>
+      </div>
+      <div class="ctrl">
+        <label>操作台</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:6px">
+          <button class="btn primary" id="mbStart">▶ 开始</button>
+          <button class="btn" id="mbStep">⏭ +200 步</button>
+          <button class="btn" id="mbReset">↺ 重置</button>
+          <button class="btn" id="mbNew">🎲 换机</button>
+        </div>
+        <p class="hint" style="margin-top:9px">进度：<b id="mbSteps">0 / 1500 回合</b></p>
+      </div>
+    </div>
+    <div class="cv-card">
+      <div class="cv-title"><span>累计遗憾（越低越好）</span><span id="mbLegend" class="legend"></span></div>
+      <canvas id="mbChart" role="img" aria-label="四种策略的累计遗憾曲线"></canvas>
+    </div>
+    <div class="controls" style="margin-top:14px">
+      <div class="ctrl"><label>臂 1 真实胜率 <output id="mbP0Out">0.50</output></label><input type="range" id="mbP0" min="0.05" max="0.95" step="0.01" value="0.5"></div>
+      <div class="ctrl"><label>臂 2 真实胜率 <output id="mbP1Out">0.60</output></label><input type="range" id="mbP1" min="0.05" max="0.95" step="0.01" value="0.6"></div>
+      <div class="ctrl"><label>臂 3 真实胜率 <output id="mbP2Out">0.45</output></label><input type="range" id="mbP2" min="0.05" max="0.95" step="0.01" value="0.45"></div>
+      <div class="ctrl"><label>臂 4 真实胜率 <output id="mbP3Out">0.70</output></label><input type="range" id="mbP3" min="0.05" max="0.95" step="0.01" value="0.7"></div>
+    </div>
+    <p class="hint">改动任意「真实胜率」＝换一批老虎机，比赛重置。下面卡片里高亮行 = 真实最优臂（上帝视角）。</p>
+    <div class="mb-grid" id="mbCards"></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      遗憾（Regret）：R<sub>T</sub> = Σ<sub>t</sub> ( μ* − μ(a<sub>t</sub>) ) ——「错过的最优收益」的累计<br>
+      UCB1：选 argmax( x̄<sub>i</sub> + √(2 ln t / n<sub>i</sub>) ) —— 均值 + 不确定性奖金<br>
+      汤普森采样：给每臂维护 Beta(赢+1, 输+1) 后验，按后验随机采样选臂<br>
+      已知最优下界：遗憾至少按 log T 增长；优秀算法的遗憾上界也接近它——「学习」是支付得起学费的
+    </div>
+    <details class="deep"><summary>深入一层：UCB 的「不确定性奖金」在说什么？</summary>
+      <p>x̄<sub>i</sub> + √(2 ln t / n<sub>i</sub>)：均值部分是「现在看起来多好」，根号部分是「我还多不了解它」——<b>拉得越少的臂，奖金越高</b>；回合 t 越大，奖金整体缓慢缩水。所以 UCB 从不「永久放弃」任何一条臂，只是把好奇心的预算越收越紧。<br>
+      汤普森采样换了个视角：不确定 = 后验分布很宽，掷骰子时偶尔会掷出乐观值，于是自动多试；信念收窄后，探索自动减少。<b>两种算法都在回答同一个问题：好奇心值多少钱？</b></p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「先测到显著，再全量押注」——中规中矩，但会把大量流量浪费在差臂上；老虎机思路是边测边赢。另一个误解：「贪心最快」——它只是最快锁死错误答案。</p>
+  </div>
+</section>
+
+<!-- ================= ⑥ Minimax ================= -->
+<section class="sec" id="sec-minimax" style="--sec:var(--c6)">
+  <div class="sec-head">
+    <span class="chip">⑥ 保底思维 · Minimax（最小最大）</span>
+    <h2>当概率不可信，先算最坏情况</h2>
+    <p class="hook">老虎机要你相信 p，凯利要你估计 p——可现实里没人给你发 p。Minimax 的回答硬核又诚实：不猜概率，只求「最坏情况里最好的那条路」。</p>
+  </div>
+
+  <div class="grid3">
+    <div class="mini"><h4>🎯 一句话思想</h4><p>对每个选择，先问「最坏会怎样」，然后选那个<b>最坏结果里最好的</b>（max-min）。悲观，但保底。</p></div>
+    <div class="mini"><h4>⚔️ 零和博弈</h4><p>你赢多少＝对手输多少。冯·诺依曼定理：<b>混合策略下，你的 max-min ＝ 对手的 min-max</b>——存在唯一的博弈值。</p></div>
+    <div class="mini"><h4>🧭 什么时候用</h4><p>对手聪明、概率没谱、后果要命：谈判、竞争、军事、保命钱、鲁棒设计。<b>期望值赌「平均」，minimax 保「下限」。</b></p></div>
+  </div>
+
+  <div class="lab">
+    <div class="lab-head"><span class="lab-title">🧪 实验室 6 · 你出招，对手拆招</span><span class="badge">拖 p，看保底值怎么变</span></div>
+    <div class="card" style="margin:4px 0 14px">
+      <p style="margin:0 0 8px;font-size:14.5px">设定一个零和小游戏：你按概率 <b>p</b> 选「上 T」、按 <b>1−p</b> 选「下 B」；对手按概率 <b>q</b> 选「左 L」／「右 R」。表格里是你赢的分数（对手赢的就是你的相反数）：</p>
+      <div class="mm-mat">
+        <table>
+          <thead><tr><th></th><th id="mmColL">对手：左 L</th><th id="mmColR">对手：右 R</th></tr></thead>
+          <tbody>
+            <tr><th>你：上 T（概率 p）</th><td class="win">+3</td><td class="lose">0</td></tr>
+            <tr><th>你：下 B（概率 1−p）</th><td class="lose">0</td><td class="win">+1</td></tr>
+          </tbody>
+        </table>
+        <p class="mm-tip">双方都随机化时，期望收益 = 四个格子的加权平均。</p>
+      </div>
+    </div>
+    <div class="controls">
+      <div class="ctrl">
+        <label>你的混合策略 p（选 T 的概率） <output id="mmPOut">50%</output></label>
+        <input type="range" id="mmP" min="0" max="1" step="0.01" value="0.5">
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+          <button class="btn" id="mmPureT">硬刚 T</button>
+          <button class="btn" id="mmPureB">硬刚 B</button>
+          <button class="btn primary" id="mmBest">🎯 最优混合</button>
+        </div>
+      </div>
+      <div class="ctrl">
+        <label>对手选择 q（选左 L 的概率） <output id="mmQOut">50%</output></label>
+        <input type="range" id="mmQ" min="0" max="1" step="0.01" value="0.5">
+        <p class="hint" style="margin-top:10px"><label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:14px"><input type="checkbox" id="mmAuto" checked style="width:18px;height:18px;margin:0;accent-color:var(--sec)"> 对手自动拆招（永远选对你不利的）</label></p>
+        <p class="hint">取消勾选，你就能亲自扮演对手，感受一下「被针对」是什么体验。</p>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="cv-card">
+        <div class="cv-title"><span>👀 对手视角：固定你的 p，他挑 q</span><span class="muted-ink">红点 = 他把你按到的最低处</span></div>
+        <canvas id="mmView" role="img" aria-label="对手视角的期望收益曲线"></canvas>
+      </div>
+      <div class="cv-card">
+        <div class="cv-title"><span>🛡️ 你的保底曲线：g(p) = 最坏情况的收益</span><span class="muted-ink">灰虚线 = 对手两种纯策略</span></div>
+        <canvas id="mmGuarantee" role="img" aria-label="保底值随 p 变化的曲线"></canvas>
+      </div>
+    </div>
+    <div class="stats">
+      <div class="stat"><span>当前保证值（对手拆招后）</span><b id="mmG">—</b></div>
+      <div class="stat"><span>当前期望收益 E(p,q)</span><b id="mmE">—</b></div>
+      <div class="stat"><span>对手的最优回应</span><b id="mmResp">—</b></div>
+      <div class="stat"><span>博弈均衡值 v（固定）</span><b id="mmValue">0.75</b></div>
+    </div>
+    <div class="callout" id="mmStory">—</div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0;margin-bottom:4px">📐 数学小抄</h4>
+    <div class="math">
+      零和博弈：收益矩阵 A（你选行、对手选列；一方所得＝另一方所失）<br>
+      你的保底：v⁻ = max<sub>p</sub> min<sub>q</sub> E(p,q) ——「最坏里最好的」<br>
+      对手的压制：v⁺ = min<sub>q</sub> max<sub>p</sub> E(p,q) ——「你最好时他能按住的最狠」<br>
+      <em>冯·诺依曼 minimax 定理：v⁻ = v⁺ = v（混合策略下必相等）</em>
+    </div>
+    <details class="deep"><summary>深入一层：为什么「混合」比「硬刚」强这么多？</summary>
+      <p>纯选 T：对手全选 R，你的保底是 <b>0</b>；纯选 B：对手全选 L，保底还是 <b>0</b>。<br>
+      但按 25% / 75% 混合：对手全选 L 你拿到 3p=0.75，对手全选 R 你拿到 1−p=0.75——<b>两条路都堵不死你</b>。几何上，这正是「对手两条纯策略线的交点」。<br>
+      顺带一提：minimax 的代价是放弃更高的平均值（对手要是很菜，你本可以多赚）。它买的不是收益，是<b>绝对下限</b>——这正好接上凯利那条线：可重复、概率可信 → 博长期增长；不可重复、概率不可信 → 先保下限。</p>
+    </details>
+    <p class="hint">⚠️ 常见误解：「minimax 太怂」——它是保底最优，先把最坏情况钉死再谈别的；「max-min 和 min-max 可以随便换」——顺序不同含义完全不同：前者是你的保底，后者是对手的压制。</p>
+  </div>
+</section>
+
+<!-- ================= 通关小抄 ================= -->
+<section class="sec" id="sec-summary" style="--sec:var(--c2)">
+  <div class="sec-head">
+    <span class="chip">🗺️ 通关小抄</span>
+    <h2>六个工具，一条流水线</h2>
+    <p class="hook">从「认出世界」到「下场下注」，再到「概率不可信时保底」，串起来用才是完整套路。</p>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th style="width:130px">工具</th><th>一句话</th><th style="width:250px">核心公式 / 机制</th><th style="width:230px">什么时候用</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c1)"><i></i>黑天鹅</span></td>
+          <td>极端事件罕见但能改写一切。先分辨你活在正态世界还是肥尾世界。</td>
+          <td>P(X &gt; x) ∝ x<sup>−α</sup>；α 越小尾巴越肥，「均值」越不可信。</td>
+          <td>评估风险、配置资产、读历史数据、评估「这次不一样」的时候。</td>
+        </tr>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c2)"><i></i>反脆弱</span></td>
+          <td>波动对凸曲线是燃料，对凹曲线是税收。先看清自己曲线的形状。</td>
+          <td>E[f(X)] ≈ f(μ) + ½·f″(μ)·σ²：波动 × 曲率 = 漂移。</td>
+          <td>设计策略、制度、职业路径时——把自己摆到凸的一侧。</td>
+        </tr>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c3)"><i></i>杠铃策略</span></td>
+          <td>90% 极度安全 + 10% 极度激进，跳过「中等风险」的温柔陷阱。</td>
+          <td>损失有底（约 −(1−w)）、收益无顶；两端都极端。</td>
+          <td>面对黑天鹅风险又不想错过机会：配置资产、组合副业、规划人生。</td>
+        </tr>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c4)"><i></i>凯利公式</span></td>
+          <td>有优势时，下注尺寸比方向更重要：太大破产、太小浪费。</td>
+          <td>f* = p − q/b；G(f) = p·ln(1+bf) + q·ln(1−f)；实际用半凯利。</td>
+          <td>可重复、概率可估、赔率清晰的下注场景：投资、谈判、决策。</td>
+        </tr>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c5)"><i></i>多臂老虎机</span></td>
+          <td>胜率未知时，用算法平衡「试探」和「收割」，让遗憾增长最慢。</td>
+          <td>UCB：均值 + √(2 ln t / n)；汤普森：Beta 后验采样。</td>
+          <td>A/B 测试、广告预算分配、临床试验、推荐系统、职业试错。</td>
+        </tr>
+        <tr>
+          <td><span class="tname" style="--tc:var(--c6)"><i></i>Minimax</span></td>
+          <td>概率不可信时，不赌平均、只保下限：选「最坏里最好」的那条路。</td>
+          <td>v⁻ = max<sub>p</sub> min<sub>q</sub> E(p,q) = min<sub>q</sub> max<sub>p</sub> E(p,q)（混合策略下相等）</td>
+          <td>对手聪明、概率没谱、输不起：谈判、竞争、军事、保命钱、鲁棒设计。</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0">🔗 流水线：六个工具怎么接力</h4>
+    <div class="flow">
+      <span class="step">① 认出肥尾<p>这是正态世界还是幂律世界？</p></span><span class="ar">→</span>
+      <span class="step">② 检查姿态<p>我的收益曲线是凹还是凸？</p></span><span class="ar">→</span>
+      <span class="step">③ 摆好阵型<p>保命垫 + 小注博右尾</p></span><span class="ar">→</span>
+      <span class="step">④ 已知概率，凯利下注<p>甚至可以打个五折</p></span><span class="ar">→</span>
+      <span class="step">⑤ 未知概率，老虎机学习<p>试探与利用并行推进</p></span><span class="ar">→</span>
+      <span class="step">⑥ 连概率都不信？<p>minimax 保底，先钉死最坏情况</p></span>
+    </div>
+  </div>
+
+  <div class="grid3" style="margin-top:16px">
+    <div class="mini"><h4>💼 职业组合拳</h4><p>白天一份稳定工作 = 安全垫；晚上小成本试错副业 = 小注。<b>别蒙眼辞职 all-in，也别在一个岗位上「稳定」到火鸡的第 1000 天。</b></p></div>
+    <div class="mini"><h4>📈 投资组合拳</h4><p>现金/国债打底 + 损失有界、收益开口的凸性小仓（期权、早期项目、你自己的手艺）。<b>让无聊的部分负责活着，让疯狂的部分负责活着有盼头。</b></p></div>
+    <div class="mini"><h4>🧠 学习组合拳</h4><p>核心技能练到不漏水 + 广泛低成本试错新方向。<b>注意力也是一种赌注：大部分押在基本盘，一小部分押在可能性。</b></p></div>
+  </div>
+
+  <div class="card" style="margin-top:16px">
+    <h4 style="margin-top:0">📚 想继续挖？</h4>
+    <p class="hint" style="font-size:14px;color:var(--muted);margin:0">世界观三件套：塔勒布《随机漫步的傻瓜》《黑天鹅》《反脆弱》｜下注数学：爱德华·索普《A Man for All Markets》、《The Kelly Capital Growth Investment Criterion》｜学习算法：《Bandit Algorithms》（Lattimore &amp; Szepesvári，官网免费 PDF）｜博弈论：迪克西特 &amp; 奈尔伯夫《策略思维》（Thinking Strategically）。<b>塔勒布的书负责世界观，凯利和老虎机负责算账，minimax 负责兜底。</b></p>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <p>🧪 本页所有图表与模拟都由你的浏览器现场计算：模型与参数是简化过的教学玩具，随机数是即兴发挥的，<b>不构成任何投资建议</b>。别拿房租去练杠铃。</p>
+  <p>不确定性思维工具箱 · 单文件离线可用 · 明暗主题随你所愿</p>
+</footer>
+
+<script>
+'use strict';
+/* ===================== 公共工具 ===================== */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>Array.from(r.querySelectorAll(s));
+const REDRAWS=[];
+const reg=fn=>REDRAWS.push(fn);
+const cssv=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+function CC(){return{
+  text:cssv('--text'),muted:cssv('--muted'),faint:cssv('--faint'),grid:cssv('--grid'),
+  border:cssv('--border-strong'),card2:cssv('--card-2'),
+  c1:cssv('--c1'),c2:cssv('--c2'),c3:cssv('--c3'),c4:cssv('--c4'),c5:cssv('--c5'),c6:cssv('--c6'),
+  l1:cssv('--l1'),l2:cssv('--l2'),l3:cssv('--l3'),l4:cssv('--l4'),l5:cssv('--l5'),l6:cssv('--l6'),
+  good:cssv('--good'),bad:cssv('--bad'),safe:cssv('--safe')}}
+const FONT='12.5px ui-sans-serif,system-ui,-apple-system,"Segoe UI","PingFang SC","Microsoft YaHei",sans-serif';
+const nf=(x,d=2)=>Number.isFinite(x)?x.toFixed(d):'∞';
+const cf=(x,d=0)=>Number.isFinite(x)?(Math.abs(x)>=1000?Math.round(x).toLocaleString('en-US'):x.toFixed(d)):'∞';
+const pf=(x,d=1)=>Number.isFinite(x)?(x*100).toFixed(d)+'%':'—';
+const sup=n=>String(n).split('').map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+c]).join('');
+function mulberry32(seed){let a=seed>>>0;return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gaussRnd(rnd){const u1=Math.max(rnd(),1e-12),u2=rnd();return Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2)}
+/* erfc：Abramowitz & Stegun 7.1.26，|误差| ≤ 1.5e-7 */
+function erfcPos(x){const p=0.3275911,t=1/(1+p*x);
+  const y=((((1.061405429*t-1.453152027)*t+1.421413741)*t-0.284496736)*t+0.254829592)*t;
+  return y*Math.exp(-x*x)}
+function erfc(x){return x>=0?erfcPos(x):2-erfcPos(-x)}
+function fitCanvas(cv){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const rect=cv.getBoundingClientRect();
+  const w=Math.max(60,Math.round(rect.width)),h=Math.max(60,Math.round(rect.height));
+  if(cv.width!==Math.round(w*dpr)||cv.height!==Math.round(h*dpr)){cv.width=Math.round(w*dpr);cv.height=Math.round(h*dpr)}
+  const ctx=cv.getContext('2d');ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,w,h);
+  return{ctx,w,h}}
+function grid(ctx,o){
+  const{X,Y,xticks,yticks,pad,w,h,C}=o;ctx.save();
+  ctx.strokeStyle=C.grid;ctx.lineWidth=1;ctx.setLineDash([3,5]);
+  xticks.forEach(tk=>{if(tk.grid===false)return;const x=X(tk.v);ctx.beginPath();ctx.moveTo(x,pad.t);ctx.lineTo(x,h-pad.b);ctx.stroke()});
+  yticks.forEach(tk=>{if(tk.grid===false)return;const y=Y(tk.v);ctx.beginPath();ctx.moveTo(pad.l,y);ctx.lineTo(w-pad.r,y);ctx.stroke()});
+  ctx.setLineDash([]);ctx.fillStyle=C.muted;ctx.font=FONT;
+  ctx.textAlign='center';ctx.textBaseline='top';
+  xticks.forEach(tk=>{if(tk.label!=null)ctx.fillText(tk.label,X(tk.v),h-pad.b+7)});
+  ctx.textAlign='right';ctx.textBaseline='middle';
+  yticks.forEach(tk=>{if(tk.label!=null)ctx.fillText(tk.label,pad.l-7,Y(tk.v))});
+  ctx.restore()}
+function poly(ctx,pts,color,width=2,alpha=1,dash){
+  if(!pts||pts.length<1)return;ctx.save();ctx.globalAlpha=alpha;ctx.strokeStyle=color;ctx.lineWidth=width;ctx.lineJoin='round';
+  if(dash)ctx.setLineDash(dash);
+  ctx.beginPath();pts.forEach((p,i)=>i?ctx.lineTo(p[0],p[1]):ctx.moveTo(p[0],p[1]));ctx.stroke();ctx.restore()}
+function dot(ctx,x,y,r,color,alpha=1){ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.beginPath();ctx.arc(x,y,r,0,6.2832);ctx.fill();ctx.restore()}
+function tx(ctx,str,x,y,color,align='left',alpha=1,font){ctx.save();ctx.globalAlpha=alpha;ctx.fillStyle=color;ctx.font=font||FONT;ctx.textAlign=align;ctx.textBaseline='middle';ctx.fillText(str,x,y);ctx.restore()}
+const quant=(arr,p)=>{const a=arr.slice().sort((x,y)=>x-y);const i=Math.min(a.length-1,Math.max(0,Math.round(p*(a.length-1))));return a[i]};
+function niceTicks(lo,hi,n=4){
+  if(!(hi>lo))return[{v:lo,label:cf(lo,2)}];
+  const step0=(hi-lo)/n;const mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  const norm=step0/mag;const step=(norm<1.5?1:norm<3?2:norm<7?5:10)*mag;
+  const dec=step>=10?0:(step>=1?(step%1?1:0):2);
+  const out=[];for(let v=Math.ceil(lo/step)*step;v<=hi+1e-9;v+=step)out.push({v,label:cf(v,dec)});
+  return out}
+
+/* ===================== 主题 & 全局 ===================== */
+const themeBtn=$('#themeBtn');
+function applyTheme(t){
+  document.documentElement.dataset.theme=t;
+  try{localStorage.setItem('ug-theme',t)}catch(e){}
+  if(themeBtn)themeBtn.textContent=t==='dark'?'☀️ 日间':'🌙 夜间';
+  REDRAWS.forEach(fn=>{try{fn()}catch(e){}})}
+if(themeBtn){
+  themeBtn.addEventListener('click',()=>applyTheme(document.documentElement.dataset.theme==='dark'?'light':'dark'));
+  themeBtn.textContent=document.documentElement.dataset.theme==='dark'?'☀️ 日间':'🌙 夜间'}
+let rzT=0;
+window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>REDRAWS.forEach(fn=>{try{fn()}catch(e){}}),150)});
+/* 导航高亮 */
+try{
+  const spy=new IntersectionObserver(es=>{es.forEach(e=>{
+    if(e.isIntersecting){$$('.nav a').forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+e.target.id))}})},
+    {rootMargin:'-45% 0px -50% 0px'});
+  $$('section[id]').forEach(s=>spy.observe(s));
+}catch(e){}
+
+/* ---------- ① 黑天鹅 ---------- */
+(function(){
+  const tailCv=$('#bsTail'), raceCv=$('#bsRace'), st=$('#bsRaceStats'), note=$('#bsTailNote');
+  const alphaEl=$('#bsAlpha'), alphaOut=$('#bsAlphaOut'), redrawBtn=$('#bsRedraw');
+  const N=1000;
+  let alpha=+alphaEl.value, seed=20261006, data=null, K=1, raf=0, raceGen=0;
+
+  function build(){
+    const rnd=mulberry32(seed);
+    const ns=new Float64Array(N), ps=new Float64Array(N);
+    for(let i=0;i<N;i++){
+      ns[i]=Math.abs(gaussRnd(rnd));
+      ps[i]=Math.min(1e5,Math.pow(Math.max(rnd(),1e-9),-1/alpha));
+    }
+    const nc=new Float64Array(N+1), pc=new Float64Array(N+1);
+    let mx=0,mi=0,maxN=0;
+    for(let i=0;i<N;i++){
+      nc[i+1]=nc[i]+ns[i]; pc[i+1]=pc[i]+ps[i];
+      if(ps[i]>mx){mx=ps[i];mi=i}
+      if(ns[i]>maxN)maxN=ns[i];
+    }
+    data={ns,ps,nc,pc,mx,mi,maxN,tot:pc[N],share:mx/pc[N]};
+    renderStats();
+  }
+  function renderStats(){
+    const d=data;
+    const theo=alpha>1?nf(alpha/(alpha-1),2):'∞';
+    st.innerHTML=
+      '<div class="stat"><span>温和世界 · |正态|</span><b>总和 '+cf(d.nc[N])+'</b><span>最大单次 '+nf(d.maxN,2)+' · 占比 '+pf(d.maxN/d.nc[N])+'</span></div>'+
+      '<div class="stat"><span>极端世界 · 幂律 α='+nf(alpha,1)+'</span><b>总和 '+cf(d.tot)+'</b><span>最大单次 <b style="display:inline;font-size:15px;color:var(--l4)">'+cf(d.mx)+'</b> · 占比 <b style="display:inline;font-size:15px;color:var(--l4)">'+pf(d.share)+'</b></span></div>'+
+      '<div class="stat"><span>幂律理论均值 α/(α−1)</span><b>'+(alpha>1?theo:'∞')+'</b><span>'+(alpha>1?'样本均值 '+nf(d.tot/N,2)+'，围着它乱跳':'α ≤ 1：均值不存在，样本均值全靠最大值撑着')+'</span></div>';
+  }
+  function drawTail(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(tailCv); const pad={l:56,r:16,t:40,b:32};
+    const X=x=>pad.l+(Math.log10(x)/3)*(w-pad.l-pad.r);
+    const Y=v=>pad.t+((-v)/9)*(h-pad.t-pad.b);
+    const xticks=[1,10,100,1000].map(v=>({v,label:v===1?'1×':v+'×'}));
+    const yticks=[];for(let d=0;d<=9;d++)yticks.push({v:-d,label:d===0?'100%':'10⁻'+sup(d)});
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* 正态尾部曲线 */
+    const zn=[];
+    for(let i=0;i<=400;i++){
+      const x=Math.pow(10,3*i/400);
+      const sf=0.5*erfc(x/Math.SQRT2);
+      const v=Math.log10(sf);
+      if(v<-9.55)break;
+      zn.push([X(x),Y(v)]);
+    }
+    poly(ctx,zn,C.l1,3.2);
+    if(zn.length>2){const e=zn[zn.length-1];tx(ctx,'正态 · 温和世界',e[0]+6,e[1]-11,C.l1);}
+    /* 幂律尾部：log-log 上的直线 */
+    poly(ctx,[[X(1),Y(0)],[X(1000),Y(-3*alpha)]],C.l4,3.2);
+    tx(ctx,'幂律 · 极端世界',X(1000)-6,Y(-3*alpha)-15,C.l4,'right');
+    /* 6× 事件标注 */
+    const vN=Math.log10(Math.max(0.5*erfc(6/Math.SQRT2),1e-12));
+    const vP=-alpha*Math.log10(6);
+    const x6=X(6);
+    poly(ctx,[[x6,Y(vN)],[x6,h-pad.b]],C.l1,1,0.4,[3,4]);
+    dot(ctx,x6,Y(vN),5,C.l1);
+    tx(ctx,'正态：≈'+(vN<=-8?'十亿分之一':'10⁻'+sup(Math.max(1,Math.round(-vN)))),x6+9,Y(vN)+15,C.l1);
+    poly(ctx,[[x6,Y(vP)],[x6,h-pad.b]],C.l4,1,0.4,[3,4]);
+    dot(ctx,x6,Y(vP),5,C.l4);
+    tx(ctx,'幂律：≈'+pf(Math.pow(6,-alpha)),x6+9,Y(vP)-15,C.l4);
+    tx(ctx,'↑ 概率（对数刻度）',pad.l+2,pad.t-26,C.muted,'left');
+    tx(ctx,'→ 事件大小（对数刻度）',w-pad.r-2,pad.t-26,C.muted,'right');
+    const orders=Math.log10(Math.pow(6,-alpha)/1e-9);
+    note.textContent='同样是 6 倍事件：正态 ≈ 十亿分之一，幂律 ≈ '+pf(Math.pow(6,-alpha))+'（相差约 '+orders.toFixed(1)+' 个数量级）'+(alpha<=1?'。⚠️ α ≤ 1：理论均值 = ∞，图中的极端样本已大到「画不进坐标系」，这里显示的是保守下限。':'');
+  }
+  function drawRace(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(raceCv); const pad={l:56,r:16,t:16,b:30};
+    const d=data; const ymax=Math.max(d.pc[N]*1.06,1);
+    const X=i=>pad.l+(i/N)*(w-pad.l-pad.r);
+    const Y=v=>h-pad.b-(v/ymax)*(h-pad.t-pad.b);
+    const xticks=[0,250,500,750,1000].map(v=>({v,label:v+' 天'}));
+    const yticks=niceTicks(0,ymax,4);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    const n=Math.max(1,Math.min(N,Math.round(K*N)));
+    const ptsN=[],ptsP=[];
+    for(let i=0;i<=n;i++){ptsN.push([X(i),Y(d.nc[i])]);ptsP.push([X(i),Y(d.pc[i])])}
+    poly(ctx,ptsN,C.l1,3);
+    poly(ctx,ptsP,C.l4,3.2);
+    if(K>=1&&d.mi>0){
+      const px=X(d.mi+1),py=Y(d.pc[d.mi+1]);
+      dot(ctx,px,py,10,C.l4,0.18);dot(ctx,px,py,5,C.l4,1);
+      let lx=px+10,align='left';
+      const label='第 '+(d.mi+1)+' 天：单抽 +'+cf(d.mx)+'（占总和 '+pf(d.share)+'）';
+      ctx.save();ctx.font=FONT;const tw=ctx.measureText(label).width;ctx.restore();
+      if(lx+tw>w-pad.r){lx=px-10;align='right'}
+      tx(ctx,label,Math.max(pad.l+4,lx),py-16,C.l4,align);
+    }
+    tx(ctx,'⬤ 温和世界（|正态| 累加）',pad.l+4,pad.t+10,C.l1);
+    tx(ctx,'⬤ 极端世界（幂律累加）',pad.l+4,pad.t+30,C.l4);
+  }
+  function play(){
+    cancelAnimationFrame(raf);
+    const gen=++raceGen;
+    K=0;drawRace();
+    const t0=performance.now(),dur=1700;
+    const step=now=>{
+      if(gen!==raceGen)return;
+      const k=Math.min(1,(now-t0)/dur);
+      K=k*k*(3-2*k);
+      drawRace();
+      if(k<1){raf=requestAnimationFrame(step)}
+    };
+    raf=requestAnimationFrame(step);
+    /* 保险丝：动画被浏览器节流时，直接跳到终态 */
+    setTimeout(()=>{if(gen===raceGen&&K<1){K=1;drawRace()}},dur+450);
+  }
+  function reseed(){seed=(Math.random()*1e9)|0;build();play()}
+  alphaEl.addEventListener('input',()=>{
+    alpha=+alphaEl.value;alphaOut.textContent=nf(alpha,1);
+    reseed();drawTail();
+  });
+  redrawBtn.addEventListener('click',reseed);
+  reg(()=>{drawTail();drawRace()});
+  build();play();drawTail();alphaOut.textContent=nf(alpha,1);
+})();
+
+/* ---------- ② 反脆弱 ---------- */
+(function(){
+  const cv=$('#afCanvas'), kEl=$('#afK'), sEl=$('#afSig'), btn=$('#afResample');
+  const kOut=$('#afKOut'), sOut=$('#afSigOut'), muVal=$('#afMuVal'), meanVal=$('#afMeanVal'),
+        gapVal=$('#afGapVal'), verdict=$('#afVerdict');
+  const MU=1, NN=28;
+  let k=+kEl.value, sig=+sEl.value, zs=[], seed=20261007;
+  function resample(){const rnd=mulberry32(seed);zs=[];for(let i=0;i<NN;i++)zs.push(gaussRnd(rnd))}
+  function kDesc(kk){return kk>1.06?'（凸）':kk<0.94?'（凹）':'（≈线性）'}
+  function draw(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(cv); const pad={l:54,r:22,t:20,b:32};
+    const f=x=>Math.pow(x,k);
+    const samples=zs.map(z=>Math.min(3,Math.max(0.02,MU+sig*z)));
+    const fs=samples.map(f);
+    const fmu=f(MU);
+    const fbar=fs.reduce((a,b)=>a+b,0)/NN;
+    const fmax=Math.max(f(3),...fs,1.2)*1.05;
+    const X=x=>pad.l+((x-0.02)/2.98)*(w-pad.l-pad.r);
+    const Y=y=>h-pad.b-(y/fmax)*(h-pad.t-pad.b);
+    const xticks=[0.5,1,1.5,2,2.5,3].map(v=>({v,label:v===1?'1 (μ)':String(v)}));
+    const yticks=niceTicks(0,fmax,4);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* 曲线 */
+    const curve=[];
+    for(let i=0;i<=240;i++){const x=0.02+(2.98*i)/240;curve.push([X(x),Y(f(x))])}
+    poly(ctx,curve,C.c2,3.4);
+    /* 采样竖线 + 圆点 */
+    ctx.save();ctx.globalAlpha=0.10;ctx.strokeStyle=C.c2;ctx.lineWidth=1;ctx.setLineDash([3,4]);
+    samples.forEach((x,i)=>{ctx.beginPath();ctx.moveTo(X(x),Y(fs[i]));ctx.lineTo(X(x),Y(0));ctx.stroke()});
+    ctx.restore();
+    samples.forEach((x,i)=>dot(ctx,X(x),Y(fs[i]),4.2,C.c2,0.95));
+    /* E[f] 与 f(μ) 两条水平线 */
+    const y1=Y(fmu), y2=Y(fbar);
+    const up=fbar>=fmu, col=up?C.c2:C.bad;
+    ctx.save();ctx.globalAlpha=0.16;ctx.fillStyle=col;
+    ctx.fillRect(pad.l,Math.min(y1,y2),w-pad.l-pad.r,Math.max(2,Math.abs(y2-y1)));ctx.restore();
+    poly(ctx,[[pad.l,y1],[w-pad.r,y1]],C.muted,1.6,[6,5]);
+    poly(ctx,[[pad.l,y2],[w-pad.r,y2]],col,2.8);
+    tx(ctx,'f(μ) = '+nf(fmu,2),w-pad.r-4,(y2<y1?y1+11:y1-11),C.muted,'right');
+    tx(ctx,'E[f(X)] = '+nf(fbar,2),w-pad.r-4,(y2<y1?y2-11:y2+11),col,'right');
+    if(Math.abs(y2-y1)>22)tx(ctx,(up?'凸性红利 Δ = +':'凸性税 Δ = ')+nf(Math.abs(fbar-fmu),2),pad.l+(w-pad.l-pad.r)/2,(y1+y2)/2,col,'center');
+    /* DOM 读数 */
+    muVal.textContent=nf(fmu,2);
+    meanVal.textContent=nf(fbar,2);
+    gapVal.textContent=(fbar-fmu>=0?'+':'')+nf(fbar-fmu,2);
+    gapVal.style.color=up?C.good:C.bad;
+    verdict.innerHTML = Math.abs(k-1)<0.06
+      ? '≈ 接近线性：波动既不帮你也不伤你——这是「坚韧」，还不是「反脆弱」。'
+      : up
+        ? '✅ 凸函数：波动世界里的平均结果，<b>高于</b>平均世界里的固定结果——波动在给你发红包 🔥 试试把 σ 拖大，红包会变厚。'
+        : '⚠️ 凹函数：波动世界里的平均结果，<b>低于</b>平均世界里的固定结果——波动在收你的税 🧊 σ 越大，税越重。';
+  }
+  kEl.addEventListener('input',()=>{k=+kEl.value;kOut.textContent='k = '+nf(k,2)+kDesc(k);draw()});
+  sEl.addEventListener('input',()=>{sig=+sEl.value;sOut.textContent='σ = '+nf(sig,2);draw()});
+  btn.addEventListener('click',()=>{seed=(Math.random()*1e9)|0;resample();draw()});
+  reg(draw);
+  resample();
+  kOut.textContent='k = '+nf(k,2)+kDesc(k);
+  sOut.textContent='σ = '+nf(sig,2);
+  draw();
+})();
+
+/* ---------- ③ 杠铃 ---------- */
+(function(){
+  const cvs=[$('#bbC1'),$('#bbC2')], cv3=$('#bbC3');
+  const stEls=[$('#bbS1'),$('#bbS2'),$('#bbS3')];
+  const wEl=$('#bbW'), sigEl=$('#bbSig'), wOut=$('#bbWOut'), sigOut=$('#bbSigOut');
+  const shockBtn=$('#bbShock'), rerunBtn=$('#bbRerun'), verdict=$('#bbVerdict'), story=$('#bbStory');
+  const mixSafe=$('#bbMixSafe'), mixWild=$('#bbMixWild');
+  const T=20, NP=1200, SAFE=0.02, MU=0.07;
+  let w=+wEl.value, sig=+sigEl.value, shock=false, seed=777;
+  let sim=null, lo=0.05, hi=2;
+
+  function run(){
+    const rnd=mulberry32(seed);
+    const paths=[[],[],[]];
+    const evs=[];
+    for(let p=0;p<NP;p++){
+      let a=1,b=1,c=1;
+      const A=new Float64Array(T+1),B=new Float64Array(T+1),Cc=new Float64Array(T+1);
+      A[0]=B[0]=Cc[0]=1;
+      const ev=[];
+      for(let t=0;t<T;t++){
+        a*=1+SAFE;
+        let r=MU+sig*gaussRnd(rnd);
+        if(t===10&&shock)r-=0.6;
+        r=Math.max(r,-0.95);
+        b*=1+r;
+        const u=rnd();
+        let m=u<0.90?0.7:(u<0.99?5:40);
+        if(t===10&&shock)m=0;
+        if(m>=5)ev.push({y:t+1,mult:m});
+        c*=w*(1+SAFE)+(1-w)*m;
+        A[t+1]=a;B[t+1]=b;Cc[t+1]=c;
+      }
+      evs.push(ev);
+      paths[0].push(A);paths[1].push(B);paths[2].push(Cc);
+    }
+    const pcts=paths.map(ps=>{
+      const q={p5:[],p25:[],p50:[],p75:[],p95:[]};
+      const col=new Float64Array(NP);
+      for(let t=0;t<=T;t++){
+        for(let i=0;i<NP;i++)col[i]=ps[i][t];
+        col.sort();
+        q.p5.push(col[Math.round(0.05*(NP-1))]);
+        q.p25.push(col[Math.round(0.25*(NP-1))]);
+        q.p50.push(col[Math.round(0.50*(NP-1))]);
+        q.p75.push(col[Math.round(0.75*(NP-1))]);
+        q.p95.push(col[Math.round(0.95*(NP-1))]);
+      }
+      return q;
+    });
+    let mn=Infinity,mx=0;
+    pcts.forEach(q=>{q.p5.forEach(v=>{if(v<mn)mn=v});q.p95.forEach(v=>{if(v>mx)mx=v})});
+    lo=Math.max(0.02,mn*0.75);
+    hi=Math.min(400,Math.max(mx*1.3,lo*3));
+    const statsArr=[];
+    paths.forEach((ps,i)=>{
+      const finals=ps.map(p=>p[T]);
+      const med=quant(finals,0.5),q5=quant(finals,0.05),q95=quant(finals,0.95);
+      const loss=finals.filter(v=>v<1).length/NP;
+      const dbl=finals.filter(v=>v>=2).length/NP;
+      statsArr.push({med,q5,q95,loss,dbl});
+      stEls[i].innerHTML=
+        '<div class="stat"><span>中位数终值</span><b>×'+nf(med,2)+'</b></div>'+
+        '<div class="stat"><span>最差 5%</span><b style="color:var(--bad)">×'+nf(q5,2)+'</b></div>'+
+        '<div class="stat"><span>最好 5%</span><b style="color:var(--good)">×'+nf(q95,2)+'</b></div>'+
+        '<div class="stat"><span>亏本概率</span><b>'+pf(loss,0)+'</b></div>'+
+        (i===2?'<div class="stat"><span>翻倍概率</span><b>'+pf(dbl,0)+'</b></div>':'');
+    });
+    /* 代表性选手：终点最接近中位数的那条人生线 */
+    const finals2=paths[2].map(p=>p[T]);
+    const medF=statsArr[2].med;
+    let exIdx=0,bestDist=Infinity;
+    finals2.forEach((v,i)=>{const d=Math.abs(Math.log(Math.max(v,1e-9)/Math.max(medF,1e-9)));if(d<bestDist){bestDist=d;exIdx=i}});
+    const j4=evs.filter(e=>e.length>0).length/NP;
+    const j40=evs.filter(e=>e.some(x=>x.mult>=40)).length/NP;
+    sim={paths,pcts,evs,exIdx,exFinal:finals2[exIdx]};
+    renderStory({statsArr,exIdx,j4,j40,exEvents:evs[exIdx]});
+  }
+  function renderStory(o){
+    const {statsArr,exIdx,j4,j40,exEvents}=o;
+    const bar=statsArr[2], mid=statsArr[1];
+    const exTxt=exEvents.length?exEvents.map(e=>'第 '+e.y+' 年 ×'+e.mult).join('、'):'颗粒无收（92% 的年份小亏，全靠保命垫撑着）';
+    story.innerHTML='<h5>📣 本局解说'+(shock?'（含黑天鹅剧本）':'')+' — 第 '+(exIdx+1)+' 号选手的人生</h5>'+
+      '<p>这位选手的小注爆发记录 → <b>'+exTxt+'</b>，20 年终点 <b>×'+nf(sim.exFinal,2)+'</b>。</p>'+
+      '<p>全场 '+NP+' 位选手的终局：中位数 <b>×'+nf(bar.med,2)+'</b>；最差 5% 还有 <b>×'+nf(bar.q5,2)+'</b> 托底（≈保命垫的地板），最好 5% 冲到 <b>×'+nf(bar.q95,2)+'</b>。</p>'+
+      '<p>约 <b>'+pf(j4,0)+'</b> 的选手至少吃到一次 ×5+ 爆发，其中 <b>'+pf(j40,1)+'</b> 撞上过 ×40 传说——小注的角色：平时装死，偶尔改命。</p>'+
+      '<p>对照组「中庸」：亏本概率 <b>'+pf(mid.loss,0)+'</b>、最差 5% 掉到 <b>×'+nf(mid.q5,2)+'</b>；杠铃的亏本概率只有 <b>'+pf(bar.loss,0)+'</b>。'+(shock?'<b>黑天鹅剧本下，这个差距正在撕开。</b>':'按下「🦢 放出一只黑天鹅」，看差距怎么撕开。')+'</p>';
+  }
+  function drawOne(i){
+    const C=CC(); const cv=cvs[i]; const {ctx,w:W,h:H}=fitCanvas(cv); const pad={l:46,r:12,t:12,b:24};
+    const col=[C.safe,C.bad,C.c3][i];
+    const llo=Math.log10(lo), lhi=Math.log10(hi);
+    const X=t=>pad.l+(t/T)*(W-pad.l-pad.r);
+    const Y=v=>{const lv=(Math.log10(Math.max(v,1e-4))-llo)/(lhi-llo);return H-pad.b-Math.min(1.02,Math.max(-0.02,lv))*(H-pad.t-pad.b)};
+    const xticks=[0,5,10,15,20].map(v=>({v,label:String(v)+'年'}));
+    const yticks=[0.03,0.1,0.3,1,3,10,30,100,300].filter(v=>v>=lo*0.99&&v<=hi*1.01).map(v=>({v,label:'×'+v}));
+    grid(ctx,{X,Y,xticks,yticks,pad,w:W,h:H,C});
+    const q=sim.pcts[i];
+    /* 5–95% 带 */
+    ctx.save();ctx.globalAlpha=0.10;ctx.fillStyle=col;ctx.beginPath();
+    q.p5.forEach((v,t)=>t?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v)));
+    for(let t=T;t>=0;t--)ctx.lineTo(X(t),Y(q.p95[t]));ctx.closePath();ctx.fill();ctx.restore();
+    /* 25–75% 带 */
+    ctx.save();ctx.globalAlpha=0.16;ctx.fillStyle=col;ctx.beginPath();
+    q.p25.forEach((v,t)=>t?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v)));
+    for(let t=T;t>=0;t--)ctx.lineTo(X(t),Y(q.p75[t]));ctx.closePath();ctx.fill();ctx.restore();
+    /* 抽样路径 */
+    for(let s=0;s<NP;s+=97){
+      const p=sim.paths[i][s];const pts=[];
+      for(let t=0;t<=T;t++)pts.push([X(t),Y(p[t])]);
+      poly(ctx,pts,col,1,0.07);
+    }
+    /* 中位数 */
+    poly(ctx,q.p50.map((v,t)=>[X(t),Y(v)]),col,2.6);
+    /* 本金线 */
+    poly(ctx,[[pad.l,Y(1)],[W-pad.r,Y(1)]],C.faint,1,0.55,[4,5]);
+    tx(ctx,'本金线',W-pad.r-2,Y(1)-9,C.faint,'right');
+  }
+  function drawBig(){
+    const C=CC(); const {ctx,w:W,h:H}=fitCanvas(cv3); const pad={l:52,r:16,t:46,b:28};
+    const col=C.c3;
+    const llo=Math.log10(lo), lhi=Math.log10(hi);
+    const X=t=>pad.l+(t/T)*(W-pad.l-pad.r);
+    const Y=v=>{const lv=(Math.log10(Math.max(v,1e-4))-llo)/(lhi-llo);return H-pad.b-Math.min(1.02,Math.max(-0.02,lv))*(H-pad.t-pad.b)};
+    const xticks=[0,5,10,15,20].map(v=>({v,label:String(v)+'年'}));
+    const yticks=[0.03,0.1,0.3,1,3,10,30,100,300].filter(v=>v>=lo*0.99&&v<=hi*1.01).map(v=>({v,label:'×'+v}));
+    grid(ctx,{X,Y,xticks,yticks,pad,w:W,h:H,C});
+    const q=sim.pcts[2];
+    /* 5–95% 与 25–75% 人群带 */
+    ctx.save();ctx.globalAlpha=0.09;ctx.fillStyle=col;ctx.beginPath();
+    q.p5.forEach((v,t)=>t?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v)));
+    for(let t=T;t>=0;t--)ctx.lineTo(X(t),Y(q.p95[t]));ctx.closePath();ctx.fill();ctx.restore();
+    ctx.save();ctx.globalAlpha=0.14;ctx.fillStyle=col;ctx.beginPath();
+    q.p25.forEach((v,t)=>t?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v)));
+    for(let t=T;t>=0;t--)ctx.lineTo(X(t),Y(q.p75[t]));ctx.closePath();ctx.fill();ctx.restore();
+    /* 背景人群路径 */
+    for(let s=0;s<NP;s+=137){
+      const p=sim.paths[2][s];const pts=[];
+      for(let t=0;t<=T;t++)pts.push([X(t),Y(p[t])]);
+      poly(ctx,pts,col,1,0.06);
+    }
+    /* 本金线 */
+    poly(ctx,[[pad.l,Y(1)],[W-pad.r,Y(1)]],C.faint,1,0.55,[4,5]);
+    tx(ctx,'本金线',W-pad.r-2,Y(1)-10,C.faint,'right');
+    /* 黑天鹅降临线 */
+    if(shock){
+      poly(ctx,[[X(11),pad.t-4],[X(11),H-pad.b]],C.c5,1.4,0.75,[5,5]);
+      tx(ctx,'🦢 黑天鹅',X(11)+7,pad.t-16,C.c5);
+    }
+    /* 中位数轨迹 */
+    poly(ctx,q.p50.map((v,t)=>[X(t),Y(v)]),col,2.9);
+    /* 代表性选手的人生 + 爆发标记 */
+    const ex=sim.paths[2][sim.exIdx];
+    const exPts=[];
+    for(let t=0;t<=T;t++)exPts.push([X(t),Y(ex[t])]);
+    poly(ctx,exPts,C.c5,2,0.95);
+    sim.evs[sim.exIdx].forEach(e=>{
+      const px=X(e.y),py=Y(ex[e.y]);
+      dot(ctx,px,py,10,C.c5,0.18);dot(ctx,px,py,5,C.c5,1);
+      let lx=px+9,align='left';
+      if(lx+34>W-pad.r){lx=px-9;align='right'}
+      tx(ctx,'×'+e.mult,lx,py-14,C.c5,align);
+    });
+    /* 图内图例 */
+    tx(ctx,'—— 中位数轨迹（'+NP+' 位选手）',pad.l+4,pad.t-30,col,'left');
+    tx(ctx,'—— 代表性选手的人生（终点≈中位数，粉圈＝小注爆发）',pad.l+4,pad.t-12,C.c5,'left');
+  }
+  function redrawAll(){drawOne(0);drawOne(1);drawBig()}
+  function updateMix(){
+    const wpct=Math.round(w*100), wildPct=100-wpct;
+    mixSafe.style.width=wpct+'%';
+    mixWild.style.width=wildPct+'%';
+    mixSafe.innerHTML=wpct>=16?'🛡️ 保命 '+wpct+'%':wpct+'%';
+    mixWild.innerHTML=wildPct>=16?'🚀 博命 '+wildPct+'%':'🚀';
+    wOut.textContent=wpct+'%';
+  }
+  wEl.addEventListener('input',()=>{w=+wEl.value;updateMix();run();redrawAll()});
+  sigEl.addEventListener('input',()=>{sig=+sigEl.value;sigOut.textContent=Math.round(sig*100)+'%';run();redrawAll()});
+  shockBtn.addEventListener('click',()=>{
+    shock=!shock;
+    shockBtn.classList.toggle('on',shock);
+    shockBtn.textContent=shock?'🦢 黑天鹅已到场（点击撤回）':'🦢 放出一只黑天鹅';
+    run();redrawAll();
+    verdict.innerHTML=shock
+      ? '<b style="color:var(--c5)">黑天鹅已经改写了剧情</b>：第 11 年「中庸」−60%，一脚踹翻上半场全部积累；杠铃只是那一年的小注清零（组合约 −8%），其余年份照常生活。右尾依然在最高处飘着——这就是「损失有底、收益无顶」。'
+      : '图里深色线 = 中位数轨迹；浅色带 = 25–75% 与 5–95% 人群范围；虚线 = 本金线 ×1。按下「放黑天鹅」，看三条命运线怎么分叉。';
+  });
+  rerunBtn.addEventListener('click',()=>{seed=(Math.random()*1e9)|0;run();redrawAll()});
+  reg(redrawAll);
+  updateMix();
+  sigOut.textContent=Math.round(sig*100)+'%';
+  run();redrawAll();
+})();
+
+/* ---------- ④ 凯利公式 ---------- */
+(function(){
+  const pEl=$('#klP'),bEl=$('#klB'),fEl=$('#klF');
+  const pOut=$('#klPOut'),bOut=$('#klBOut'),fOut=$('#klFOut');
+  const cv=$('#klCurve');
+  const scvs=[$('#klS1'),$('#klS2'),$('#klS3')];
+  const stats=[$('#klStat1'),$('#klStat2'),$('#klStat3')];
+  const fstarEl=$('#klFstar'),gEl=$('#klG'),dblEl=$('#klDoubles'),msg=$('#klMsg'),runBtn=$('#klRun');
+  const BET=300,PATHS=200;
+  let p=+pEl.value,b=+bEl.value,f=+fEl.value;
+  let simAll=[], simLo=0.02, simHi=10, debT=0;
+  const G=x=>p*Math.log(1+b*x)+(1-p)*Math.log(1-x);
+  const fstar=()=>(b*p-(1-p))/b;
+  const fmtF=x=>x<1?Math.round(x*100)+'%':nf(x,2)+'（超过 100%）';
+
+  function drawCurve(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(cv); const pad={l:60,r:20,t:18,b:30};
+    const fs=fstar();
+    const X=x=>pad.l+x*(w-pad.l-pad.r);
+    let gmax=fs>0?Math.max(G(Math.min(fs,0.98)),0.005):0.005;
+    let gmin=Math.min(G(0.985),-0.12);
+    gmin=Math.max(gmin,-1.5);
+    const Y=g=>h-pad.b-((g-gmin)/(gmax-gmin))*(h-pad.t-pad.b);
+    const xticks=[0,0.25,0.5,0.75,1].map(v=>({v,label:Math.round(v*100)+'%'}));
+    const yticks=niceTicks(gmin,Math.min(gmax,0.5),4);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* 零线 */
+    poly(ctx,[[pad.l,Y(0)],[w-pad.r,Y(0)]],C.muted,1.4,[5,4]);
+    tx(ctx,'0：不亏不赚线',pad.l+4,Y(0)-10,C.muted,'left');
+    /* 深水区（超过 2f* 的负增长区） */
+    if(fs>0&&2*fs<0.985){
+      ctx.save();ctx.globalAlpha=0.08;ctx.fillStyle=C.bad;
+      ctx.fillRect(X(2*fs),pad.t,X(0.985)-X(2*fs),h-pad.t-pad.b);ctx.restore();
+      tx(ctx,'深水区：G(f)<0',w-pad.r-10,pad.t+15,C.bad,'right');
+    }
+    /* 正增长区间的绿色「山坡」 */
+    ctx.save();ctx.globalAlpha=0.14;ctx.fillStyle=C.good;
+    const zline=Y(0);let runPts=[];
+    const flushRun=()=>{
+      if(runPts.length>1){
+        ctx.beginPath();
+        runPts.forEach((pt,j)=>j?ctx.lineTo(pt[0],pt[1]):ctx.moveTo(pt[0],pt[1]));
+        ctx.lineTo(runPts[runPts.length-1][0],zline);
+        ctx.lineTo(runPts[0][0],zline);
+        ctx.closePath();ctx.fill();
+      }
+      runPts=[];
+    };
+    for(let i=0;i<=280;i++){
+      const x=0.985*i/280;
+      if(G(x)>0)runPts.push([X(x),Y(G(x))]);else flushRun();
+    }
+    flushRun();
+    ctx.restore();
+    /* 曲线 */
+    const pts=[];
+    for(let i=0;i<=280;i++){const x=0.985*i/280;pts.push([X(x),Y(G(x))])}
+    poly(ctx,pts,C.c4,3.4);
+    if(fs>0){
+      const md=Math.min(fs,0.985);
+      dot(ctx,X(md),Y(G(md)),12,C.good,0.16);
+      dot(ctx,X(md),Y(G(md)),6,C.good);
+      tx(ctx,'f* = '+pf(md),X(md)+9,Y(G(md))-14,C.good);
+      const hf=fs/2;
+      dot(ctx,X(hf),Y(G(hf)),4.5,C.c2);
+      tx(ctx,'½凯利',X(hf),Y(G(hf))+16,C.c2,'center');
+      const df=Math.min(2*fs,0.985);
+      dot(ctx,X(df),Y(G(df)),4.5,C.bad);
+      tx(ctx,'2×凯利',Math.min(X(df)+8,w-pad.r-42),Y(G(df))+16,C.bad);
+    }else{
+      tx(ctx,'⛔ 没有正优势：f* ≤ 0，凯利建议不玩',pad.l+16,pad.t+20,C.bad,'left',1,'14px ui-sans-serif,system-ui,sans-serif');
+    }
+    /* 用户下注点 */
+    const gy=Y(G(f));
+    ctx.save();ctx.globalAlpha=0.85;ctx.strokeStyle=C.c4;ctx.lineWidth=1.6;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(X(f),h-pad.b);ctx.lineTo(X(f),gy);ctx.stroke();ctx.restore();
+    dot(ctx,X(f),gy,13,C.c4,0.16);
+    dot(ctx,X(f),gy,7,C.c4);
+    const lab='你：f='+Math.round(f*100)+'%';
+    ctx.save();ctx.font=FONT;const tw=ctx.measureText(lab).width;ctx.restore();
+    let lx=X(f)+9,align='left';
+    if(lx+tw>w-pad.r){lx=X(f)-9;align='right'}
+    tx(ctx,lab,lx,gy+(f>fs?16:-16),C.c4,align);
+    /* DOM 读数 */
+    fstarEl.textContent=fs>0?fmtF(fs):'≤ 0（不玩）';
+    const g=G(f);
+    gEl.textContent=(g>=0?'+':'')+nf(g,4);
+    gEl.style.color=g>=0?C.good:C.bad;
+    dblEl.textContent=g>1e-6?Math.round(Math.log(2)/g).toLocaleString('en-US')+' 局':'永远（只为回本）';
+    msg.innerHTML=fs<=0
+      ? '⚠️ 这台赌局没有正优势（b·p ≤ q）：f* ≤ 0，数学给你下的是禁令——<b>别玩</b>。把 p 或 b 拖大一点再试试。'
+      : fs>1
+        ? '📎 凯利算出 f* = '+pf(fs)+'，超过 100%——赌局好到数学都建议借杠杆。本演示把下注上限锁在 100%：<b>再好的牌，也别体验爆仓</b>。'
+        : f>2*fs
+          ? '🔥 你下得比 2 倍凯利还狠：长期对数增长率为负，哪怕赌局有利，也大概率在给赌场打工。'
+          : f>fs*1.15
+            ? '⚠️ 略微超配：增速变慢、颠簸变大——多出来的比例只是在拿波动冒险。'
+            : f<fs*0.85
+              ? '🛡️ 偏保守：慢于最优增速，但睡得香。现实中 p 是估出来的，保守一点不算错。'
+              : '🎯 几乎踩在凯利点上：长期几何增长最快。高手还会打个八折，给「估计误差」留余量。';
+  }
+
+  function drawSimWait(txt){
+    scvs.forEach(c2=>{
+      const C=CC();const {ctx,w,h}=fitCanvas(c2);
+      tx(ctx,txt,w/2,h/2,C.muted,'center',1,'14px ui-sans-serif,system-ui,sans-serif');
+    });
+    stats.forEach(s=>s.innerHTML='<div class="stat"><span>无可比对象</span><b>—</b></div>');
+  }
+  function runSim(){
+    const fs=fstar();
+    if(fs<=0){simAll=[];drawSimWait('f* ≤ 0：这局不值得下注');return}
+    const fr=[fs/2,fs,Math.min(2*fs,0.99)];
+    const rnd=mulberry32((Math.random()*1e9)|0);
+    const seqs=[];
+    for(let i=0;i<PATHS;i++){
+      const s=new Uint8Array(BET);
+      for(let t=0;t<BET;t++)s[t]=rnd()<p?1:0;
+      seqs.push(s);
+    }
+    simAll=fr.map(frac=>{
+      const rows=[];
+      for(let i=0;i<PATHS;i++){
+        let v=1;const row=new Float64Array(BET+1);row[0]=1;
+        const s=seqs[i];
+        for(let t=0;t<BET;t++){v*= s[t]?1+b*frac:1-frac;row[t+1]=v}
+        rows.push(row);
+      }
+      const med=[],p25=[],p75=[];
+      const col=new Float64Array(PATHS);
+      for(let t=0;t<=BET;t++){
+        for(let i=0;i<PATHS;i++)col[i]=rows[i][t];
+        col.sort();
+        p25.push(col[Math.round(0.25*(PATHS-1))]);
+        med.push(col[Math.round(0.50*(PATHS-1))]);
+        p75.push(col[Math.round(0.75*(PATHS-1))]);
+      }
+      const finals=rows.map(r=>r[BET]);
+      return{frac,rows,med,p25,p75,
+        medF:quant(finals,0.5),
+        ruin:finals.filter(v=>v<0.5).length/PATHS,
+        dbl:finals.filter(v=>v>=2).length/PATHS};
+    });
+    let hi=2;
+    simAll.forEach(a=>{hi=Math.max(hi,quant(a.rows.map(r=>r[BET]),0.95))});
+    simHi=Math.min(2000,Math.max(2.5,hi*1.3));
+    simLo=0.02;
+    simAll.forEach((a,i)=>{
+      stats[i].innerHTML=
+        '<div class="stat"><span>中位数终值</span><b>×'+nf(a.medF,2)+'</b></div>'+
+        '<div class="stat"><span>亏掉一半的概率</span><b style="color:var(--bad)">'+pf(a.ruin,0)+'</b></div>'+
+        '<div class="stat"><span>翻倍概率</span><b style="color:var(--good)">'+pf(a.dbl,0)+'</b></div>';
+    });
+  }
+  function drawSimOne(i){
+    const C=CC(); const a=simAll[i]; if(!a)return;
+    const cvv=scvs[i]; const {ctx,w,h}=fitCanvas(cvv); const pad={l:48,r:12,t:12,b:24};
+    const col=[C.c2,C.c4,C.c5][i];
+    const llo=Math.log10(simLo), lhi=Math.log10(simHi);
+    const X=t=>pad.l+(t/BET)*(w-pad.l-pad.r);
+    const Y=v=>{const lv=(Math.log10(Math.max(v,1e-6))-llo)/(lhi-llo);return h-pad.b-Math.min(1,Math.max(0,lv))*(h-pad.t-pad.b)};
+    const xticks=[0,100,200,300].map(v=>({v,label:v+'局'}));
+    const yticks=[0.02,0.1,1,10,100,1000].filter(v=>v>=simLo*0.99&&v<=simHi*1.01).map(v=>({v,label:'×'+v}));
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* 25–75% 带 */
+    ctx.save();ctx.globalAlpha=0.13;ctx.fillStyle=col;ctx.beginPath();
+    a.p25.forEach((v,t)=>t?ctx.lineTo(X(t),Y(v)):ctx.moveTo(X(t),Y(v)));
+    for(let t=BET;t>=0;t--)ctx.lineTo(X(t),Y(a.p75[t]));ctx.closePath();ctx.fill();ctx.restore();
+    /* 抽样路径 */
+    for(let s=0;s<PATHS;s+=4){
+      const r=a.rows[s];const pts=[];
+      for(let t=0;t<=BET;t+=3)pts.push([X(t),Y(r[t])]);
+      poly(ctx,pts,col,1,0.05);
+    }
+    /* 中位数 */
+    poly(ctx,a.med.map((v,t)=>[X(t),Y(v)]),col,3);
+    /* 本金线 */
+    poly(ctx,[[pad.l,Y(1)],[w-pad.r,Y(1)]],C.faint,1,0.5,[4,5]);
+  }
+  function scheduleSim(){clearTimeout(debT);debT=setTimeout(()=>{runSim();simAll.forEach((_,i)=>drawSimOne(i))},180)}
+  pEl.addEventListener('input',()=>{p=+pEl.value;pOut.textContent=Math.round(p*100)+'%';drawCurve();scheduleSim()});
+  bEl.addEventListener('input',()=>{b=+bEl.value;bOut.textContent=nf(b,2);drawCurve();scheduleSim()});
+  fEl.addEventListener('input',()=>{f=+fEl.value;fOut.textContent=Math.round(f*100)+'%';drawCurve()});
+  runBtn.addEventListener('click',()=>{runSim();simAll.forEach((_,i)=>drawSimOne(i))});
+  reg(()=>{drawCurve();simAll.forEach((_,i)=>drawSimOne(i))});
+  pOut.textContent=Math.round(p*100)+'%';bOut.textContent=nf(b,2);fOut.textContent=Math.round(f*100)+'%';
+  runSim();drawCurve();simAll.forEach((_,i)=>drawSimOne(i));
+})();
+
+/* ---------- ⑤ 多臂老虎机 ---------- */
+(function(){
+  const cv=$('#mbChart'), cardsEl=$('#mbCards'), legendEl=$('#mbLegend'), stepsEl=$('#mbSteps');
+  const startBtn=$('#mbStart'), stepBtn=$('#mbStep'), resetBtn=$('#mbReset'), newBtn=$('#mbNew');
+  const epsEl=$('#mbEps'), spdEl=$('#mbSpeed'), epsOut=$('#mbEpsOut'), spdOut=$('#mbSpeedOut');
+  const pEls=[0,1,2,3].map(i=>$('#mbP'+i)), pOuts=[0,1,2,3].map(i=>$('#mbP'+i+'Out'));
+  const MAX=1500, K=4;
+  let probs=pEls.map(e=>+e.value);
+  let eps=+epsEl.value, speed=+spdEl.value, t=0, running=false, raf=0, algos=[], rnd=mulberry32(1), frame=0, lastPump=0, rafPending=false;
+
+  function algoDefs(){return[
+    {name:'贪心',color:cssv('--safe'),type:'greedy'},
+    {name:'ε-贪心',color:cssv('--l4'),type:'egreedy'},
+    {name:'UCB1',color:cssv('--c6'),type:'ucb'},
+    {name:'汤普森',color:cssv('--l2'),type:'thompson'}
+  ]}
+  function newState(){return{counts:new Array(K).fill(0),sums:new Array(K).fill(0),t:0,
+    regret:new Float64Array(MAX+1),a:new Array(K).fill(1),b:new Array(K).fill(1)}}
+  function argmaxRand(arr){
+    let best=-Infinity;const ids=[];
+    arr.forEach((v,i)=>{if(v>best+1e-12){best=v;ids.length=0;ids.push(i)}else if(v>=best-1e-12)ids.push(i)});
+    return ids[(rnd()*ids.length)|0];
+  }
+  function gamma(a){
+    if(a<1){const u=Math.max(rnd(),1e-12);return gamma(a+1)*Math.pow(u,1/a)}
+    const d=a-1/3,c=1/Math.sqrt(9*d);
+    for(let it=0;it<64;it++){
+      let x,v;
+      do{x=gaussRnd(rnd);v=1+c*x}while(v<=0);
+      v=v*v*v;
+      const u=rnd();
+      if(u<1-0.0331*x*x*x*x)return d*v;
+      if(Math.log(Math.max(u,1e-12))<0.5*x*x+d*(1-v+Math.log(v)))return d*v;
+    }
+    return d;
+  }
+  function betaSample(a,b){const x=gamma(a),y=gamma(b);return x/(x+y)}
+  function pullArm(al){
+    if(al.t<K)return al.t;
+    const mean=al.counts.map((n,i)=>n?al.sums[i]/n:0);
+    switch(al.type){
+      case 'greedy':return argmaxRand(mean);
+      case 'egreedy':return rnd()<eps?(rnd()*K|0):argmaxRand(mean);
+      case 'ucb':{
+        const idx=mean.map((m,i)=>m+Math.sqrt(2*Math.log(al.t)/Math.max(1,al.counts[i])));
+        return argmaxRand(idx);
+      }
+      case 'thompson':{
+        const s=[];
+        for(let i=0;i<K;i++)s.push(betaSample(al.a[i],al.b[i]));
+        return argmaxRand(s);
+      }
+    }
+    return 0;
+  }
+  const bestProb=()=>Math.max(...probs);
+  function stepAll(n){
+    for(let s=0;s<n&&t<MAX;s++){
+      algos.forEach(al=>{
+        const arm=pullArm(al);
+        const r=rnd()<probs[arm]?1:0;
+        al.counts[arm]++;al.sums[arm]+=r;al.a[arm]+=r;al.b[arm]+=1-r;al.t++;
+        al.regret[al.t]=al.regret[al.t-1]+(bestProb()-probs[arm]);
+      });
+      t++;
+    }
+    stepsEl.textContent=t+' / '+MAX+' 回合';
+  }
+  function drawChart(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(cv); const pad={l:52,r:84,t:14,b:26};
+    let ymax=1;
+    algos.forEach(al=>{for(let i=0;i<=t;i++){if(al.regret[i]>ymax)ymax=al.regret[i]}});
+    ymax*=1.08;
+    const X=i=>pad.l+(i/MAX)*(w-pad.l-pad.r);
+    const Y=v=>h-pad.b-(v/ymax)*(h-pad.t-pad.b);
+    const xticks=[0,300,600,900,1200,1500].map(v=>({v,label:String(v)}));
+    const yticks=niceTicks(0,ymax,4);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    const labels=[];
+    algos.forEach(al=>{
+      const pts=[];
+      for(let i=0;i<=t;i++)pts.push([X(i),Y(al.regret[i])]);
+      poly(ctx,pts,al.color,2.8);
+      if(t>0)labels.push({y:Y(al.regret[t]),val:al.regret[t],color:al.color});
+    });
+    labels.sort((a,b)=>a.y-b.y);
+    for(let i=1;i<labels.length;i++){if(labels[i].y-labels[i-1].y<14)labels[i].y=labels[i-1].y+14}
+    labels.forEach(L=>tx(ctx,cf(L.val,0),w-pad.r+6,L.y,L.color,'left',1,'13.5px ui-sans-serif,system-ui,sans-serif'));
+  }
+  function updateCards(){
+    const bestIdx=probs.indexOf(Math.max(...probs));
+    const enough=t>=K*3;
+    const champion=t>=MAX?algos.reduce((m,al,i)=>al.regret[t]<algos[m].regret[t]?i:m,0):-1;
+    cardsEl.innerHTML=algos.map((al,ai)=>{
+      const maxC=Math.max(1,...al.counts);
+      const lead=al.counts.indexOf(Math.max(...al.counts));
+      const gotBest=lead===bestIdx;
+      const rows=al.counts.map((cnt,i)=>{
+        const m=al.counts[i]?al.sums[i]/al.counts[i]:0;
+        return '<div class="armrow'+(i===bestIdx?' best':'')+'">'+
+          '<span>臂'+(i+1)+'</span>'+
+          '<span class="armbar"><i style="width:'+Math.round(100*cnt/maxC)+'%;background:'+al.color+'"></i></span>'+
+          '<span>'+cnt+' 次 · 均值 '+(al.counts[i]?nf(m,2):'—')+'</span></div>';
+      }).join('');
+      const avg=al.t?(al.sums.reduce((x,y)=>x+y,0)/al.t):0;
+      const tag=!enough?'<span class="tag">—</span>':(ai===champion?'<span class="tag ok">🏆 遗憾最少</span>':(gotBest?'<span class="tag ok">✓ 押中最优臂</span>':'<span class="tag no">✗ 还在瞎拉</span>'));
+      return '<div class="mb-card"><h5><span><span class="dot" style="background:'+al.color+'"></span>'+(ai===champion?'🏆 ':'')+al.name+
+        (al.type==='egreedy'?'（ε='+Math.round(eps*100)+'%）':'')+'</span>'+tag+'</h5>'+rows+
+        '<p class="hint" style="margin:7px 0 0">平均奖励 '+nf(avg,3)+' · 累计遗憾 '+cf(al.regret[t],0)+'</p></div>';
+    }).join('');
+    legendEl.innerHTML=algos.map((al,ai)=>'<span class="lg"><i style="background:'+al.color+'"></i>'+(ai===champion?'🏆 ':'')+al.name+' <b>'+cf(al.regret[t],0)+'</b></span>').join('');
+  }
+  function pump(){
+    if(!running)return;
+    rafPending=false;
+    frame++;lastPump=performance.now();
+    stepAll(speed);
+    drawChart();
+    if(frame%6===0)updateCards();
+    if(t>=MAX){running=false;updateCards();drawChart();startBtn.textContent='↺ 重跑';return}
+    if(!rafPending){rafPending=true;raf=requestAnimationFrame(tick)}
+  }
+  function tick(){if(!running)return;pump()}
+  function reset(){
+    cancelAnimationFrame(raf);running=false;rafPending=false;lastPump=performance.now();
+    rnd=mulberry32((Math.random()*1e9)|0);
+    algos=algoDefs().map(d=>Object.assign(newState(),d));
+    t=0;frame=0;
+    startBtn.textContent='▶ 开始';
+    stepsEl.textContent='0 / '+MAX+' 回合';
+    drawChart();updateCards();
+  }
+  startBtn.addEventListener('click',()=>{
+    if(running){running=false;cancelAnimationFrame(raf);rafPending=false;startBtn.textContent='▶ 继续';return}
+    if(t>=MAX)reset();
+    running=true;lastPump=performance.now();startBtn.textContent='⏸ 暂停';
+    rafPending=true;raf=requestAnimationFrame(tick);
+  });
+  stepBtn.addEventListener('click',()=>{if(running)return;stepAll(200);drawChart();updateCards()});
+  resetBtn.addEventListener('click',reset);
+  newBtn.addEventListener('click',()=>{
+    probs=probs.map(()=>0.05+0.9*rnd());
+    const mx=Math.max(...probs);
+    if(mx<0.55){const i=probs.indexOf(mx);probs[i]=0.55+0.35*rnd()}
+    pEls.forEach((e,i)=>{e.value=probs[i];pOuts[i].textContent=nf(probs[i],2)});
+    reset();
+  });
+  pEls.forEach((e,i)=>e.addEventListener('change',()=>{
+    probs[i]=+e.value;pOuts[i].textContent=nf(probs[i],2);reset();
+  }));
+  epsEl.addEventListener('input',()=>{eps=+epsEl.value;epsOut.textContent=Math.round(eps*100)+'%';updateCards()});
+  spdEl.addEventListener('input',()=>{speed=+spdEl.value;spdOut.textContent=speed});
+  reg(()=>{const defs=algoDefs();algos.forEach((al,i)=>{al.color=defs[i].color});drawChart()});
+  pOuts.forEach((o,i)=>o.textContent=nf(probs[i],2));
+  epsOut.textContent=Math.round(eps*100)+'%';spdOut.textContent=speed;
+  reset();
+  /* 保险丝：rAF 被节流时用定时器兜底推进 */
+  setInterval(()=>{if(running&&performance.now()-lastPump>400)pump()},150);
+})();
+
+/* ---------- ⑥ Minimax ---------- */
+(function(){
+  const pEl=$('#mmP'), qEl=$('#mmQ'), autoEl=$('#mmAuto');
+  const pOut=$('#mmPOut'), qOut=$('#mmQOut');
+  const cvA=$('#mmView'), cvB=$('#mmGuarantee');
+  const gEl=$('#mmG'), eEl=$('#mmE'), respEl=$('#mmResp'), story=$('#mmStory');
+  const colL=$('#mmColL'), colR=$('#mmColR');
+  let p=+pEl.value, q=+qEl.value, auto=autoEl.checked;
+  const WIN=0.75, PSTAR=0.25;
+  const E=(pp,qq)=>3*pp*qq+(1-pp)*(1-qq);
+  const respOf=pp=>((1-pp)<=3*pp)?0:1; /* 0=右 R（你拿 1−p），1=左 L（你拿 3p） */
+
+  function syncQ(){
+    if(auto)q=respOf(p);
+    qEl.value=q;
+    qOut.textContent=Math.round(q*100)+'%';
+    qEl.disabled=auto;
+    colL.classList.toggle('hot',auto?q===1:q>=0.5);
+    colR.classList.toggle('hot',auto?q===0:q<0.5);
+  }
+  function drawView(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(cvA); const pad={l:56,r:16,t:36,b:34};
+    const X=qq=>pad.l+qq*(w-pad.l-pad.r);
+    const v0=E(p,0),v1=E(p,1);
+    const lo=Math.min(v0,v1,0)-0.2, hi=Math.max(v0,v1,0.2)+0.3;
+    const Y=v=>h-pad.b-((v-lo)/(hi-lo))*(h-pad.t-pad.b);
+    const xticks=[0,0.25,0.5,0.75,1].map(v=>({v,label:v===0?'左 L':(v===1?'右 R':Math.round(v*100)+'%')}));
+    const yticks=niceTicks(lo,hi,3);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* E(p,q) 对 q 是直线（固定 p） */
+    poly(ctx,[[X(0),Y(v0)],[X(1),Y(v1)]],C.c6,3.4);
+    /* 对手的最低点 */
+    const rq=respOf(p),rv=E(p,rq);
+    dot(ctx,X(rq),Y(rv),13,C.bad,0.15);
+    dot(ctx,X(rq),Y(rv),6.5,C.bad);
+    tx(ctx,(rq===0?'对手全选 R':'对手全选 L')+' → 你只剩 '+nf(rv,2),rq===0?X(0)+11:X(1)-11,Y(rv)+19,C.bad,rq===0?'left':'right');
+    /* 手动模式的当前 q */
+    if(!auto){
+      dot(ctx,X(q),Y(E(p,q)),5.5,C.c4);
+      tx(ctx,'当前 '+nf(E(p,q),2),X(q),Y(E(p,q))-16,C.c4,'center');
+    }
+    tx(ctx,'你的 p = '+Math.round(p*100)+'% 固定，橙线任对手挑，他只去最低点',pad.l+2,pad.t-16,C.muted,'left');
+  }
+  function drawGuarantee(){
+    const C=CC(); const {ctx,w,h}=fitCanvas(cvB); const pad={l:54,r:18,t:36,b:34};
+    const X=pp=>pad.l+pp*(w-pad.l-pad.r);
+    const lo=-0.05, hi=0.95;
+    const Y=v=>{const t=(v-lo)/(hi-lo);return h-pad.b-Math.min(1.02,Math.max(-0.02,t))*(h-pad.t-pad.b)};
+    const xticks=[0,0.25,0.5,0.75,1].map(v=>({v,label:Math.round(v*100)+'%'}));
+    const yticks=niceTicks(0,0.9,3);
+    grid(ctx,{X,Y,xticks,yticks,pad,w,h,C});
+    /* 对手两条纯策略线 */
+    poly(ctx,[[X(0),Y(1)],[X(1),Y(0)]],C.muted,1.8,0.75,[6,5]);
+    tx(ctx,'对手全选 R：1−p',X(0.66),Y(0.34)-13,C.muted,'left');
+    poly(ctx,[[X(0),Y(0)],[X(1),Y(3)]],C.muted,1.8,0.75,[6,5]);
+    tx(ctx,'对手全选 L：3p',X(0.16),Y(0.48)-13,C.muted,'left');
+    /* 保底包络 g(p)=min(1−p, 3p) */
+    const env=[];
+    for(let i=0;i<=200;i++){const pp=i/200;env.push([X(pp),Y(Math.min(1-pp,3*pp))])}
+    poly(ctx,env,C.c6,3.6);
+    /* max-min 最优点 */
+    dot(ctx,X(PSTAR),Y(WIN),15,C.good,0.18);
+    dot(ctx,X(PSTAR),Y(WIN),7,C.good);
+    tx(ctx,'max-min = 0.75',X(PSTAR)+11,Y(WIN)-16,C.good,'left');
+    /* 你的当前位置 */
+    const g=Math.min(1-p,3*p);
+    ctx.save();ctx.globalAlpha=0.85;ctx.strokeStyle=C.c4;ctx.lineWidth=1.6;ctx.setLineDash([3,4]);
+    ctx.beginPath();ctx.moveTo(X(p),h-pad.b);ctx.lineTo(X(p),Y(g));ctx.stroke();ctx.restore();
+    dot(ctx,X(p),Y(g),6.5,C.c4);
+    const lab='你：p='+Math.round(p*100)+'% → 保底 '+nf(g,2);
+    ctx.save();ctx.font=FONT;const tw=ctx.measureText(lab).width;ctx.restore();
+    let lx=X(p)+10,align='left';
+    if(lx+tw>w-pad.r){lx=X(p)-10;align='right'}
+    tx(ctx,lab,lx,Y(g)-16,C.c4,align);
+    tx(ctx,'粗线 = 保底 g(p)（两条虚线里较低的那条）',pad.l+2,pad.t-16,C.muted,'left');
+  }
+  function render(){
+    syncQ();
+    drawView();drawGuarantee();
+    const g=Math.min(1-p,3*p);
+    gEl.textContent=nf(g,2);
+    gEl.style.color=g>=WIN-1e-9?cssv('--good'):(g<0.4?cssv('--bad'):cssv('--text'));
+    eEl.textContent=nf(E(p,q),2);
+    respEl.textContent=respOf(p)===1?'全选左 L':'全选右 R';
+    if(Math.abs(p-PSTAR)<0.015){
+      story.innerHTML='🎯 <b>你正踩在 max-min 点上</b>：不管对手怎么拆，你都保证 <b>'+nf(WIN,2)+'</b>。对比一下——硬刚 T 或硬刚 B 的保底都只有 <b>0</b>：混合策略不是花拳绣腿，它把下限从 0 抬到了 0.75。';
+    }else if(p<=0.01||p>=0.99){
+      story.innerHTML='💥 <b>纯策略被读牌了</b>：你几乎固定在'+(p>=0.99?'上 T':'下 B')+'，对手只要一直选'+(p>=0.99?'右 R':'左 L')+'，你的保底值就是 <b>'+nf(g,2)+'</b>。把 p 拖向 25% 试试。';
+    }else{
+      story.innerHTML='🛡️ 当前 p='+Math.round(p*100)+'%：保底 <b>'+nf(g,2)+'</b>，距离最优 0.75 还差 '+nf(WIN-g,2)+'。'+(p<PSTAR?'再往右拖一点。':'往回拖一点。');
+    }
+  }
+  function setP(v){p=v;pEl.value=v;pOut.textContent=Math.round(v*100)+'%';render()}
+  pEl.addEventListener('input',()=>{p=+pEl.value;pOut.textContent=Math.round(p*100)+'%';render()});
+  qEl.addEventListener('input',()=>{q=+qEl.value;qOut.textContent=Math.round(q*100)+'%';render()});
+  autoEl.addEventListener('change',()=>{auto=autoEl.checked;render()});
+  $('#mmPureT').addEventListener('click',()=>setP(1));
+  $('#mmPureB').addEventListener('click',()=>setP(0));
+  $('#mmBest').addEventListener('click',()=>setP(PSTAR));
+  reg(render);
+  pOut.textContent=Math.round(p*100)+'%';
+  render();
+})();
+</script>
+</body>
+</html>

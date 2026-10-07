@@ -1,0 +1,1760 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>概率论 · 交互式直观实验室</title>
+<meta name="description" content="16 个可交互模块，从概率公理到中心极限定理与蒙特卡洛，用动画和可拖拽图形建立概率直觉。">
+<style>
+:root{
+  --bg:#f3f5f9; --panel:#ffffff; --panel2:#f7f9fc; --ink:#0f172a; --ink2:#4a5568; --ink3:#7c8798;
+  --line:#e2e8f0; --line2:#cfd8e6;
+  --A:#2563eb; --B:#ea580c; --ok:#0f9d58; --no:#dc2626; --pur:#7c3aed; --warn:#c2760a;
+  --accent:#4f46e5; --accent-soft:#eef0ff;
+  --shadow:0 1px 2px rgba(15,23,42,.05), 0 14px 34px -22px rgba(15,23,42,.45);
+  --radius:16px;
+  --mono:Consolas,"SF Mono","JetBrains Mono",Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0d1016; --panel:#161b23; --panel2:#1b212b; --ink:#e7ecf3; --ink2:#a9b4c2; --ink3:#7d8896;
+    --line:#242c38; --line2:#33405280;
+    --A:#60a5fa; --B:#fb923c; --ok:#34d399; --no:#f87171; --pur:#a78bfa; --warn:#fbbf24;
+    --accent:#a5b4fc; --accent-soft:#1e2440;
+    --shadow:none;
+  }
+}
+html[data-theme="light"]{color-scheme:light}
+html[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#0d1016; --panel:#161b23; --panel2:#1b212b; --ink:#e7ecf3; --ink2:#a9b4c2; --ink3:#7d8896;
+  --line:#242c38; --line2:#33405280; --A:#60a5fa; --B:#fb923c; --ok:#34d399; --no:#f87171;
+  --pur:#a78bfa; --warn:#fbbf24; --accent:#a5b4fc; --accent-soft:#1e2440; --shadow:none;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:76px;overflow-x:clip}
+body{margin:0;background:var(--bg);color:var(--ink);overflow-x:clip;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+  line-height:1.72;-webkit-font-smoothing:antialiased;font-size:15px}
+.wrap{max-width:1140px;margin:0 auto;padding:0 20px 80px}
+
+/* ---------- hero ---------- */
+.hero{position:relative;overflow:hidden;margin:20px 0 6px;padding:34px 32px 28px;
+  background:var(--panel);border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow)}
+.hero::before{content:"";position:absolute;inset:0 auto 0 0;width:7px;
+  background:linear-gradient(180deg,var(--accent),var(--A) 45%,var(--pur))}
+.hero h1{margin:0 0 10px;font-size:clamp(24px,4.2vw,34px);line-height:1.25;letter-spacing:-.5px}
+.hero .lead{margin:0;color:var(--ink2);font-size:15.5px;max-width:74ch}
+.meta{margin-top:18px;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink2);
+  background:var(--panel2);border:1px solid var(--line);border-radius:999px;padding:4px 11px}
+.btn{font:inherit;font-size:13px;cursor:pointer;border-radius:10px;padding:7px 13px;
+  background:var(--panel2);color:var(--ink);border:1px solid var(--line2);transition:.15s;line-height:1.5}
+.btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.1);color:#fff}
+.btn.sm{padding:4px 9px;font-size:12px;border-radius:8px}
+.btn[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);color:var(--accent);font-weight:600}
+
+/* ---------- nav ---------- */
+nav.toc{position:sticky;top:0;z-index:40;margin:16px -20px 0;padding:9px 20px;
+  background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line)}
+.navrow{display:flex;gap:6px;overflow-x:auto;scrollbar-width:thin;padding-bottom:2px}
+.navrow::-webkit-scrollbar{height:5px}
+.navrow::-webkit-scrollbar-thumb{background:var(--line2);border-radius:9px}
+.navrow a{flex:0 0 auto;font-size:12.5px;text-decoration:none;color:var(--ink2);white-space:nowrap;
+  padding:5px 11px;border-radius:999px;border:1px solid transparent;transition:.15s}
+.navrow a:hover{color:var(--accent);background:var(--panel)}
+.navrow a.on{color:var(--accent);background:var(--accent-soft);border-color:color-mix(in srgb,var(--accent) 35%,transparent);font-weight:600}
+#prog{height:2px;background:linear-gradient(90deg,var(--accent),var(--pur));width:0;transition:width .1s linear}
+
+/* ---------- module ---------- */
+section.mod{margin-top:26px;background:var(--panel);border:1px solid var(--line);
+  border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden}
+.mod > .head{padding:18px 22px 14px;border-bottom:1px solid var(--line);
+  background:linear-gradient(180deg,var(--panel2),transparent)}
+.mod .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:9px;
+  background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:13px;
+  margin-right:9px;vertical-align:3px}
+.mod h2{margin:0;font-size:19px;line-height:1.4;display:inline}
+.mod .kicker{color:var(--ink2);font-size:13.5px;margin:6px 0 0 38px}
+.mod .body{padding:18px 22px 22px}
+h3{font-size:15px;margin:20px 0 8px;padding-left:9px;border-left:3px solid var(--accent)}
+h3:first-child{margin-top:2px}
+h4{font-size:13.5px;margin:14px 0 6px;color:var(--ink2);text-transform:none;letter-spacing:.2px}
+p{margin:9px 0}
+.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(250px,100%),1fr))}
+.grid.two{grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr))}
+.card{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:14px 16px}
+.card h4{margin:0 0 6px;color:var(--ink);font-size:14px}
+.card p{margin:0;font-size:13.5px;color:var(--ink2)}
+.callout{border-radius:11px;padding:11px 15px;margin:12px 0;font-size:13.8px;
+  border:1px solid var(--line);background:var(--panel2);border-left:4px solid var(--accent)}
+.callout.tip{border-left-color:var(--ok)} .callout.warn{border-left-color:var(--warn)} .callout.no{border-left-color:var(--no)}
+.callout b{color:var(--ink)}
+.eq{font-size:15px;line-height:2;background:var(--panel2);border:1px dashed var(--line2);
+  border-radius:11px;padding:10px 15px;margin:10px 0;overflow-x:auto}
+.eq i{font-family:"Cambria Math","Times New Roman",Georgia,serif;font-style:italic}
+.eq .v{color:var(--accent);font-weight:700}
+.eq .A{color:var(--A);font-weight:700} .eq .B{color:var(--B);font-weight:700}
+.eq small{color:var(--ink3);font-size:12.5px;font-family:var(--mono)}
+kbd{font-family:var(--mono);font-size:12px;background:var(--panel2);border:1px solid var(--line2);
+  border-bottom-width:2px;border-radius:6px;padding:1px 6px}
+
+/* ---------- controls ---------- */
+.ctrl{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin:12px 0}
+.ctrl .f{display:flex;flex-direction:column;gap:3px;min-width:132px}
+.ctrl .f > span{font-size:12px;color:var(--ink2);display:flex;justify-content:space-between;gap:8px}
+.ctrl .f > span b{color:var(--ink);font-family:var(--mono);font-size:12px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:20px;background:transparent;cursor:pointer}
+input[type=range]::-webkit-slider-runnable-track{height:5px;border-radius:99px;background:var(--line2)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;margin-top:-6px;border-radius:50%;
+  background:var(--accent);border:2px solid var(--panel);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+input[type=range]::-moz-range-track{height:5px;border-radius:99px;background:var(--line2)}
+input[type=range]::-moz-range-thumb{width:14px;height:14px;border-radius:50%;background:var(--accent);
+  border:2px solid var(--panel);box-shadow:0 1px 4px rgba(0,0,0,.3)}
+select,input[type=number]{font:inherit;font-size:13px;background:var(--panel2);color:var(--ink);
+  border:1px solid var(--line2);border-radius:9px;padding:6px 9px;max-width:100%}
+.btnrow{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.ro{display:flex;flex-wrap:wrap;gap:9px;margin:12px 0}
+.ro>div{flex:1 1 96px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:8px 11px;min-width:0}
+.ro .k{font-size:11.5px;color:var(--ink3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ro .n{font-family:var(--mono);font-size:17px;font-weight:700;line-height:1.35;color:var(--ink);
+  overflow-wrap:anywhere}
+.ro .n.g{color:var(--ok)} .ro .n.r{color:var(--no)} .ro .n.a{color:var(--accent)} .ro .n.b{color:var(--B)}
+canvas{display:block;width:100%;border-radius:11px;background:var(--panel2);border:1px solid var(--line);touch-action:manipulation}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px;color:var(--ink2);margin:8px 0 0}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:5px;vertical-align:-1px}
+.twocol{display:grid;gap:16px;grid-template-columns:repeat(auto-fit,minmax(min(330px,100%),1fr))}
+.tag{font-size:11px;font-family:var(--mono);border:1px solid var(--line2);border-radius:6px;
+  padding:1px 6px;color:var(--ink2);background:var(--panel2)}
+table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);
+  border-radius:11px;overflow:hidden;font-size:13.5px;margin:10px 0}
+th,td{padding:8px 11px;border-bottom:1px solid var(--line);text-align:center}
+th{background:var(--panel2);font-weight:600;white-space:nowrap}
+td:first-child,th:first-child{text-align:left}
+tr:last-child td{border-bottom:none}
+code{font-family:var(--mono);font-size:12.5px;background:var(--panel2);border:1px solid var(--line);
+  border-radius:6px;padding:1px 6px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 12px}
+.tabs button{font:inherit;font-size:13px;cursor:pointer;border-radius:9px;padding:6px 12px;
+  background:var(--panel2);color:var(--ink2);border:1px solid var(--line)}
+.tabs button[aria-selected="true"]{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.q{border:1px solid var(--line);border-radius:12px;padding:12px 15px;margin:10px 0;background:var(--panel2)}
+.q .qt{font-size:14px;margin:0 0 8px}
+.q .opts{display:flex;flex-direction:column;gap:6px}
+.q .opts button{font:inherit;text-align:left;font-size:13.5px;cursor:pointer;border-radius:9px;padding:7px 11px;
+  background:var(--panel);border:1px solid var(--line2);color:var(--ink);transition:.12s}
+.q .opts button:hover{border-color:var(--accent)}
+.q .opts button.right{background:color-mix(in srgb,var(--ok) 16%,var(--panel));border-color:var(--ok);font-weight:600}
+.q .opts button.wrong{background:color-mix(in srgb,var(--no) 14%,var(--panel));border-color:var(--no)}
+.q .fb{font-size:13px;color:var(--ink2);margin-top:8px;display:none}
+.q .fb.show{display:block}
+.hint{font-size:12.5px;color:var(--ink3);margin-top:6px}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+footer{margin-top:32px;padding-top:18px;border-top:1px solid var(--line);color:var(--ink2);font-size:13px}
+footer a{color:var(--accent)}
+@media (max-width:640px){
+  .wrap{padding:0 14px 60px} nav.toc{margin:14px -14px 0;padding:8px 14px}
+  .hero{padding:26px 18px 22px;border-radius:18px}
+  .mod>.head{padding:16px 16px 12px} .mod .body{padding:14px 16px 18px}
+  .mod .kicker{margin-left:0}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+@media print{
+  body{background:#fff} .wrap{max-width:none;padding:0}
+  nav.toc,.btnrow,.btn{display:none}
+  section.mod{break-inside:avoid;box-shadow:none}
+}
+</style>
+</head>
+<body>
+<nav class="toc" aria-label="模块导航">
+  <div class="navrow" id="navrow">
+    <a href="#m1">1 公理</a><a href="#m2">2 频率→概率</a><a href="#m3">3 加法法则</a>
+    <a href="#m4">4 独立 vs 相关</a><a href="#m5">5 条件概率</a><a href="#m6">6 贝叶斯</a>
+    <a href="#m7">7 期望与方差</a><a href="#m8">8 大数定律</a><a href="#m9">9 中心极限</a>
+    <a href="#m10">10 正态探索器</a><a href="#m11">11 蒙特卡洛</a><a href="#m12">12 三门问题</a>
+    <a href="#m13">13 生日悖论</a><a href="#m14">14 赌徒破产</a><a href="#m15">15 倍增法必输</a>
+    <a href="#m16">16 相关≠因果</a><a href="#quiz">自测</a>
+  </div>
+  <div id="prog"></div>
+</nav>
+
+<div class="wrap">
+<header class="hero">
+  <h1>概率论 · 交互式直观实验室</h1>
+  <p class="lead">16 个可操作的模块，把概率从「一堆抽象公式」变成「看得见的动画」。核心思路只有一句话：
+  <b>概率不是预言，是长期频率；数学只是把频率的规律压缩成公式。</b>
+  每个模块都是左边讲直觉、右边动手拖，点一下就明白。</p>
+  <div class="meta">
+    <span class="badge">📅 2026-10-06</span>
+    <span class="badge">🎯 理工科本科：公式给全，推导直觉化</span>
+    <span class="badge">🧪 全部本地计算，零依赖可离线</span>
+    <button class="btn sm" id="themeBtn" type="button">🌓 主题</button>
+    <button class="btn sm" id="topBtn" type="button">↑ 顶部</button>
+  </div>
+</header>
+
+<section class="mod" id="m1">
+  <div class="head"><h2><span class="num">1</span>概率的三条公理：概率到底是什么东西</h2>
+  <p class="kicker">先划边界：满足这三条的东西才能叫「概率」。整个概率论都是在这三条上盖房子。</p></div>
+  <div class="body">
+    <p>数学家不喜欢「凭感觉」，所以先立规矩。下面这个 12 格样本空间，每格等可能（概率 1/12）。你亲手标出事件 <span class="A">A</span>、<span class="B">B</span>，右边实时算出各种概率，公理检验器会同时亮灯。</p>
+    <div class="twocol">
+      <div>
+        <h3>动手：标注事件</h3>
+        <div class="btnrow">
+          <button class="btn primary" data-mark="A" type="button">标为 A</button>
+          <button class="btn primary" data-mark="B" type="button">标为 B</button>
+          <button class="btn" data-mark="C" type="button">标为 A∩B</button>
+          <button class="btn" data-mark="0" type="button">擦除</button>
+          <button class="btn sm" id="m1preset" type="button">随机一个</button>
+        </div>
+        <div id="m1grid" style="display:grid;grid-template-columns:repeat(6,1fr);gap:6px"></div>
+        <p class="hint">点格子切换状态。颜色：<span class="A">蓝=A</span>、<span class="B">橙=B</span>、<span style="color:var(--pur)">紫=A∩B</span>。</p>
+      </div>
+      <div>
+        <h3>读数</h3>
+        <div class="ro" id="m1out"></div>
+        <h3>公理检验器</h3>
+        <div id="m1check"></div>
+        <div class="eq"><small>公理（Kolmogorov）</small><br>
+          ① <i>P</i>(Ω)=1，且 0 ≤ <i>P</i>(<i>A</i>) ≤ 1<br>
+          ② 互斥事件可加：<i>P</i>(<i>A</i>∪<i>B</i>) = <i>P</i>(<i>A</i>) + <i>P</i>(<i>B</i>)，当 <i>A</i>∩<i>B</i>=∅<br>
+          ③ 次可加：<i>P</i>(⋃<sub>i</sub><i>A<sub>i</sub></i>) ≤ Σ <i>P</i>(<i>A<sub>i</sub></i>)
+        </div>
+        <div class="callout tip"><b>直觉：</b>概率是<b>长度</b>。样本空间是 1 根单位长的绳子，事件是其中的一段，P(A) 就是这段的长度。
+        三条公理就是「长度」必须满足的规矩。有了长度，加法、乘法、条件概率全都能从「谁被谁包含」里读出来，不用背公式。</div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="mod" id="m2">
+  <div class="head"><h2><span class="num">2</span>频率 → 概率：定义的另类理解</h2>
+  <p class="kicker">概率不是「天生」的数字，它就是掷一万次硬币数出来的比例。这是最重要的直觉。</p></div>
+  <div class="body">
+    <p>拖动滑块设定硬币正面概率 <i>p</i>，然后疯狂点击。你会看到<b>频率</b>剧烈跳动，但始终围绕 <i>p</i> 上下抖动，且抖动幅度随样本量增大而缩小（涨落 ≈ √(p(1-p)/n)）。这条曲线就是大数定律的第 0 版直觉。</p>
+    <div class="ctrl">
+      <div class="f" style="flex:0 0 220px"><span>硬币正面概率 <b id="m2pv">0.500</b></span>
+        <input type="range" id="m2p" min="1" max="99" value="50"></div>
+      <div class="f" style="flex:0 0 150px"><span>每轮掷 <b id="m2bv">100</b> 次</span>
+        <input type="range" id="m2b" min="1" max="1000" value="100"></div>
+      <button class="btn" id="m2reset" type="button">清零重来</button>
+      <button class="btn primary" id="m2auto" type="button" aria-pressed="false">▶ 自动</button>
+    </div>
+    <div class="ro" id="m2out"></div>
+    <canvas id="m2cv" height="260" aria-label="频率随样本量收敛曲线"></canvas>
+    <p class="legend"><span><i style="background:var(--B)"></i>实测频率 f(n)</span>
+      <span><i style="background:var(--ok)"></i>真实概率 p</span>
+      <span><i style="background:var(--accent)"></i>理论误差带 ±1/√n</span></p>
+    <div class="eq">定义：<span class="v"><i>P</i>(A) = lim<sub>n→∞</sub> <i>f</i><sub>n</sub>(A)</span>
+      <small>（这个极限几乎必然存在，WLLN）</small></div>
+    <div class="callout"><b>关键区分：</b>「这一次的频率」是随机变量，有涨落；「它的极限」是确定的常数。
+    我们定义 P(A) 为那个<b>极限</b>，而不是某一次的观测值。这也是为什么单次抛硬币是 50%，但你今晚可能连输 10 把——10 次的频率是 0，不矛盾。</div>
+  </div>
+</section>
+
+<section class="mod" id="m3">
+  <div class="head"><h2><span class="num">3</span>加法法则与容斥：为什么不能直接相加</h2>
+  <p class="kicker">经典陷阱：P(A)+P(B) 把重叠部分算了两遍。容斥原理就是「减回去」。</p></div>
+  <div class="body">
+    <p>两个圆随机飘在方框里。左边阴影面积就是 P(A)，右边是 P(B)，中间重叠被两边都盖住了。拖动它们，亲眼看到重叠区怎么「吃掉」你的概率总和。</p>
+    <div class="twocol">
+      <div><canvas id="m3cv" height="300" aria-label="两个圆的重叠示意"></canvas>
+        <p class="legend"><span><i style="background:var(--A)"></i>A</span><span><i style="background:var(--B)"></i>B</span>
+        <span><i style="background:var(--pur)"></i>重叠 A∩B</span></p>
+        <p class="hint">在图上按住拖动圆心。半径也可以滚轮/上下调。</p></div>
+      <div>
+        <div class="ctrl"><div class="f" style="flex:0 0 200px"><span>半径 r <b id="m3rv">0.34</b></span>
+          <input type="range" id="m3r" min="10" max="48" value="34"></div></div>
+        <div class="ro" id="m3out"></div>
+        <div class="eq">
+          <span class="A"><i>P</i>(A)</span> + <span class="B"><i>P</i>(B)</span> − <span style="color:var(--pur)"><i>P</i>(A∩B)</span> = <span class="v"><i>P</i>(A∪B)</span><br>
+          <small>若 A、B 互斥（不重叠），重叠项为 0，加法直接成立</small><br><br>
+          三个事件：<i>P</i>(A∪B∪C) = <i>P</i>(A)+<i>P</i>(B)+<i>P</i>(C) − <i>P</i>(AB) − <i>P</i>(BC) − <i>P</i>(CA) + <i>P</i>(ABC)
+        </div>
+        <div class="callout warn"><b>应用：</b>彩票「至少中一个奖」的计算必须用容斥。把「中一等奖」和「中二等奖」直接加起来是最常见的算错——很多人同时中了两个奖，却被你算了两次。</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m4">
+  <div class="head"><h2><span class="num">4</span>独立 vs 相关：P(B|A) 变没变？</h2>
+  <p class="kicker">独立性是一个可以量化、可检验的性质。定义：P(B|A)=P(B)。用骰子做实验。</p></div>
+  <div class="body">
+    <p>左边两只骰子完全独立，右边两只骰子被一根弹簧<b>耦合</b>着（高斯 copula，相关强度 ρ）。
+    同时掷，看条件概率 <i>P</i>(B|A) 是否还是 1/2——这是判定独立性的唯一标准。</p>
+    <div class="twocol">
+      <div><h3>两只独立的骰子</h3><canvas id="m4a" height="240" aria-label="独立骰子"></canvas>
+        <div class="ro" id="m4ao"></div></div>
+      <div><h3>被弹簧耦合的骰子（相关系数 ρ）</h3>
+        <div class="ctrl"><div class="f" style="flex:0 0 200px"><span>耦合强度 ρ <b id="m4rv">0.60</b></span>
+          <input type="range" id="m4r" min="0" max="99" value="60"></div></div>
+        <canvas id="m4b" height="240" aria-label="相关骰子"></canvas>
+        <div class="ro" id="m4bo"></div></div>
+    </div>
+    <div class="eq">独立 ⟺ <span class="v"><i>P</i>(A∩B) = <i>P</i>(A)<i>P</i>(B)</span> ⟺ <span class="v"><i>P</i>(B|A) = <i>P</i>(B)</span><br>
+      <small>ρ=0 独立；|ρ|&gt;0 相关。相关系数 ρ = Cov(X,Y)/(σ<sub>X</sub>σ<sub>Y</sub>)，取值 [−1,1]，|ρ|=1 时完全决定</small></div>
+    <div class="callout tip"><b>核心判据：</b>「知道 A 之后，B 的概率变了吗？」变了就是相关，没变就是独立。
+    这一句话能替代 90% 的独立性判断题。注意：<b>两两独立 ≠ 相互独立</b>（经典反例：抛两枚硬币，三个事件 A、B、A∩B 两两独立但相互不独立）。</div>
+    <div class="callout no"><b>陷阱：</b>「互斥」推出「不独立」（因为 P(A∩B)=0≠P(A)P(B)）。看到「不独立」先检查是不是互斥造成的。</div>
+  </div>
+</section>
+
+<section class="mod" id="m5">
+  <div class="head"><h2><span class="num">5</span>条件概率：把样本空间「切一半」</h2>
+  <p class="kicker">P(A|B) = 在 B 已知的前提下做试验。关键动作是重新定义「样本空间」。</p></div>
+  <div class="body">
+    <p>袋子里 4 红 6 蓝。事件 B = 「抽到红球」，事件 A = 「抽到大号球」（红球里 2 个大号、蓝球里 3 个大号）。
+    看高亮矩形：条件概率就是<b>把不在 B 里的格子变灰，然后在剩下的格子里数比例</b>。</p>
+    <div class="twocol">
+      <div><div class="btnrow">
+        <button class="btn primary" id="m5draw" type="button">🎲 抽一颗并记录</button>
+        <button class="btn" id="m5clear" type="button">清空记录</button>
+        <button class="btn" id="m5auto" type="button" aria-pressed="false">▶ 自动 200 次</button></div>
+        <canvas id="m5cv" height="290" aria-label="袋子网格与条件概率"></canvas>
+        <div class="legend"><span><i style="background:var(--no)"></i>红球</span><span><i style="background:var(--A)"></i>蓝球</span>
+          <span><i style="background:var(--pur)"></i>大号（在 A 中）</span><span><i style="background:#8888"></i>灰=B 之外（已被排除）</span></div></div>
+      <div>
+        <h3>理论值 vs 实测</h3>
+        <div class="ro" id="m5out"></div>
+        <div class="eq">
+          <span class="v"><i>P</i>(<span class="A">A</span>|<span class="B">B</span>) = <i>P</i>(<span class="A">A</span>∩<span class="B">B</span>) / <i>P</i>(<span class="B">B</span>)</span><br>
+          <small>= (2/10) / (4/10) = 1/2</small><br><br>
+          换成「已知是大号」：<i>P</i>(<span class="B">B</span>|<span class="A">A</span>) = (2/10)/(5/10) = 2/5
+        </div>
+        <div class="callout warn"><b>最容易错的地方：</b>条件概率<b>不对称</b>。<i>P</i>(红|大) ≠ <i>P</i>(大|红)。谁被「已知」谁进分母，没有理由默认它们相等——除非独立。</div>
+        <div class="callout tip"><b>链式法则（概率版乘法法则）：</b><br>
+          <i>P</i>(<i>A</i><sub>1</sub>∩…∩<i>A<sub>n</sub></i>) = <i>P</i>(<i>A</i><sub>1</sub>)·<i>P</i>(<i>A</i><sub>2</sub>|<i>A</i><sub>1</sub>)·…·<i>P</i>(<i>A<sub>n</sub></i>|<i>A</i><sub>1</sub>…<i>A</i><sub>n−1</sub>)
+          <br><span class="hint">用来看文档：「字母 r 在这里出现的概率」=「字母 r 出现的概率 × r 后面接 a 的概率 × …」——这就是语言模型的基础。</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="mod" id="m6">
+  <div class="head"><h2><span class="num">6</span>贝叶斯定理：从「阳性」反推「患病」</h2>
+  <p class="kicker">条件概率的逆向追问。整个统计学、医学 AI、风控都建立在它上面。</p></div>
+  <div class="body">
+    <p>医学检测：患病率 <i>p</i>，灵敏度 <i>Se</i>=P(阳性|患病)，特异度 <i>Sp</i>=P(阴性|健康)。
+    检测结果阳性，<b>我真的患病吗？</b>——这就是 P(患病|阳性)。把参数拖一拖，看「阳性」在人群里到底占多大一块。</p>
+    <div class="twocol">
+      <div>
+        <div class="ctrl">
+          <div class="f" style="flex:0 0 210px"><span>患病率 p（千分之） <b id="m6pv">1.0‰</b></span>
+            <input type="range" id="m6p" min="1" max="300" value="10"></div>
+          <div class="f" style="flex:0 0 210px"><span>灵敏度 Se（阳性|患病） <b id="m6sev">99.0%</b></span>
+            <input type="range" id="m6se" min="50" max="100" value="99"></div>
+          <div class="f" style="flex:0 0 210px"><span>特异度 Sp（阴性|健康） <b id="m6spv">99.0%</b></span>
+            <input type="range" id="m6sp" min="50" max="100" value="99"></div>
+        </div>
+        <div class="ro" id="m6out"></div>
+        <div class="eq">
+          <span class="v"><i>P</i>(<span class="A">患病</span>|<span class="B">阳性</span>) = <i>P</i>(<span class="B">阳性</span>|<span class="A">患病</span>)·<i>P</i>(<span class="A">患病</span>) / <i>P</i>(<span class="B">阳性</span>)</span><br>
+          <small>分母 = Se·p + (1−Sp)·(1−p)   ← 全概率公式展开</small>
+        </div>
+        <div class="callout no"><b>基础比率忽视（Base Rate Neglect）：</b>当 p 极小时，即使检测准确率 99%，
+        阳性人群里也可能<b>绝大多数是假阳性</b>。HIV 初筛、地雷探测、罕见病基因筛查都中过这个招。记住：<b>先验 p 决定了后验的天花板</b>，检测再准也越不过 p。</div>
+      </div>
+      <div>
+        <h3>人群 100,000 人可视化</h3>
+        <canvas id="m6cv" height="330" aria-label="100000 人检测结果分布"></canvas>
+        <p class="legend"><span><i style="background:var(--no)"></i>患病且阳性（真·TP）</span>
+          <span><i style="background:var(--warn)"></i>健康但阳性（假·FP）</span>
+          <span><i style="background:var(--A)"></i>健康且阴性（TN）</span>
+          <span><i style="background:#8888"></i>患病但阴性（FN）</span></p>
+        <p class="hint">每个小方块代表一个人（10,000 人一格，1 格代表 10 人/100 人自适应）。看到「阳性」那一大列里黄色一片了吗？</p>
+      </div>
+    </div>
+    <div class="callout tip"><b>工程直觉：</b>贝叶斯 = 「先验 × 似然 ÷ 证据」。在机器学习里对应「参数先验 × 似然函数 ÷ 边缘似然」，MAP 估计；把先验积分掉就是贝叶斯模型平均。LLM 的贝叶斯学派（纯正传讯派）核心就是这条。</div>
+  </div>
+</section>
+
+<section class="mod" id="m7">
+  <div class="head"><h2><span class="num">7</span>期望与方差：平均值和「波动」</h2>
+  <p class="kicker">期望 = 长期平均收益（决定盈亏），方差 = 波动幅度（决定风险）。两者缺一不可。</p></div>
+  <div class="body">
+    <p>这是个可以调的赌局：赢钱概率 <i>p</i>，赢 <i>w</i> 元，输 <i>l</i> 元。
+    拖滑块看两件事：① 期望 <b>E</b>[X] 决定<b>长期是否盈利</b>（绿正红负）；② 模拟 1000 次的实际分布，看<b>期望和大数定律如何让平均逼近它</b>。</p>
+    <div class="twocol">
+      <div>
+        <div class="ctrl">
+          <div class="f" style="flex:0 0 180px"><span>赢的概率 p <b id="m7pv">30%</b></span>
+            <input type="range" id="m7p" min="1" max="99" value="30"></div>
+          <div class="f" style="flex:0 0 180px"><span>赢的金额 w <b id="m7wv">20 元</b></span>
+            <input type="range" id="m7w" min="1" max="100" value="20"></div>
+          <div class="f" style="flex:0 0 180px"><span>输的金额 l <b id="m7lv">10 元</b></span>
+            <input type="range" id="m7l" min="1" max="100" value="10"></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="m7run" type="button">🎲 模拟 1000 次</button>
+          <button class="btn" id="m7clr" type="button">清空</button></div>
+        <div class="ro" id="m7out"></div>
+        <div class="eq">
+          <span class="v">E[X] = Σ x·<i>P</i>(x)</span> &nbsp;·&nbsp; <span class="v">Var(X) = E[(X−E[X])²] = E[X²] − E[X]²</span><br>
+          <small>σ = √Var，标准差；切比雪夫不等式 P(|X−E[X]|≥kσ) ≤ 1/k²（不假设任何分布）</small>
+        </div>
+        <div class="callout"><b>期望的两种理解：</b>① 长期平均（沃普尔定义）② 随机抽样期望（可以理解成「我随机挑一个结果，它的平均尺寸」）。
+        最反直觉的是<b>期望值完全由分布决定，与你实际经历多少局无关</b>——只玩 10 局时 E 可能毫无帮助；但玩 10 万局，它就是你的真实命运。</div>
+      </div>
+      <div><h3>模拟收益分布（每局）</h3><canvas id="m7cv" height="300" aria-label="赌局收益分布"></canvas>
+        <div class="eq" style="font-size:13px">期望 > 0：必赚（长期）&nbsp;|&nbsp;期望 < 0：必亏（抽卡/彩票的真相）&nbsp;|&nbsp;期望 = 0：<b>公平</b>，方差决定体验（波动）</div>
+        <p class="hint">拖动 w、l 观察：<b>只有「期望为正」的赌局才值得重复参与</b>；方差只决定你能不能忍。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m8">
+  <div class="head"><h2><span class="num">8</span>大数定律：概率世界的终极收敛</h2>
+  <p class="kicker">样本平均值会收敛到期望。这是「频率定义概率」能成立的原因，也是统计推断的地基。</p></div>
+  <div class="body">
+    <p>左边：很多条随机游走轨迹，抛硬币，起点 0，每步 ±1，看它们<b>随时间</b>如何发散但围绕 0 摆动（涨落 ~ √n）。
+    右边：把同一条轨迹的<b>前缀平均</b>画出来，它会<b>死死贴住期望 μ=0</b> 不放——这就是大数定律。</p>
+    <div class="twocol">
+      <div><h3>随机游走 X(n)（发散，√n 涨落）</h3>
+        <div class="ctrl"><div class="f" style="flex:0 0 170px"><span>步数 n <b id="m8nv">300</b></span>
+          <input type="range" id="m8n" min="20" max="1000" value="300"></div>
+          <div class="f" style="flex:0 0 150px"><span>轨迹条数 <b id="m8mv">8</b></span>
+            <input type="range" id="m8m" min="1" max="24" value="8"></div></div>
+        <canvas id="m8cv" height="300" aria-label="随机游走"></canvas></div>
+      <div><h3>前缀平均 (X1+…+Xn)/n （收敛到 μ）</h3>
+        <canvas id="m8cv2" height="300" aria-label="样本均值收敛"></canvas>
+        <div class="ro" id="m8out"></div>
+        <div class="eq"><span class="v">(X₁+…+X<sub>n</sub>)/n → E[X] = μ</span>
+          <small>LLN。切比雪夫证明：P(|平均−μ|&lt;ε) ≤ Var(X)/(nε²) → 0</small></div>
+        <p class="hint">右侧竖直虚线是理论 μ。轨迹条数越多，均值曲线越贴它。注意这<b>不需要</b>正态假设，任何有限方差的分布都成立。</p></div>
+    </div>
+    <div class="callout warn"><b>大数定律不说什么：</b>它保证<b>长期平均</b>收敛，但完全不保证：① 短期会收敛快（收敛速度 ~ 1/√n，很慢）② 极端值不会出现（仍可能连输 20 把）③ 单次抽样能反映总体。<b>「长期公平」与「今晚回本」是两码事</b>——这是赌徒谬误的根源。</div>
+  </div>
+</section>
+
+<section class="mod" id="m9">
+  <div class="head"><h2><span class="num">9</span>中心极限定理（CLT）：钟形曲线从哪来</h2>
+  <p class="kicker">不管原分布长什么样，<b>求平均</b>之后就趋向正态。这是 CLT，也是 68-95-99.7 法则的出处。</p></div>
+  <div class="body">
+    <p>上面：单个变量的原始分布（可以很丑：偏斜、双峰、离散）。下面：抽 <i>n</i> 个求平均，重复很多次，看这个「样本均值的分布」如何变成钟形。拖动 <i>n</i> 观察「去尖化」过程。</p>
+    <div class="ctrl">
+      <div class="f" style="flex:0 0 220px"><span>原始分布 <b id="m9distlab">偏斜（指数）</b></span>
+        <select id="m9dist">
+          <option value="exp" selected>偏斜（指数分布）</option>
+          <option value="uniform">均匀</option>
+          <option value="bimodal">双峰</option>
+          <option value="discrete">离散骰子（不可加）</option>
+          <option value="expheavy">重尾（柯西，CLT 失效）</option>
+        </select></div>
+      <div class="f" style="flex:0 0 190px"><span>平均个数 n <b id="m9nv">6</b></span>
+        <input type="range" id="m9n" min="1" max="60" value="6"></div>
+      <div class="f" style="flex:0 0 190px"><span>模拟次数 <b id="m9rv">20000</b></span>
+        <input type="range" id="m9r" min="2000" max="60000" step="2000" value="20000"></div>
+      <button class="btn" id="m9refresh" type="button">重掷</button>
+    </div>
+    <canvas id="m9cv" height="360" aria-label="原始分布与均值分布"></canvas>
+    <div class="ro" id="m9out"></div>
+    <div class="eq">
+      若 X<sub>i</sub> 独立同分布，μ=E[X]，σ²=Var(X)，则<br>
+      <span class="v">(X̄−μ)/(σ/√n) →<sup>N</sup>(0,1)</span>&nbsp;（标准化）&nbsp;&nbsp;即 X̄ ≈ N(μ, σ²/n)<br>
+      <small>68-95-99.7：X̄ 在 μ±1σ 内 68%、±2σ 内 95%、±3σ 内 99.7%</small>
+    </div>
+    <div class="callout tip"><b>看图要点：</b>把 n 从 1 拖到 30，下方分布从「原始形状」被逐步抹平成钟形，同时<b>变窄</b>（标准差 σ/√n 缩小 √n 倍）。
+    这正是我们能对任意总体的<b>样本均值</b>做区间估计/显著性检验的原因。</div>
+    <div class="callout no"><b>CLT 也有失效区：</b>选中「重尾（柯西）」——它<b>没有有限方差</b>，均值根本不存在，CLT 完全不适用。所以 CLT 是「有限方差」的奖赏，不是万能定理。</div>
+  </div>
+</section>
+<section class="mod" id="m10">
+  <div class="head"><h2><span class="num">10</span>正态分布探索器：z 分数与区间概率</h2>
+  <p class="kicker">标准化之后，所有正态问题都变成「查表面积」。这里给你一个可拖动的面积计算器。</p></div>
+  <div class="body">
+    <p>调整 μ、σ，再拖动图上的两个边界 a、b，阴影面积实时给出 = P(a&lt;X&lt;b)。这就是 z 分数与区间概率的直观含义。</p>
+    <div class="ctrl">
+      <div class="f" style="flex:0 0 180px"><span>均值 μ <b id="m10mv">0</b></span>
+        <input type="range" id="m10m" min="-50" max="50" value="0"></div>
+      <div class="f" style="flex:0 0 180px"><span>标准差 σ <b id="m10sv">1</b></span>
+        <input type="range" id="m10s" min="1" max="30" value="10"></div>
+      <button class="btn sm" id="m10reset" type="button">复位 a,b</button>
+    </div>
+    <canvas id="m10cv" height="320" aria-label="正态分布面积探索"></canvas>
+    <div class="ro" id="m10out"></div>
+    <div class="eq">标准化：<span class="v">Z = (X−μ)/σ ~ N(0,1)</span> →
+      <i>P</i>(a&lt;X&lt;b) = Φ((b−μ)/σ) − Φ((a−μ)/σ)，Φ 为标准正态 CDF（查表/用 erf 函数）</div>
+    <div class="callout tip"><b>为什么工程偏爱正态：</b>① 指数定理保证 <b>大样本均值</b>≈正态，误差棒=σ/√n；② 可加性（独立正态之和仍是正态）让大量工程模型可解析求解。</div>
+  </div>
+</section>
+
+<section class="mod" id="m11">
+  <div class="head"><h2><span class="num">11</span>蒙特卡洛估计：用随机点数面积</h2>
+  <p class="kicker">π、定积分、任意数值解——「撒点法」。工程里没有闭式解时的万能近似。</p></div>
+  <div class="body">
+    <p>蒙特卡洛 π：在正方形里撒 N 个随机点，落在四分之一圆内的比例 × 4 ≈ π。拖 N 看误差按 1/√n 缩小（曲线的锯齿逐渐变平）。</p>
+    <div class="twocol">
+      <div><div class="ctrl">
+          <div class="f" style="flex:0 0 190px"><span>随机点数 N <b id="m11nv">500</b></span>
+            <input type="range" id="m11n" min="20" max="40000" step="20" value="500"></div>
+          <div class="f" style="flex:0 0 170px"><span>目标 <b id="m11tl">1/4 圆（π/4）</b></span>
+            <select id="m11target"><option value="circle" selected>1/4 圆（π/4）</option><option value="sqrt2">曲线 y=√x（面积 2/3）</option><option value="sin">曲线 y=sin(πx)（面积 2/π）</option></select></div>
+        </div>
+        <canvas id="m11cv" height="300" aria-label="蒙特卡洛撒点"></canvas>
+        <div class="ro" id="m11out"></div></div>
+      <div><h3>误差收敛曲线</h3>
+        <canvas id="m11cv2" height="300" aria-label="蒙特卡洛误差收敛"></canvas>
+        <div class="eq">误差 ≈ <span class="v">C/√N</span>&nbsp;，C = σ/(σ<sub>x</sub>√2π)≈0.52（撒 π 点时）<br>
+          <small>想精度翻倍？点数要 ×4。这就是蒙特卡洛「慢」的数学原因，也是方差缩减技术（重要性采样、准蒙特卡洛）存在的意义。</small></div>
+        <div class="callout tip"><b>应用：</b>金融衍生品定价（蒙特卡洛定价法）、贝叶斯后验积分、Ising 模型/MCMC 采样、物理粒子输运、Q*AI 里的 rollout 回报估计。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m12">
+  <div class="head"><h2><span class="num">12</span>三门问题：反直觉的经典</h2>
+  <p class="kicker">主持人知道门后是什么 + 主持人会主动开一扇空门——这两句话让「坚持原选」变错、「换门」变对。</p></div>
+  <div class="body">
+    <p>经典版：你选一扇门。主持人（知情）打开另外两扇中<b>一扇空门</b>。现在换还是不换？
+    <b>选对了不换的赢率 1/3，换的赢率 2/3</b>。看模拟跑出来验证，再动手玩几局。</p>
+    <div class="twocol">
+      <div><div class="btnrow"><button class="btn primary" id="m12play" type="button">🎮 我来玩一局（诚实主持人）</button>
+        <button class="btn" id="m12sim" type="button">▶ 模拟 5000 局统计</button></div>
+        <canvas id="m12cv" height="320" aria-label="三门问题交互"></canvas>
+        <div class="ro" id="m12out"></div></div>
+      <div><h3>为什么 2/3 是对的（信息论视角）</h3>
+        <div class="eq">换门胜率 = P(初选错) × 1 + P(初选对) × 0 = <span class="v">1/3</span><br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;+ (2/3) × 1 = <span class="v">2/3</span><br>
+        <small>「坚持」= P(初选对)×1 = 1/3。主持人提供的信息等价于：把「选对」的概率从 1/3 重分配到剩下两扇平均分配（各 1/3），剩下的那扇聚合了 2/3。</small></div>
+        <div class="callout no"><b>关键陷阱（Variants）：</b>如果主持人<b>随机</b>开门（可能开到有奖的门，打开就赢），或<b>你恰好不选</b>门（主持人从你未选的两扇里开一扇），答案会变。信息价值来自「主持人<b>一定</b>帮你排除一个错误选项」这一机制。</div>
+        <div class="callout warn"><b>直觉锚点：</b>换门不是「从 2 选 1」（直觉上以为各 1/2），而是「把你原来的 1/3 优势转移到了另一扇」——剩下那扇门承载了「你原本对过 + 被换到」两份信心。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m13">
+  <div class="head"><h2><span class="num">13</span>生日悖论：23 人就过半</h2>
+  <p class="kicker">鸽巢原理在概率上的爆发——碰撞概率增长远比直觉快得多。</p></div>
+  <div class="body">
+    <p>问：房间里多少人，至少两人同一天生日的概率 &gt; 50%？直觉答案 366，真实答案 <b>23</b>。
+    拖动人数，看概率曲线；也可以在右边房间模拟真实相遇。</p>
+    <div class="twocol">
+      <div><div class="ctrl">
+          <div class="f" style="flex:0 0 200px"><span>人数 n <b id="m13nv">23</b></span>
+            <input type="range" id="m13n" min="2" max="80" value="23"></div>
+          <div class="f" style="flex:0 0 170px"><span>天数 D <b id="m13dv">365</b></span>
+            <input type="range" id="m13d" min="2" max="366" value="365"></div>
+        </div>
+        <div class="ro" id="m13out"></div>
+        <div class="eq">无碰撞概率 = <span class="v">D(D−1)···(D−n+1) / D<sup>n</sup> = ∏(1−(k−1)/D)</span><br>
+          <small>碰撞概率 = 1 − 上式</small></div>
+        <div class="callout"><b>为什么反直觉：</b>我们比较的是「两人同生日」(1/365，很小) 和「任意两人同生日」（23 人里 C(23,2)=253 对，每对 1/365）。
+        累积 253/365 ≈ 0.69 → 约 50%。<b>是「多对子」把概率推上去的</b>，不是「单对」概率大。</div></div>
+      <div><h3>碰撞概率 vs 人数</h3><canvas id="m13cv" height="320" aria-label="生日悖论曲线"></canvas>
+        <p class="hint">横轴人数，纵轴「至少一次撞生日」的概率；灰线标出 50% 交点（D=365 时 n≈23）。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m14">
+  <div class="head"><h2><span class="num">14</span>赌徒破产：为什么小概率必胜</h2>
+  <p class="kicker">公平随机游走 + 有限本金 → 最终归零概率为 1。这不是技巧问题，是数学必然。</p></div>
+  <div class="body">
+    <p>规则：每局 ±1，各 50%。你有初始本金 <i>k</i>，破产线 0，目标 <i>N</i>。
+    拖动参数看<b>先到 N（赢）vs 先到 0（输）的概率</b>。经典结论：赢的概率 = k/N，与连胜能力无关。</p>
+    <div class="twocol">
+      <div><div class="ctrl">
+          <div class="f" style="flex:0 0 170px"><span>初始本金 k <b id="m14kv">1</b></span>
+            <input type="range" id="m14k" min="1" max="20" value="1"></div>
+          <div class="f" style="flex:0 0 170px"><span>目标 N <b id="m14nv">10</b></span>
+            <input type="range" id="m14n" min="2" max="60" value="10"></div>
+          <div class="f" style="flex:0 0 180px"><span>连赢概率（单边偏置） <b id="m14bv">50%</b></span>
+            <input type="range" id="m14b" min="30" max="70" value="50"></div>
+        </div>
+        <div class="btnrow"><button class="btn primary" id="m14play" type="button">🎲 随机游走 100 局</button>
+          <button class="btn" id="m14reset" type="button">重置</button></div>
+        <canvas id="m14cv" height="300" aria-label="赌徒破产随机游走"></canvas>
+        <div class="ro" id="m14out"></div></div>
+      <div><h3>理论破产概率</h3>
+        <div class="eq">公平硬币：<span class="v">P(破产) = 1 − k/N</span><br>
+          <small>例：k=1, N=10 → 必亏（90% 破产）。这就是「十倍下注法」在有限本金下的死刑判决。</small><br><br>
+          有偏（赢概率 p&gt;0.5）：<i>P</i>(破产) = [(r/N)<sup>k</sup> − 1] / [r<sup>k</sup> − 1]，r=(1−p)/p
+        </div>
+        <div class="callout no"><b>蒙特卡洛赌场悖论：</b>玩家赢钱才加注、输钱就停（先赢后输），但只要玩家<b>离开</b>时带着钱走，总和大数定律的终局资产 = 期望×次数。
+        所有人（包括玩家和庄家）都「平均」下去，玩家资产趋于 0（若期望为负）、庄家趋于 +∞。<b>「止损才走」= 给自己设了个破产上限，却把它当成了保护伞。</b></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m15">
+  <div class="head"><h2><span class="num">15</span>倍增法为什么必输：几何增长 vs 线性期望</h2>
+  <p class="kicker">「赢了就翻倍，输了就出局」——期望为正，但为什么还是必输？方差 + 有限本金。</p></div>
+  <div class="body">
+    <p>经典马丁格尔：一轮里从 1 元起投，<b>赢了加倍、输了也加倍</b>，直到连赢 <i>k</i> 次收工；
+    任何一次输，就输掉本轮已押的全部（1+2+4+…+2<sup>k−1</sup> = 2<sup>k</sup>−1 元），本金 M 本身不动。
+    所以「能不能扛住」完全取决于<b>本金够不够覆盖 2<sup>k</sup>−1</b>，以及那 (1/2)<sup>k</sup> 的连续运气。</p>
+    <div class="ctrl">
+      <div class="f" style="flex:0 0 170px"><span>初始本金 <b id="m15mv">1</b></span>
+        <input type="range" id="m15m" min="1" max="200" value="1"></div>
+      <div class="f" style="flex:0 0 180px"><span>连胜目标 k <b id="m15kv">5</b></span>
+        <input type="range" id="m15k" min="2" max="12" value="5"></div>
+      <button class="btn primary" id="m15sim" type="button">▶ 重新模拟 20000 轮</button>
+      <button class="btn" id="m15clr" type="button">清空</button>
+    </div>
+    <div class="twocol">
+      <div><div class="ro" id="m15out"></div>
+        <div class="eq">一轮的期望：赢 k 次概率 <span class="v">(1/2)<sup>k</sup></span>，赢则净赚 2<sup>k</sup>−1；输一次则亏 2<sup>j</sup>−1（j 为输时已连赢次数）<br>
+          <small>单轮期望恒等于 <b>0</b>（公平），但<b>方差极大</b>：一次失败就抹掉全部下注。E[终值]=M 意味着「长期不赚不亏」，而不是「不会亏」——破产路径真实存在。</small></div>
+        <div class="callout no"><b>结论：</b>倍增法的期望是<b>零</b>而不是正，它只是<b>把「小额高频」换成「大额低频」</b>。
+        有限本金下，你能承受的最大连败次数约为 log₂(M+1)：本金 1 元只能扛 1 次，1 万连赢的概率是 2<sup>−12</sup> ≈ 0.02%。
+        所以真正决定成败的不是「会不会涨」，而是<b>你能不能在正确的时刻还有钱下注</b>。反过来，<b>亏损加倍（反马丁格尔）</b>需要连对同样多次却只赚一点，风险收益比更差。</div></div>
+      <div><h3>存活率 vs 初始本金（模拟 3000 轮/点）</h3><canvas id="m15cv" height="300" aria-label="倍增法存活率"></canvas>
+        <p class="hint">横轴初始本金 M（对数），纵轴「完成 k 连胜的概率」。虚线是理论上限 2<sup>−k</sup>。
+        本金不够时曲线被截断——这就是「资金链断裂」，与运气无关，是数学必然。</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="m16">
+  <div class="head"><h2><span class="num">16</span>相关 ≠ 因果：辛普森悖论</h2>
+  <p class="kicker">混杂变量（confounder）能同时制造或掩盖相关性。数据挖掘里最贵的坑。</p></div>
+  <div class="body">
+    <p>真实案例结构：新药<b>确实有效</b>（轻症层 0.6% vs 1.1%，重症层 40% vs 50%，两层都更低）。
+    但<b>开药的多是重症病人</b>（用药组 90% 是重症，未用药组只有 10%）。于是混在一起看，用药组死亡率反而高得多——这就是辛普森悖论。切换开关自己找。</p>
+    <div class="btnrow"><button class="btn primary" id="m16lay" type="button" aria-pressed="true">🔀 分层查看（正确分析）</button>
+      <button class="btn" id="m16agg" type="button" aria-pressed="false">🧩 合并查看（辛普森陷阱）</button></div>
+    <div class="twocol">
+      <div><canvas id="m16cv" height="320" aria-label="辛普森悖论柱状图"></canvas>
+        <p class="legend"><span><i style="background:var(--no)"></i>未用药死亡率</span><span><i style="background:var(--ok)"></i>用药死亡率</span></p></div>
+      <div><h3>读数</h3><div class="ro" id="m16out"></div>
+        <div class="eq">Simpson：<span class="v">粗效应 = Σ<sub>层</sub>(该组中该层的权重 × 层内效应)</span><br>
+          <small>层内效应方向一致 ≠ 合并后方向一致。本例合并权重被「适应症混杂（confounding by indication）」扭曲。</small></div>
+        <div class="callout"><b>怎么防：</b>① 相关只能当线索，因果要靠随机对照实验（RCT）② 用因果图（DAG）标出混杂变量 ③ 做<b>分层/调整</b>后再看 ④ 记住「辛普森悖论随时可能发生在你的 A/B 实验和指标报表里」。<br>
+        经典出处：1973 UC Berkeley 研究生录取（院系分层后性别差异反转）、COVID 疫苗与年龄/基础病死亡率、早期肺癌筛查试验。</div></div>
+    </div>
+  </div>
+</section>
+
+<section class="mod" id="quiz">
+  <div class="head"><h2><span class="num">✓</span>十道自测：检验你的概率直觉</h2>
+  <p class="kicker">答完立刻看解析。做错的题回看对应模块。</p></div>
+  <div class="body" id="quizbody"></div>
+</section>
+
+<footer>
+  <p><b>关于本页</b>：全部交互用原生 JS + Canvas 实现，无外部库、无网络请求，双击即可离线使用。所有数值结论由代码实时计算，不是写死的文字。</p>
+  <p><b>模块地图</b>：公理(1) → 频率(2) → 加法(3) → 独立(4) → 条件(5) → 贝叶斯(6) → 期望方差(7) → 大数(8) → CLT(9) → 正态(10) → 蒙特卡洛(11) → 三门(12) → 生日(13) → 赌徒破产(14) → 倍增(15) → 相关≠因果(16) + 自测。<b>主线：定义 → 运算 → 条件/贝叶斯 → 极限定理 → 应用直觉。</b></p>
+  <p>由 OpenCode · html-deliverable 生成丨2026-10-06。主题、公式与结论基于经典概率论教材（Kolmogorov 公理体系、Feller、Ross《A First Course in Probability》）。</p>
+</footer>
+</div>
+<script>
+"use strict";
+const $=(s,r)=>(r||document).querySelector(s);
+const $$=(s,r)=>Array.from((r||document).querySelectorAll(s));
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const fmt=(v,n)=>{n=n===undefined?3:n;const x=Number(v);if(!isFinite(x))return"—";
+  return String(Number(x.toFixed(n)));};
+const pct=(v,n)=>fmt(Number(v)*100,n===undefined?2:n)+"%";
+
+function fit(cv){const d=window.devicePixelRatio||1;const b=cv.getBoundingClientRect();
+  const w=Math.max(60,b.width),h=Math.max(60,b.height);
+  if(cv._w!==w||cv._h!==h){cv.width=Math.round(w*d);cv.height=Math.round(h*d);cv._w=w;cv._h=h;}
+  const g=cv.getContext("2d");g.setTransform(d,0,0,d,0,0);g.clearRect(0,0,w,h);return{g:g,w:w,h:h};}
+const CSS=(()=>{const s=getComputedStyle(document.documentElement);
+  const g=n=>s.getPropertyValue(n).trim();
+  return()=>({ink:g('--ink'),ink2:g('--ink2'),ink3:g('--ink3'),line:g('--line'),line2:g('--line2'),
+    panel:g('--panel'),panel2:g('--panel2'),A:g('--A'),B:g('--B'),ok:g('--ok'),no:g('--no'),
+    pur:g('--pur'),warn:g('--warn'),accent:g('--accent')});})();
+function gridLines(g,x,y,w,h,n){g.strokeStyle=CSS().line;g.lineWidth=1;g.beginPath();
+  for(let i=0;i<=n;i++){const yy=Math.round(y+h/n*i)+.5;g.moveTo(x,yy);g.lineTo(x+w,yy);}g.stroke();}
+
+/* ============ 主题 ============ */
+$("#themeBtn").addEventListener("click",()=>{
+  const cur=document.documentElement.getAttribute("data-theme");
+  const isDark=cur?cur==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  document.documentElement.setAttribute("data-theme",isDark?"light":"dark");
+  requestAnimationFrame(()=>{CSS();redrawAll();});});
+$("#topBtn").addEventListener("click",()=>scrollTo({top:0,behavior:"smooth"}));
+
+/* ============ 导航高亮 + 进度 ============ */
+const links=$$("#navrow a");const secs=links.map(a=>$(a.getAttribute("href"))).filter(Boolean);
+function onScroll(){
+  let best=0;const y=scrollY+120;
+  secs.forEach((s,i)=>{if(s.offsetTop<=y)best=i;});
+  links.forEach((a,i)=>a.classList.toggle("on",i===best));
+  const max=document.body.scrollHeight-innerHeight;
+  $("#prog").style.width=(max>0?clamp(scrollY/max*100,0,100):0)+"%";
+}
+addEventListener("scroll",onScroll,{passive:true});
+
+/* ============ M1 公理 ============ */
+const M1N=12,m1state=[1,2,1,1,0,3,0,1,2,0,1,0];
+function m1paint(){
+  const g=$("#m1grid");
+  if(!g.childElementCount){for(let i=0;i<M1N;i++){const d=document.createElement("button");
+    d.className="btn";d.style.cssText="padding:0;aspect-ratio:1;border-radius:9px;font-family:var(--mono)";
+    d.type="button";d.addEventListener("click",()=>{m1state[i]=(m1state[i]+1)%4;m1paint();});
+    d.dataset.i=i;g.appendChild(d);}}
+  $$("#m1grid button").forEach((b,i)=>{const s=m1state[i];
+    const st=[CSS().panel2,CSS().A,CSS().B,CSS().pur][s];
+    b.style.background=st;b.style.color=(s?"#fff":"");b.style.borderColor=(s?"transparent":CSS().line2);
+    b.textContent=(i+1)+(s===3?"∩":"");});
+  let a=0,b2=0,ab=0,u=0;
+  m1state.forEach((s,i)=>{if(s===1||s===3)a++;if(s===2||s===3)b2++;if(s===3)ab++;
+    if(s>0)u++;});
+  const P=k=>k/M1N, o=$("#m1out");
+  o.innerHTML=[["|Ω| / 总格子",M1N,"a"],["|A|",a,""],["|B|",b2,""],
+    ["P(A)",P(a),"b"],["P(B)",P(b2),"b"],["P(A∩B)",P(ab),"a"],
+    ["P(A∪B)",P(u),"a"],["P(A)+P(B)",P(a+b2),"b"],["应减: P(A∩B)",P(ab),"a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${typeof v==="number"?fmt(v,4):v}</div></div>`).join("");
+  const ok1=(P(u)===P(a)+P(b2)-P(ab)), ok2=(u===a+b2-ab);
+  $("#m1check").innerHTML=
+    `<div class="callout ${ok1?'tip':'warn'}" style="margin:6px 0">${ok1?'✔':'✘'} 公理② 互斥可加：${ok2?'精确验证':'有重叠'}${ok2?'（本例有重叠，容斥仍成立）':'：P(A)+P(B) 减掉重叠项后 = P(A∪B)，数值精确吻合'}</div>`+
+    `<div class="callout tip" style="margin:6px 0">✔ 公理③ 次可加：P(A∪B) = ${fmt(P(u),4)} ≤ P(A)+P(B) = ${fmt(P(a+b2),4)} ${u===0?'（空集平凡成立）':''}</div>`+
+    `<div class="callout tip" style="margin:6px 0">✔ 公理①：0 ≤ P ≤ 1，${fmt(P(u),4)} ∈ [0,1] ✓；P(Ω)=1 ✓</div>`;
+}
+$$("[data-mark]").forEach(btn=>btn.addEventListener("click",()=>{
+  const m=btn.dataset.mark;const target=m==="A"?[1]:m==="B"?[2]:m==="C"?[3]:[0];
+  m1state=m1state.map(s=>target.includes(s)?target[0]:s);m1paint();}));
+$("#m1preset").addEventListener("click",()=>{
+  const p=[1,2,3].map(()=>Math.random()<.45?1+(Math.random()<.4?2:0):0);
+  p.forEach((s,i)=>m1state[i]=s);m1paint();});
+
+/* ============ M2 频率→概率 ============ */
+let m2p=.5,m2n=0,m2succ=0,m2auto=null,m2data=[];
+function m2step(k){
+  for(let i=0;i<k;i++){m2n++;if(Math.random()<m2p)m2succ++;}
+  m2data.push([m2n,m2succ/m2n]);if(m2data.length>4000)m2data.splice(0,1000);
+  m2draw();m2readout();}
+function m2readout(){
+  const f=m2n?m2succ/m2n:0,err=Math.abs(f-m2p),sd=Math.sqrt(m2p*(1-m2p)/Math.max(1,m2n));
+  $("#m2out").innerHTML=[["样本量 n",m2n.toLocaleString(),"a"],["频率 f",fmt(f,4),"b"],
+    ["真实概率 p",fmt(m2p,3),"g"],["当前误差 |f−p|",fmt(err,4),err<sd?"g":"r"],
+    ["理论涨落 σ=√(p(1−p)/n)",fmt(sd,4),"a"],["正面次数",m2succ.toLocaleString(),""]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");}
+function m2draw(){
+  const cv=$("#m2cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=40,pb=26,pt=12,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  const xr=n=>pl+iw*(1-Math.log10(Math.max(n,10))/Math.log10(Math.max(m2n,10)));
+  g.fillStyle=C.ink3;g.font="11px sans-serif";g.textAlign="right";
+  for(let k=1;k<=4;k++){const n=Math.pow(10,k);if(n>m2n*1.2)break;
+    const y=pt+ih*(1-k/4);g.fillText("10^"+k,pl-4,y+4);}
+  g.textAlign="left";g.fillText("样本量 n（对数轴）",pl,h-6);
+  const yv=v=>pt+ih*(1-clamp(v,0,1));
+  const band=(c)=>{g.beginPath();let first=true;
+    m2data.forEach(([n,f])=>{const y1=yv(f+Math.sqrt(m2p*(1-m2p)/Math.max(n,1))),x=xr(n);
+      if(first){g.moveTo(x,y1);first=false}else g.lineTo(x,y1);});
+    for(let i=m2data.length-1;i>=0;i--){const[n,f]=m2data[i];
+      g.lineTo(xr(n),yv(f-Math.sqrt(m2p*(1-m2p)/Math.max(n,1))));}
+    g.closePath();g.fillStyle=c;g.fill();};
+  band("rgba(79,70,229,.13)");
+  g.beginPath();m2data.forEach(([n,f],i)=>{const x=xr(n),y=yv(f);i?g.lineTo(x,y):g.moveTo(x,y);});
+  g.strokeStyle=C.B;g.lineWidth=2;g.stroke();
+  g.beginPath();g.moveTo(pl,yv(m2p));g.lineTo(pl+iw,yv(m2p));
+  g.setLineDash([5,4]);g.strokeStyle=C.ok;g.lineWidth=1.6;g.stroke();g.setLineDash([]);
+  g.fillStyle=C.ok;g.textAlign="right";g.font="bold 11px sans-serif";
+  g.fillText("p = "+fmt(m2p,3),pl+iw-2,yv(m2p)-5);
+  g.textAlign="left";g.fillStyle=C.ink3;g.fillText("1.0",pl-36,pt+4);g.fillText("0",pl-8,pt+ih);}
+$("#m2p").addEventListener("input",e=>{m2p=+e.target.value/100;$("#m2pv").textContent=fmt(m2p,3);m2draw();m2readout();});
+$("#m2b").addEventListener("input",e=>$("#m2bv").textContent=e.target.value);
+$("#m2reset").addEventListener("click",()=>{m2n=0;m2succ=0;m2data=[];m2draw();m2readout();});
+$("#m2auto").addEventListener("click",e=>{const on=e.target.getAttribute("aria-pressed")==="true";
+  if(on){clearInterval(m2auto);m2auto=null;e.target.textContent="▶ 自动";e.target.setAttribute("aria-pressed","false");}
+  else{m2auto=setInterval(()=>m2step(Math.max(1,+$("#m2b").value)),60);e.target.textContent="⏸ 暂停";e.target.setAttribute("aria-pressed","true");}});
+
+/* ============ M3 加法法则 ============ */
+const m3={ax:.34,ay:.5,r:.34,bx:.66,by:.5,drag:null};
+function lensArea(r1,r2,d){
+  if(d>=r1+r2)return 0;if(d<=Math.abs(r1-r2))return Math.PI*Math.min(r1,r2)**2;
+  const a=Math.acos(clamp((d*d+r1*r1-r2*r2)/(2*d*r1),-1,1));
+  const b=Math.acos(clamp((d*d+r2*r2-r1*r1)/(2*d*r2),-1,1));
+  return r1*r1*(a-Math.sin(2*a)/2)+r2*r2*(b-Math.sin(2*b)/2);}
+function m3draw(){
+  const cv=$("#m3cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const S=Math.min(w,h),X=(w-S)/2,Y=(h-S)/2;
+  g.fillStyle=C.panel2;g.fillRect(X,Y,S,S);g.strokeStyle=C.line;g.strokeRect(X+.5,Y+.5,S,S);
+  const px=s=>X+s*S,py=s=>Y+s*S;
+  const ax=px(m3.ax),ay=py(m3.ay),bx=px(m3.bx),by=py(m3.by),R=m3.r*S;
+  const d=Math.hypot(ax-bx,ay-by);
+  g.fillStyle=C.A+"55";g.strokeStyle=C.A;g.lineWidth=2;
+  g.beginPath();g.arc(ax,ay,R,0,7);g.fill();g.stroke();
+  g.fillStyle=C.B+"55";g.strokeStyle=C.B;
+  g.beginPath();g.arc(bx,by,R,0,7);g.fill();g.stroke();
+  const ov=lensArea(R,R,d);
+  if(ov>0){g.save();g.beginPath();g.rect(X,Y,S,S);g.clip();
+    g.beginPath();g.arc(ax,ay,R,0,7);g.arc(bx,by,R,0,7);
+    g.fillStyle="rgba(124,58,237,.55)";g.fill("evenodd");g.restore();
+    g.fillStyle=C.pur;g.font="bold 11px sans-serif";g.textAlign="center";
+    g.fillText("A∩B",(ax+bx)/2,(ay+by)/2+4);}
+  const tot=S*S,aP=Math.PI*R*R/tot,bP=Math.PI*R*R/tot,iP=ov/tot,uP=aP+bP-iP;
+  $("#m3out").innerHTML=[["P(A)",pct(aP,2),"b"],["P(B)",pct(bP,2),"b"],
+    ["P(A∩B)",pct(iP,2),"a"],["P(A)+P(B)",pct(aP+bP,2),"r"],["P(A∪B)",pct(uP,2),"g"],
+    ["重叠占比",pct(iP>0?(iP/(aP+bP-iP)):0,1),"a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m3bindDrag(){
+  const cv=$("#m3cv");let off=0;
+  const toLocal=e=>{const b=cv.getBoundingClientRect(),S=Math.min(b.width,b.height);
+    const t=e.touches?e.touches[0]:e;return{X:(b.width-S)/2,Y:(b.height-S)/2,S:S,
+      x:t.clientX-b.left,y:t.clientY-b.top};};
+  const pick=l=>{const S=l.S;const ax=l.X+m3.ax*S,ay=l.Y+m3.ay*S,bx=l.X+m3.bx*S,by=l.Y+m3.by*S;
+    return Math.hypot(l.x-ax,l.y-ay)<Math.hypot(l.x-bx,l.y-by)?"a":"b";};
+  const move=e=>{if(!m3.drag)return;e.preventDefault();const l=toLocal(e),R=m3.r*l.S;
+    let nx=clamp((l.x-l.X)/l.S,m3.drag==="a"?R:l.S-R,(m3.drag==="a"?l.S-R:R));
+    let ny=clamp((l.y-l.Y)/l.S,m3.drag==="a"?R:l.S-R,(m3.drag==="a"?l.S-R:R));
+    if(m3.drag==="a"){m3.ax=nx;m3.ay=ny;}else{m3.bx=nx;m3.by=ny;}m3draw();};
+  const up=e=>{m3.drag=null;};
+  cv.addEventListener("pointerdown",e=>{const l=toLocal(e);m3.drag=pick(l);
+    if(m3.drag){cv.setPointerCapture(e.pointerId);move(e);}});
+  cv.addEventListener("pointermove",move);cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+  cv.addEventListener("wheel",e=>{e.preventDefault();m3.r=clamp(m3.r-Math.sign(e.deltaY)*0.01,.08,.48);
+    $("#m3r").value=Math.round(m3.r*100);$("#m3rv").textContent=fmt(m3.r,2);m3draw();},{passive:false});
+}
+$("#m3r").addEventListener("input",e=>{m3.r=+e.target.value/100;$("#m3rv").textContent=fmt(m3.r,2);m3draw();});
+
+/* ============ M4 独立 vs 相关 ============ */
+// 用高斯 copula 造相关二元伯努利：A 取 0/1（各约 0.5），B 与 A 的高斯相关系数为 rho
+const ZA=[-0.1257,1.6449],ZM=(ZA[0]+ZA[1])/2;
+function m4sample(rho){
+  const i=Math.random()<.5?1:0;
+  if(rho===0)return [i,Math.random()<.5?1:0];
+  const w=gauss(),s=Math.sqrt(Math.max(0,1-rho*rho));
+  const y=rho*w+s*(ZA[i]-ZM);
+  return [i,y>0?1:0];
+}
+function m4drawPair(id,rho){
+  const cv=$(id);if(!cv||!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const cols=[0,0,0,0],N=4000;
+  for(let k=0;k<N;k++){const[i,j]=m4sample(rho);cols[i*2+j]++;}
+  const mx=Math.max(...cols);
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  const bw=w/2;
+  ["A=1","A=0"].forEach((t,i)=>{g.fillStyle=C.ink2;g.font="bold 12px sans-serif";g.textAlign="center";
+    g.fillText(t,bw/2+i*bw,14);});
+  g.textAlign="center";g.font="12px sans-serif";
+  ["B=1","B=0"].forEach((t,j)=>{g.fillStyle=C.ink2;g.textAlign="left";
+    g.fillText(t,2,j*(h-22)/2+20);});
+  const bar=(x,y,bw2,bh,c)=>{g.fillStyle=c;g.fillRect(x,y,bw2,bh);};
+  for(let i=0;i<2;i++)for(let j=0;j<2;j++){
+    const v=cols[i*2+j]/mx*(h/2-34);
+    const x=14+j*(bw-24)/2,y=i===0?(h/2-24)-v:(h-26)-v;
+    bar(x,y,(bw-30)/2,v,C[i===0?C.A:(C.A+C.B)]);
+    g.fillStyle=C.ink;g.font="bold 11px sans-serif";g.textAlign="center";
+    g.fillText(fmt(cols[i*2+j]/N,3),x+(bw-30)/4,y-3);
+  }
+}
+function erfA(x){const s=x<0?-1:1;x=Math.abs(x);
+  const t=1/(1+.3275911*x);
+  return s*(1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x));}
+function ncdf(z){return .5*(1+erfA(z/Math.SQRT2));}
+function m4stats(rho){
+  const cond=i=>rho===0?0.5:ncdf((ZM-ZA[i])*Math.sqrt(Math.max(0,1-rho*rho))/rho);
+  const c0=cond(0),c1=cond(1),pb1=(c0+c1)/2;
+  return{p11:.5*c0,p10:.5*(1-c0),p01:.5*c1,p00:.5*(1-c1),pb1:pb1,cond:c1,pb0:c0};
+}
+function m4out(id,rho){
+  const s=m4stats(rho),C=CSS(),indep=Math.abs(rho)<1e-9;
+  const condC=s.pb1>0?s.p11/s.pb1:NaN;
+  const rows=[["P(A)=P(B)",fmt(.5,3)],["P(A∩B)",fmt(s.p11,3)],
+    ["P(B|A)",isFinite(condC)?fmt(condC,3):"—"],["P(B) 基准",fmt(.5,3)],
+    ["独立性",indep?"独立 ✓":"相关 ✗"],["相关系数 ρ",fmt(rho,2)]];
+  $(id).innerHTML=rows.map(([k,v],i)=>{
+    let c="";if(k==="独立性")c=indep?"g":"r";if(k==="P(B|A)")c=indep?"g":"b";
+    return`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`;}).join("");
+}
+function m4up(){m4drawPair("#m4a",0);m4out("#m4ao",0);
+  const r=+$("#m4r").value/100;m4drawPair("#m4b",r);m4out("#m4bo",r);$("#m4rv").textContent=fmt(r,2);}
+$("#m4r").addEventListener("input",m4up);
+/* ============ M5 条件概率（球袋） ============ */
+// 4 红球（其中 2 个大号）+ 6 蓝球（其中 3 个大号）
+const M5={balls:[],draws:[],timer:null,mode:"A"};
+function m5build(){
+  M5.balls=[];
+  const spec=[["r",1],["r",2],["r",1],["r",0],["b",1],["b",1],["b",1],["b",0],["b",0],["b",0]];
+  spec.forEach(([c,big])=>M5.balls.push({c:big?c.toUpperCase():c,big:!!big,out:false}));
+  M5.draws=[];
+  for(let i=0;i<6;i++)m5drawBall();
+  m5draw();m5readout();
+}
+function m5draw(){
+  const cv=$("#m5cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const cols=5,rows=2,pad=8,top=30,bot=26;
+  const cw=(w-pad*(cols+1))/cols,ch=(h-top-bot-pad*(rows-1))/rows;
+  g.font="11px sans-serif";g.textAlign="center";
+  const N=Math.max(1,M5.draws.length),PH=M5.draws.filter(d=>d.c==="r").length;
+  // B = 抽到红球：非 B 的格子变灰
+  g.fillStyle=C.ink3;g.textAlign="left";
+  g.fillText(M5.mode==="A"?"条件事件 B = 红球":"条件事件 B = 大号",4,14);
+  M5.balls.forEach((b,i)=>{
+    const r=Math.floor(i/cols),c=i%cols;
+    const x=pad+c*(cw+pad),y=top+r*(ch+pad);
+    const out=b.out;
+    const isB=M5.mode==="A"?(b.c==="r"):(b.big);
+    g.globalAlpha=out?0.25:(isB?1:0.3);
+    g.fillStyle=b.c==="R"?C.no:b.c==="r"?C.no:C.A;
+    g.beginPath();g.arc(x+cw/2,y+ch/2,Math.min(cw,ch)/2-6,0,7);g.fill();
+    if(b.big){g.fillStyle="#fff";g.beginPath();g.arc(x+cw/2,y+ch/2,Math.min(cw,ch)/2-15,0,7);g.fill();}
+    g.globalAlpha=1;
+    g.fillStyle=C.ink2;g.textAlign="center";g.font="10px sans-serif";
+    g.fillText((out?"✓":"")+b.c.toUpperCase(),x+cw/2,y+ch-4);
+    g.strokeStyle=C.line;g.beginPath();g.arc(x+cw/2,y+ch/2,Math.min(cw,ch)/2-6,0,7);g.stroke();
+  });
+  // 进度条
+  g.fillStyle=C.line;g.fillRect(pad,h-14,w-2*pad,8);
+  const ratio=PH/Math.max(1,N);
+  g.fillStyle=C.no;g.fillRect(pad,h-14,(w-2*pad)*ratio,8);
+  g.fillStyle=C.ink2;g.font="11px sans-serif";g.textAlign="left";
+  g.fillText("P(B) 实测 = "+pct(ratio,1),pad,h-18);
+  // 理论
+  const theo=M5.mode==="A"?(4/10):(5/10);
+  g.textAlign="right";g.fillStyle=C.ink3;
+  g.fillText("理论 "+pct(theo,1),w-pad,h-18);
+}
+function m5readout(){
+  const N=M5.draws.length,PH=M5.draws.filter(d=>d.c==="r").length;
+  let PA=0,PB=0,PAB=0;
+  if(N){
+    // A = 大号, B = 红
+    PA=M5.draws.filter(d=>d.big).length/N;
+    PB=PH/N;
+    PAB=M5.draws.filter(d=>d.big&&d.c==="r").length/N;
+  }
+  const condB=PAB/(PB||1),condA=PAB/(PA||1);
+  const bDes=M5.mode==="A"?"红球":"大号";
+  $("#m5out").innerHTML=[["已抽次数",N,"a"],["P(B)="+bDes+" 实测",pct(PB,1),"b"],
+    ["P(A)=大号",pct(PA,1),""],["P(A∩B)",pct(PAB,1),"a"],
+    ["P(A|B)",pct(condB,1),"g"],["P(B|A)",pct(condA,1),"g"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m5drawBall(){
+  const idx=M5.balls.map((b,i)=>b.out?-1:i).filter(i=>i>=0);
+  if(!idx.length)return;
+  const i=idx[Math.floor(Math.random()*idx.length)];
+  M5.balls[i].out=true;
+  M5.draws.push({c:M5.balls[i].c.toLowerCase(),big:M5.balls[i].big});
+}
+$("#m5draw").addEventListener("click",()=>{m5drawBall();m5draw();m5readout();});
+$("#m5clear").addEventListener("click",()=>{m5build();});
+$("#m5auto").addEventListener("click",e=>{const on=e.target.getAttribute("aria-pressed")==="true";
+  if(on){clearInterval(M5.timer);M5.timer=null;e.target.textContent="▶ 自动 200 次";e.target.setAttribute("aria-pressed","false");}
+  else{e.target.setAttribute("aria-pressed","true");let k=M5.draws.length;
+    const step=()=>{const n=Math.min(60,200-k);
+      for(let i=0;i<n;i++)m5drawBall();
+      k+=n;m5draw();m5readout();
+      if(k>=200||!M5.balls.some(b=>!b.out)){clearInterval(M5.timer);M5.timer=null;
+        e.target.textContent="▶ 自动 200 次";e.target.setAttribute("aria-pressed","false");}
+    };
+    M5.timer=setInterval(step,40);}});
+
+/* ============ M6 贝叶斯 ============ */
+function m6up(){
+  const p=+$("#m6p").value/1000,se=+$("#m6se").value/100,sp=+$("#m6sp").value/100;
+  $("#m6pv").textContent=(p*1000).toFixed(2)+"‰";
+  $("#m6sev").textContent=(se*100).toFixed(1)+"%";
+  $("#m6spv").textContent=(sp*100).toFixed(1)+"%";
+  const TP=p*se,FN=p*(1-se),TN=(1-p)*sp,FP=(1-p)*(1-sp);
+  const pos=TP+FP,ppv=TP/pos,npv=TN/(TN+FN);
+  $("#m6out").innerHTML=[["P(阳性) = P(B)",pct(pos,3),"b"],
+    ["P(患病|阳性) 后验",pct(ppv,3),"g"],
+    ["P(阳性|患病) 灵敏度",pct(se,1),""],
+    ["P(阴性|健康) 特异度",pct(sp,1),""],
+    ["阳性中的假阳性占比",pct(FP/pos,2),"r"],
+    ["阴性排除患病 阴性预测值",pct(npv,4),"a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+  m6draw(p,se,sp,TP,FN,TN,FP);
+}
+function m6draw(p,se,sp,TP,FN,TN,FP){
+  const cv=$("#m6cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const N=100000,pad=10,top=44,bot=42;
+  const cell=Math.max(1,Math.floor(Math.sqrt(N/(w-pad)/( (h-top-bot)/(w-pad) ))));
+  const cellS=cell*4;
+  const cols=Math.floor((w-2*pad)/cellS),rows=Math.floor(N/cols);
+  const sx=(w-2*pad)/cols,sy=(h-top-bot)/rows;
+  // 计算每个人群的颜色（不画 10 万个块，画成"色块+标签+人数"）
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  g.font="bold 13px sans-serif";g.textAlign="left";g.fillStyle=C.ink;
+  g.fillText("人群 100,000 人的检测结果分布",pad,18);
+  g.font="11px sans-serif";g.fillStyle=C.ink3;
+  g.fillText("每格 ≈ "+(cellS>1?Math.max(1,Math.round(cols*rows/N)):"人")+" — 密度示意",pad,32);
+  // 人群分区（用比例宽度条代替 10 万个块）
+  const bw=w-2*pad,by=top+14,bh=34;
+  const seg=[[TP,N,C.no,"真阳性 TP"],[FP,N,C.warn,"假阳性 FP"],[TN,N,C.A,"真阴性 TN"],[FN,N,C.ink3,"假阴性 FN"]];
+  let x=pad;
+  const ycol=[];
+  seg.forEach(([v,_,c,name])=>{const ww=bw*v/N;g.fillStyle=c;g.fillRect(x,by,Math.max(0,ww-1),bh);
+    if(ww>42){g.fillStyle="#fff";g.font="bold 11px sans-serif";g.textAlign="center";
+      g.fillText(pct(v/N,1),x+ww/2,by+bh/2+4);}
+    x+=ww;ycol.push([x-bw*v/N,ww,c,name,v]);});
+  // 图例 + 数字
+  g.textAlign="left";g.font="12px sans-serif";
+  let ly=by+bh+26;
+  seg.forEach(([v,_,c,name])=>{
+    g.fillStyle=c;g.fillRect(pad,ly-10,12,12);
+    g.fillStyle=C.ink2;
+    g.fillText(`${name}: ${Math.round(v).toLocaleString()} 人 (${pct(v/N,3)})`,pad+20,ly);
+    ly+=20;});
+  // 阳性区放大镜
+  const px0=pad,py0=ly+10,pw=bw,ph=Math.max(30,h-py0-bot+16);
+  if(ph>24){
+    g.strokeStyle=C.line;g.strokeRect(px0+.5,py0+.5,pw,ph);
+    g.fillStyle=C.panel;g.fillRect(px0+1,py0+1,pw-1,ph-1);
+    g.font="bold 11px sans-serif";g.fillStyle=C.ink;g.textAlign="left";
+    g.fillText("所有「阳性」的人里：",px0+10,py0+16);
+    const tpw=pw*(TP/(TP+FP))*.9;
+    g.fillStyle=C.no;g.fillRect(px0+10,py0+22,tpw,20);
+    g.fillStyle=C.warn;g.fillRect(px0+10+tpw,py0+22,Math.max(0,pw-20-tpw),20);
+    g.fillStyle="#fff";g.font="bold 11px sans-serif";g.textAlign="center";
+    if(tpw>40)g.fillText("真 "+pct(TP/(TP+FP),2),px0+10+tpw/2,py0+36);
+    if(pw-20-tpw>40)g.fillText("假 "+pct(FP/(TP+FP),2),px0+10+tpw+(pw-20-tpw)/2,py0+36);
+  }
+}
+["m6p","m6se","m6sp"].forEach(id=>$("#"+id).addEventListener("input",m6up));
+
+/* ============ M7 期望与方差 ============ */
+let m7draws=[];
+function m7stats(){
+  const p=+$("#m7p").value/100,w=+$("#m7w").value,l=+$("#m7l").value;
+  return{p:p,w:w,l:l,E:p*w+(1-p)*(-l),Var:p*(w)**2+(1-p)*l**2-(p*w-(1-p)*l)**2};
+}
+function m7readout(){
+  const s=m7stats();
+  const n=m7draws.length,mean=n?s.E:0;
+  let avg=0;if(n)avg=m7draws.reduce((a,b)=>a+b,0)/n;
+  $("#m7out").innerHTML=[["E[X] 理论期望",(s.E>=0?"+":"")+fmt(s.E,2)+" 元",s.E>0?"g":s.E<0?"r":"b"],
+    ["Var 方差",fmt(s.Var,1),""],["σ 标准差",fmt(Math.sqrt(Math.max(0,s.Var)),2),"a"],
+    ["模拟次数",n.toLocaleString(),""],["模拟实测均值",n?(avg>=0?"+":"")+fmt(avg,2)+" 元":"—",n?"b":""],
+    ["理论 vs 实测",n?"误差 "+fmt(Math.abs(avg-s.E),3):"—","a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+  m7plot();
+}
+function m7plot(){
+  const cv=$("#m7cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const s=m7stats(),pl=34,pt=14,pb=26,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  g.font="11px sans-serif";
+  // 直方图：桶 [-l .. w] 分 25 桶，只画实测 m7draws
+  const lo=-s.l,hi=s.w,B=25;
+  const bins=new Array(B).fill(0);
+  m7draws.forEach(v=>{const k=clamp(Math.floor((v-lo)/(hi-lo)*B),0,B-1);bins[k]++;});
+  const mx=Math.max(1,...bins);
+  const xf=v=>pl+iw*clamp((v-lo)/(hi-lo),0,1);
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  bins.forEach((c,k)=>{const x=pl+iw*k/B,ww=iw/B-1;
+    g.fillStyle=C.accent+"cc";g.fillRect(x,pt+ih-ih*c/mx,ww,ih*c/mx);});
+  // 理论 PMF（两点）
+  const pk=Math.max(m7draws.length*0+0.8,mx);
+  function pmark(v,c,lab){const x=xf(v);
+    g.strokeStyle=c;g.setLineDash([4,3]);g.lineWidth=2;
+    g.beginPath();g.moveTo(x,pt);g.lineTo(x,pt+ih);g.stroke();g.setLineDash([]);g.lineWidth=1;
+    g.fillStyle=c;g.font="bold 11px sans-serif";g.textAlign="center";
+    g.fillText(lab,x,pt-3);}
+  pmark(s.w,C.ok,"+"+s.w);
+  pmark(0,C.ink2,"0");
+  // 期望线
+  pmark(s.E,C.pur,"E="+fmt(s.E,1));
+  g.strokeStyle=C.pur;g.setLineDash([2,3]);g.beginPath();
+  g.moveTo(pl,pt+ih-ih*0.5);g.lineTo(pl+iw,pt+ih-ih*0.5);g.stroke();g.setLineDash([]);
+  g.fillStyle=C.ink3;g.textAlign="center";g.font="10px sans-serif";
+  for(let k=0;k<=4;k++){const v=lo+(hi-lo)*k/4;
+    g.fillText(fmt(v,0),pl+iw*k/4,pt+ih+14);}
+  g.fillText("每次收益（元）",pl+iw/2,h-4);
+  g.textAlign="right";g.fillStyle=C.ink2;g.font="11px sans-serif";
+  g.fillText("柱高 = 该收益出现频次",pl+iw,pt+10);
+}
+["m7p","m7w","m7l"].forEach(id=>$("#"+id).addEventListener("input",()=>{
+  const p=+$("#m7p").value,w=+$("#m7w").value,l=+$("#m7l").value;
+  $("#m7pv").textContent=p+"%";$("#m7wv").textContent=w+" 元";$("#m7lv").textContent=l+" 元";
+  m7readout();}));
+$("#m7run").addEventListener("click",()=>{const s=m7stats();
+  for(let i=0;i<1000;i++)m7draws.push(Math.random()<s.p?s.w:-s.l);m7readout();});
+$("#m7clr").addEventListener("click",()=>{m7draws=[];m7readout();});
+
+/* ============ M8 大数定律 ============ */
+function m8update(){
+  const n=+$("#m8n").value,m=+$("#m8m").value;
+  $("#m8nv").textContent=n;$("#m8mv").textContent=m;
+  // 生成 m 条随机游走轨迹（+1/-1）
+  const walks=[];
+  for(let i=0;i<m;i++){const p=new Array(n+1);let x=0;p[0]=0;
+    for(let j=1;j<=n;j++){x+=Math.random()<.5?1:-1;p[j]=x;}walks.push(p);}
+  m8drawWalks(walks,n);
+  m8drawMeans(walks,n);
+  // 读数
+  const lastMeans=walks.map(p=>p[n]/n);
+  const avg=lastMeans.reduce((a,b)=>a+b,0)/m;
+  const sd=Math.sqrt(lastMeans.reduce((a,b)=>a+(b-avg)**2,0)/m);
+  $("#m8out").innerHTML=[["μ = E[X] = 0","0","g"],["平均最终 S(n)",fmt(avg,3),"b"],
+    ["样本均值波动",fmt(sd,3),"a"],["理论 S(n)/n 波动 1/√n",fmt(1/Math.sqrt(n),3),"a"],
+    ["LLN","收敛 ✓","g"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m8drawWalks(walks,n){
+  const cv=$("#m8cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=36,pt=12,pb=24,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  let mx=6;for(const p of walks)for(let j=0;j<=n;j++){const a=Math.abs(p[j]);if(a>mx)mx=a;}
+  mx*=1.1;
+  const X=i=>pl+iw*i/n,Y=v=>pt+ih*(0.5-v/(2*mx));
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line2;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  g.strokeStyle=C.ok;g.setLineDash([4,3]);g.beginPath();g.moveTo(pl,Y(0));g.lineTo(pl+iw,Y(0));g.stroke();g.setLineDash([]);
+  const pal=[C.A,C.B,C.pur,C.warn,C.ink3];
+  walks.forEach((p,i)=>{g.strokeStyle=pal[i%pal.length]+"";g.globalAlpha=.7;g.lineWidth=1.2;
+    g.beginPath();p.forEach((v,j)=>{j?g.lineTo(X(j),Y(v)):g.moveTo(X(j),Y(v));});g.stroke();g.globalAlpha=1;});
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  g.fillText("0",pl+iw/2,pt+ih+14);g.fillText(n,pl+iw,pt+ih+14);
+  g.textAlign="right";g.fillText("+"+Math.round(mx),pl-4,Y(mx)+3);g.fillText("−"+Math.round(mx),pl-4,Y(-mx)+3);
+  g.textAlign="left";g.fillText("随机游走 S(n) 的每条轨迹发散，波动~√n",pl,pt+10);
+}
+function m8drawMeans(walks,n){
+  const cv=$("#m8cv2");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=36,pt=12,pb=24,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  // 归一化平均轨迹（前缀均值）
+  const means=walks.map(p=>{const q=new Array(p.length);let s=0;
+    for(let j=1;j<p.length;j++){s+=p[j];q[j]=s/j;}return q;});
+  let my=.6;for(const q of means)for(let j=0;j<=n;j++){const a=Math.abs(q[j]||0);if(a>my)my=a;}
+  my*=1.2;
+  const X=i=>pl+iw*i/n,Y=v=>pt+ih*(0.5-v/(2*my));
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.ok;g.setLineDash([4,3]);g.beginPath();g.moveTo(pl,Y(0));g.lineTo(pl+iw,Y(0));g.stroke();g.setLineDash([]);
+  g.strokeStyle=C.line2;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  const pal=[C.A,C.B,C.pur,C.warn];
+  means.forEach((q,i)=>{g.strokeStyle=pal[i%pal.length];g.globalAlpha=.8;g.lineWidth=1.4;
+    g.beginPath();q.forEach((v,j)=>{j?g.lineTo(X(j),Y(v)):g.moveTo(X(j),Y(v));});g.stroke();g.globalAlpha=1;});
+  g.fillStyle=C.ok;g.font="bold 11px sans-serif";g.textAlign="left";
+  g.fillText("μ = 0（贴住不放）",pl+6,Y(0)-6);
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  g.fillText("n",pl+iw/2,pt+ih+14);g.fillText(n,pl+iw,pt+ih+14);
+}
+$("#m8n").addEventListener("input",m8update);
+$("#m8m").addEventListener("input",m8update);
+/* ============ M9 中心极限定理 ============ */
+function gauss(){let u=0,v=0;while(!u)u=Math.random();while(!v)v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);}
+const M9DIST={
+  exp:{label:"偏斜（指数分布）",mu:1,sd:1,sample:()=>-Math.log(1-Math.random())},
+  uniform:{label:"均匀",mu:.5,sd:Math.sqrt(1/12),sample:()=>Math.random()},
+  bimodal:{label:"双峰",mu:.5,sd:.5,sample:()=>Math.random()<.5?Math.random()*.22:Math.random()*.22+.78},
+  discrete:{label:"离散骰子",mu:3.5,sd:Math.sqrt(35/12),sample:()=>1+Math.floor(Math.random()*6)},
+  expheavy:{label:"重尾（柯西）",mu:NaN,sd:Infinity,sample:()=>Math.tan(Math.PI*(Math.random()-.5))}
+};
+function m9up(){
+  const key=$("#m9dist").value,n=+$("#m9n").value,R=+$("#m9r").value;
+  $("#m9distlab").textContent=M9DIST[key].label;
+  $("#m9nv").textContent=n;$("#m9rv").textContent=R.toLocaleString();
+  const D=M9DIST[key];
+  const means=new Float64Array(R);
+  for(let i=0;i<R;i++){let s=0;for(let j=0;j<n;j++)s+=D.sample();means[i]=s/n;}
+  let m1=0;for(let i=0;i<R;i++)m1+=means[i];m1/=R;
+  let v1=0;for(let i=0;i<R;i++)v1+=(means[i]-m1)**2;v1/=R;
+  const sdv=Math.sqrt(v1);
+  m9draw(D,means,m1,sdv,n,R);
+  const theoSD=D.sd/Math.sqrt(n);
+  const noCLT=!isFinite(D.sd);
+  $("#m9out").innerHTML=[["原始 μ = E[X]",isFinite(D.mu)?fmt(D.mu,3):"不存在","b"],
+    ["原始 σ",isFinite(D.sd)?fmt(D.sd,3):"∞","b"],
+    ["E[X̄] 实测",fmt(m1,4),"a"],
+    ["σ/√n 实测",fmt(sdv,4),"a"],
+    ["σ/√n 理论",isFinite(theoSD)?fmt(theoSD,4):"不可用（CLT 前提不成立）",isFinite(theoSD)?"g":"r"],
+    ["形态",noCLT?"CLT 失效 ✗":(n===1?"原始形状":n<5?"开始变圆":n<15?"接近钟形":"已是钟形 ✓"),noCLT?"r":"g"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m9draw(D,means,m1,sdv,n,R){
+  const cv=$("#m9cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pad=42,topH=h*0.32,yy0=h*0.42,hh=h-yy0-30;
+  const iw=w-pad-14;
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  g.fillStyle=C.ink2;g.font="bold 12px sans-serif";g.textAlign="left";
+  g.fillText("① 单个变量 X 的原始分布",6,14);
+  g.strokeStyle=C.line;g.strokeRect(pad+.5,24.5,iw,topH-24);
+  const SR=Math.min(30000,R),samp=new Float64Array(SR);
+  let lo=Infinity,hi=-Infinity;
+  for(let i=0;i<SR;i++){const v=D.sample();samp[i]=v;if(v<lo)lo=v;if(v>hi)hi=v;}
+  if(!isFinite(lo)){lo=0;hi=5;}
+  const padv=(hi-lo)*.05+1e-9,L=lo-padv,Rr=hi+padv;
+  const bins=46,bh=new Array(bins).fill(0);
+  samp.forEach(v=>{if(!isFinite(v))return;bh[clamp(Math.floor((v-L)/(Rr-L)*bins),0,bins-1)]++;});
+  const bmx=Math.max(1,...bh);
+  bh.forEach((c,k)=>{const bw=iw/bins;g.fillStyle=C.B+"99";
+    g.fillRect(pad+iw*k/bins,24+topH-24-(topH-34)*c/bmx,bw-1,(topH-34)*c/bmx);});
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="right";
+  g.fillText(L.toFixed(2)+" → "+Rr.toFixed(2),pad+iw-6,38);
+  // ---- 下：均值分布 ----
+  g.fillStyle=C.ink2;g.font="bold 12px sans-serif";g.textAlign="left";
+  g.fillText(`② ${R.toLocaleString()} 组、每组 ${n} 个的平均值 X̄ 的分布`,6,yy0-8);
+  g.strokeStyle=C.line;g.strokeRect(pad+.5,yy0+.5,iw,hh);
+  gridLines(g,pad,yy0,iw,hh,3);
+  let a=Infinity,b2=-Infinity;
+  for(let i=0;i<R;i++){const v=means[i];if(!isFinite(v))continue;if(v<a)a=v;if(v>b2)b2=v;}
+  if(!isFinite(a)||!isFinite(b2)||a===b2){a=m1-1;b2=m1+1;}
+  const pd2=Math.max((b2-a)*.06,1e-9),L2=a-pd2,R2=b2+pd2;
+  const b2s=44,hh2=new Array(b2s).fill(0);
+  for(let i=0;i<R;i++){const v=means[i];if(!isFinite(v))continue;
+    hh2[clamp(Math.floor((v-L2)/(R2-L2)*b2s),0,b2s-1)]++;}
+  const m2=Math.max(1,...hh2);
+  hh2.forEach((c,k)=>{const bw=iw/b2s;g.fillStyle=C.A+"bb";
+    g.fillRect(pad+iw*k/b2s,yy0+hh-(hh-8)*c/m2,bw-1,(hh-8)*c/m2);});
+  if(isFinite(sdv)&&sdv>0){
+    const pdf=x=>Math.exp(-.5*((x-m1)/sdv)**2)/(sdv*Math.sqrt(2*Math.PI));
+    const binW=(R2-L2)/b2s,peak=pdf(m1)*R/binW;
+    g.beginPath();
+    for(let k=0;k<=220;k++){const x=L2+(R2-L2)*k/220,yy=yy0+hh-(hh-8)*clamp(pdf(x)/peak,0,1);
+      k?g.lineTo(pad+iw*k/220,yy):g.moveTo(pad+iw*k/220,yy);}
+    g.strokeStyle=C.pur;g.lineWidth=2;g.stroke();
+  }
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  g.fillText(L2.toFixed(2)+" ← X̄ → "+R2.toFixed(2),pad+iw/2,h-6);
+  g.textAlign="left";g.fillStyle=C.pur;g.fillText("叠加理论正态 N(E[X̄], σ²/n)",pad+6,yy0+16);
+}
+["m9n","m9r","m9dist"].forEach(id=>$("#"+id).addEventListener("input",()=>m9up()));
+$("#m9refresh").addEventListener("click",()=>m9up());
+
+/* ============ M10 正态探索器 ============ */
+const erf=x=>{const s=x<0?-1:1;x=Math.abs(x);
+  const t=1/(1+.3275911*x);
+  const y=1-(((((1.061405429*t-1.453152027)*t)+1.421413741)*t-.284496736)*t+.254829592)*t*Math.exp(-x*x);
+  return s*y;};
+const Phi=z=>.5*(1+erf(z/Math.SQRT2));
+const npdf=z=>Math.exp(-.5*z*z)/Math.sqrt(2*Math.PI);
+let m10a=-1.7,m10b=1.7,m10drag=null;
+function m10up(){
+  const mu=+$("#m10m").value/10,s=+$("#m10s").value/10;
+  $("#m10mv").textContent=mu.toFixed(1);$("#m10sv").textContent=s.toFixed(1);
+  m10draw(mu,s);
+}
+function m10draw(mu,s){
+  const cv=$("#m10cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=36,pt=18,pb=30,pr=14,iw=w-pl-pr,ih=h-pt-pb,zL=-4.2,zR=4.2;
+  const X=z=>pl+iw*(z-zL)/(zR-zL),Y=pdf=>pt+ih*(1-pdf/1.02);
+  g.fillStyle=C.panel2;g.fillRect(pl,pt,iw,ih);
+  const za=clamp((m10a-mu)/s,zL,zR),zb=clamp((m10b-mu)/s,zL,zR);
+  g.save();g.beginPath();g.rect(pl,pt,iw,ih);g.clip();
+  [1,2,3].forEach((k,i)=>{const y=Y(npdf(k));
+    g.fillStyle="rgba(79,70,229,"+(0.045*(4-i))+")";
+    g.fillRect(X(-k),y,X(k)-X(-k),Y(0)-y);});
+  g.fillStyle=C.A+"33";g.beginPath();g.moveTo(X(za),Y(0));
+  for(let z=za;z<=zb;z+=(zb-za)/140)g.lineTo(X(z),Y(npdf(z)));
+  g.lineTo(X(zb),Y(0));g.closePath();g.fill();
+  g.restore();
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line2;g.beginPath();g.moveTo(pl,Y(0));g.lineTo(pl+iw,Y(0));
+  g.moveTo(X(0),pt);g.lineTo(X(0),Y(0));g.stroke();
+  g.beginPath();
+  for(let z=zL;z<=zR;z+=0.01){const y=Y(npdf(z));Math.abs(z-zL)<1e-9?g.moveTo(X(z),y):g.lineTo(X(z),y);}
+  g.strokeStyle=C.A;g.lineWidth=2.2;g.stroke();
+  g.strokeStyle=C.pur;g.setLineDash([5,3]);g.beginPath();g.moveTo(X(0),pt);g.lineTo(X(0),Y(0));g.stroke();g.setLineDash([]);
+  g.fillStyle=C.pur;g.font="bold 11px sans-serif";g.textAlign="center";g.fillText("μ",X(0),pt-5);
+  [[za,"a"],[zb,"b"]].forEach(([z,lab])=>{
+    const x=clamp(X(z),pl,pl+iw);
+    g.strokeStyle=C.B;g.lineWidth=2.5;g.beginPath();g.moveTo(x,pt+7);g.lineTo(x,Y(0)+9);g.stroke();
+    g.fillStyle=C.B;g.beginPath();g.arc(x,pt+7,5,0,7);g.fill();
+    g.font="bold 12px sans-serif";g.textAlign="center";g.fillText(lab,x,pt-5);});
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  for(let z=Math.ceil(zL);z<=zR;z+=1)g.fillText(fmt(mu+z*s,1),X(z),pt+ih+14);
+  g.fillText("X 的真实取值（μ="+mu.toFixed(1)+"，σ="+s.toFixed(1)+"）",pl+iw/2,h-4);
+  $("#m10out").innerHTML=[["z(a)",fmt(za,3),"b"],["z(b)",fmt(zb,3),"b"],
+    ["P(a&lt;X&lt;b)",pct(Phi(zb)-Phi(za),3),"g"],["P(X&lt;μ)","50.00%",""],
+    ["μ±σ 覆盖","68.27%","a"],["μ±3σ 覆盖","99.73%","a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m10bind(){
+  const cv=$("#m10cv");
+  const val=e=>{const b=cv.getBoundingClientRect();
+    const mu=+$("#m10m").value/10,s=+$("#m10s").value/10;
+    const pl=36,pr=14,iw=Math.max(10,b.width-pl-pr);
+    const t=e.touches?e.touches[0]:e,x=t.clientX-b.left;
+    const z=clamp((x-pl)/iw*(4.2*2)-4.2,-4.2,4.2);return mu+z*s;};
+  cv.addEventListener("pointerdown",e=>{const v=val(e);
+    m10drag=Math.abs(v-m10a)<Math.abs(v-m10b)?"a":"b";
+    if(m10drag==="a")m10a=Math.min(v,m10b-.01);else m10b=Math.max(v,m10a+.01);
+    m10up();e.preventDefault();});
+  cv.addEventListener("pointermove",e=>{if(!m10drag)return;e.preventDefault();
+    const v=val(e);
+    if(m10drag==="a")m10a=Math.min(v,m10b-.01);else m10b=Math.max(v,m10a+.01);m10up();});
+  const up=()=>m10drag=null;
+  cv.addEventListener("pointerup",up);cv.addEventListener("pointercancel",up);
+}
+$("#m10m").addEventListener("input",m10up);$("#m10s").addEventListener("input",m10up);
+$("#m10reset").addEventListener("click",()=>{const mu=+$("#m10m").value/10,s=+$("#m10s").value/10;
+  m10a=mu-s*1.7;m10b=mu+s*1.7;m10up();});
+
+/* ============ M11 蒙特卡洛 ============ */
+const M11MAX=40000;
+let m11base=null,m11targetKey="circle",m11last=null;
+function m11bounds(t){
+  if(t==="circle")return{inside:(x,y)=>x*x+y*y<=1,exact:Math.PI/4,label:"π/4 ≈ "+fmt(Math.PI/4,5),fn:"1/4 圆：x²+y²≤1"};
+  if(t==="sqrt2")return{inside:(x,y)=>y<=Math.sqrt(x),exact:2/3,label:"2/3 = 0.66667",fn:"曲线 y=√x 下方"};
+  return{inside:(x,y)=>y<=Math.sin(Math.PI*x),exact:2/Math.PI,label:"2/π ≈ "+fmt(2/Math.PI,5),fn:"曲线 y=sin(πx) 下方"};
+}
+function m11gen(){
+  const bd=m11bounds(m11targetKey);
+  const xs=new Float32Array(M11MAX),ys=new Float32Array(M11MAX),in_=new Uint8Array(M11MAX);
+  let hits=0;
+  for(let i=0;i<M11MAX;i++){const x=Math.random(),y=Math.random();
+    xs[i]=x;ys[i]=y;in_[i]=bd.inside(x,y)?1:0;hits+=in_[i];}
+  m11base={xs,ys,in_,hits,bd};
+}
+function m11up(){
+  const N=clamp(+$("#m11n").value,1,M11MAX);
+  $("#m11nv").textContent=N.toLocaleString();
+  if(!m11base)m11gen();
+  const bd=m11base.bd;
+  $("#m11tl").textContent=bd.fn;
+  let hits=0;for(let i=0;i<N;i++)hits+=m11base.in_[i];
+  m11last={N,hits,est:hits/N,exact:bd.exact};
+  m11draw(N,bd);m11conv(N);
+  $("#m11out").innerHTML=[["样本 N",N.toLocaleString(),"a"],["落点估计",fmt(m11last.est,5),"b"],
+    ["精确值",fmt(bd.exact,5),"g"],["绝对误差",fmt(Math.abs(m11last.est-bd.exact),5),"a"],
+    ["理论误差 ~0.52/√N",fmt(.5236/Math.sqrt(N),5),"a"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+function m11draw(N,bd){
+  const cv=$("#m11cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const S=Math.min(w,h-8),X=(w-S)/2,Y=(h-S)/2;
+  g.fillStyle=C.panel2;g.fillRect(X,Y,S,S);
+  g.fillStyle=C.ok+"22";g.beginPath();g.moveTo(X,Y+S);
+  if(m11targetKey==="circle"){g.lineTo(X,Y+S);g.arc(X,Y,S/2,-Math.PI/2,0);g.lineTo(X+S,Y+S);}
+  else if(m11targetKey==="sqrt2"){g.moveTo(X,Y+S);for(let i=0;i<=60;i++){const x=i/60;g.lineTo(X+x*S,Y+S-S*Math.sqrt(x));}g.lineTo(X+S,Y+S);}
+  else{g.moveTo(X,Y+S);for(let i=0;i<=80;i++){const x=i/80;g.lineTo(X+x*S,Y+S-S*Math.sin(Math.PI*x));}g.lineTo(X+S,Y+S);}
+  g.closePath();g.fill();
+  g.strokeStyle=C.ok;g.lineWidth=2;g.beginPath();
+  if(m11targetKey==="circle")g.arc(X,Y,S/2,-Math.PI/2,0);
+  else if(m11targetKey==="sqrt2"){g.moveTo(X,Y+S);for(let i=0;i<=60;i++){const x=i/60;g.lineTo(X+x*S,Y+S-S*Math.sqrt(x));}}
+  else{g.moveTo(X,Y+S);for(let i=0;i<=80;i++){const x=i/80;g.lineTo(X+x*S,Y+S-S*Math.sin(Math.PI*x));}}
+  g.stroke();
+  const step=Math.max(1,Math.ceil(N/9000));
+  for(let i=0;i<N;i+=step){
+    const x=m11base.xs[i],y=m11base.ys[i];
+    g.fillStyle=m11base.in_[i]?C.no+"cc":C.ink3+"77";
+    g.fillRect(X+x*S-1,Y+(1-y)*S-1,2.4,2.4);}
+  g.strokeStyle=C.line2;g.strokeRect(X+.5,Y+.5,S,S);
+}
+function m11conv(N){
+  const cv=$("#m11cv2");if(!cv||!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=42,pt=12,pb=26,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  const ex=m11base.bd.exact;
+  const pts=[];let hits=0;
+  const NMAX=Math.min(M11MAX,Math.max(2000,Math.round(N*4)));
+  for(let i=0;i<NMAX;i++){hits+=m11base.in_[i];
+    if(i%Math.max(1,Math.floor(NMAX/160))===0&&i>10)pts.push({N:i+1,est:hits/(i+1)});}
+  let mx=0;for(const p of pts)mx=Math.max(mx,Math.abs(p.est-ex));
+  mx=Math.max(mx,.02)*1.25;
+  const Xf=v=>pl+iw*Math.log(v)/Math.log(NMAX);
+  const Y=v=>pt+ih*.5-ih*.5*(v-ex)/mx;
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.ok;g.setLineDash([4,3]);g.beginPath();g.moveTo(pl,Y(ex));g.lineTo(pl+iw,Y(ex));g.stroke();g.setLineDash([]);
+  g.fillStyle=C.ok;g.font="10px sans-serif";g.textAlign="left";g.fillText("精确值",pl+4,Y(ex)-4);
+  g.beginPath();pts.forEach((p,i)=>{const x=Xf(p.N),y=Y(p.est);i?g.lineTo(x,y):g.moveTo(x,y);});
+  g.strokeStyle=C.A;g.lineWidth=1.7;g.stroke();
+  g.strokeStyle=C.pur+"aa";g.lineWidth=1;
+  g.beginPath();pts.forEach((p,i)=>{const x=Xf(p.N),y=Y(ex+.5236/Math.sqrt(p.N)*1.8);i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();
+  g.beginPath();pts.forEach((p,i)=>{const x=Xf(p.N),y=Y(ex-.5236/Math.sqrt(p.N)*1.8);i?g.lineTo(x,y):g.moveTo(x,y);});g.stroke();
+  g.fillStyle=C.pur;g.textAlign="right";g.fillText("±0.52/√N 包络",pl+iw-4,pt+12);
+  g.fillStyle=C.ink3;g.textAlign="center";
+  g.fillText("10",Xf(10),pt+ih+14);g.fillText("N（对数轴）",pl+iw/2,h-4);g.fillText(NMAX.toLocaleString(),Xf(NMAX),pt+ih+14);
+  g.textAlign="right";g.fillStyle=C.ink2;g.fillText("估计误差",pl-4,pt+8);
+}
+$("#m11n").addEventListener("input",m11up);
+$("#m11target").addEventListener("input",()=>{m11targetKey=$("#m11target").value;m11gen();m11up();});
+
+/* ============ M12 三门问题 ============ */
+const m12={pick:-1,opened:[],prize:-1,msg:"点任意一扇门开始",st:0,sw:0,stayW:0,swapW:0};
+function m12geo(cv){
+  const b=cv.getBoundingClientRect();
+  const bw=Math.min(98,b.width/3.5),gap=18,total=bw*3+gap*2,x0=(b.width-total)/2;
+  const y0=30,bh=Math.min(112,b.height-y0-56);
+  return{bw,gap,total,x0,y0,bh,w:b.width,h:b.height};
+}
+function m12draw(){
+  const cv=$("#m12cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const G=m12geo(cv);
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  for(let i=0;i<3;i++){
+    const x=G.x0+i*(G.bw+G.gap);
+    const isP=m12.prize===i,op=m12.opened.includes(i),pk=m12.pick===i;
+    g.fillStyle=isP&&!op?C.ok+"26":pk?C.A+"33":C.panel;
+    g.strokeStyle=pk?C.A:C.line2;g.lineWidth=pk?2.5:1.5;
+    g.fillRect(x,G.y0,G.bw,G.bh);g.strokeRect(x+.5,G.y0+.5,G.bw,G.bh);
+    g.fillStyle=isP&&!op?C.ok:pk?C.A:C.ink2;
+    g.font="32px sans-serif";g.textAlign="center";
+    g.fillText(isP?"🏆":op?"✕":"🚪",x+G.bw/2,G.y0+G.bh/2+12);
+    g.font="12px sans-serif";g.fillText(["A","B","C"][i],x+G.bw/2,G.y0+G.bh+18);
+    if(pk){g.fillStyle=C.A;g.font="bold 11px sans-serif";g.fillText("← 你选的",x+G.bw/2,G.y0-10);}
+    if(op){g.fillStyle=C.no;g.font="bold 11px sans-serif";g.fillText("← 主持人开的（空门）",x+G.bw/2,G.y0-10);}
+  }
+  g.fillStyle=C.ink2;g.font="12px sans-serif";g.textAlign="left";g.fillText(m12.msg,6,16);
+  const t=m12.st+m12.sw;
+  g.fillStyle=C.line;g.fillRect(G.x0,h-14,G.total,8);
+  if(t){
+    g.fillStyle=C.ok;g.fillRect(G.x0,h-14,G.total*(m12.sw?m12.swapW/m12.sw:0),8);
+    g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="left";
+    g.fillText("换门胜率 "+(m12.sw?pct(m12.swapW/m12.sw,1):"—")+"　｜　坚持胜率 "+(m12.st?pct(m12.stayW/m12.st,1):"—"),G.x0,h-18);}
+  m12out();
+}
+function m12out(){
+  const sw=m12.sw,st=m12.st;
+  $("#m12out").innerHTML=[["模拟局数",(sw+st).toLocaleString(),"a"],
+    ["换门胜率",sw?pct(m12.swapW/sw,1):"—","g"],
+    ["坚持胜率",st?pct(m12.stayW/st,1):"—","r"],
+    ["理论换门","66.67%","b"],["理论坚持","33.33%","r"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+}
+$("#m12cv").addEventListener("click",e=>{
+  const cv=$("#m12cv"),G=m12geo(cv);
+  const x=e.clientX-cv.getBoundingClientRect().left,y=e.clientY-cv.getBoundingClientRect().top;
+  if(x<G.x0-4||x>G.x0+G.total+4||y<G.y0-6||y>G.y0+G.bh+30)return;
+  const i=Math.floor((x-G.x0)/(G.bw+G.gap));
+  if(i<0||i>2)return;
+  if(m12.pick<0){ // 第一步：选门
+    m12.pick=i;m12.prize=Math.floor(Math.random()*3);
+    m12.msg="你选了 "+["A","B","C"][i]+"，主持人（知情）去开一扇空门…";
+    const c=[0,1,2].filter(k=>k!==m12.prize&&k!==m12.pick);
+    m12.opened=[c[Math.floor(Math.random()*c.length)]];
+    m12.msg="主持人开了 "+["A","B","C"][m12.opened[0]]+"（空门）。点另一扇未开的门 = 换门！";
+    m12.draw2=true;m12draw();return;}
+  if(m12.opened.length&&i!==m12.pick&&!m12.opened.includes(i)){ // 第二步：换门
+    m12.st++;
+    if(i===m12.prize)m12.swapW++;
+    m12.msg=i===m12.prize?"🎉 换门赢了！换门胜率是 2/3，不是 1/2。":"😢 换门输了。记住：换门赢率 2/3。";
+    m12.pick=-1;m12.opened=[];m12draw();}
+});
+$("#m12play").addEventListener("click",()=>{m12.pick=-1;m12.opened=[];m12.prize=-1;
+  m12.msg="游戏开始！点一扇门，然后点另一扇未开的门试试换门。";m12draw();});
+$("#m12sim").addEventListener("click",()=>{
+  for(let k=0;k<5000;k++){const pr=Math.floor(Math.random()*3),pick=Math.floor(Math.random()*3);
+    m12.st++;if(pick===pr)m12.stayW++;
+    m12.sw++;if(pr!==pick)m12.swapW++;}
+  m12.msg="模拟 5000 局完成：换门 ≈ 66.7%，坚持 ≈ 33.3%。";m12draw();});
+
+/* ============ M13 生日悖论 ============ */
+function m13up(){
+  const n=+$("#m13n").value,D=+$("#m13d").value;
+  $("#m13nv").textContent=n;$("#m13dv").textContent=D;
+  let safe=1;for(let k=0;k<n;k++)safe*=(D-k)/D;
+  const coll=1-safe;
+  let half=0;
+  for(let k=1;k<=Math.min(D,120);k++){let s=1;for(let j=0;j<k;j++)s*=(D-j)/D;
+    if(1-s>=.5){half=k;break;}}
+  const pairs=n*(n-1)/2;
+  $("#m13out").innerHTML=[["人数 n",n,"a"],["候选天数 D",D,"b"],
+    ["至少撞一次生日",pct(coll,3),"g"],["完全不撞概率",pct(safe,3),""],
+    ["比对子数 C(n,2)",pairs.toLocaleString(),"a"],
+    ["达到 50% 需",half+" 人","r"]]
+    .map(([k,v,c])=>`<div><div class="k">${k}</div><div class="n ${c}">${v}</div></div>`).join("");
+  m13curve();
+}
+function m13curve(){
+  const cv=$("#m13cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const D=+$("#m13d").value,cur=+$("#m13n").value;
+  const pl=36,pt=14,pb=28,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  const nMax=Math.max(2,Math.min(D,80));
+  const X=n=>pl+iw*(n-1)/(nMax-1),Y=v=>pt+ih*(1-v);
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line2;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  g.strokeStyle=C.line;g.setLineDash([4,3]);g.beginPath();
+  g.moveTo(pl,Y(.5));g.lineTo(pl+iw,Y(.5));g.stroke();g.setLineDash([]);
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="left";g.fillText("50%",pl+3,Y(.5)-4);
+  g.beginPath();
+  for(let n=1;n<=nMax;n++){let s=1;for(let k=0;k<n;k++)s*=(D-k)/D;
+    const x=X(n),y=Y(1-s);n===1?g.moveTo(x,y):g.lineTo(x,y);}
+  g.strokeStyle=C.B;g.lineWidth=2.2;g.stroke();
+  let s=1;for(let k=0;k<cur;k++)s*=(D-k)/D;
+  g.strokeStyle=C.A+"88";g.lineWidth=1.5;g.beginPath();g.moveTo(X(cur),pt);g.lineTo(X(cur),pt+ih);g.stroke();
+  g.fillStyle=C.A;g.beginPath();g.arc(X(cur),Y(1-s),5,0,7);g.fill();
+  g.fillStyle=C.A;g.font="bold 11px sans-serif";g.textAlign="center";g.fillText("n="+cur,X(cur),pt+12);
+  g.fillStyle=C.ink3;g.font="10px sans-serif";
+  g.fillText("1",X(1),pt+ih+14);g.fillText("人数 n",pl+iw/2,h-4);g.fillText(nMax+" 人",pl+iw,pt+ih+14);
+  g.textAlign="right";g.fillStyle=C.ink2;g.fillText("撞生日概率",pl-3,pt+8);
+}
+["m13n","m13d"].forEach(id=>$("#"+id).addEventListener("input",m13up));
+/* ============ M14 赌徒破产 ============ */
+const m14={path:[],k:1};
+let m15last=null;
+function m14readout(){
+  const k=+$("#m14k").value,N=+$("#m14n").value,p=+$("#m14b").value/100;
+  $("#m14kv").textContent=k;$("#m14nv").textContent=N;$("#m14bv").textContent=p+"%";
+  let ruin;
+  if(Math.abs(p-.5)<1e-9)ruin=1-k/N;
+  else{const r=(1-p)/p;ruin=1-(1-Math.pow(r,k))/(1-Math.pow(r,N));}
+  ruin=clamp(ruin,0,1);
+  const fair=Math.abs(p-.5)<1e-9;
+  $("#m14out").innerHTML=[["初始 k / 目标 N",k+" / "+N,"a"],
+    ["P(先到 N 赢)",pct(1-ruin,2),"g"],["P(先到 0 破产)",pct(ruin,2),"r"],
+    ["公平硬币理论",fair?pct(k/N,2):"—","b"],["单步期望",fair?"0":((2*p-1)>0?"+":"")+fmt(2*p-1,3),fair?"b":(2*p-1)>0?"g":"r"],
+    ["已走步数",m14.path.length,""]]
+    .map(([a,b2,c])=>`<div><div class="k">${a}</div><div class="n ${c}">${b2}</div></div>`).join("");
+}
+function m14walk(){
+  const k=+$("#m14k").value,N=+$("#m14n").value,p=+$("#m14b").value/100;
+  let x=k,stop="";
+  for(let i=0;i<300;i++){
+    x+=Math.random()<p?1:-1;
+    m14.path.push(x);
+    if(x<=0){x=0;stop="破产";break;}
+    if(x>=N){x=N;stop="达标";break;}}
+  m14.res=stop;m14.draw();
+  const fair=Math.abs(p-.5)<1e-9;
+  let ruin=1-k/N;
+  if(!fair){const r=(1-p)/p;ruin=1-clamp((1-Math.pow(r,k))/(1-Math.pow(r,N)),0,1);}
+  $("#m14out").innerHTML=[["初始 k / 目标 N",k+" / "+N,"a"],
+    ["P(先到 N 赢)",pct(1-ruin,2),"g"],["P(先到 0 破产)",pct(ruin,2),"r"],
+    ["公平硬币理论",fair?pct(k/N,2):"—","b"],
+    ["本次结果",m14.res==="达标"?"🎉 达标":"💀 破产",m14.res==="达标"?"g":"r"],
+    ["已走步数",m14.path.length,""]]
+    .map(([a,b2,c])=>`<div><div class="k">${a}</div><div class="n ${c}">${b2}</div></div>`).join("");
+}
+m14.draw=function(){
+  const cv=$("#m14cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const N=+$("#m14n").value,pl=34,pt=14,pb=26,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  const X=i=>pl+iw*i/N,Y=v=>pt+ih*(1-v/N);
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line2;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  g.fillStyle=C.ok+"22";g.fillRect(pl,pt,iw,Y(N));
+  g.strokeStyle=C.ok;g.setLineDash([4,3]);g.beginPath();g.moveTo(pl,Y(N));g.lineTo(pl+iw,Y(N));g.stroke();g.setLineDash([]);
+  g.strokeStyle=C.no;g.beginPath();g.moveTo(pl,Y(0));g.lineTo(pl+iw,Y(0));g.stroke();
+  g.fillStyle=C.ok;g.font="11px sans-serif";g.textAlign="left";g.fillText("目标 N="+N,pl+4,pt+12);
+  g.fillStyle=C.no;g.fillText("破产线 0",pl+4,Y(0)-5);
+  if(m14.path.length>1){
+    g.beginPath();m14.path.forEach((v,i)=>{const x=X(i),y=Y(v);i?g.lineTo(x,y):g.moveTo(x,y);});
+    g.strokeStyle=C.A;g.lineWidth=1.6;g.stroke();
+    const last=m14.path[m14.path.length-1];
+    g.fillStyle=m14.res==="达标"?C.ok:C.no;
+    g.beginPath();g.arc(X(m14.path.length-1),Y(last),5,0,7);g.fill();
+  }
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  g.fillText("0",pl,Y(0)+14);g.fillText(N,pl+iw,Y(0)+14);
+  g.textAlign="center";g.fillText("步数 →",pl+iw/2,h-4);
+  g.textAlign="right";g.fillText("资金",pl-3,pt+8);
+};
+$("#m14play").addEventListener("click",m14walk);
+$("#m14reset").addEventListener("click",()=>{m14.path=[];m14.res="";m14.draw();m14readout();});
+["m14k","m14n","m14b"].forEach(id=>$("#"+id).addEventListener("input",m14readout));
+
+/* ============ M15 倍增法 ============ */
+// 马丁格尔：每轮从 1 元起投，翻倍加注；输一次输光本轮全部已下注额，本金 M 不动
+function m15cycle(M,k){
+  let stake=1,risked=0;
+  for(let i=0;i<k;i++){
+    if(stake>M-risked)return{win:false,final:M-risked}; // 押不起，只能带着剩余本金收手
+    risked+=stake;
+    if(Math.random()<.5)stake*=2;else return{win:false,final:M-risked};
+  }
+  return{win:true,final:M+risked};
+}
+function m15sim(M,k,rounds){
+  let ok=0,sum=0;
+  for(let r=0;r<rounds;r++){const c=m15cycle(M,k);if(c.win)ok++;sum+=c.final;}
+  return{win:ok,rounds,avg:sum/rounds,survive:ok/rounds};
+}
+function m15up(){
+  const M=+$("#m15m").value,k=+$("#m15k").value;
+  $("#m15mv").textContent=M;$("#m15kv").textContent=k;
+  m15last=m15sim(M,k,20000);
+  const L=m15last,need=Math.pow(2,k)-1;
+  $("#m15out").innerHTML=[["初始本金 M",M,"a"],["连胜目标 k",k,"b"],
+    ["完成 k 连胜需累计押注",need+" 元",need>M?"r":"g"],
+    ["本金是否够用",need<=M?"够（"+pct(Math.min(1,M/need),0)+"）":"不够","r"],
+    ["资金充足时存活率 2^-k",pct(Math.pow(.5,k),3),"a"],
+    ["模拟存活率",pct(L.survive,2),L.survive>0.2?"g":"r"],
+    ["模拟平均终值",fmt(L.avg,3)+" 元",L.avg>M*0.8?"g":"r"],
+    ["是否公平（E=0）",need<=M?"够本金，可验证 E≈M":"本金不足，必然失败",need<=M?"a":"r"]]
+    .map(([a,b2,c])=>`<div><div class="k">${a}</div><div class="n ${c}">${b2}</div></div>`).join("");
+  m15plot(k);
+}
+function m15plot(k){
+  const cv=$("#m15cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  const pl=46,pt=14,pb=32,pr=10,iw=w-pl-pr,ih=h-pt-pb;
+  const Ms=[1,2,3,4,6,8,12,16,24,32,48,64,128,256];
+  const data=Ms.map(M=>m15sim(M,k,3000).survive);
+  const Xf=v=>pl+iw*Math.log(v+1)/Math.log(257);
+  const Y=v=>pt+ih*(1-v);
+  gridLines(g,pl,pt,iw,ih,4);
+  g.strokeStyle=C.line2;g.strokeRect(pl+.5,pt+.5,iw,ih);
+  g.fillStyle=C.ink3;g.font="10px sans-serif";g.textAlign="center";
+  g.fillText("1",pl,pt+ih+14);g.fillText("256",pl+iw,pt+ih+14);
+  g.fillText("初始本金 M（对数轴）",pl+iw/2,h-4);
+  g.textAlign="right";g.fillStyle=C.ink2;g.fillText("存活率",pl-4,pt+8);
+  g.strokeStyle=C.no;g.setLineDash([4,3]);g.beginPath();
+  g.moveTo(pl,Y(Math.pow(.5,k)));g.lineTo(pl+iw,Y(Math.pow(.5,k)));g.stroke();g.setLineDash([]);
+  g.fillStyle=C.ink3;g.textAlign="left";g.fillText("2^-k = "+pct(Math.pow(.5,k),1),pl+4,Y(Math.pow(.5,k))-4);
+  g.beginPath();data.forEach((v,i)=>{const x=Xf(Ms[i]),y=Y(v);i?g.lineTo(x,y):g.moveTo(x,y);});
+  g.strokeStyle=C.B;g.lineWidth=2.2;g.stroke();
+  data.forEach((v,i)=>{g.fillStyle=C.B;g.beginPath();g.arc(Xf(Ms[i]),Y(v),3.2,0,7);g.fill();});
+  const cur=+$("#m15m").value;
+  g.strokeStyle=C.A+"99";g.setLineDash([3,3]);g.beginPath();
+  g.moveTo(Xf(cur),pt);g.lineTo(Xf(cur),pt+ih);g.stroke();g.setLineDash([]);
+  g.fillStyle=C.A;g.textAlign="center";g.fillText("当前 M="+cur,Xf(cur),pt+12);
+}
+["m15m","m15k"].forEach(id=>$("#"+id).addEventListener("input",m15up));
+$("#m15sim").addEventListener("click",()=>{m15last=null;m15up();});
+$("#m15clr").addEventListener("click",()=>{m15last=null;m15up();});
+
+/* ============ M16 辛普森悖论 ============ */
+// 两层病情：每层内「用药死亡率 < 不用药死亡率」（药物真的有效）
+// 但两个组的病层构成差异极大 → 合并后「用药组死亡率更高」→ 方向反转
+const M16S=[
+  {name:"轻症",dNo:.011,dYes:.006},
+  {name:"重症",dNo:.500,dYes:.400}
+];
+const M16G=[
+  {name:"未用药组",mix:[.90,.10]},
+  {name:"用药组",  mix:[.10,.90]}
+];
+let m16lay=true;
+function m16calc(){
+  const g=M16G.map(G=>{
+    let dn=0,dy=0;
+    M16S.forEach((S,i)=>{dn+=G.mix[i]*S.dNo;dy+=G.mix[i]*S.dYes;});
+    return{name:G.name,mix:G.mix,dNo:dn,dYes:dy};});
+  return{g:g};
+}
+function m16up(){
+  const t=m16calc();
+  const layerEffects=M16S.map(S=>S.dYes-S.dNo);
+  const allGood=layerEffects.every(v=>v<0);
+  const aggDiff=t.g[1].dYes-t.g[0].dNo;
+  const flip=allGood&&aggDiff>0;
+  $("#m16out").innerHTML=m16lay?[
+    ["层内差值（用药−不用药）",M16S.map(S=>(S.dYes-S.dNo<0?"−":"+")+pct(Math.abs(S.dYes-S.dNo),2)).join(" ｜ "),"g"],
+    ["层内方向",allGood?"两层都是「用药更优」":"方向不一致","g"],
+    ["轻症 / 重症 占比（用药组）","10% / 90%","b"],
+    ["轻症 / 重症 占比（未用药组）","90% / 10%","b"],
+    ["→ 正确结论","药物有效 ✓","g"]]
+    :[["未用药组粗死亡率",pct(t.g[0].dNo,3),"b"],["用药组粗死亡率",pct(t.g[1].dYes,3),"r"],
+    ["粗看差值（用药−不用药）",(aggDiff>0?"+":"")+pct(aggDiff,3),flip?"r":"g"],
+    ["真实层内差值",M16S.map(S=>(S.dYes-S.dNo<0?"−":"+")+pct(Math.abs(S.dYes-S.dNo),2)).join(" ｜ "),"g"],
+    ["→ 粗略结论",flip?"药物有害 ✗（假的）":"—","r"]];
+  m16draw();
+}
+function m16draw(){
+  const cv=$("#m16cv");if(!cv.offsetParent)return;const{g,w,h}=fit(cv),C=CSS();
+  g.fillStyle=C.panel2;g.fillRect(0,0,w,h);
+  const t=m16calc();
+  const groups=m16lay?M16S.map(S=>({name:S.name,dNo:S.dNo,dYes:S.dYes,idx:0}))
+                     :t.g.map((G,i)=>({name:G.name,dNo:G.dNo,dYes:G.dYes,idx:i}));
+  const pl=8,pt=44,pb=48,pr=8,iw=w-pl-pr,ih=h-pt-pb;
+  let maxV=.05;for(const x of groups)maxV=Math.max(maxV,x.dNo,x.dYes);
+  maxV*=1.3;
+  const gw=iw/groups.length;
+  groups.forEach((L,gi)=>{
+    const bx=pl+gi*gw;
+    gridLines(g,bx+10,pt,gw-40,ih,4);
+    g.strokeStyle=C.line;g.strokeRect(bx+10+.5,pt+.5,gw-40,ih);
+    const bw=(gw-64)/2;
+    [["未用药",L.dNo,C.no],["用药",L.dYes,C.ok]].forEach(([lab,v,col],i)=>{
+      const hgt=ih*v/maxV;
+      g.fillStyle=col;g.fillRect(bx+14+i*(bw+8),pt+ih-hgt,bw,hgt);
+      g.fillStyle=C.ink;g.font="bold 11px sans-serif";g.textAlign="center";
+      g.fillText(pct(v,2),bx+14+i*(bw+8)+bw/2,pt+ih-hgt-4);
+      g.fillStyle=C.ink2;g.font="11px sans-serif";
+      g.fillText(lab,bx+14+i*(bw+8)+bw/2,pt+ih+14);});
+    g.fillStyle=C.ink;g.font="bold 12px sans-serif";g.textAlign="center";
+    g.fillText(L.name,bx+gw/2,pt-16);
+    if(m16lay){
+      const k=M16S.findIndex(S=>S.name===L.name);
+      g.fillStyle=C.ink3;g.font="11px sans-serif";
+      g.fillText("未用药占 "+Math.round(M16G[0].mix[k]*100)+"% ｜ 用药占 "+Math.round(M16G[1].mix[k]*100)+"%",bx+gw/2,pt-2);
+    }else{
+      g.fillStyle=C.ink3;g.font="11px sans-serif";
+      g.fillText("轻症 "+(gi===0?"90%":"10%")+" ｜ 重症 "+(gi===0?"10%":"90%"),bx+gw/2,pt-2);
+    }
+    const d=L.dYes-L.dNo;
+    g.fillStyle=d<0?C.ok:C.no;g.font="bold 11px sans-serif";
+    g.fillText((d<0?"↓ 用药更优 ":"↑ 反而更差 ")+pct(Math.abs(d),2),bx+gw/2,pt+ih+32);
+  });
+  g.fillStyle=C.ink3;g.font="11px sans-serif";g.textAlign="left";
+  g.fillText(m16lay?"视图：按病情分层（拆开看）——两层都显示药物有效"
+                   :"视图：按是否用药合并（混着看）——用药组死亡率反而更高",pl,18);
+  g.fillText("纵轴：死亡率（0 → "+pct(maxV,1)+"）",pl,h-8);
+}
+$("#m16lay").addEventListener("click",()=>{m16lay=true;
+  $("#m16lay").setAttribute("aria-pressed","true");$("#m16agg").setAttribute("aria-pressed","false");m16up();});
+$("#m16agg").addEventListener("click",()=>{m16lay=false;
+  $("#m16agg").setAttribute("aria-pressed","true");$("#m16lay").setAttribute("aria-pressed","false");m16up();});
+
+/* ============ 自测题 ============ */
+const QUIZ=[
+  {q:"一枚公平硬币连抛 10 次都是正面，第 11 次出现正面的概率是？",
+   o:["略小于 1/2","正好 1/2","大于 1/2","无法判断"],a:1,
+   e:"独立事件：过去不影响未来，正好 1/2。「连输 10 把该轮到我了」是赌徒谬误。"},
+  {q:"甲袋 2 红 8 蓝，乙袋 8 红 2 蓝。任选一袋抽一球为红，哪袋更划算？",
+   o:["甲袋","乙袋","一样（都是 50%）","无法判断"],a:1,
+   e:"甲袋 P(红)=2/10=20%，乙袋 80%。条件概率题：看清分母是谁，别被「红球」两个字带偏。"},
+  {q:"已知 P(A|B)=0.6，P(B|A)=0.3。由此可以推出：",
+   o:["P(A)=P(B)","P(A|B) 与 P(B|A) 无关","P(A|B)=P(B)，所以 A、B 独立","不能推出 P(A)=P(B)，条件概率不对称"],a:3,
+   e:"P(A|B)=P(A∩B)/P(B)，P(B|A)=P(A∩B)/P(A)。两者一般不等，除非 P(A)=P(B) 或交集为 0。已知二者不相等，反而说明 P(A)≠P(B)。"},
+  {q:"某病患病率 0.1%，检测灵敏度与特异度都是 99%。检测阳性后真正患病的概率约为？",
+   o:["约 50%","约 9%","约 99%","约 99.9%"],a:1,
+   e:"TP=0.001×0.99=0.00099；FP=0.999×0.01=0.00999。阳性共 0.01098 → 后验 ≈ 9%。基础比率忽视的经典案例，去模块 6 拖滑块验证。"},
+  {q:"一个公平赌局（每次条件期望为 0），重复一万次后你的总收益最可能：",
+   o:["+1000 元","在 0 附近波动","−1000 元","必然精确为 0"],a:1,
+   e:"公平只保证长期平均为 0，不保证任何一局或任何一段为 0。总收益近似 N(0, n·σ²)——离散且会在 0 附近摆动，波动随 √n 增长。"},
+  {q:"大数定律保证的是：",
+   o:["样本均值最终收敛到期望","样本均值立刻等于期望","分布必然是正态","尾部概率必然很小"],a:0,
+   e:"LLN 只保证均值收敛（且要求有限方差）。收敛很慢（~1/√n），不保证短期行为，也不涉及分布形状——后者是 CLT 的事。"},
+  {q:"一个每次期望为 0 的公平游戏，规则是「连输 3 把就停」。长期来看玩家的收益期望是：",
+   o:["0（公平性不受停机规则影响）","负数（停损导致必亏）","正数（连输后更容易赢）","无法判断"],a:0,
+   e:"每次的条件期望都是 0，且停止时刻是有限的、可界定的，总收益期望仍为 0。有界停止不破坏零期望——这也是「止损不改变期望」的原理。但方差会被压缩，体验更像「不痛不痒」。"},
+  {q:"中心极限定理要求原始分布：",
+   o:["必须是正态","独立同分布且方差有限","必须连续、不能离散","必须对称"],a:1,
+   e:"CLT 只要独立同分布 + 有限方差。原始可以偏斜、双峰、离散（离散骰子照样适用）。柯西分布方差无穷，是 CLT 的反例。"},
+  {q:"用正态近似估计某设备 1000 次测量的平均值，这 1000 个测量均值的标准差是：",
+   o:["σ","σ/√1000","σ·√1000","1000σ"],a:1,
+   e:"标准误 = σ/√n。想要误差减半，样本量要 ×4。想把测量精度提高一个数量级，计算量涨 100 倍——这是统计的根本瓶颈。"},
+  {q:"某检测灵敏度 90%，特异度 99%，人群患病率 1%。检测阳性的人里，约有多少是真阳性？",
+   o:["约 47%","约 90%","约 99%","约 1%"],a:0,
+   e:"TP=0.01×0.90=0.009；FP=0.99×0.01=0.0099。后验 = 0.009/0.0189 ≈ 47.6%。即使指标看起来很好，阳性结果仍可能一半是假的——去模块 6 拖滑块感受。"},
+  {q:"观察到 A、B 强相关，想断言「A 导致 B」。正确做法是：",
+   o:["相关足够强就可以","反过来说 B 导致 A","检查并控制混杂变量，或做随机实验","忽略，做下一步分析"],a:2,
+   e:"相关只是线索，因果需要识别策略（控制混杂、DAG、分层调整）或随机对照实验。辛普森悖论（模块 16）就是「合并层面强相关、每层内反向」的活例子。"}
+];
+function buildQuiz(){
+  const box=$("#quizbody");box.innerHTML="";
+  QUIZ.forEach((item,i)=>{
+    const d=document.createElement("div");d.className="q";
+    const qt=document.createElement("p");qt.className="qt";
+    qt.innerHTML="<b>Q"+(i+1)+"：</b>"+item.q;d.appendChild(qt);
+    const opts=document.createElement("div");opts.className="opts";
+    const fb=document.createElement("div");fb.className="fb";
+    fb.innerHTML="<b>解析：</b>"+item.e;
+    item.o.forEach((t,k)=>{
+      const b=document.createElement("button");b.type="button";b.textContent="ABCD"[k]+". "+t;
+      b.addEventListener("click",()=>{
+        $$("button",opts).forEach(x=>x.classList.remove("right","wrong"));
+        if(k===item.a)b.classList.add("right");
+        else{b.classList.add("wrong");$$("button",opts)[item.a].classList.add("right");}
+        fb.classList.add("show");});
+      opts.appendChild(b);});
+    d.appendChild(opts);d.appendChild(fb);
+    box.appendChild(d);});
+}
+
+/* ============ 统一启动 ============ */
+const REDRAW=[];
+function reg(fn){REDRAW.push(fn);}
+function redrawAll(){REDRAW.forEach(f=>{try{f();}catch(e){console.warn(e);}});}
+let rt=null;
+addEventListener("resize",()=>{clearTimeout(rt);rt=setTimeout(()=>{m1paint();m2draw();m3draw();
+  m4up();m5draw();m6up();m7readout();m8update();m9up();m10up();m11up();m12draw();m13up();
+  m14.draw();m15up();m16up();},180);});
+
+function boot(){
+  m1paint();
+  for(let i=0;i<400;i++)m2step(5);
+  m3draw();m3bindDrag();
+  m4up();
+  m5build();
+  m6up();
+  m7readout();
+  m8update();
+  m9up();
+  m10up();m10bind();
+  m11gen();m11up();
+  m12draw();
+  m13up();
+  m14readout();m14.draw();
+  m15up();
+  m16up();
+  buildQuiz();
+  onScroll();
+}
+if(document.readyState==="loading")addEventListener("DOMContentLoaded",boot);else boot();
+</script>
+</body>
+</html>

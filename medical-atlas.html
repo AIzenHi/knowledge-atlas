@@ -1,0 +1,2273 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>现代医学知识版图 · The Atlas of Modern Medicine</title>
+<meta name="description" content="从认识生命到群体健康：7 个阶段、约 75 个学科节点的现代医学知识地图。点击卡片查看详情，支持搜索与深色模式。">
+<style>
+/* ============ 基础与主题 ============ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+html.nofx { scroll-behavior: auto; }
+html.nofx *, html.nofx *::before, html.nofx *::after { transition: none !important; animation: none !important; }
+
+:root {
+  --paper: #F6F1E7;
+  --paper2: #EFE7D8;
+  --card: #FFFCF5;
+  --ink: #1F2B37;
+  --ink2: #58646F;
+  --ink3: #8B949D;
+  --line: #DCD3C0;
+  --line2: #C7BCA5;
+  --gold: #A96F1B;
+  --serif: Georgia, "Times New Roman", "Songti SC", "STSong", "SimSun", serif;
+  --sans: "PingFang SC", "Microsoft YaHei", "Segoe UI", system-ui, -apple-system, sans-serif;
+  --barh: 56px;
+  color-scheme: light;
+}
+html[data-theme="dark"] {
+  --paper: #131A21;
+  --paper2: #0F151B;
+  --card: #1A232D;
+  --ink: #E9E4D8;
+  --ink2: #A8B0B8;
+  --ink3: #78828C;
+  --line: #2B3641;
+  --line2: #3D4A57;
+  --gold: #C99B4A;
+  color-scheme: dark;
+}
+
+body {
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 15px;
+  line-height: 1.75;
+  -webkit-font-smoothing: antialiased;
+}
+.container { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+@media (max-width: 640px) { .container { padding: 0 16px; } }
+
+button { font-family: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
+::selection { background: rgba(169,111,27,.25); }
+
+.kicker {
+  font-size: 11px; letter-spacing: .22em; text-transform: uppercase;
+  color: var(--gold); font-weight: 700;
+}
+.hairline { border: none; border-top: 1px solid var(--line); }
+
+/* ============ 封面区 ============ */
+.hero { padding: 56px 0 8px; }
+.masthead { border-top: 3px solid var(--ink); border-bottom: 1px solid var(--line2); padding: 26px 0 22px; position: relative; }
+.masthead::after { content: ""; position: absolute; left: 0; right: 0; bottom: -4px; border-bottom: 1px solid var(--line); }
+.hero h1 {
+  font-family: var(--serif); font-weight: 700;
+  font-size: clamp(38px, 6.5vw, 72px); line-height: 1.08;
+  letter-spacing: .02em; margin: 10px 0 6px;
+}
+.hero-en { font-family: var(--serif); font-style: italic; font-size: clamp(14px, 2vw, 19px); color: var(--ink2); letter-spacing: .04em; }
+.hero .deck {
+  font-family: var(--serif); font-size: clamp(16px, 1.9vw, 19px); line-height: 1.9;
+  color: var(--ink2); max-width: 760px; margin: 22px 0 0;
+}
+.stats { display: flex; flex-wrap: wrap; gap: 0; margin: 26px 0 4px; }
+.stat { padding: 2px 26px 2px 0; margin-right: 26px; border-right: 1px solid var(--line); }
+.stat:last-child { border-right: none; }
+.stat b { display: block; font-family: var(--serif); font-size: 30px; font-weight: 700; line-height: 1.2; }
+.stat span { font-size: 12px; color: var(--ink2); letter-spacing: .06em; }
+
+/* 顶部流动装饰线 */
+.ekg { display: block; width: 100%; height: 34px; margin-top: 22px; color: var(--line2); opacity: .8; }
+
+/* ============ 全流程导览条（封面内） ============ */
+.flowrail { margin: 30px 0 6px; }
+.flowrail-line { position: relative; height: 3px; border-radius: 2px; margin: 0 10px 0 10px; }
+.flowrail-items { display: grid; grid-template-columns: repeat(7, 1fr); gap: 8px; margin-top: -14px; }
+.fitem { display: flex; flex-direction: column; align-items: center; gap: 7px; padding-top: 14px; }
+.fitem .fdot {
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--paper); border: 3px solid var(--fc); position: relative; z-index: 1;
+  transition: transform .15s;
+}
+.fitem .fnum { font-family: var(--serif); font-size: 12px; color: var(--ink3); letter-spacing: .12em; }
+.fitem .fname { font-size: 13px; font-weight: 700; color: var(--ink); text-align: center; }
+.fitem:hover .fdot { transform: scale(1.25); }
+.fitem:hover .fname { color: var(--fc); }
+
+/* ============ 使用说明与图例 ============ */
+.guide { display: flex; flex-wrap: wrap; gap: 14px; margin: 30px 0 6px; }
+.gbox { flex: 1 1 320px; border: 1px solid var(--line); background: var(--card); padding: 16px 20px; border-radius: 3px; }
+.gbox h3 { font-size: 12px; letter-spacing: .18em; color: var(--ink3); text-transform: uppercase; margin-bottom: 10px; font-weight: 700; }
+.gbox ul { list-style: none; }
+.gbox li { font-size: 13.5px; color: var(--ink2); padding: 3px 0 3px 20px; position: relative; }
+.gbox li::before { content: ""; position: absolute; left: 2px; top: 12px; width: 7px; height: 7px; border: 1.5px solid var(--gold); transform: rotate(45deg); }
+.gbox li b { color: var(--ink); }
+
+/* ============ 粘性流程条 ============ */
+#flowbar {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--paper2); border-bottom: 1px solid var(--line2);
+}
+#flowbar.shadowed { box-shadow: 0 2px 12px rgba(31,43,55,.10); }
+html[data-theme="dark"] #flowbar.shadowed { box-shadow: 0 2px 14px rgba(0,0,0,.45); }
+.fb-inner { display: flex; align-items: center; gap: 14px; height: var(--barh); }
+.fb-title { font-family: var(--serif); font-weight: 700; font-size: 15px; white-space: nowrap; letter-spacing: .02em; flex: 0 0 auto; }
+.fb-chips { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; flex: 1 1 auto; }
+.fb-chips::-webkit-scrollbar { display: none; }
+.fchip {
+  display: flex; align-items: center; gap: 6px; white-space: nowrap;
+  padding: 4px 11px; border-radius: 999px; border: 1px solid var(--line);
+  font-size: 12.5px; color: var(--ink2); background: var(--card);
+  transition: background .15s, color .15s, border-color .15s;
+}
+.fchip i { width: 8px; height: 8px; border-radius: 50%; background: var(--fc); }
+.fchip.act { background: var(--fc); border-color: var(--fc); color: #fff; }
+.fchip.act i { background: #fff; }
+html[data-theme="dark"] .fchip.act { color: #10161C; }
+html[data-theme="dark"] .fchip.act i { background: #10161C; }
+.fb-right { display: flex; align-items: center; gap: 8px; flex: 0 0 auto; }
+.iconbtn {
+  width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--line);
+  display: flex; align-items: center; justify-content: center; background: var(--card);
+  transition: border-color .15s, background .15s;
+}
+.iconbtn:hover { border-color: var(--ink2); }
+.iconbtn svg { width: 17px; height: 17px; }
+#progress { height: 2px; background: var(--gold); width: 0; }
+
+/* 搜索 */
+.searchwrap { position: relative; }
+.searchbox {
+  display: flex; align-items: center; gap: 7px; height: 34px; padding: 0 12px;
+  border: 1px solid var(--line); border-radius: 999px; background: var(--card); width: 200px;
+  transition: width .2s, border-color .15s;
+}
+.searchbox:focus-within { border-color: var(--gold); width: 250px; }
+.searchbox svg { width: 14px; height: 14px; color: var(--ink3); flex: 0 0 auto; }
+.searchbox input { border: none; outline: none; background: transparent; font-size: 13px; width: 100%; color: var(--ink); }
+.searchbox input::placeholder { color: var(--ink3); }
+.searchres {
+  position: absolute; top: 42px; right: 0; width: 340px; max-width: 88vw;
+  background: var(--card); border: 1px solid var(--line2); border-radius: 4px;
+  box-shadow: 0 8px 30px rgba(31,43,55,.18); max-height: 330px; overflow-y: auto; display: none; z-index: 60;
+}
+html[data-theme="dark"] .searchres { box-shadow: 0 8px 30px rgba(0,0,0,.5); }
+.searchres.open { display: block; }
+.sres-item { display: flex; align-items: baseline; gap: 8px; width: 100%; text-align: left; padding: 9px 14px; border-bottom: 1px solid var(--line); }
+.sres-item:last-child { border-bottom: none; }
+.sres-item:hover, .sres-item.hov { background: var(--paper2); }
+.sres-item b { font-size: 13.5px; }
+.sres-item span { font-size: 11.5px; color: var(--ink3); }
+.sres-item em { margin-left: auto; font-style: normal; font-size: 11px; color: #fff; background: var(--fc); padding: 1px 8px; border-radius: 999px; flex: 0 0 auto; }
+.sres-empty { padding: 14px; font-size: 13px; color: var(--ink3); }
+
+/* ============ 阶段章节 ============ */
+.stage { padding-top: 46px; margin-top: 54px; border-top: 2px solid var(--stage); scroll-margin-top: calc(var(--barh) + 14px); position: relative; }
+.stage-head { display: flex; align-items: flex-start; gap: 22px; position: relative; }
+.stage-ghost {
+  font-family: var(--serif); font-weight: 700; font-size: clamp(72px, 11vw, 128px); line-height: 1;
+  color: var(--stagesoft); position: absolute; right: 0; top: -26px; user-select: none; pointer-events: none;
+}
+.stage-num {
+  font-family: var(--serif); font-size: 20px; font-weight: 700; color: var(--stage);
+  border: 1.5px solid var(--stage); border-radius: 50%; width: 52px; height: 52px;
+  display: flex; align-items: center; justify-content: center; flex: 0 0 auto; margin-top: 6px;
+  background: var(--stagesoft);
+}
+.stage-titles { flex: 1 1 auto; }
+.stage-kicker { font-size: 11px; letter-spacing: .22em; text-transform: uppercase; color: var(--stage); font-weight: 700; }
+.stage-titles h2 { font-family: var(--serif); font-size: clamp(28px, 4vw, 42px); line-height: 1.15; margin: 4px 0 4px; letter-spacing: .02em; }
+.stage-tagline { font-size: 14.5px; color: var(--ink2); }
+.stage-icon { width: 46px; height: 46px; color: var(--stage); flex: 0 0 auto; margin-top: 10px; opacity: .9; }
+.stage-icon svg { width: 100%; height: 100%; }
+.stage-intro {
+  font-family: var(--serif); font-size: 16.5px; line-height: 1.95; color: var(--ink2);
+  max-width: 860px; margin: 20px 0 0; padding-left: 74px;
+}
+.stage-count { font-size: 12px; color: var(--ink3); letter-spacing: .08em; margin-top: 10px; padding-left: 74px; }
+
+.cluster { margin-top: 34px; }
+.cluster-label {
+  display: flex; align-items: center; gap: 10px; margin-bottom: 14px;
+  font-size: 13px; font-weight: 700; letter-spacing: .1em; color: var(--ink2);
+}
+.cluster-label::before { content: ""; width: 8px; height: 8px; background: var(--stage); transform: rotate(45deg); flex: 0 0 auto; }
+.cluster-label::after { content: ""; flex: 1 1 auto; border-top: 1px solid var(--line); }
+.cluster-note { font-size: 12px; color: var(--ink3); font-weight: 400; letter-spacing: 0; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(min(100%, 246px), 1fr)); gap: 12px; }
+.card {
+  text-align: left; padding: 14px 16px 13px; background: var(--card);
+  border: 1px solid var(--line); border-radius: 3px; position: relative;
+  transition: border-color .15s, transform .15s, box-shadow .15s;
+}
+.card:hover { border-color: var(--stage); transform: translateY(-2px); box-shadow: 0 3px 12px rgba(31,43,55,.09); }
+html[data-theme="dark"] .card:hover { box-shadow: 0 3px 12px rgba(0,0,0,.4); }
+.card-top { display: flex; align-items: flex-start; gap: 8px; }
+.card-name { font-size: 15.5px; font-weight: 700; line-height: 1.4; flex: 1 1 auto; }
+.card-en { display: block; font-size: 10.5px; letter-spacing: .06em; text-transform: uppercase; color: var(--ink3); margin-top: 3px; }
+.card-line {
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+  font-size: 12.5px; line-height: 1.65; color: var(--ink2); margin-top: 8px; min-height: 41px;
+}
+.card-badges { display: flex; gap: 4px; flex: 0 0 auto; margin-top: 2px; }
+.badge { font-size: 10px; letter-spacing: .05em; padding: 1px 7px; border-radius: 999px; white-space: nowrap; }
+.badge-cross { color: var(--stage); border: 1px solid var(--stage); background: var(--stagesoft); }
+.badge-tcm { color: var(--tcm); border: 1px dashed var(--tcm); }
+.card--tcm { border-style: dashed; }
+.card--tcm:hover { border-style: solid; }
+.card.flash { animation: flashcard 1.5s ease-out 1; border-color: var(--stage); }
+@keyframes flashcard {
+  0% { background: var(--stagesoft); box-shadow: 0 0 0 3px var(--stagesoft); }
+  100% { background: var(--card); box-shadow: none; }
+}
+
+/* ============ 详情抽屉 ============ */
+#scrim {
+  position: fixed; inset: 0; background: rgba(15,20,25,.38); z-index: 60;
+  opacity: 0; pointer-events: none; transition: opacity .22s;
+}
+#scrim.open { opacity: 1; pointer-events: auto; }
+#drawer {
+  position: fixed; top: 0; right: 0; bottom: 0; width: 408px; max-width: 94vw; z-index: 70;
+  background: var(--card); border-left: 1px solid var(--line2);
+  transform: translateX(103%); transition: transform .25s ease;
+  display: flex; flex-direction: column;
+}
+#drawer.open { transform: translateX(0); }
+html.nofx #drawer { transition: none; }
+.drawer-head {
+  display: flex; align-items: center; gap: 8px; padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--line);
+}
+.drawer-stages { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 auto; }
+.schip {
+  font-size: 11px; padding: 2px 10px; border-radius: 999px; border: 1px solid var(--sc);
+  color: var(--sc); display: inline-flex; align-items: center; gap: 5px;
+  transition: background .15s, color .15s;
+}
+.schip i { width: 6px; height: 6px; border-radius: 50%; background: var(--sc); }
+.schip:hover { background: var(--sc); color: #fff; }
+.schip:hover i { background: #fff; }
+.schip--cur { background: var(--sc); color: #fff; }
+.schip--cur i { background: #fff; }
+html[data-theme="dark"] .schip:hover, html[data-theme="dark"] .schip--cur { color: #10161C; }
+html[data-theme="dark"] .schip:hover i, html[data-theme="dark"] .schip--cur i { background: #10161C; }
+.drawer-close { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; flex: 0 0 auto; }
+.drawer-close:hover { border-color: var(--ink2); background: var(--paper2); }
+.drawer-close svg { width: 15px; height: 15px; }
+.drawer-body { padding: 20px 22px 30px; overflow-y: auto; }
+.drawer-name { font-family: var(--serif); font-size: 27px; line-height: 1.25; font-weight: 700; }
+.drawer-en { font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink3); margin-top: 5px; }
+.drawer-tagline { font-size: 14.5px; line-height: 1.85; color: var(--ink2); margin-top: 14px; padding-top: 14px; border-top: 1px solid var(--line); }
+.drawer-sect { margin-top: 22px; }
+.drawer-sect h4 { font-size: 12px; letter-spacing: .18em; color: var(--ink3); text-transform: uppercase; margin-bottom: 10px; display: flex; align-items: center; gap: 10px; }
+.drawer-sect h4::after { content: ""; flex: 1; border-top: 1px solid var(--line); }
+.dchips { display: flex; flex-wrap: wrap; gap: 6px; }
+.dchip { font-size: 12.5px; padding: 3px 11px; border-radius: 999px; border: 1px solid var(--line2); color: var(--ink2); background: var(--paper); }
+.drawer-reps { list-style: none; }
+.drawer-reps li { font-size: 13.5px; color: var(--ink2); line-height: 1.7; padding: 5px 0 5px 20px; position: relative; }
+.drawer-reps li::before { content: ""; position: absolute; left: 3px; top: 13px; width: 6px; height: 6px; background: var(--stage2); transform: rotate(45deg); }
+.drawer-note { margin-top: 22px; font-size: 12.5px; color: var(--ink3); border: 1px dashed var(--line2); border-radius: 3px; padding: 10px 14px; line-height: 1.7; }
+.drawer-foot { margin-top: 18px; font-size: 12px; color: var(--ink3); }
+
+/* ============ 页脚 ============ */
+footer { margin-top: 90px; border-top: 3px solid var(--ink); padding: 26px 0 60px; }
+footer .fmeta { display: flex; flex-wrap: wrap; gap: 8px 30px; justify-content: space-between; font-size: 12.5px; color: var(--ink3); }
+footer .fnote { font-size: 12.5px; color: var(--ink2); line-height: 1.9; margin-top: 14px; max-width: 900px; }
+footer .fsig { font-family: var(--serif); font-style: italic; color: var(--ink3); font-size: 13px; margin-top: 18px; }
+
+/* ============ 响应式 ============ */
+@media (max-width: 900px) {
+  .fb-title { display: none; }
+  .searchbox { width: 150px; }
+  .searchbox:focus-within { width: 180px; }
+  .stage-ghost { display: none; }
+  .stage-intro, .stage-count { padding-left: 0; }
+}
+@media (max-width: 640px) {
+  .hero { padding-top: 34px; }
+  .stats { gap: 6px 0; }
+  .stat b { font-size: 24px; }
+  .flowrail-items { grid-template-columns: repeat(4, 1fr); row-gap: 16px; }
+  .flowrail-line { display: none; }
+  .fitem { padding-top: 0; }
+  .stage-head { gap: 14px; }
+  .stage-icon { display: none; }
+  .searchbox { width: 34px; padding: 0; justify-content: center; }
+  .searchbox input, .searchbox .sinner-label { display: none; }
+  .searchwrap.mopen .searchbox { position: absolute; right: 0; top: 4px; width: calc(100vw - 96px); padding: 0 12px; justify-content: flex-start; z-index: 62; }
+  .searchwrap.mopen .searchbox input { display: block; }
+  #drawer { top: auto; height: 74vh; width: 100%; max-width: 100%; border-left: none; border-top: 1px solid var(--line2); border-radius: 10px 10px 0 0; transform: translateY(103%); }
+  #drawer.open { transform: translateY(0); }
+}
+
+/* ============ 打印 ============ */
+@media print {
+  #flowbar, #scrim, #drawer, .searchwrap, .iconbtn, .ekg { display: none !important; }
+  body { background: #fff; color: #111; font-size: 12px; }
+  .card, .gbox { break-inside: avoid; }
+  .stage { break-before: page; border-top-width: 1.5px; }
+  .hero { padding-top: 0; }
+  .stage-ghost { display: none; }
+  a { text-decoration: none; }
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="ic-dna" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+    <path d="M9 3c-2.2 3-2.2 6 0 9s2.2 6 0 9"/><path d="M15 3c2.2 3 2.2 6 0 9s-2.2 6 0 9"/>
+    <path d="M9.6 7h4.8M9.6 12h4.8M9.6 17h4.8"/>
+  </symbol>
+  <symbol id="ic-virus" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+    <circle cx="12" cy="12" r="4.6"/>
+    <path d="M12 2.6v2.6M12 18.8v2.6M2.6 12h2.6M18.8 12h2.6M5.4 5.4l1.8 1.8M16.8 16.8l1.8 1.8M18.6 5.4l-1.8 1.8M7.2 16.8l-1.8 1.8"/>
+  </symbol>
+  <symbol id="ic-magnifier" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+    <circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L21 21"/>
+  </symbol>
+  <symbol id="ic-cross" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="butt">
+    <path d="M12 3.5v17M3.5 12h17"/>
+  </symbol>
+  <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 2.8l7.2 2.9v6.2c0 4.4-3 7.6-7.2 9.3-4.2-1.7-7.2-4.9-7.2-9.3V5.7z"/>
+    <path d="M8.8 12l2.2 2.2 4.2-4.4"/>
+  </symbol>
+  <symbol id="ic-heart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M12 20.4S4.6 15.7 4.6 10.6A4.1 4.1 0 0 1 12 7.3a4.1 4.1 0 0 1 7.4 3.3c0 5.1-7.4 9.8-7.4 9.8z"/>
+  </symbol>
+  <symbol id="ic-people" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round">
+    <circle cx="9" cy="8" r="3.1"/><path d="M3.6 19.4c0-3 2.4-5.2 5.4-5.2s5.4 2.2 5.4 5.2"/>
+    <circle cx="17" cy="9.2" r="2.4"/><path d="M16 14.7c2.5.2 4.6 2 4.6 4.4"/>
+  </symbol>
+  <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.4 15.4L21 21"/></symbol>
+  <symbol id="ic-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.4 13.2A8.4 8.4 0 1 1 10.8 3.6a7 7 0 0 0 9.6 9.6z"/></symbol>
+  <symbol id="ic-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.8v2.2M12 19v2.2M2.8 12H5M19 12h2.2M5.5 5.5l1.6 1.6M16.9 16.9l1.6 1.6M18.5 5.5l-1.6 1.6M7.1 16.9l-1.6 1.6"/></symbol>
+  <symbol id="ic-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 5l14 14M19 5L5 19"/></symbol>
+</svg>
+
+<header class="hero">
+  <div class="container">
+    <div class="masthead">
+      <div class="kicker" id="heroKicker"></div>
+      <h1 id="heroTitle"></h1>
+      <div class="hero-en" id="heroEn"></div>
+    </div>
+    <p class="deck" id="heroDeck"></p>
+    <div class="stats" id="heroStats"></div>
+    <svg class="ekg" viewBox="0 0 1200 34" preserveAspectRatio="none" aria-hidden="true">
+      <polyline fill="none" stroke="currentColor" stroke-width="1.4"
+        points="0,20 220,20 240,20 248,8 257,30 266,14 274,20 420,20 448,20 455,12 464,28 472,16 480,20 700,20 720,20 728,7 737,31 746,15 754,20 920,20 950,20 958,11 966,27 974,16 982,20 1200,20"/>
+    </svg>
+
+    <div class="flowrail">
+      <div class="flowrail-line" id="flowrailLine"></div>
+      <div class="flowrail-items" id="flowrailItems"></div>
+    </div>
+
+    <div class="guide">
+      <div class="gbox">
+        <h3>如何使用</h3>
+        <ul id="howtoList"></ul>
+      </div>
+      <div class="gbox">
+        <h3>图例</h3>
+        <ul id="legendList"></ul>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav id="flowbar" aria-label="阶段导航">
+  <div class="container fb-inner">
+    <div class="fb-title" id="fbTitle"></div>
+    <div class="fb-chips" id="fbChips"></div>
+    <div class="fb-right">
+      <div class="searchwrap" id="searchwrap">
+        <div class="searchbox">
+          <svg aria-hidden="true"><use href="#ic-search"/></svg>
+          <input id="searchInput" type="text" placeholder="搜索学科 / 关键词…" aria-label="搜索学科">
+        </div>
+        <div class="searchres" id="searchRes" role="listbox"></div>
+      </div>
+      <button class="iconbtn" id="themeBtn" aria-label="切换深色模式" title="切换深色模式">
+        <svg><use href="#ic-moon" id="themeIconUse"/></svg>
+      </button>
+    </div>
+  </div>
+  <div id="progress" aria-hidden="true"></div>
+</nav>
+
+<main id="stages" class="container"></main>
+
+<footer>
+  <div class="container">
+    <div class="fmeta">
+      <span id="fSourcesTitle">内容框架与来源</span>
+      <span id="fDate"></span>
+    </div>
+    <p class="fnote" id="fSources"></p>
+    <p class="fnote" id="fNote"></p>
+    <div class="fsig">一图纵览 · 从认识生命到群体健康 —— 单文件离线可用，支持搜索与打印</div>
+  </div>
+</footer>
+
+<div id="scrim"></div>
+<aside id="drawer" role="dialog" aria-modal="false" aria-labelledby="drawerName">
+  <div class="drawer-head">
+    <div class="drawer-stages" id="drawerStages"></div>
+    <button class="drawer-close" id="drawerClose" aria-label="关闭详情"><svg><use href="#ic-close"/></svg></button>
+  </div>
+  <div class="drawer-body">
+    <h3 class="drawer-name" id="drawerName"></h3>
+    <div class="drawer-en" id="drawerEn"></div>
+    <p class="drawer-tagline" id="drawerTagline"></p>
+    <div class="drawer-sect" id="drawerFieldsSect"><h4>核心子领域</h4><div class="dchips" id="drawerFields"></div></div>
+    <div class="drawer-sect" id="drawerRepsSect"><h4>代表成果 · 技术 · 方向</h4><ul class="drawer-reps" id="drawerReps"></ul></div>
+    <div class="drawer-note" id="drawerNote" hidden></div>
+    <div class="drawer-foot">提示：按 Esc 或点击空白处关闭</div>
+  </div>
+</aside>
+
+<script type="application/json" id="meta-data">{
+ "title": "现代医学知识版图",
+ "titleEn": "The Atlas of Modern Medicine",
+ "kicker": "LEARNING ATLAS · 知识地图",
+ "deck": "人类医学从认识一个细胞开始，最终守护八十亿人的健康。这张图把它拆成 7 个阶段、约 75 个学科节点——从分子到人群，一条「医学任务流水线」看完全貌。",
+ "howto": [
+  "点击任意学科卡片 → 弹出详情（核心子领域 + 代表成果）",
+  "顶部流程条 → 点击任意阶段，一键直达",
+  "搜索框 → 输入学科名 / 英文 / 关键词，直跳节点",
+  "右上角按钮 → 切换深色 / 浅色模式"
+ ],
+ "legend": [
+  {
+   "k": "cross",
+   "label": "跨段学科 —— 横跨多个阶段，在相关阶段均出现，详情互通"
+  },
+  {
+   "k": "tcm",
+   "label": "传统医学 —— 中国传统医学体系，独立标注、平行呈现"
+  }
+ ],
+ "date": "2026-10-06",
+ "stages": [
+  {
+   "id": "s1",
+   "num": "01",
+   "name": "认识生命",
+   "en": "Understanding Life",
+   "color": "#1F6F8B",
+   "icon": "dna",
+   "tagline": "正常人体如何构成、如何运转",
+   "intro": "医学的第一课不是治病，而是理解正常。解剖、生理、生化、免疫……一整套基础学科回答同一个问题：一个健康的人体，究竟是怎样运转的？"
+  },
+  {
+   "id": "s2",
+   "num": "02",
+   "name": "认识疾病",
+   "en": "Understanding Disease",
+   "color": "#A23E33",
+   "icon": "virus",
+   "tagline": "疾病如何发生：病因、机制与规律",
+   "intro": "疾病不是随机事件——它有原因、有机制、有规律。病理学、病原生物学与流行病学联手，把「为什么生病」拆解成可观察、可验证的科学问题。"
+  },
+  {
+   "id": "s3",
+   "num": "03",
+   "name": "诊断",
+   "en": "Diagnosis",
+   "color": "#3B5BA5",
+   "icon": "magnifier",
+   "tagline": "从症状到结论：如何发现与判断",
+   "intro": "诊断是一场侦探游戏：一份病史、一次查体、一张片子、一管血。影像、检验、内镜与电生理把医学的感官延伸到肉眼之外，只为给疾病一个准确的名字。"
+  },
+  {
+   "id": "s4",
+   "num": "04",
+   "name": "治疗",
+   "en": "Treatment",
+   "color": "#AD6F1E",
+   "icon": "cross",
+   "tagline": "干预与治愈：医学的主战场",
+   "intro": "从一片药到一台手术，从一束射线到一次对话。临床各科与治疗技术在这里会师——这是医学最庞大、最忙碌的战场，也是奇迹发生最多的地方。"
+  },
+  {
+   "id": "s5",
+   "num": "05",
+   "name": "预防",
+   "en": "Prevention",
+   "color": "#557E3C",
+   "icon": "shield",
+   "tagline": "防患于未然：让疾病不发生、晚发生",
+   "intro": "最高明的医学，是让人不生病。疫苗、筛查、营养与环境——公共卫生把医学的战线前移，用人群尺度上的努力，换个体尺度上的平安。"
+  },
+  {
+   "id": "s6",
+   "num": "06",
+   "name": "康复与照护",
+   "en": "Rehabilitation & Care",
+   "color": "#7B5C8F",
+   "icon": "heart",
+   "tagline": "恢复功能，支持生命",
+   "intro": "治愈之后还有长长的路：重建功能、恢复生活、陪伴到最后。康复与照护提醒我们：医学的目标不只是「活下来」，更是「好好活着」。"
+  },
+  {
+   "id": "s7",
+   "num": "07",
+   "name": "群体与体系",
+   "en": "Population & Systems",
+   "color": "#59636F",
+   "icon": "people",
+   "tagline": "人群视角与医学的社会运行",
+   "intro": "一个人生病是医学问题，一群人的健康是社会命题。统计、政策、伦理、法律与信息学，让医学从「一对一的诊疗」走向「一个体系的责任」。"
+  }
+ ],
+ "footer": {
+  "sources": "内容框架参考：教育部《普通高等学校本科专业目录》（2026 年版）医学门类、中华医学会专科分会体系、国家自然科学基金医学科学部申请代码（H）、WHO ICD-11（2025-01 版）、住院医师规范化培训标准与主流医学院校课程体系。",
+  "note": "本图为「学习导航级」概览：一句话定位为帮助理解而写，不替代教材与临床指南；学科划分存在多种口径，图中采用主流教学体系口径。"
+ }
+}</script>
+<script type="application/json" id="nodes-data">{
+ "nodes": [
+  {
+   "id": "anatomy",
+   "stage": "s1",
+   "cluster": "结构：身体的地图",
+   "name": "人体解剖学",
+   "en": "Human Anatomy",
+   "tagline": "认识人体的「地形地貌」：骨骼、肌肉与器官的位置、形态和毗邻关系，是一切医学操作的空间基础。",
+   "fields": [
+    "系统解剖学",
+    "局部解剖学",
+    "断层解剖学",
+    "表面解剖学"
+   ],
+   "reps": [
+    "《格氏解剖学》（Gray's Anatomy，1858 年首版）——解剖学的百年权威",
+    "人体断层解剖数据集——CT / MRI 影像对照的基石"
+   ]
+  },
+  {
+   "id": "histoembryo",
+   "stage": "s1",
+   "cluster": "结构：身体的地图",
+   "name": "组织学与胚胎学",
+   "en": "Histology & Embryology",
+   "tagline": "把人体放到显微镜下：四大基本组织如何拼装成器官，以及一个人如何从受精卵发育成形。",
+   "fields": [
+    "四大基本组织",
+    "器官微细结构",
+    "胚胎发育",
+    "先天畸形机制"
+   ],
+   "reps": [
+    "H&E 染色——沿用至今的组织切片染色技术",
+    "胚胎发育图谱——先天畸形研究的起点"
+   ]
+  },
+  {
+   "id": "physiology",
+   "stage": "s1",
+   "cluster": "功能：身体如何运转",
+   "name": "生理学",
+   "en": "Physiology",
+   "tagline": "正常人体的「功能说明书」：心跳为什么自动、血压如何调节、肾脏怎样维持内环境。",
+   "fields": [
+    "细胞生理",
+    "神经生理",
+    "循环与呼吸生理",
+    "消化与代谢",
+    "内分泌与生殖"
+   ],
+   "reps": [
+    "条件反射实验（巴甫洛夫，1904 年诺奖）",
+    "心电活动的生理学原理——心电图的理论基础"
+   ]
+  },
+  {
+   "id": "neuroscience",
+   "stage": "s1",
+   "cluster": "功能：身体如何运转",
+   "name": "神经科学",
+   "en": "Neuroscience",
+   "tagline": "研究脑与神经系统的交叉学科：从神经元放电到记忆、情绪与行为的神经基础。",
+   "fields": [
+    "神经环路",
+    "认知神经科学",
+    "神经影像（fMRI 等）",
+    "神经调控",
+    "行为神经科学"
+   ],
+   "reps": [
+    "fMRI 脑功能成像——看见「思考中的大脑」",
+    "脑机接口——前沿探索方向"
+   ]
+  },
+  {
+   "id": "biochem",
+   "stage": "s1",
+   "cluster": "分子与细胞：生命的底层代码",
+   "name": "生物化学与分子生物学",
+   "en": "Biochemistry & Molecular Biology",
+   "tagline": "生命现象的「分子语言」：蛋白质、酶、代谢与基因表达——从分子层面解释健康与疾病。",
+   "fields": [
+    "蛋白质与酶学",
+    "糖脂代谢",
+    "核酸与基因表达",
+    "信号转导",
+    "分子实验技术"
+   ],
+   "reps": [
+    "三羧酸循环——经典代谢地图",
+    "PCR 技术（1983）——分子医学的发动机"
+   ]
+  },
+  {
+   "id": "cellbiology",
+   "stage": "s1",
+   "cluster": "分子与细胞：生命的底层代码",
+   "name": "细胞生物学",
+   "en": "Cell Biology",
+   "tagline": "细胞是生命的基本单位：它如何生长、分裂、交流与死亡——现代医学几乎所有前沿领域的地基。",
+   "fields": [
+    "细胞器与膜系统",
+    "细胞周期",
+    "细胞死亡（凋亡）",
+    "细胞信号",
+    "干细胞"
+   ],
+   "reps": [
+    "干细胞技术——再生医学的种子",
+    "单细胞测序——逐个看清细胞的世界"
+   ]
+  },
+  {
+   "id": "genetics",
+   "stage": "s1",
+   "cluster": "分子与细胞：生命的底层代码",
+   "name": "医学遗传学",
+   "en": "Medical Genetics",
+   "cross": true,
+   "tagline": "基因与健康：遗传变异如何影响疾病风险，以及如何检测、干预与咨询。",
+   "fields": [
+    "孟德尔遗传",
+    "染色体病",
+    "单基因与多基因病",
+    "肿瘤遗传学",
+    "遗传咨询与基因检测"
+   ],
+   "reps": [
+    "人类基因组计划（2003 年完成）",
+    "新生儿遗传代谢病筛查、无创产前检测（NIPT）"
+   ]
+  },
+  {
+   "id": "immunology",
+   "stage": "s1",
+   "cluster": "分子与细胞：生命的底层代码",
+   "name": "医学免疫学",
+   "en": "Medical Immunology",
+   "cross": true,
+   "tagline": "人体防线的「军队与警察」：免疫系统如何识别敌我、清除病原，又为何有时会误伤自身。",
+   "fields": [
+    "固有免疫",
+    "适应性免疫",
+    "免疫器官与细胞",
+    "抗原抗体反应",
+    "免疫调节与疫苗基础"
+   ],
+   "reps": [
+    "免疫检查点抑制剂——2018 年诺奖抗癌疗法",
+    "疫苗免疫学——从减毒活疫苗到 mRNA 疫苗"
+   ]
+  },
+  {
+   "id": "bme",
+   "stage": "s1",
+   "cluster": "工程与交叉",
+   "name": "生物医学工程",
+   "en": "Biomedical Engineering",
+   "tagline": "用工程思维理解人体：生物力学、生物材料与医学仪器——人工关节、心脏支架与医疗设备的源头。",
+   "fields": [
+    "生物力学",
+    "生物材料",
+    "医学传感器与仪器",
+    "人工器官",
+    "组织工程"
+   ],
+   "reps": [
+    "人工心脏瓣膜与人工关节",
+    "可穿戴健康监测设备"
+   ]
+  },
+  {
+   "id": "pathology",
+   "stage": "s2",
+   "cluster": "病变机制：身体里发生了什么",
+   "name": "病理学",
+   "en": "Pathology",
+   "cross": true,
+   "tagline": "疾病的「形态学审判」：细胞与组织发生了什么病变——肿瘤诊断的金标准，也是理解疾病机制的窗口。",
+   "fields": [
+    "细胞损伤与适应",
+    "炎症与修复",
+    "肿瘤病理",
+    "系统病理",
+    "免疫组化与分子病理"
+   ],
+   "reps": [
+    "活检病理——肿瘤诊断的金标准",
+    "术中冰冻切片——手术台上的 30 分钟诊断"
+   ]
+  },
+  {
+   "id": "pathophysiology",
+   "stage": "s2",
+   "cluster": "病变机制：身体里发生了什么",
+   "name": "病理生理学",
+   "en": "Pathophysiology",
+   "tagline": "疾病状态下的「功能紊乱逻辑」：发热、休克、水肿、酸碱失衡——理解危重症的钥匙。",
+   "fields": [
+    "应激与适应",
+    "水电解质与酸碱平衡",
+    "缺氧与缺血再灌注",
+    "发热与炎症反应",
+    "器官功能衰竭"
+   ],
+   "reps": [
+    "休克微循环学说",
+    "多器官功能障碍综合征（MODS）机制研究"
+   ]
+  },
+  {
+   "id": "toxicology",
+   "stage": "s2",
+   "cluster": "病变机制：身体里发生了什么",
+   "name": "毒理学",
+   "en": "Toxicology",
+   "tagline": "外源物质的「伤害说明书」：药物、化学品与环境污染物对机体做了什么，如何急救与防护。",
+   "fields": [
+    "毒代动力学",
+    "靶器官毒性",
+    "遗传与生殖毒性",
+    "临床中毒救治",
+    "食品与药品安全"
+   ],
+   "reps": [
+    "剂量-反应原则——「剂量决定毒性」",
+    "血液净化治疗重症中毒"
+   ]
+  },
+  {
+   "id": "microbiology",
+   "stage": "s2",
+   "cluster": "病原与人群：谁在致病、怎么传播",
+   "name": "医学微生物学",
+   "en": "Medical Microbiology",
+   "tagline": "病原微生物的「通缉档案」：细菌、病毒、真菌如何感染人体，又如何被对抗。",
+   "fields": [
+    "细菌学",
+    "病毒学",
+    "真菌学",
+    "感染与免疫",
+    "耐药机制"
+   ],
+   "reps": [
+    "科赫法则——病原鉴定的黄金标准",
+    "全球抗生素耐药（AMR）监测网络"
+   ]
+  },
+  {
+   "id": "parasitology",
+   "stage": "s2",
+   "cluster": "病原与人群：谁在致病、怎么传播",
+   "name": "医学寄生虫学",
+   "en": "Medical Parasitology",
+   "tagline": "寄生虫与宿主的战争史：疟原虫、血吸虫、蛔虫——「被忽视热带病」的主角。",
+   "fields": [
+    "原虫学",
+    "蠕虫学",
+    "医学节肢动物",
+    "人兽共患寄生虫病"
+   ],
+   "reps": [
+    "青蒿素抗疟（2015 年诺贝尔奖）",
+    "中国获 WHO 消除疟疾认证（2021）"
+   ]
+  },
+  {
+   "id": "epidemiology",
+   "stage": "s2",
+   "cluster": "病原与人群：谁在致病、怎么传播",
+   "name": "流行病学",
+   "en": "Epidemiology",
+   "cross": true,
+   "tagline": "疾病在人群中「怎么分布、为什么分布」的学问——疫情调查与防控的方法论核心。",
+   "fields": [
+    "描述流行病学",
+    "分析流行病学",
+    "实验流行病学",
+    "暴发调查",
+    "分子流行病学"
+   ],
+   "reps": [
+    "约翰·斯诺霍乱地图（1854）——流行病学开山研究",
+    "队列研究与随机对照试验（RCT）设计"
+   ]
+  },
+  {
+   "id": "medpsych",
+   "stage": "s2",
+   "cluster": "内因失衡：基因、免疫与心理",
+   "name": "医学心理学",
+   "en": "Medical Psychology",
+   "tagline": "疾病的心理维度：应激、情绪与行为如何影响健康——慢病管理和医患沟通的科学基础。",
+   "fields": [
+    "应激与应对",
+    "心身医学",
+    "行为医学",
+    "患者心理与医患沟通",
+    "异常心理基础"
+   ],
+   "reps": [
+    "应激-皮质醇-免疫轴研究",
+    "心身疾病综合干预模式"
+   ]
+  },
+  {
+   "id": "genetics",
+   "stage": "s2",
+   "cluster": "内因失衡：基因、免疫与心理",
+   "name": "医学遗传学",
+   "en": "Medical Genetics",
+   "cross": true
+  },
+  {
+   "id": "immunology",
+   "stage": "s2",
+   "cluster": "内因失衡：基因、免疫与心理",
+   "name": "医学免疫学",
+   "en": "Medical Immunology",
+   "cross": true
+  },
+  {
+   "id": "diagnostics",
+   "stage": "s3",
+   "cluster": "临床基本功",
+   "name": "诊断学（问诊与体格检查）",
+   "en": "Clinical Diagnostics",
+   "tagline": "医学侦探的基本功：从一次问诊、一双手和一副听诊器开始，把症状翻译成线索。",
+   "fields": [
+    "症状学",
+    "问诊艺术",
+    "体格检查（视触叩听）",
+    "病历书写",
+    "临床思维"
+   ],
+   "reps": [
+    "听诊器（1816）——从贴耳倾听到医学符号",
+    "标准化病人（SP）教学与床旁技能考核体系"
+   ]
+  },
+  {
+   "id": "internal-medicine",
+   "stage": "s3",
+   "cluster": "临床基本功",
+   "name": "内科学",
+   "en": "Internal Medicine",
+   "cross": true
+  },
+  {
+   "id": "labmed",
+   "stage": "s3",
+   "cluster": "实验室诊断",
+   "name": "临床检验诊断学",
+   "en": "Laboratory Medicine",
+   "tagline": "一管血里的信息量：生化、血液与免疫学检验，把身体状态变成可量化的数字。",
+   "fields": [
+    "临床生化",
+    "血液学与体液检验",
+    "免疫学检验",
+    "分子生物学检验",
+    "质谱分析"
+   ],
+   "reps": [
+    "糖化血红蛋白（HbA1c）——糖尿病管理基石",
+    "质谱技术进入常规临床检验"
+   ]
+  },
+  {
+   "id": "pathology",
+   "stage": "s3",
+   "cluster": "实验室诊断",
+   "name": "病理学",
+   "en": "Pathology",
+   "cross": true
+  },
+  {
+   "id": "molardx",
+   "stage": "s3",
+   "cluster": "实验室诊断",
+   "name": "分子诊断与基因检测",
+   "en": "Molecular Diagnostics",
+   "tagline": "在分子层面确诊：PCR、测序与液体活检让疾病（尤其肿瘤）无所遁形，也是精准治疗的入口。",
+   "fields": [
+    "核酸检测（PCR）",
+    "基因测序",
+    "液体活检",
+    "伴随诊断",
+    "产前与新生儿基因检测"
+   ],
+   "reps": [
+    "新冠核酸检测——亿级规模的分子诊断",
+    "ctDNA 液体活检监测肿瘤复发"
+   ]
+  },
+  {
+   "id": "imaging",
+   "stage": "s3",
+   "cluster": "影像与器械之眼",
+   "name": "医学影像学",
+   "en": "Medical Imaging",
+   "cross": true,
+   "tagline": "医学的「透视之眼」：X 光、CT、MRI 与超声把人体内部变成可读的图像，并延伸到影像引导的介入操作。",
+   "fields": [
+    "X 线",
+    "CT",
+    "磁共振（MRI）",
+    "超声医学",
+    "影像组学与 AI 读片"
+   ],
+   "reps": [
+    "伦琴发现 X 射线（1895，首届诺贝尔奖）",
+    "AI 辅助影像诊断（如肺结节筛查）"
+   ]
+  },
+  {
+   "id": "nuclearmed",
+   "stage": "s3",
+   "cluster": "影像与器械之眼",
+   "name": "核医学",
+   "en": "Nuclear Medicine",
+   "tagline": "用放射性示踪剂观察代谢与功能：PET/CT 看病灶「活跃不活跃」，并延伸出诊疗一体的核素治疗。",
+   "fields": [
+    "放射性药物",
+    "SPECT 显像",
+    "PET 显像",
+    "PET-CT / PET-MR",
+    "放射性核素治疗"
+   ],
+   "reps": [
+    "FDG-PET——肿瘤代谢显像",
+    "碘-131——甲状腺疾病的诊疗一体"
+   ]
+  },
+  {
+   "id": "endoscopy",
+   "stage": "s3",
+   "cluster": "影像与器械之眼",
+   "name": "内镜医学",
+   "en": "Endoscopy",
+   "tagline": "把眼睛送进管腔内部：胃镜、肠镜、支气管镜——诊断与治疗可以在同一根镜子下完成。",
+   "fields": [
+    "消化内镜",
+    "呼吸内镜",
+    "泌尿内镜",
+    "内镜治疗（EMR / ESD）",
+    "胶囊与机器人内镜"
+   ],
+   "reps": [
+    "胃肠镜——消化道早癌筛查利器",
+    "内镜下黏膜剥离术（ESD）"
+   ]
+  },
+  {
+   "id": "electrophys",
+   "stage": "s3",
+   "cluster": "影像与器械之眼",
+   "name": "电生理诊断",
+   "en": "Electrophysiology Diagnostics",
+   "tagline": "记录身体的「电信号」：心电图、脑电图、肌电图——功能异常的放大镜。",
+   "fields": [
+    "心电图（ECG）",
+    "脑电图（EEG）",
+    "肌电图与诱发电位",
+    "动态与远程监测"
+   ],
+   "reps": [
+    "心电图（Einthoven，1924 年诺奖）",
+    "癫痫外科术前脑电评估"
+   ]
+  },
+  {
+   "id": "internal-medicine",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "内科学",
+   "en": "Internal Medicine",
+   "cross": true,
+   "tagline": "药物与综合治疗的主战场：成人非手术疾病的诊断与治疗——心内、呼吸、消化、肾内、血液、内分泌、风湿、感染。",
+   "fields": [
+    "心血管内科",
+    "呼吸内科",
+    "消化内科",
+    "肾脏内科",
+    "血液内科",
+    "内分泌科",
+    "风湿免疫科",
+    "感染科"
+   ],
+   "reps": [
+    "高血压、糖尿病的规范化全程管理",
+    "心血管介入治疗体系（与介入医学交叉）"
+   ]
+  },
+  {
+   "id": "surgery",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "外科学",
+   "en": "Surgery",
+   "tagline": "用手术解决问题的学科：从阑尾炎到器官移植，外科是医学里最「硬核」的一双手。",
+   "fields": [
+    "普通外科",
+    "骨科",
+    "神经外科",
+    "胸外科",
+    "心脏外科",
+    "泌尿外科",
+    "血管外科",
+    "器官移植",
+    "整形外科"
+   ],
+   "reps": [
+    "腹腔镜微创手术——小切口完成大手术",
+    "器官移植与免疫抑制方案"
+   ]
+  },
+  {
+   "id": "obgyn",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "妇产科学",
+   "en": "Obstetrics & Gynecology",
+   "tagline": "守护女性一生与生命诞生：从孕期管理到妇科肿瘤，横跨「治病」与「迎接新生命」。",
+   "fields": [
+    "产科学与围产医学",
+    "妇科",
+    "生殖医学",
+    "妇科肿瘤"
+   ],
+   "reps": [
+    "剖宫产与围产期监护体系",
+    "辅助生殖技术——试管婴儿（2010 年诺贝尔奖）"
+   ]
+  },
+  {
+   "id": "pediatrics",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "儿科学",
+   "en": "Pediatrics",
+   "tagline": "儿童不是「缩小版成人」：生长发育、先天疾病与儿童特有的诊疗逻辑。",
+   "fields": [
+    "新生儿科",
+    "儿童保健",
+    "小儿呼吸",
+    "小儿消化",
+    "小儿神经",
+    "儿童重症"
+   ],
+   "reps": [
+    "儿童计划免疫体系",
+    "新生儿疾病筛查与危重救治"
+   ]
+  },
+  {
+   "id": "neurology",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "神经病学",
+   "en": "Neurology",
+   "tagline": "大脑、脊髓与神经的疾病：卒中、癫痫、帕金森与神经退行性疾病。",
+   "fields": [
+    "脑血管病",
+    "癫痫",
+    "运动障碍（帕金森等）",
+    "神经免疫（多发性硬化等）",
+    "神经肌肉病"
+   ],
+   "reps": [
+    "卒中静脉溶栓与血管内取栓",
+    "抗癫痫发作药物体系"
+   ]
+  },
+  {
+   "id": "psychiatry",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "精神病学",
+   "en": "Psychiatry",
+   "tagline": "精神与行为障碍的科学诊疗：抑郁、焦虑、精神分裂症——走向去污名化的医学实践。",
+   "fields": [
+    "心境障碍",
+    "焦虑障碍",
+    "精神分裂症",
+    "心理治疗（CBT 等）",
+    "成瘾医学"
+   ],
+   "reps": [
+    "抗抑郁药物体系",
+    "心理社会康复模式"
+   ]
+  },
+  {
+   "id": "ophthalmology",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "眼科学",
+   "en": "Ophthalmology",
+   "tagline": "视觉器官的医学：白内障、青光眼、视网膜病变与激光 / 显微手术。",
+   "fields": [
+    "白内障与屈光",
+    "青光眼",
+    "眼底病",
+    "眼外伤",
+    "视光学"
+   ],
+   "reps": [
+    "白内障超声乳化手术",
+    "抗 VEGF 药物治疗眼底病"
+   ]
+  },
+  {
+   "id": "ent",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "耳鼻咽喉头颈外科学",
+   "en": "Otolaryngology – Head & Neck Surgery",
+   "tagline": "听觉、平衡、嗓音与头颈：从扁桃体到喉癌的综合诊疗。",
+   "fields": [
+    "耳科与听力重建",
+    "鼻科与鼻窦内镜",
+    "咽喉与嗓音",
+    "头颈肿瘤",
+    "睡眠呼吸障碍"
+   ],
+   "reps": [
+    "人工耳蜗植入——让听障者重回有声世界",
+    "功能性鼻内镜手术（FESS）"
+   ]
+  },
+  {
+   "id": "dentistry",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "口腔医学",
+   "en": "Dentistry",
+   "tagline": "牙齿、牙周与颌面：不只是「看牙」，还包括颌面外科与口腔肿瘤。",
+   "fields": [
+    "牙体牙髓病学",
+    "牙周病学",
+    "口腔修复",
+    "口腔正畸",
+    "口腔种植",
+    "颌面外科"
+   ],
+   "reps": [
+    "种植牙技术",
+    "数字化正畸与隐形矫治"
+   ]
+  },
+  {
+   "id": "dermatology",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "皮肤与性病学",
+   "en": "Dermatology & Venereology",
+   "tagline": "人体最大器官（皮肤）的医学，也是免疫学与医学美容的交汇窗口。",
+   "fields": [
+    "过敏性皮肤病",
+    "自身免疫性皮肤病（银屑病等）",
+    "皮肤肿瘤",
+    "医学真菌",
+    "性传播疾病",
+    "医疗美容"
+   ],
+   "reps": [
+    "生物制剂治疗中重度银屑病",
+    "皮肤镜与皮肤病理诊断"
+   ]
+  },
+  {
+   "id": "oncology",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "肿瘤学",
+   "en": "Oncology",
+   "tagline": "与癌症的全面战争：手术、化疗、放疗、靶向与免疫治疗的综合排兵布阵。",
+   "fields": [
+    "肿瘤内科",
+    "肿瘤外科",
+    "放射肿瘤",
+    "肿瘤免疫治疗",
+    "姑息治疗（与安宁疗护交叉）"
+   ],
+   "reps": [
+    "分子靶向治疗（如慢性髓性白血病靶向药）",
+    "免疫检查点抑制剂与 CAR-T 细胞治疗"
+   ]
+  },
+  {
+   "id": "emergency",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "急诊与重症医学",
+   "en": "Emergency & Critical Care Medicine",
+   "tagline": "与时间赛跑的两门学科：急诊分诊抢救 + ICU 生命支持。",
+   "fields": [
+    "急诊医学",
+    "心肺复苏",
+    "重症监护（ICU）",
+    "院前急救",
+    "灾难医学"
+   ],
+   "reps": [
+    "心肺复苏（CPR）与高级生命支持体系",
+    "体外膜肺氧合（ECMO）"
+   ]
+  },
+  {
+   "id": "anesthesiology",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "麻醉学",
+   "en": "Anesthesiology",
+   "tagline": "让手术不再疼痛，还要守住术中生命体征与术后镇痛——外科背后的「生命守门人」。",
+   "fields": [
+    "临床麻醉",
+    "围术期医学",
+    "疼痛医学",
+    "重症监测（交叉）"
+   ],
+   "reps": [
+    "乙醚麻醉公开演示（1846）——近代麻醉的起点",
+    "超声引导神经阻滞与围术期管理"
+   ]
+  },
+  {
+   "id": "geriatrics",
+   "stage": "s4",
+   "cluster": "临床专科：疾病的主战场",
+   "name": "老年医学",
+   "en": "Geriatrics",
+   "tagline": "为衰老与多病共存而生的学科：老年人不是「标准成人」，需要综合评估与整体管理。",
+   "fields": [
+    "老年综合评估（CGA）",
+    "多病共存管理",
+    "衰弱与肌少症",
+    "老年康复与照护（交叉）"
+   ],
+   "reps": [
+    "老年综合评估（CGA）体系",
+    "衰弱评估与跌倒干预"
+   ]
+  },
+  {
+   "id": "pharmacology",
+   "stage": "s4",
+   "cluster": "治疗技术：把疾病「打下来」",
+   "name": "药理学与药物治疗学",
+   "en": "Pharmacology & Pharmacotherapy",
+   "tagline": "药物的「使用说明书 + 作战地图」：药物怎么起作用、怎么选、有哪些不良反应。",
+   "fields": [
+    "药效学",
+    "药代动力学",
+    "抗菌药物",
+    "心血管药物",
+    "药物不良反应监测",
+    "合理用药"
+   ],
+   "reps": [
+    "抗菌药物治疗体系与耐药管理",
+    "治疗药物监测（TDM）与个体化用药"
+   ]
+  },
+  {
+   "id": "radiotherapy",
+   "stage": "s4",
+   "cluster": "治疗技术：把疾病「打下来」",
+   "name": "放射治疗学",
+   "en": "Radiation Oncology",
+   "tagline": "用高能射线精准打击肿瘤：现代放疗能「指哪打哪」，尽量保护正常组织。",
+   "fields": [
+    "三维适形与调强放疗（IMRT）",
+    "立体定向放疗（SBRT）",
+    "质子与重离子治疗",
+    "放疗物理与质控"
+   ],
+   "reps": [
+    "立体定向放疗（SBRT）",
+    "质子 / 重离子治疗"
+   ]
+  },
+  {
+   "id": "interventional",
+   "stage": "s4",
+   "cluster": "治疗技术：把疾病「打下来」",
+   "name": "介入医学",
+   "en": "Interventional Medicine",
+   "tagline": "不开刀的「体内手术」：导管、支架、栓塞与消融——从心脏到肿瘤的微创先锋。",
+   "fields": [
+    "血管介入",
+    "心脏介入",
+    "肿瘤介入",
+    "神经介入",
+    "介入超声"
+   ],
+   "reps": [
+    "冠状动脉支架植入",
+    "TACE——肝癌经导管栓塞化疗"
+   ]
+  },
+  {
+   "id": "imaging",
+   "stage": "s4",
+   "cluster": "治疗技术：把疾病「打下来」",
+   "name": "医学影像学",
+   "en": "Medical Imaging",
+   "cross": true
+  },
+  {
+   "id": "tcm-theory",
+   "stage": "s4",
+   "cluster": "传统医学（中国传统医学体系）",
+   "name": "中医学基础理论",
+   "en": "Traditional Chinese Medicine Theory",
+   "tcm": true,
+   "tagline": "中国传统医学的理论框架：阴阳五行、藏象经络、辨证论治——一套独立于现代医学的话语体系。",
+   "fields": [
+    "阴阳五行学说",
+    "藏象学说",
+    "经络学说",
+    "辨证论治",
+    "四诊（望闻问切）"
+   ],
+   "reps": [
+    "针灸——已走向全球的传统疗法",
+    "辨证论治的诊疗思路"
+   ]
+  },
+  {
+   "id": "tcm-pharma",
+   "stage": "s4",
+   "cluster": "传统医学（中国传统医学体系）",
+   "name": "中药学",
+   "en": "Chinese Materia Medica",
+   "tcm": true,
+   "tagline": "本草与方剂的宝库：天然药物的传统智慧，也是现代新药研发的灵感来源。",
+   "fields": [
+    "中药药性理论",
+    "方剂学",
+    "中药鉴定",
+    "中药药理（现代研究）"
+   ],
+   "reps": [
+    "青蒿素——从中药古籍走向 2015 年诺贝尔奖",
+    "中药质量标准与现代化研究"
+   ]
+  },
+  {
+   "id": "acupuncture",
+   "stage": "s4",
+   "cluster": "传统医学（中国传统医学体系）",
+   "name": "针灸推拿学",
+   "en": "Acupuncture & Tuina",
+   "tcm": true,
+   "tagline": "以经络穴位为基础的体表疗法，在疼痛与康复领域被广泛研究与应用。",
+   "fields": [
+    "经络腧穴",
+    "针刺疗法",
+    "灸法",
+    "推拿",
+    "电针"
+   ],
+   "reps": [
+    "WHO 针灸优势病种清单（如部分疼痛病症）",
+    "针刺镇痛的神经机制研究"
+   ]
+  },
+  {
+   "id": "tcm-integrated",
+   "stage": "s4",
+   "cluster": "传统医学（中国传统医学体系）",
+   "name": "中西医结合医学",
+   "en": "Integrated Chinese & Western Medicine",
+   "tcm": true,
+   "tagline": "两种体系的对话与融合：用现代科学方法研究与应用传统疗法。",
+   "fields": [
+    "病证结合",
+    "中西医结合诊疗",
+    "循证中医药研究"
+   ],
+   "reps": [
+    "部分病种的中西医结合诊疗指南",
+    "循证中医药研究体系"
+   ]
+  },
+  {
+   "id": "publichealth",
+   "stage": "s5",
+   "cluster": "公共卫生体系",
+   "name": "公共卫生学（预防医学总论）",
+   "en": "Public Health",
+   "tagline": "从人群视角防病：三级预防、健康管理与卫生体系——现代医学「看不见的防线」。",
+   "fields": [
+    "三级预防策略",
+    "健康管理",
+    "慢病防控",
+    "卫生监测与应急"
+   ],
+   "reps": [
+    "三级预防框架",
+    "传染病监测与应急响应体系"
+   ]
+  },
+  {
+   "id": "vaccinology",
+   "stage": "s5",
+   "cluster": "公共卫生体系",
+   "name": "疫苗学与免疫预防",
+   "en": "Vaccinology",
+   "tagline": "疫苗如何训练免疫：从减毒活疫苗到 mRNA——人类对抗传染病性价比最高的武器。",
+   "fields": [
+    "疫苗设计（灭活 / 减毒 / 亚单位 / mRNA）",
+    "免疫程序与接种策略",
+    "疫苗犹豫应对"
+   ],
+   "reps": [
+    "mRNA 疫苗平台（新冠疫情期间大规模应用）",
+    "扩大免疫规划与全球疫苗免疫联盟（GAVI）"
+   ]
+  },
+  {
+   "id": "infection-control",
+   "stage": "s5",
+   "cluster": "公共卫生体系",
+   "name": "消毒学与医院感染控制",
+   "en": "Infection Control",
+   "tagline": "洗手是「最便宜的救命技术」：消毒灭菌、院感监测与隔离防护，撑起医疗安全底线。",
+   "fields": [
+    "消毒与灭菌",
+    "手卫生",
+    "医院感染监测",
+    "隔离与防护"
+   ],
+   "reps": [
+    "手卫生运动——院感防控基石",
+    "多重耐药菌院感防控体系"
+   ]
+  },
+  {
+   "id": "nutrition",
+   "stage": "s5",
+   "cluster": "生活方式与环境",
+   "name": "营养学",
+   "en": "Nutrition Science",
+   "tagline": "吃什么、怎么吃、缺什么补什么：从膳食指南到临床营养支持。",
+   "fields": [
+    "营养素与代谢",
+    "膳食指南与营养调查",
+    "临床营养（肠内 / 肠外营养）",
+    "特殊人群营养"
+   ],
+   "reps": [
+    "中国居民膳食指南",
+    "肠内营养支持体系"
+   ]
+  },
+  {
+   "id": "healthedu",
+   "stage": "s5",
+   "cluster": "生活方式与环境",
+   "name": "健康教育与健康促进",
+   "en": "Health Education & Promotion",
+   "tagline": "让人少生病的第一生产力：健康传播、行为干预与自我管理支持。",
+   "fields": [
+    "健康传播",
+    "行为干预",
+    "健康素养",
+    "慢病自我管理"
+   ],
+   "reps": [
+    "健康素养监测体系",
+    "控烟与慢病生活方式干预项目"
+   ]
+  },
+  {
+   "id": "environhealth",
+   "stage": "s5",
+   "cluster": "生活方式与环境",
+   "name": "环境卫生学",
+   "en": "Environmental Health",
+   "tagline": "空气、水、土壤与健康：环境因素如何致病，以及如何评价与防护。",
+   "fields": [
+    "空气与水质卫生",
+    "土壤与食品安全",
+    "环境流行病学",
+    "气候变化与健康"
+   ],
+   "reps": [
+    "饮用水卫生标准",
+    "大气污染健康影响研究"
+   ]
+  },
+  {
+   "id": "occupational",
+   "stage": "s5",
+   "cluster": "生活方式与环境",
+   "name": "职业卫生与职业病学",
+   "en": "Occupational Health",
+   "tagline": "工作场所的健康守护：粉尘、噪声、化学毒物与职业病的防治。",
+   "fields": [
+    "职业暴露评估",
+    "尘肺与职业中毒",
+    "职业健康监护",
+    "工效学"
+   ],
+   "reps": [
+    "职业病防治体系",
+    "职业健康监护制度"
+   ]
+  },
+  {
+   "id": "screening",
+   "stage": "s5",
+   "cluster": "全生命周期防护",
+   "name": "疾病筛查与早期发现",
+   "en": "Screening",
+   "tagline": "在症状出现之前找到疾病：癌症早筛与慢病机会性筛查，改变疾病结局。",
+   "fields": [
+    "癌症筛查（乳腺 / 宫颈 / 结直肠等）",
+    "慢病筛查",
+    "筛查方案评估（灵敏度 / 特异度）"
+   ],
+   "reps": [
+    "宫颈癌 HPV 筛查与疫苗联合策略",
+    "结直肠癌肠镜筛查"
+   ]
+  },
+  {
+   "id": "mch",
+   "stage": "s5",
+   "cluster": "全生命周期防护",
+   "name": "妇幼保健学",
+   "en": "Maternal & Child Health",
+   "tagline": "生命早期的保护：孕产期保健、儿童生长发育监测与出生缺陷防控。",
+   "fields": [
+    "孕产保健",
+    "儿童保健与生长发育",
+    "出生缺陷防控",
+    "母乳喂养支持"
+   ],
+   "reps": [
+    "孕产妇与儿童系统保健管理",
+    "出生缺陷三级预防"
+   ]
+  },
+  {
+   "id": "rehab",
+   "stage": "s6",
+   "cluster": "重建功能",
+   "name": "康复医学",
+   "en": "Rehabilitation Medicine",
+   "tagline": "让功能失而复得：神经康复、骨关节康复与心肺康复——治愈之后的下半场。",
+   "fields": [
+    "神经康复",
+    "骨关节康复",
+    "心肺康复",
+    "康复评定"
+   ],
+   "reps": [
+    "卒中后系统康复方案",
+    "心脏康复与运动处方"
+   ]
+  },
+  {
+   "id": "ptot",
+   "stage": "s6",
+   "cluster": "重建功能",
+   "name": "物理治疗与作业治疗",
+   "en": "Physical & Occupational Therapy",
+   "tagline": "用运动、手法与日常活动训练恢复身体功能与生活能力——康复的主力技术（PT / OT）。",
+   "fields": [
+    "运动治疗",
+    "手法治疗",
+    "作业治疗",
+    "言语与吞咽治疗"
+   ],
+   "reps": [
+    "运动疗法与肌力训练体系",
+    "日常生活活动（ADL）训练"
+   ]
+  },
+  {
+   "id": "rehabeng",
+   "stage": "s6",
+   "cluster": "重建功能",
+   "name": "康复工程与辅助技术",
+   "en": "Rehabilitation Engineering",
+   "tagline": "用技术补上功能缺口：假肢、矫形器、轮椅与无障碍设计。",
+   "fields": [
+    "假肢与矫形器",
+    "康复辅具",
+    "无障碍与居家改造",
+    "康复机器人"
+   ],
+   "reps": [
+    "智能假肢与脑控外骨骼（前沿）",
+    "康复机器人辅助训练"
+   ]
+  },
+  {
+   "id": "nursing",
+   "stage": "s6",
+   "cluster": "照护与陪伴",
+   "name": "护理学",
+   "en": "Nursing",
+   "tagline": "医疗体系里最大的专业群体：照护的科学与艺术，从床旁到社区。",
+   "fields": [
+    "基础护理",
+    "专科护理",
+    "危重症护理",
+    "护理管理与质量"
+   ],
+   "reps": [
+    "护理分级与质量管理体系",
+    "专科护士（伤口 / 糖尿病 / 静疗等）培养体系"
+   ]
+  },
+  {
+   "id": "ltc",
+   "stage": "s6",
+   "cluster": "照护与陪伴",
+   "name": "长期照护与慢病管理",
+   "en": "Long-term Care & Chronic Care",
+   "tagline": "与慢病长期共处：让功能退化、失能人群获得持续的生活支持。",
+   "fields": [
+    "慢病全程管理",
+    "失能与介护",
+    "居家与机构照护",
+    "照护者支持"
+   ],
+   "reps": [
+    "慢病管理「医院-社区-家庭」模式",
+    "长期护理保险（中国多地试点）"
+   ]
+  },
+  {
+   "id": "palliative",
+   "stage": "s6",
+   "cluster": "照护与陪伴",
+   "name": "安宁疗护与姑息医学",
+   "en": "Palliative & Hospice Care",
+   "tagline": "让生命末期有尊严：疼痛控制、心理照护与哀伤辅导。",
+   "fields": [
+    "疼痛与症状控制",
+    "心理与灵性照护",
+    "哀伤辅导",
+    "临终关怀伦理"
+   ],
+   "reps": [
+    "WHO 姑息治疗原则",
+    "安宁疗护试点与病房建设"
+   ]
+  },
+  {
+   "id": "communityrehab",
+   "stage": "s6",
+   "cluster": "回到社区",
+   "name": "社区康复",
+   "en": "Community-based Rehabilitation",
+   "tagline": "把康复带回家庭与社区：基层康复网络与自助互助。",
+   "fields": [
+    "基层康复服务",
+    "家庭康复指导",
+    "残疾人社区康复",
+    "互助小组"
+   ],
+   "reps": [
+    "社区康复服务网络",
+    "家庭康复训练指导方案"
+   ]
+  },
+  {
+   "id": "biostat",
+   "stage": "s7",
+   "cluster": "方法与证据",
+   "name": "卫生统计学",
+   "en": "Biostatistics",
+   "tagline": "医学的「数学耳朵」：临床试验怎么设计、数据怎么读懂——证据生产的方法学。",
+   "fields": [
+    "试验设计",
+    "统计推断",
+    "生存分析",
+    "真实世界研究"
+   ],
+   "reps": [
+    "随机对照试验统计学框架",
+    "真实世界数据（RWD）分析"
+   ]
+  },
+  {
+   "id": "ebm",
+   "stage": "s7",
+   "cluster": "方法与证据",
+   "name": "循证医学",
+   "en": "Evidence-based Medicine",
+   "tagline": "把最好的证据用在床边：证据分级、系统评价与临床指南的方法论。",
+   "fields": [
+    "证据分级（GRADE 等）",
+    "系统评价与荟萃分析",
+    "临床指南制定",
+    "循证临床决策"
+   ],
+   "reps": [
+    "Cochrane 系统评价——循证医学标志",
+    "临床实践指南体系"
+   ]
+  },
+  {
+   "id": "epidemiology",
+   "stage": "s7",
+   "cluster": "方法与证据",
+   "name": "流行病学",
+   "en": "Epidemiology",
+   "cross": true
+  },
+  {
+   "id": "informatics",
+   "stage": "s7",
+   "cluster": "方法与证据",
+   "name": "医学信息学与医学人工智能",
+   "en": "Medical Informatics & AI",
+   "tagline": "医疗的数字化大脑：电子病历、临床决策支持与 AI 辅助诊疗。",
+   "fields": [
+    "电子病历与医疗数据",
+    "临床决策支持系统",
+    "医学人工智能（影像 / 病理 / 大模型）",
+    "医疗数据安全与隐私"
+   ],
+   "reps": [
+    "电子病历系统普及（HIS / EMR）",
+    "医学影像 AI 辅助诊断落地"
+   ]
+  },
+  {
+   "id": "globalhealth",
+   "stage": "s7",
+   "cluster": "人群与全球",
+   "name": "全球健康",
+   "en": "Global Health",
+   "tagline": "健康不分国界：传染病跨境防控、全球卫生治理与健康公平。",
+   "fields": [
+    "全球传染病防控",
+    "卫生援助与合作",
+    "健康公平",
+    "全球健康治理"
+   ],
+   "reps": [
+    "WHO 全球卫生治理体系",
+    "全球根除脊髓灰质炎行动"
+   ]
+  },
+  {
+   "id": "gp",
+   "stage": "s7",
+   "cluster": "人群与全球",
+   "name": "全科医学与基层医疗",
+   "en": "General Practice & Primary Care",
+   "tagline": "家门口的医学：首诊、常见病、慢病管理与预防整合——医疗体系的网底。",
+   "fields": [
+    "首诊与转诊",
+    "常见病多发病处理",
+    "慢病与健康管理",
+    "家庭医学"
+   ],
+   "reps": [
+    "家庭医生签约服务",
+    "分级诊疗与基层医疗体系"
+   ]
+  },
+  {
+   "id": "policy",
+   "stage": "s7",
+   "cluster": "医学与社会",
+   "name": "卫生政策与管理",
+   "en": "Health Policy & Management",
+   "tagline": "医疗体系怎么组织、医院怎么运转：卫生资源配置与治理的学问。",
+   "fields": [
+    "卫生体系与政策",
+    "医院管理",
+    "卫生资源配置",
+    "突发公共卫生事件治理"
+   ],
+   "reps": [
+    "医改与分级诊疗政策实践",
+    "医院评审与质量管理体系"
+   ]
+  },
+  {
+   "id": "econ",
+   "stage": "s7",
+   "cluster": "医学与社会",
+   "name": "卫生经济学",
+   "en": "Health Economics",
+   "tagline": "钱与健康：医疗资源怎么花得值——成本效益、医保支付与价格机制。",
+   "fields": [
+    "卫生筹资",
+    "成本效益分析",
+    "医保支付方式（DRG / DIP 等）",
+    "药物经济学"
+   ],
+   "reps": [
+    "医保支付方式改革（DRG / DIP）",
+    "药物经济学评价体系"
+   ]
+  },
+  {
+   "id": "ethics",
+   "stage": "s7",
+   "cluster": "医学与社会",
+   "name": "医学伦理学",
+   "en": "Medical Ethics",
+   "tagline": "医学的良心学科：知情同意、生命伦理与科研伦理的规则与思辨。",
+   "fields": [
+    "临床伦理（知情同意等）",
+    "研究伦理（伦理委员会）",
+    "生命伦理前沿（基因编辑等）",
+    "伦理咨询"
+   ],
+   "reps": [
+    "《赫尔辛基宣言》——人体研究伦理基石",
+    "医院伦理委员会制度"
+   ]
+  },
+  {
+   "id": "law",
+   "stage": "s7",
+   "cluster": "医学与社会",
+   "name": "医疗法律与医患关系",
+   "en": "Health Law",
+   "tagline": "规则与信任：医疗损害责任、执业合规与医患沟通的制度保障。",
+   "fields": [
+    "医疗损害与责任",
+    "知情同意法律要件",
+    "医疗纠纷处理",
+    "执业合规"
+   ],
+   "reps": [
+    "《医疗纠纷预防和处理条例》实践",
+    "医疗责任保险制度"
+   ]
+  },
+  {
+   "id": "forensics",
+   "stage": "s7",
+   "cluster": "医学与社会",
+   "name": "法医学",
+   "en": "Forensic Medicine",
+   "tagline": "为法律服务的医学：死因鉴定、损伤鉴定与亲缘鉴定。",
+   "fields": [
+    "法医病理（死因鉴定）",
+    "法医临床（伤残鉴定）",
+    "法医物证（DNA 亲缘鉴定）",
+    "法医毒理"
+   ],
+   "reps": [
+    "DNA 亲子鉴定技术",
+    "死因鉴定与司法鉴定体系"
+   ]
+  }
+ ]
+}</script>
+<script>
+(function () {
+  "use strict";
+  var meta = JSON.parse(document.getElementById("meta-data").textContent);
+  var rawNodes = JSON.parse(document.getElementById("nodes-data").textContent).nodes;
+  var CIRCLED = ["①", "②", "③", "④", "⑤", "⑥", "⑦", "⑧", "⑨"];
+  var stageIndex = {};
+  meta.stages.forEach(function (s, i) { stageIndex[s.id] = { meta: s, idx: i }; });
+
+  /* ---------- 合并节点：重复学科共享同一张详情卡 ---------- */
+  var byId = {};
+  rawNodes.forEach(function (n) {
+    var cur = byId[n.id];
+    if (!cur) {
+      byId[n.id] = { id: n.id, name: n.name, en: n.en, tagline: n.tagline, fields: n.fields || [], reps: n.reps || [], tcm: !!n.tcm, cross: !!n.cross, stages: [n.stage] };
+    } else {
+      if (cur.stages.indexOf(n.stage) < 0) cur.stages.push(n.stage);
+      cur.cross = cur.cross || !!n.cross;
+      if (!cur.tagline && n.tagline) {
+        cur.name = n.name; cur.en = n.en; cur.tagline = n.tagline;
+        cur.fields = n.fields || []; cur.reps = n.reps || []; cur.tcm = cur.tcm || !!n.tcm;
+      }
+    }
+  });
+  var uniqueIds = Object.keys(byId);
+  var cardsCount = rawNodes.length;
+
+  /* ---------- 工具 ---------- */
+  function esc(s) { return String(s == null ? "" : s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;"); }
+  function hexToRgba(hex, a) {
+    var h = hex.replace("#", ""); if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    var v = parseInt(h, 16);
+    return "rgba(" + ((v >> 16) & 255) + "," + ((v >> 8) & 255) + "," + (v & 255) + "," + a + ")";
+  }
+  function stageTitle(id) { return stageIndex[id] ? stageIndex[id].meta.num + " " + stageIndex[id].meta.name : id; }
+  function stageNum(id) { return stageIndex[id] ? CIRCLED[stageIndex[id].idx] : ""; }
+
+  var params = new URLSearchParams(location.search);
+  var NOFX = params.get("nofx") === "1";
+  if (NOFX) document.documentElement.classList.add("nofx");
+
+  /* ---------- 主题 ---------- */
+  var THEME_KEY = "medmap.theme.v1";
+  function applyTheme(t, persist) {
+    document.documentElement.setAttribute("data-theme", t);
+    var use = document.getElementById("themeIconUse");
+    if (use) use.setAttribute("href", t === "dark" ? "#ic-sun" : "#ic-moon");
+    var btn = document.getElementById("themeBtn");
+    if (btn) btn.title = t === "dark" ? "切换浅色模式" : "切换深色模式";
+    if (persist) { try { localStorage.setItem(THEME_KEY, t); } catch (e) {} }
+  }
+  var initTheme = "light";
+  try { var st = localStorage.getItem(THEME_KEY); if (st === "dark" || st === "light") initTheme = st; } catch (e) {}
+  if (params.get("theme") === "dark" || params.get("theme") === "light") initTheme = params.get("theme");
+  applyTheme(initTheme, false);
+  document.getElementById("themeBtn").addEventListener("click", function () {
+    applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark", true);
+  });
+
+  /* ---------- 封面 ---------- */
+  document.getElementById("heroKicker").textContent = meta.kicker;
+  document.getElementById("heroTitle").textContent = meta.title;
+  document.getElementById("heroEn").textContent = meta.titleEn;
+  document.getElementById("heroDeck").textContent = meta.deck;
+  document.getElementById("fbTitle").textContent = meta.title;
+  document.getElementById("fDate").textContent = "生成日期 " + meta.date;
+  document.getElementById("fSources").textContent = meta.footer.sources;
+  document.getElementById("fNote").textContent = meta.footer.note;
+
+  var statsEl = document.getElementById("heroStats");
+  [["7", "阶段主线"], [String(cardsCount), "学科卡片"], [String(uniqueIds.length), "门学科"], ["1", "张图看全"]].forEach(function (it) {
+    var d = document.createElement("div"); d.className = "stat";
+    d.innerHTML = "<b>" + it[0] + "</b><span>" + it[1] + "</span>";
+    statsEl.appendChild(d);
+  });
+
+  var howto = document.getElementById("howtoList");
+  meta.howto.forEach(function (t) { var li = document.createElement("li"); li.textContent = t; howto.appendChild(li); });
+  var legend = document.getElementById("legendList");
+  meta.legend.forEach(function (t) { var li = document.createElement("li"); li.textContent = t.label; legend.appendChild(li); });
+
+  /* 封面全流程条 */
+  var railLine = document.getElementById("flowrailLine");
+  railLine.style.background = "linear-gradient(90deg," + meta.stages.map(function (s) { return s.color; }).join(",") + ")";
+  var railItems = document.getElementById("flowrailItems");
+  meta.stages.forEach(function (s) {
+    var b = document.createElement("button");
+    b.className = "fitem"; b.style.setProperty("--fc", s.color);
+    b.innerHTML = '<span class="fdot"></span><span class="fnum">' + s.num + '</span><span class="fname">' + esc(s.name) + "</span>";
+    b.addEventListener("click", function () { scrollToStage(s.id); });
+    railItems.appendChild(b);
+  });
+
+  /* ---------- 粘性条 ---------- */
+  var fbChips = document.getElementById("fbChips");
+  meta.stages.forEach(function (s) {
+    var b = document.createElement("button");
+    b.className = "fchip"; b.style.setProperty("--fc", s.color);
+    b.dataset.stage = s.id;
+    b.innerHTML = "<i></i>" + esc(s.name);
+    b.addEventListener("click", function () { scrollToStage(s.id); });
+    fbChips.appendChild(b);
+  });
+  function setActiveChip(id) {
+    Array.prototype.forEach.call(fbChips.children, function (c) {
+      c.classList.toggle("act", c.dataset.stage === id);
+    });
+  }
+  function scrollToStage(id) {
+    var el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: NOFX ? "auto" : "smooth", block: "start" });
+  }
+
+  /* ---------- 渲染阶段正文 ---------- */
+  var main = document.getElementById("stages");
+  meta.stages.forEach(function (s) {
+    var soft = hexToRgba(s.color, .14);
+    var sec = document.createElement("section");
+    sec.className = "stage"; sec.id = s.id;
+    sec.style.setProperty("--stage", s.color);
+    sec.style.setProperty("--stage2", s.color);
+    sec.style.setProperty("--stagesoft", soft);
+
+    var stageNodes = rawNodes.filter(function (n) { return n.stage === s.id; });
+    var head = document.createElement("div");
+    head.className = "stage-head";
+    head.innerHTML =
+      '<div class="stage-ghost">' + s.num + "</div>" +
+      '<div class="stage-num">' + s.num + "</div>" +
+      '<div class="stage-titles">' +
+        '<div class="stage-kicker">STAGE ' + s.num + " · " + esc(s.en) + "</div>" +
+        "<h2>" + esc(s.name) + "</h2>" +
+        '<div class="stage-tagline">' + esc(s.tagline) + "</div>" +
+      "</div>" +
+      '<div class="stage-icon"><svg><use href="#ic-' + s.icon + '"/></svg></div>';
+    sec.appendChild(head);
+
+    var intro = document.createElement("p");
+    intro.className = "stage-intro"; intro.textContent = s.intro;
+    sec.appendChild(intro);
+    var cnt = document.createElement("div");
+    cnt.className = "stage-count"; cnt.textContent = "本章 " + stageNodes.length + " 张卡片";
+    sec.appendChild(cnt);
+
+    /* 按 cluster 分组（保持顺序） */
+    var clusters = [];
+    stageNodes.forEach(function (n) {
+      var c = clusters.filter(function (x) { return x.name === n.cluster; })[0];
+      if (!c) { c = { name: n.cluster, items: [] }; clusters.push(c); }
+      c.items.push(n);
+    });
+    clusters.forEach(function (c) {
+      var box = document.createElement("div"); box.className = "cluster";
+      var lab = document.createElement("div"); lab.className = "cluster-label";
+      lab.innerHTML = "<span>" + esc(c.name) + "</span>" + (c.name.indexOf("传统医学") >= 0 ? '<span class="cluster-note">独立体系 · 与现代医学并列标注</span>' : "");
+      box.appendChild(lab);
+      var grid = document.createElement("div"); grid.className = "cards";
+      c.items.forEach(function (n) { grid.appendChild(renderCard(n, s)); });
+      box.appendChild(grid);
+      sec.appendChild(box);
+    });
+    main.appendChild(sec);
+  });
+
+  function renderCard(n, s) {
+    var merged = byId[n.id];
+    var b = document.createElement("button");
+    b.className = "card" + (merged.tcm ? " card--tcm" : "");
+    b.dataset.node = n.id; b.dataset.stage = s.id;
+    b.id = "card-" + s.id + "-" + n.id;
+    var badges = "";
+    if (merged.cross) badges += '<span class="badge badge-cross">跨段</span>';
+    if (merged.tcm) badges += '<span class="badge badge-tcm">传统医学</span>';
+    var line = merged.tagline ? '<span class="card-line">' + esc(merged.tagline) + "</span>" : '<span class="card-line">（跨段重复学科，点击查看完整卡片）</span>';
+    b.innerHTML =
+      '<span class="card-top"><span><span class="card-name">' + esc(merged.name) + "</span>" +
+      '<span class="card-en">' + esc(merged.en) + "</span></span>" +
+      '<span class="card-badges">' + badges + "</span></span>" + line;
+    b.addEventListener("click", function () { openDrawer(n.id, s.id); });
+    return b;
+  }
+
+  /* ---------- 滚动联动（含后台冻结兜底） ---------- */
+  var sections = meta.stages.map(function (s) { return document.getElementById(s.id); });
+  var progressEl = document.getElementById("progress");
+  var lastActive = null;
+  function computeActive() {
+    var y = (window.scrollY || window.pageYOffset || 0) + 130;
+    var cur = sections[0].id;
+    for (var i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop <= y) cur = sections[i].id;
+    }
+    if (cur !== lastActive) { lastActive = cur; setActiveChip(cur); }
+    var doc = document.documentElement;
+    var max = (doc.scrollHeight - window.innerHeight);
+    var ratio = max > 0 ? Math.min(1, Math.max(0, (window.scrollY || 0) / max)) : 0;
+    progressEl.style.width = (ratio * 100).toFixed(2) + "%";
+    var bar = document.getElementById("flowbar");
+    if (bar) bar.classList.toggle("shadowed", (window.scrollY || 0) > 8);
+  }
+  window.addEventListener("scroll", computeActive, { passive: true });
+  window.addEventListener("resize", computeActive);
+  window.addEventListener("visibilitychange", function () { if (!document.hidden) computeActive(); });
+  setInterval(function () { if (!document.hidden) computeActive(); }, 700);
+
+  /* ---------- 搜索 ---------- */
+  var searchInput = document.getElementById("searchInput");
+  var searchRes = document.getElementById("searchRes");
+  var searchwrap = document.getElementById("searchwrap");
+  function doSearch(q) {
+    q = q.trim().toLowerCase();
+    if (!q) { searchRes.classList.remove("open"); searchRes.innerHTML = ""; return; }
+    var hits = uniqueIds.map(function (id) {
+      var m = byId[id];
+      var name = (m.name || "").toLowerCase(), en = (m.en || "").toLowerCase();
+      var f = (m.fields || []).join(" ").toLowerCase(), tg = (m.tagline || "").toLowerCase();
+      var score = -1;
+      if (name.indexOf(q) >= 0) score = 0;
+      else if (en.indexOf(q) >= 0) score = 1;
+      else if (f.indexOf(q) >= 0) score = 2;
+      else if (tg.indexOf(q) >= 0) score = 3;
+      return { id: id, s: score };
+    }).filter(function (x) { return x.s >= 0; })
+      .sort(function (a, b) { return a.s - b.s; })
+      .slice(0, 12)
+      .map(function (x) { return x.id; });
+    searchRes.innerHTML = "";
+    if (!hits.length) {
+      searchRes.innerHTML = '<div class="sres-empty">没有找到匹配的学科，换个关键词试试？</div>';
+    } else {
+      hits.forEach(function (id) {
+        var m = byId[id];
+        var st = stageIndex[m.stages[0]];
+        var b = document.createElement("button");
+        b.className = "sres-item"; b.style.setProperty("--fc", st.meta.color);
+        b.innerHTML = "<b>" + esc(m.name) + "</b><span>" + esc(m.en) + '</span><em>' + st.meta.name + "</em>";
+        b.addEventListener("click", function () {
+          searchRes.classList.remove("open");
+          searchInput.value = m.name;
+          searchwrap.classList.remove("mopen");
+          jumpToNode(id);
+        });
+        searchRes.appendChild(b);
+      });
+    }
+    searchRes.classList.add("open");
+  }
+  searchInput.addEventListener("input", function () { doSearch(searchInput.value); });
+  searchInput.addEventListener("focus", function () { if (searchInput.value.trim()) doSearch(searchInput.value); });
+  searchInput.addEventListener("keydown", function (e) {
+    if (e.key === "Enter") {
+      var first = searchRes.querySelector(".sres-item");
+      if (first) first.click();
+    }
+    if (e.key === "Escape") { searchRes.classList.remove("open"); searchInput.blur(); }
+  });
+  document.addEventListener("click", function (e) {
+    if (!searchwrap.contains(e.target)) searchRes.classList.remove("open");
+  });
+  var mqMobile = window.matchMedia ? window.matchMedia("(max-width: 640px)") : null;
+  document.querySelector(".searchbox").addEventListener("click", function () {
+    if (mqMobile && mqMobile.matches) {
+      searchwrap.classList.add("mopen");
+      setTimeout(function () { searchInput.focus(); }, 0);
+    } else {
+      searchInput.focus();
+    }
+  });
+  if (mqMobile && mqMobile.matches) {
+    document.addEventListener("click", function (e) {
+      if (!searchwrap.contains(e.target)) searchwrap.classList.remove("mopen");
+    });
+  }
+
+  function jumpToNode(id) {
+    var target = document.querySelector('.card[data-node="' + id + '"]');
+    if (!target) return;
+    target.scrollIntoView({ behavior: NOFX ? "auto" : "smooth", block: "center" });
+    flash(target);
+    openDrawer(id, target.dataset.stage);
+  }
+  function flash(el) {
+    el.classList.remove("flash");
+    void el.offsetWidth;
+    el.classList.add("flash");
+    setTimeout(function () { el.classList.remove("flash"); }, 1700);
+  }
+
+  /* ---------- 详情抽屉 ---------- */
+  var drawer = document.getElementById("drawer");
+  var scrim = document.getElementById("scrim");
+  var dStages = document.getElementById("drawerStages");
+  var dName = document.getElementById("drawerName");
+  var dEn = document.getElementById("drawerEn");
+  var dTagline = document.getElementById("drawerTagline");
+  var dFields = document.getElementById("drawerFields");
+  var dReps = document.getElementById("drawerReps");
+  var dNote = document.getElementById("drawerNote");
+  var dFieldsSect = document.getElementById("drawerFieldsSect");
+  var dRepsSect = document.getElementById("drawerRepsSect");
+  var currentId = null;
+
+  function openDrawer(id, fromStage) {
+    var m = byId[id]; if (!m) return;
+    currentId = id;
+    var primStage = stageIndex[m.stages[0]].meta;
+    drawer.style.setProperty("--stage", primStage.color);
+    drawer.style.setProperty("--stage2", primStage.color);
+    dName.textContent = m.name;
+    dEn.textContent = m.en;
+    dTagline.textContent = m.tagline || "";
+    dStages.innerHTML = "";
+    m.stages.forEach(function (sid) {
+      var st = stageIndex[sid].meta;
+      var chip = document.createElement("button");
+      chip.className = "schip" + (sid === fromStage ? " schip--cur" : "");
+      chip.style.setProperty("--sc", st.color);
+      chip.innerHTML = "<i></i>" + st.num + " " + esc(st.name);
+      chip.title = "跳到「" + st.name + "」阶段的这张卡片";
+      chip.addEventListener("click", function () { closeDrawer(); setTimeout(function () { jumpToCard(sid, id); }, 60); });
+      dStages.appendChild(chip);
+    });
+    dFields.innerHTML = "";
+    m.fields.forEach(function (f) { var s = document.createElement("span"); s.className = "dchip"; s.textContent = f; dFields.appendChild(s); });
+    dFieldsSect.style.display = m.fields.length ? "" : "none";
+    dReps.innerHTML = "";
+    m.reps.forEach(function (r) { var li = document.createElement("li"); li.textContent = r; dReps.appendChild(li); });
+    dRepsSect.style.display = m.reps.length ? "" : "none";
+    var notes = [];
+    if (m.cross) notes.push("本学科横跨多个阶段：图中相关阶段都会出现同一张卡片，点上方阶段胶囊可跳到另一处。");
+    if (m.tcm) notes.push("本条目属于中国传统医学体系，独立标注、平行呈现，供体系对照阅读。");
+    if (notes.length) { dNote.hidden = false; dNote.textContent = notes.join(" "); } else { dNote.hidden = true; }
+    drawer.classList.add("open"); scrim.classList.add("open");
+  }
+  function closeDrawer() { drawer.classList.remove("open"); scrim.classList.remove("open"); currentId = null; }
+  function jumpToCard(sid, id) {
+    var el = document.getElementById("card-" + sid + "-" + id);
+    if (el) { el.scrollIntoView({ behavior: NOFX ? "auto" : "smooth", block: "center" }); flash(el); }
+  }
+  document.getElementById("drawerClose").addEventListener("click", closeDrawer);
+  scrim.addEventListener("click", closeDrawer);
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") { closeDrawer(); } });
+
+  /* ---------- 深链与初始化 ---------- */
+  (function init() {
+    computeActive();
+    var sid = params.get("s");
+    if (sid && document.getElementById(sid)) {
+      setTimeout(function () { document.getElementById(sid).scrollIntoView({ behavior: NOFX ? "auto" : "smooth", block: "start" }); }, 30);
+    }
+    var nodeParam = params.get("node");
+    if (nodeParam && byId[nodeParam]) {
+      setTimeout(function () { jumpToNode(nodeParam); }, 60);
+    }
+    if (params.get("to") === "bottom") {
+      window.scrollTo(0, document.body.scrollHeight);
+    }
+    if (params.get("qa") === "1") { document.title = "[READY] " + document.title; }
+  })();
+  window.addEventListener("load", function () { computeActive(); });
+
+  /* QA 钩子 */
+  window.__medmap = {
+    rescan: computeActive,
+    open: openDrawer,
+    jump: jumpToNode,
+    state: function () { return { active: lastActive, theme: document.documentElement.getAttribute("data-theme"), cards: cardsCount, unique: uniqueIds.length }; }
+  };
+})();
+</script>
+</body>
+</html>

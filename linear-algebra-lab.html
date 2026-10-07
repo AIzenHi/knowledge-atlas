@@ -1,0 +1,1591 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>线性代数 · 可视化交互实验室</title>
+<style>
+:root{
+  --bg:#080c15; --bg2:#0e1420; --card:#121a28; --card2:#0d1420;
+  --line:#212c40; --line2:#2c3a52;
+  --tx:#dce4f2; --tx2:#8b9cb8; --tx3:#5f7391;
+  --acc:#60a5fa; --acc2:#a78bfa;
+  --shadow:0 10px 30px rgba(0,0,0,.35);
+}
+[data-theme="light"]{
+  --bg:#eef2f8; --bg2:#ffffff; --card:#ffffff; --card2:#f7f9fc;
+  --line:#e0e7f1; --line2:#cfd9e8;
+  --tx:#16202f; --tx2:#54657e; --tx3:#8296ae;
+  --acc:#2563eb; --acc2:#7c3aed;
+  --shadow:0 8px 24px rgba(30,50,90,.10);
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0; background:var(--bg); color:var(--tx);
+  font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"PingFang SC","Microsoft YaHei",sans-serif;
+  line-height:1.7; -webkit-font-smoothing:antialiased;
+}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",monospace}
+
+/* ---------- header ---------- */
+header.top{
+  position:sticky; top:0; z-index:50;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(14px); border-bottom:1px solid var(--line);
+}
+.top-in{max-width:1240px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:center;gap:10px;font-weight:800;letter-spacing:.3px}
+.logo{
+  width:34px;height:34px;border-radius:9px;flex:0 0 auto;
+  background:conic-gradient(from 210deg,#f87171,#fbbf24,#34d399,#60a5fa,#a78bfa,#f87171);
+  display:grid;place-items:center;color:#0b0f1a;font-size:15px;font-weight:900;
+}
+.brand small{display:block;font-weight:500;font-size:11.5px;color:var(--tx2);letter-spacing:0}
+nav.map{display:flex;gap:2px;flex-wrap:wrap;margin-left:auto}
+nav.map a{
+  color:var(--tx2);text-decoration:none;font-size:12.5px;padding:5px 9px;border-radius:8px;
+  transition:.15s;white-space:nowrap;
+}
+nav.map a:hover{color:var(--acc);background:color-mix(in srgb,var(--acc) 12%,transparent)}
+nav.map a.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 16%,transparent)}
+.tbtn{
+  border:1px solid var(--line2);background:var(--card);color:var(--tx2);
+  padding:6px 11px;border-radius:9px;cursor:pointer;font-size:12.5px;transition:.15s;
+}
+.tbtn:hover{color:var(--acc);border-color:var(--acc)}
+
+/* ---------- layout ---------- */
+main{max-width:1240px;margin:0 auto;padding:28px 20px 80px}
+.hero{padding:14px 4px 30px;max-width:820px}
+.hero h1{font-size:clamp(26px,4.2vw,42px);line-height:1.25;margin:0 0 12px;letter-spacing:-.5px}
+.hero h1 em{font-style:normal;background:linear-gradient(100deg,#60a5fa,#a78bfa 45%,#f472b6);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{margin:0 0 10px;color:var(--tx2);font-size:15px}
+.hero .how{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}
+.tag{font-size:12px;color:var(--tx2);border:1px solid var(--line2);border-radius:999px;padding:4px 11px;background:var(--card)}
+
+/* ---------- card ---------- */
+.card{
+  background:var(--card);border:1px solid var(--line);border-radius:18px;
+  box-shadow:var(--shadow);margin:0 0 26px;overflow:hidden;scroll-margin-top:var(--headH,76px);
+}
+.card-h{display:flex;gap:14px;align-items:flex-start;padding:20px 22px 16px;border-bottom:1px solid var(--line)}
+.num{
+  font:800 13px/1 ui-monospace,monospace;color:var(--acc);
+  background:color-mix(in srgb,var(--acc) 14%,transparent);
+  border:1px solid color-mix(in srgb,var(--acc) 30%,transparent);
+  padding:7px 9px;border-radius:9px;flex:0 0 auto;
+}
+.card-h h2{margin:0;font-size:19px;letter-spacing:-.2px}
+.card-h .sub{margin:2px 0 0;font-size:13px;color:var(--tx2)}
+.card-b{display:grid;grid-template-columns:minmax(0,1fr) 312px;gap:0}
+.plot{position:relative;height:min(58vh,470px);min-height:330px;background:var(--card2)}
+.plot canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:none;cursor:grab}
+.plot canvas:active{cursor:grabbing}
+.side{padding:16px 18px;border-left:1px solid var(--line);display:flex;flex-direction:column;gap:14px;min-width:0}
+.insight{
+  padding:14px 22px;border-top:1px solid var(--line);
+  background:color-mix(in srgb,var(--acc) 5%,transparent);
+  font-size:13.5px;color:var(--tx2);
+}
+.insight b{color:var(--acc);font-weight:700}
+
+/* ---------- controls ---------- */
+.grp{display:flex;flex-direction:column;gap:9px}
+.grp-t{font-size:11px;font-weight:700;letter-spacing:1.4px;color:var(--tx3)}
+.row{display:flex;align-items:center;gap:9px}
+.row .lbl{font-size:12.5px;color:var(--tx2);width:66px;flex:0 0 auto}
+.row .val{font:600 12.5px ui-monospace,monospace;color:var(--acc);width:46px;text-align:right;flex:0 0 auto}
+input[type=range]{
+  -webkit-appearance:none;appearance:none;height:5px;border-radius:9px;flex:1;min-width:0;
+  background:var(--line2);outline:none;cursor:pointer;
+}
+input[type=range]::-webkit-slider-thumb{
+  -webkit-appearance:none;width:16px;height:16px;border-radius:50%;
+  background:var(--acc);border:3px solid var(--card);box-shadow:0 0 0 1px var(--acc);cursor:grab;
+}
+input[type=range]::-moz-range-thumb{
+  width:13px;height:13px;border-radius:50%;background:var(--acc);
+  border:3px solid var(--card);box-shadow:0 0 0 1px var(--acc);cursor:grab;
+}
+.btns{display:flex;flex-wrap:wrap;gap:6px}
+.btns button{
+  border:1px solid var(--line2);background:var(--bg2);color:var(--tx2);
+  font-size:12px;padding:6px 10px;border-radius:8px;cursor:pointer;transition:.14s;font-family:inherit;
+}
+.btns button:hover{color:var(--acc);border-color:var(--acc);transform:translateY(-1px)}
+.btns button.act{background:color-mix(in srgb,var(--acc) 18%,transparent);color:var(--acc);border-color:var(--acc)}
+.btns button.primary{background:var(--acc);color:#0b0f1a;border-color:var(--acc);font-weight:700}
+.btns button.primary:hover{filter:brightness(1.12)}
+
+/* ---------- readout ---------- */
+.out{
+  background:var(--card2);border:1px solid var(--line);border-radius:12px;padding:12px 13px;
+  font:12.5px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace;
+  display:flex;flex-direction:column;gap:2px;overflow-x:auto;
+}
+.out .r{display:flex;gap:8px;justify-content:space-between;white-space:nowrap}
+.out .r span:first-child{color:var(--tx3)}
+.out .r span:last-child{color:var(--tx);font-weight:600}
+/* 长结论允许换行：nowrap + overflow-x:auto 会把长文字活活切掉 */
+.out .r{flex-wrap:wrap}
+.out .r>span:last-child{white-space:normal;min-width:0;overflow-wrap:anywhere}
+.out .r.hl span:last-child{color:var(--acc)}
+.out .r.warn span:last-child{color:#fbbf24}
+.out .r.bad span:last-child{color:#f87171}
+.out .sep{height:1px;background:var(--line);margin:6px 0}
+.mat{color:var(--acc2)!important}
+.note{font-size:12.5px;color:var(--tx2);line-height:1.65}
+.note b{color:var(--tx)}
+.chk{display:flex;gap:7px;align-items:flex-start;font-size:12.5px;color:var(--tx2);cursor:pointer;user-select:none}
+.chk input{margin-top:4px;accent-color:var(--acc);cursor:pointer}
+
+/* ---------- glossary ---------- */
+.gloss{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:12px}
+.g-item{background:var(--card);border:1px solid var(--line);border-radius:13px;padding:14px 15px}
+/* 只让"卡片标题"那个 b 独占一行；段落里的 <b> 必须保持行内，否则整段会被拆成一列 */
+.g-item>b{display:block;color:var(--acc);font-size:14px;margin-bottom:4px}
+.g-item p{margin:0;font-size:12.5px;color:var(--tx2);line-height:1.75}
+.g-item p b{color:var(--tx);font-weight:700}
+footer.end{padding:30px 4px 10px;color:var(--tx3);font-size:12.5px;text-align:center;line-height:2}
+
+@media(max-width:900px){
+  .card-b{grid-template-columns:1fr}
+  .side{border-left:none;border-top:1px solid var(--line)}
+  .plot{height:min(50vh,400px)}
+  /* 手机端不再"没有导航"：改成可横向滚动的紧凑导航条 */
+  nav.map{display:flex; overflow-x:auto; flex-wrap:nowrap; width:100%; order:3;
+          margin-left:0; padding-bottom:2px; scrollbar-width:thin}
+  nav.map a{font-size:12px; padding:4px 8px; flex:0 0 auto}
+  .top-in{gap:10px; padding:10px 14px}
+}
+html{scroll-padding-top:var(--headH,88px)}
+@media(max-width:900px){
+  .row .lbl{width:52px}
+  .out{font-size:11.5px}
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="top-in">
+    <div class="brand">
+      <div class="logo">∇</div>
+      <div>线性代数 · 交互实验室<small>拖一拖，概念自己会说话</small></div>
+    </div>
+    <nav class="map" id="map">
+      <a href="#d1">内积·投影</a>
+      <a href="#d2">基与坐标</a>
+      <a href="#d3">正交化 QR</a>
+      <a href="#d4">矩阵=变换</a>
+      <a href="#d5">特征值</a>
+      <a href="#d6">列空间·零空间</a>
+      <a href="#d7">最小二乘</a>
+      <a href="#gl">术语速查</a>
+    </nav>
+    <button class="tbtn" id="themeBtn">☀ 浅色</button>
+  </div>
+</header>
+
+<main>
+
+<section class="hero">
+  <h1>把线性代数<em>拖成看得见的样子</em></h1>
+  <p>线性代数不是一堆符号，它其实在描述一件事：<b>空间怎么被拉伸、旋转、压缩、投影</b>。下面每个模块都可以动手玩——拖点、拖滑块、看图形变形。</p>
+  <p>建议<b>按编号从上往下 01 → 07</b>——内积投影 → 基与坐标 → 正交化 → 矩阵即变换 → 特征值 → 列/零空间 → 最小二乘，每一步只用前面已经讲过的东西。想先看爽的，可以直接跳到 <b>04 矩阵即变换</b> 和 <b>05 特征值</b>：04 讲"矩阵怎么揉空间"，05 讲"揉的时候哪两个方向被偏爱"。</p>
+  <div class="how">
+    <span class="tag">🖱 拖动彩色端点</span>
+    <span class="tag">🎚 拖动滑块改参数</span>
+    <span class="tag">▶ 点按钮看动态过程</span>
+    <span class="tag">📐 右侧实时显示数字</span>
+  </div>
+</section>
+
+<!-- ============ 1 ============ -->
+<section class="card" id="d1">
+  <div class="card-h">
+    <div class="num">01</div>
+    <div><h2>向量 · 内积 · 投影</h2><p class="sub">拖动红色 a 和蓝色 b 的端点</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p1"></div>
+    <div class="side">
+      <div class="btns">
+        <button id="d1-perp">造一个垂直</button>
+        <button id="d1-par">造一个平行</button>
+        <button id="d1-reset">重置</button>
+      </div>
+      <div class="out" id="o1"></div>
+      <div class="note"><b>内积不是神秘东西</b>：a·b 就是把 b 在 a 方向上的影子长度，乘上 a 的长度。它同时也是 <code>|a||b|cosθ</code>，所以内积 = 投影 × 缩放。</div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>绿色是 b 在 a 上的投影，黄色是"投影剩下的部分"。注意黄色永远<b>垂直</b>于 a —— 这就是勾股定理，也是后面所有正交分解的根。黄色描边的平行四边形，它的<b>面积</b> = |a×b| = |a||b|·sinθ（θ=90° 时面积最大）；而 |a·b| = |a||b|·cosθ（θ=90° 时恰好为 0）。一个管面积、一个管投影——行列式管的正是前一个，这就是它几何意义的小预告。顺带一提：a = (1.70, 1.10) 这两个数字，是 a 相对于标准基 e₁, e₂ 的<b>坐标</b>。换个基，数字就变、位置不变——这是下一模块的全部内容。</div>
+</section>
+
+<!-- ============ 2 ============ -->
+<section class="card" id="d2">
+  <div class="card-h">
+    <div class="num">02</div>
+    <div><h2>基与坐标 · 张成空间</h2><p class="sub">绿色 u、紫色 v 是"基"，拖粉色点 P 看它在新坐标系里的位置</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p2"></div>
+    <div class="side">
+      <div class="btns">
+        <button id="d2-lat" class="act">显示生成格</button>
+        <button id="d2-dep">把 u 拉到和 v 共线</button>
+        <button id="d2-reset">重置</button>
+      </div>
+      <div class="out" id="o2"></div>
+      <div class="note"><b>换个基，同一个点的数字就变了。</b>但几何位置纹丝不动——矩阵 <span class="mat">B</span> 把新坐标转回老坐标，<span class="mat">B⁻¹</span> 反着来。基选得好 = 数字好看且互不干扰。</div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>点一下"共线"，你看 det→0，坐标系直接塌成一条线。此时方程 B·x=P 只有两种结局：P 恰好落在这条线上 → <b>无穷多个解</b>（给 x 随便加几个 u 的倍数都行）；P 离线而去 → <b>一个解也没有</b>（黄色那段垂距就是够不着的部分）。基的定义就是"不塌"：<b>线性无关</b>。面积 = |det| 是坐标系有多"正"的体检指标。</div>
+</section>
+
+<!-- ============ 3 ============ -->
+<section class="card" id="d3">
+  <div class="card-h">
+    <div class="num">03</div>
+    <div><h2>正交化 · QR 分解</h2><p class="sub">拖动两个向量，看 Gram-Schmidt 一刀切掉"重复信息"</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p3"></div>
+    <div class="side">
+      <div class="btns">
+        <button id="d3-step">分步动画</button>
+        <button id="d3-reset">重置</button>
+      </div>
+      <div class="out" id="o3"></div>
+      <div class="note"><b>为什么要正交化？</b>两个斜着的向量很难分别"看出"各自贡献；掰直之后，投影 = 除以长度，正交投影、退化最小二乘全部变成除法。正交基 = 互不干扰的坐标系。</div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>面积<b>完全没变</b>（|u×v| = |w₁||w₂| —— 因为掰直之后 w₁⊥w₂，|w₁||w₂| 就等于平行四边形的面积）—— 我们只是把斜的坐标系掰直，没有压扁也没有拉长。这个"掰直不改变体积"的分解，就是数值计算里最常用的 <span class="mat">A = QR</span>，其中 A = [u v]（u 和 v 摆成两列）。</div>
+</section>
+
+<!-- ============ 4 ============ -->
+<section class="card" id="d4">
+  <div class="card-h">
+    <div class="num">04</div>
+    <div><h2>矩阵 = 一个"揉空间"的手法</h2><p class="sub">拖滑块或直接拖 <b>A·e₁</b> / <b>A·e₂</b> 两个角点</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p4"></div>
+    <div class="side">
+      <div class="grp">
+        <div class="grp-t">A = [ a b ; c d ]</div>
+        <div class="row"><span class="lbl">a</span><input type="range" id="a4a" min="-2" max="2" step=".02" value="1.3"><span class="val" id="v4a"></span></div>
+        <div class="row"><span class="lbl">b</span><input type="range" id="a4b" min="-2" max="2" step=".02" value="0.5"><span class="val" id="v4b"></span></div>
+        <div class="row"><span class="lbl">c</span><input type="range" id="a4c" min="-2" max="2" step=".02" value="0.7"><span class="val" id="v4c"></span></div>
+        <div class="row"><span class="lbl">d</span><input type="range" id="a4d" min="-2" max="2" step=".02" value="1.1"><span class="val" id="v4d"></span></div>
+      </div>
+      <div class="btns">
+        <button data-preset="rot90">旋转90°</button>
+        <button data-preset="shear">剪切</button>
+        <button data-preset="proj">投影(秩1)</button>
+        <button data-preset="zero">零矩阵(秩0)</button>
+        <button data-preset="rank1">一列塌零(秩1)</button>
+        <button data-preset="flip">镜像翻转</button>
+        <button data-preset="scale2">放大×2</button>
+        <button data-preset="id">还原单位阵</button>
+      </div>
+      <div class="out" id="o4"></div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>矩阵的<b>列</b>就是新基向量，矩阵乘法就是"把每个向量按新基重新组装"。det&lt;0 镜像（左右手对调），det=0 压扁成一条线（信息永久丢失、不可逆），|det| 就是面积放大倍数。每一列都是 A 作用在某个基向量上的结果——所以"矩阵乘法"和"按新基重新组装"是同一件事的两种说法，03 的 QR 就是在给这个新基做体检。</div>
+</section>
+
+<!-- ============ 5 ============ -->
+<section class="card" id="d5">
+  <div class="card-h">
+    <div class="num">05</div>
+    <div><h2>特征值 · 什么都不变的特殊方向</h2><p class="sub">拖动粉色向量，按"迭代 Av"，看它沿某些方向只被拉伸</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p5"></div>
+    <div class="side">
+      <div class="grp">
+        <div class="grp-t">A = [ a b ; c d ]</div>
+        <div class="row"><span class="lbl">a</span><input type="range" id="a5a" min="-2.5" max="2.5" step=".02" value="1.8"><span class="val" id="v5a"></span></div>
+        <div class="row"><span class="lbl">b</span><input type="range" id="a5b" min="-2.5" max="2.5" step=".02" value="0.6"><span class="val" id="v5b"></span></div>
+        <div class="row"><span class="lbl">c</span><input type="range" id="a5c" min="-2.5" max="2.5" step=".02" value="1.2"><span class="val" id="v5c"></span></div>
+        <div class="row"><span class="lbl">d</span><input type="range" id="a5d" min="-2.5" max="2.5" step=".02" value="0.7"><span class="val" id="v5d"></span></div>
+      </div>
+      <div class="btns">
+        <button class="primary" id="d5-go">▶ 迭代 Av (20次)</button>
+        <button id="d5-reset">重置向量</button>
+      </div>
+      <div class="out" id="o5"></div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>当特征值是<b>实数</b>时，任意向量迭代足够多次都会"跑偏"到<b>模最大的那个特征值</b>对应的方向上去（主方向）。特征向量是 A 的<b>偏好</b>：|λ|&gt;1 优先放大，|λ|&lt;1 收缩，λ&lt;0 还会<b>掉头</b>。对角化 = 换到偏好方向，变换立刻变简单。（若 λ 是复数，则没有任何实特征方向，向量会一直转下去——见右侧读数。）λ 从哪来？解方程 det(A − λI) = 0。拖滑块时盯住 det(A − λI)：它恰好过零的那些 λ，就是特征值。</div>
+</section>
+
+<!-- ============ 6 ============ -->
+<section class="card" id="d6">
+  <div class="card-h">
+    <div class="num">06</div>
+    <div><h2>列空间 · 零空间 · Ax=b 能不能解</h2><p class="sub">黄色向量 b 是"方程右边的已知数"，看它能不能被列向量凑出来</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p6"></div>
+    <div class="side">
+      <div class="grp">
+        <div class="grp-t">A = [ a b ; c d ]</div>
+        <div class="row"><span class="lbl">a</span><input type="range" id="a6a" min="-2" max="2" step=".02" value="1.2"><span class="val" id="v6a"></span></div>
+        <div class="row"><span class="lbl">b</span><input type="range" id="a6b" min="-2" max="2" step=".02" value="0.6"><span class="val" id="v6b"></span></div>
+        <div class="row"><span class="lbl">c</span><input type="range" id="a6c" min="-2" max="2" step=".02" value="0.5"><span class="val" id="v6c"></span></div>
+        <div class="row"><span class="lbl">d</span><input type="range" id="a6d" min="-2" max="2" step=".02" value="0.9"><span class="val" id="v6d"></span></div>
+      </div>
+      <div class="btns">
+        <button data-p6="ok">造一个可解的 b</button>
+        <button data-p6="no">造一个不可解的 b</button>
+        <button data-p6="rand">随机</button>
+      </div>
+      <div class="out" id="o6"></div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>A 能干的事<b>只有</b>把列向量张成的平面/直线搬来搬去。b 在这块"地盘"里 → 有解；不在 → 物理上不可能。可逆 ⇔ 满列秩 ⇔ 列空间=整个空间 ⇔ 零空间只剩 {0}。四个说法，一件事。</div>
+</section>
+
+<!-- ============ 7 ============ -->
+<section class="card" id="d7">
+  <div class="card-h">
+    <div class="num">07</div>
+    <div><h2>最小二乘 = 把点投影到一条线上</h2><p class="sub">上下拖动任意数据点，拟合线会自动跟着动</p></div>
+  </div>
+  <div class="card-b">
+    <div class="plot" id="p7"></div>
+    <div class="side">
+      <div class="btns">
+        <button id="d7-fix">造一组完美直线</button>
+        <button id="d7-noisy">加噪声</button>
+        <button id="d7-curve">加个弯曲趋势</button>
+      </div>
+      <label class="chk"><input type="checkbox" id="d7-o0"> 强制过原点（对比总误差）</label>
+      <div class="out" id="o7"></div>
+      <div class="note"><b>为什么最优？</b>把 n 个数据点看成 ℝⁿ 里的两个向量：<b>1</b> = (1,1,…,1) 和 <b>x</b> = (x₁,…,xₙ)。拟合值 a+bx 就是 y 在 span{<b>1</b>, <b>x</b>} 上的正交投影，所以残差 r 必然<b>同时垂直于 1 和 x</b>：<b>Σrᵢ = 0</b>（不高估也不低估）且 <b>Σxᵢrᵢ = 0</b>（与自变量无关）。记住 {1, x} 活在 ℝⁿ 里，不是图上那条线——在 (x, y) 平面里任何直线都能写成 y=a+bx，那个空间就是整个平面。</div>
+    </div>
+  </div>
+  <div class="insight"><b>关键直觉：</b>先点"加个弯曲趋势"——残差会排成漂亮的 <b>U 形</b>：中间几个点一致<b>在线上方</b>（+残差），两头一致<b>在线下方</b>（−残差）。这不是随机噪声，而是一个系统性的弯曲趋势。这叫<b>有偏</b>：数据是弯的，直线怎么摆都摆不平。但请注意右侧 <b>Σr = 0</b> 和 <b>Σxᵢrᵢ = 0</b> 依然同时归零——<b>有偏 ≠ 不最优</b>。最优性只要求残差和两个方向垂直，它从不要求数据本身是直的。再勾上"强制过原点"：b 被钉死在 0，模型少了一个自由度，残差<b>仍然</b>和 x 正交，但再也不能和全 1 向量正交（Σr ≠ 0）——这不是"最优性失效"，是"最优的方向变了"。点一下数据点把残差线拉长或缩短试试：最优解会自动挪一点去补偿，但永远补不平。</div>
+</section>
+
+<!-- ============ glossary ============ -->
+<section class="card" id="gl">
+  <div class="card-h">
+    <div class="num">📖</div>
+    <div><h2>术语速查</h2><p class="sub">十五个概念，一句话版本</p></div>
+  </div>
+  <div class="card-b" style="grid-template-columns:1fr">
+    <div style="padding:20px 22px">
+      <div class="gloss">
+        <div class="g-item"><b>向量空间</b><p>一组"向量 + 加法 + 数乘"的集合，能像坐标一样加减缩放。R²、R³、矩阵集合、函数集合都是。</p></div>
+        <div class="g-item"><b>线性相关</b><p>存在一组<b>不全为零</b>的系数 c₁…cₙ，使 c₁v₁ + … + cₙvₙ = <b>0</b>。这样的组合存在 ⇒ <b>线性相关</b>（至少有一个向量是多余的）；不存在 ⇒ <b>线性无关</b>（谁也删不掉）。注意：相关说的是"能不能凑出 <b>0</b>"，不是"能不能凑出别人"。</p></div>
+        <div class="g-item"><b>基 / 张成</b><p>一组既能撑起整个空间、又互不冗余的向量。张成的空间维度 = rank。</p></div>
+        <div class="g-item"><b>线性变换</b><p>"直线进、直线出"的映射，全部由一个矩阵刻画。保持加法和数乘是它的定义。</p></div>
+        <div class="g-item"><b>行列式 det</b><p>有向面积缩放倍数。det=0 → 压扁、信息丢失、不可逆；det&lt;0 → 镜像。</p></div>
+        <div class="g-item"><b>零空间 / 列空间</b><p>被压成 0 的方向 vs. A 能造出的所有结果。Ax=b 有解 ⇔ b ∈ 列空间。</p></div>
+        <div class="g-item"><b>正交 / 内积</b><p>垂直叫正交。内积给出长度、角度、投影，是几何得以进入代数的大门。</p></div>
+        <div class="g-item"><b>特征值 λ / 特征向量 v</b><p>Av = λv：这个特殊方向只被拉伸 λ 倍。λ 描述"变化的速度与方向"。</p></div>
+        <div class="g-item"><b>秩 rank</b><p>矩阵真正"有效"的自由度个数。rank=满 → 可逆；rank=1 → 只剩一条线。</p></div>
+        <div class="g-item"><b>正交投影</b><p>空间某点到子空间的最短连线，永远垂直。把复杂问题"拍平"成简单的。</p></div>
+        <div class="g-item"><b>QR / LU 分解</b><p>把难算的变换拆成简单步骤的"食谱"。<b>QR</b>：A = QR，Q 的列正交（互相不干扰），R 是上三角；"掰直坐标系不改变体积"。<b>LU</b>（本页未展开）：把 A 拆成下三角×上三角，对应高斯消元的行阶梯形。</p></div>
+        <div class="g-item"><b>条件数 κ</b><p>变换有多"娇气"：κ = σ₁/σ₂，是"放大得最多的方向"和"压缩得最狠的方向"的比值。<b>κ = 1</b> 表示所有方向被拉长/压缩得一样多（角度不失真，比如镜像 diag(1,−1) 的 κ 就是 1）；κ → ∞ 表示某个方向被压成 0（奇异）。<b>κ 与"矩阵长什么样"无关，只与它有多接近压扁有关。</b></p></div>
+        <div class="g-item"><b>迹 tr(A)</b><p>所有特征值之和 = 主对角元之和。tr(A) = Σλᵢ，det(A) = λ₁λ₂。</p></div>
+        <div class="g-item"><b>子空间</b><p>空间里的一片平面，本身就是一个向量空间。列空间、零空间、正交补都是子空间。</p></div>
+        <div class="g-item"><b>代数重数 / 几何重数</b><p>λ 在 det(A−λI) 里出现的次数 / 对应的独立特征向量个数。两者相等 ⇒ 能对角化；不等 ⇒ 不能（例如 [[2,1],[0,2]]，λ=2 出现两次但只有一个特征方向）。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="end">
+  单文件 · 无外部依赖 · 离线可用 &nbsp;|&nbsp; 所有图形均由 Canvas 实时计算<br>
+  想更进一步？试着用这些概念去理解 <code>PCA</code>、图像压缩、PageRank、傅里叶级数 —— 它们全是同一套工具。
+</footer>
+
+</main>
+
+<script>
+"use strict";
+/* =========================================================
+   基础工具
+   ========================================================= */
+const $  = s => document.querySelector(s);
+const clamp=(v,a,b)=>v<a?a:(v>b?b:v);
+const fmt=(n,d=2)=>{ if(n===Infinity) return '∞'; if(n===-Infinity) return '-∞';
+  if(Number.isNaN(n)) return 'NaN'; if(Math.abs(n)<1e-9) n=0;
+  return (Math.abs(n)>=1e6? n.toExponential(2) : n.toFixed(d)); };
+const V={
+  add:(a,b)=>[a[0]+b[0],a[1]+b[1]],
+  sub:(a,b)=>[a[0]-b[0],a[1]-b[1]],
+  mul:(a,s)=>[a[0]*s,a[1]*s],
+  dot:(a,b)=>a[0]*b[0]+a[1]*b[1],
+  cr:(a,b)=>a[0]*b[1]-a[1]*b[0],
+  len:a=>Math.hypot(a[0],a[1]),
+  norm:a=>{const l=Math.hypot(a[0],a[1]); return l<1e-12?[0,0]:[a[0]/l,a[1]/l];},
+  ang:(a,b)=>{const la=V.len(a),lb=V.len(b); if(la<1e-9||lb<1e-9) return NaN;
+    return Math.acos(clamp(V.dot(a,b)/(la*lb),-1,1));},
+  proj:(v,u)=>{const l=V.dot(u,u); return l<1e-12?[0,0]:V.mul(u,V.dot(v,u)/l);},
+};
+
+const THEMES={
+  dark :{bg:'#0d1420',grid:'#1a2333',axis:'#31405a',tick:'#5f7391',halo:'#0d1420',fade:'#8497b3'},
+  light:{bg:'#fbfcfe',grid:'#e7ecf4',axis:'#aebbd0',tick:'#64748b',halo:'#fbfcfe',fade:'#41506a'},
+};
+let THEME='dark';
+const th=()=>THEMES[THEME];
+const C={
+  a:'#f87171', b:'#60a5fa', g:'#34d399', y:'#fbbf24', p:'#a78bfa', k:'#f472b6',
+  c1:'#22d3ee', c2:'#fb923c', gray:'#8b9cb8', soft:'#64748b',
+};
+
+/* ---------- Canvas 绘图底座 ---------- */
+const ALL=[];
+function make(hostId,view){
+  const host=document.getElementById(hostId);
+  const cv=document.createElement('canvas');
+  host.appendChild(cv);
+  const P={
+    c:cv, ctx:cv.getContext('2d'), v:Object.assign({xmin:-3,xmax:3,ymin:-3,ymax:3},view),
+    w:0,h:0,s:1,sx:1,sy:1,ox:0,oy:0,drag:null,stretch:false,render:()=>{},
+    X:x=>P.ox+x*P.sx, Y:y=>P.oy-y*P.sy,
+    W:(px,py)=>({x:(px-P.ox)/P.sx,y:(P.oy-py)/P.sy}),
+    resize(){
+      const r=cv.getBoundingClientRect();
+      const dpr=window.devicePixelRatio||1;
+      P.w=Math.max(10,r.width); P.h=Math.max(10,r.height);
+      cv.width=Math.round(P.w*dpr); cv.height=Math.round(P.h*dpr);
+      P.ctx.setTransform(dpr,0,0,dpr,0,0);
+      const pad=20;
+      // 画布在布局瞬间可能量到 0 宽/高 → 可用区取下限，否则比例尺会变负数，
+      // 导致 arc(负半径) 抛错、白屏一片
+      const W=Math.max(20,P.w-2*pad), H=Math.max(20,P.h-2*pad);
+      // 等比（默认）或非等比（stretch，仅用于散点拟合这类"看趋势"的图）
+      if(P.stretch){
+        P.sx=W/(P.v.xmax-P.v.xmin);
+        P.sy=H/(P.v.ymax-P.v.ymin);
+        P.s=(P.sx+P.sy)/2;
+        P.ox=pad-P.v.xmin*P.sx+(P.w-2*pad-(P.v.xmax-P.v.xmin)*P.sx)/2;
+        P.oy=P.h-pad+P.v.ymin*P.sy-(P.h-2*pad-(P.v.ymax-P.v.ymin)*P.sy)/2;
+      }else{
+        P.sx=P.sy=P.s=Math.max(1e-3,Math.min(W/(P.v.xmax-P.v.xmin),H/(P.v.ymax-P.v.ymin)));
+        P.ox=P.w/2-(P.v.xmin+P.v.xmax)/2*P.s;
+        P.oy=P.h/2+(P.v.ymin+P.v.ymax)/2*P.s;
+      }
+      P.render();
+    }
+  };
+  ALL.push(P);
+  new ResizeObserver(()=>P.resize()).observe(host);
+  setTimeout(()=>P.resize(),0);
+  return P;
+}
+/* 网格步长：先按"每个刻度至少 ~46px"取目标，再落到 1/2/5/10 的整数档。
+   视野变宽后 s 变小，如果还用原来的 30px 目标，刻度会密到 "−3.8−3.6−3.4" 直接叠字。 */
+function niceStep(s){
+  const safe=Math.max(s,1e-6);
+  const raw=Math.max(46/s,0.05), e=Math.pow(10,Math.floor(Math.log10(raw))), f=raw/e;
+  const m = f<1.5?1 : f<3.5?2 : f<7.5?5 : 10;
+  return m*e;
+}
+/* ① 把绘图限制在坐标框内：返回 restore 函数（配合 clipView 使用） */
+function clipView(P){
+  const c=P.ctx;
+  c.save();
+  c.beginPath();
+  c.rect(P.X(P.v.xmin),P.Y(P.v.ymax),P.X(P.v.xmax)-P.X(P.v.xmin),P.Y(P.v.ymin)-P.Y(P.v.ymax));
+  c.clip();
+  return ()=>c.restore();
+}
+/* ② 沿单位方向 d 走多远才正好撞到坐标框边缘（保证线既不冲出框、也不半途而废） */
+function edgeT(P,d){
+  let t=1e9;
+  const q=Math.abs(d[0]); if(q>1e-9) t=Math.min(t,Math.max(Math.abs(P.v.xmin),Math.abs(P.v.xmax))/q);
+  const r=Math.abs(d[1]); if(r>1e-9) t=Math.min(t,Math.max(Math.abs(P.v.ymin),Math.abs(P.v.ymax))/r);
+  return isFinite(t)&&t>0?t:4;
+}
+/* ③ 拖拽限位：永远落在当前视野内，手柄不会被拖出坐标框 */
+function limBox(P,f=0.88){
+  const cx=(P.v.xmin+P.v.xmax)/2, hx=(P.v.xmax-P.v.xmin)/2*f, hy=(P.v.ymax-P.v.ymin)/2*f;
+  return w=>[clamp(w.x,cx-hx,cx+hx),clamp(w.y,-hy,hy)];
+}
+function base(P,step){
+  const {ctx}=P,T=th();
+  ctx.clearRect(0,0,P.w,P.h);
+  ctx.fillStyle=T.bg; ctx.fillRect(0,0,P.w,P.h);
+  const sx=step||niceStep(P.sx), sy=step||niceStep(P.sy);
+  ctx.lineWidth=1; ctx.strokeStyle=T.grid;
+  ctx.beginPath();
+  for(let x=Math.ceil(P.v.xmin/sx)*sx;x<=P.v.xmax;x+=sx){const X=Math.round(P.X(x))+.5;ctx.moveTo(X,P.Y(P.v.ymax));ctx.lineTo(X,P.Y(P.v.ymin));}
+  for(let y=Math.ceil(P.v.ymin/sy)*sy;y<=P.v.ymax;y+=sy){const Y=Math.round(P.Y(y))+.5;ctx.moveTo(P.X(P.v.xmin),Y);ctx.lineTo(P.X(P.v.xmax),Y);}
+  ctx.stroke();
+  ctx.strokeStyle=T.axis; ctx.lineWidth=1.6;
+  ctx.beginPath();
+  if(P.v.ymin<0&&P.v.ymax>0){const Y=Math.round(P.Y(0))+.5;ctx.moveTo(0,Y);ctx.lineTo(P.w,Y);}
+  if(P.v.xmin<0&&P.v.xmax>0){const X=Math.round(P.X(0))+.5;ctx.moveTo(X,0);ctx.lineTo(X,P.h);}
+  ctx.stroke();
+  // 刻度标签的参考轴：优先用 0，若 0 不在视野内则贴边，避免被裁掉
+  const inX = P.v.xmin<=0 && P.v.xmax>=0, inY = P.v.ymin<=0 && P.v.ymax>=0;
+  const ax = inX?0:P.v.xmin, ay = inY?0:P.v.ymin;
+  ctx.fillStyle=T.tick; ctx.font='500 10.5px ui-monospace,monospace';
+  ctx.textAlign='center'; ctx.textBaseline='top';
+  for(let x=Math.ceil(P.v.xmin/sx)*sx;x<=P.v.xmax;x+=sx){ if(Math.abs(x)<1e-9)continue; txt2(ctx,x); }
+  ctx.textAlign='right'; ctx.textBaseline='middle';
+  for(let y=Math.ceil(P.v.ymin/sy)*sy;y<=P.v.ymax;y+=sy){ if(Math.abs(y)<1e-9)continue; txt2(ctx,y,true); }
+  function txt2(ctx,v,vertical){
+    const s=(+v.toFixed(6)).toString();
+    if(vertical) ctx.fillText(s,Math.max(9,P.X(ax)-7),P.Y(v));
+    else ctx.fillText(s,P.X(v),P.Y(ay)+7);
+  }
+}
+function txt(ctx,x,y,s,color,size=13,align='center',baseline='middle',weight=700){
+  ctx.save();
+  ctx.font=`${weight} ${size}px ui-sans-serif,system-ui,"Segoe UI","PingFang SC",sans-serif`;
+  ctx.textAlign=align; ctx.textBaseline=baseline;
+  ctx.lineWidth=4.5; ctx.strokeStyle=th().halo; ctx.lineJoin='round';
+  ctx.strokeText(s,x,y); ctx.fillStyle=color; ctx.fillText(s,x,y);
+  ctx.restore();
+}
+function poly(P,pts,fill,stroke,lw=2){
+  const ctx=P.ctx;
+  ctx.beginPath();
+  pts.forEach((p,i)=>i?ctx.lineTo(P.X(p[0]),P.Y(p[1])):ctx.moveTo(P.X(p[0]),P.Y(p[1])));
+  ctx.closePath();
+  if(fill){ctx.fillStyle=fill;ctx.fill();}
+  if(stroke){ctx.strokeStyle=stroke;ctx.lineWidth=lw;ctx.stroke();}
+}
+function vec(P,v,o={}){
+  const ctx=P.ctx, col=o.color||C.b, from=o.from||[0,0];
+  const x0=P.X(from[0]),y0=P.Y(from[1]),x1=P.X(from[0]+v[0]),y1=P.Y(from[1]+v[1]);
+  ctx.save(); ctx.globalAlpha=o.alpha??1;
+  ctx.strokeStyle=col; ctx.lineWidth=o.width||3.2; ctx.lineCap='round';
+  if(o.dash) ctx.setLineDash(o.dash);
+  ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y1); ctx.stroke();
+  ctx.setLineDash([]);
+  const L=Math.hypot(x1-x0,y1-y0), ah=Math.max(9,(o.width||3.2)*3.1);
+  if(L>ah*1.05){
+    const a=Math.atan2(y1-y0,x1-x0);
+    ctx.fillStyle=col; ctx.beginPath();
+    ctx.moveTo(x1,y1);
+    ctx.lineTo(x1-ah*Math.cos(a-0.42),y1-ah*Math.sin(a-0.42));
+    ctx.lineTo(x1-ah*Math.cos(a+0.42),y1-ah*Math.sin(a+0.42));
+    ctx.closePath(); ctx.fill();
+  }
+  ctx.beginPath(); ctx.arc(x0,y0,3.6,0,7); ctx.fillStyle=col; ctx.fill();
+  if(o.label){
+    const a=Math.atan2(y1-y0,x1-x0), d=(o.labelOff||13);
+    txt(ctx,x1+Math.cos(a)*d, y1-Math.sin(a)*d, o.label, col, o.labelSize||13.5);
+  }
+  if(o.dot){ ctx.beginPath(); ctx.arc(x1,y1,(o.r||5.5),0,7); ctx.fillStyle=col; ctx.fill();
+    ctx.lineWidth=2; ctx.strokeStyle=th().bg; ctx.stroke(); }
+  ctx.restore();
+}
+function seg(P,p,q,col,dash,lw=1.6,alpha=1){
+  const ctx=P.ctx; ctx.save(); ctx.globalAlpha=alpha;
+  ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.setLineDash(dash||[]);
+  ctx.beginPath(); ctx.moveTo(P.X(p[0]),P.Y(p[1])); ctx.lineTo(P.X(q[0]),P.Y(q[1])); ctx.stroke();
+  ctx.restore();
+}
+function shade(P,alpha,col){
+  const ctx=P.ctx;
+  ctx.save(); ctx.globalAlpha=alpha; ctx.fillStyle=col;
+  ctx.fillRect(0,0,P.w,P.h); ctx.restore();
+}
+function pointer(P,e){
+  const r=P.c.getBoundingClientRect();
+  const px=e.clientX-r.left, py=e.clientY-r.top;
+  return {px,py,w:P.W(px,py)};
+}
+function hooks(P,down,move,up){
+  // down 可以返回 true，也可以返回一个标识对象；该返回值会作为 P.drag 传给 move
+  P.c.addEventListener('pointerdown',e=>{
+    const r=down(pointer(P,e));
+    if(r===false||r===undefined||r===null) return;
+    P.c.setPointerCapture(e.pointerId);
+    P.drag = (r===true) ? true : r;
+    e.preventDefault();
+  });
+  P.c.addEventListener('pointermove',e=>{ if(P.drag&&move) move(pointer(P,e)); });
+  const end=e=>{ if(P.drag){ P.drag=false; if(up) up(pointer(P,e)); } };
+  P.c.addEventListener('pointerup',end);
+  P.c.addEventListener('pointercancel',end);
+}
+// pt 为 pointer() 的返回值，p 为世界坐标点
+const hit=(P,pt,p)=>Math.hypot(pt.px-P.X(p[0]), pt.py-P.Y(p[1]))<16;
+function rows(el,list){
+  el.innerHTML=list.map(r=>{
+    if(r==='-') return '<div class="sep"></div>';
+    const c=r[2]?' '+r[2]:'';
+    return `<div class="r ${c}"><span>${r[0]}</span><span>${r[1]}</span></div>`;
+  }).join('');
+}
+function redraw(){ ALL.forEach(P=>P.render()); }
+
+/* =========================================================
+   01 内积 · 投影
+   ========================================================= */
+(()=>{
+  // 横向视野（约 1.97:1）铺满 886×470；y 上界留到 3.3，保证 a+b 的角点不被裁掉
+  const P=make('p1',{xmin:-5.8,xmax:5.8,ymin:-2.6,ymax:3.3});
+  let a=[1.7,1.1], b=[0.7,2.0];
+  const o1=$('#o1');
+  const lim=limBox(P);
+  P.render=()=>{
+    base(P);
+    const la=V.len(a), lb=V.len(b), dt=V.dot(a,b);
+    const pr=la>1e-9?V.mul(a,dt/(la*la)):[0,0];
+    const rs=V.sub(b,pr), lr=V.len(rs);
+    const cs=(la>1e-9&&lb>1e-9)?clamp(dt/(la*lb),-1,1):0;
+    const ang=Math.acos(cs)*180/Math.PI;
+
+    // 平行四边形
+    poly(P,[ [0,0],a,V.add(a,b),b ],'rgba(251,191,36,.10)','rgba(251,191,36,.5)',1.6);
+    seg(P,[0,0],pr,C.g,[5,4],1.8,.9);
+    seg(P,pr,b,C.y,[5,4],2.4,.95);
+    vec(P,a,{color:C.a,label:'a',dot:true});
+    vec(P,b,{color:C.b,dot:true});
+    txt(P.ctx,P.X(b[0])+18,P.Y(b[1])-8,'b',C.b,13.5);
+    vec(P,pr,{color:C.g,dash:[6,4],width:2.4,dot:true,r:4.5,alpha:.95});
+    // proj 与残差的中点互相错开，窄窗口也不叠字（proj 标签放在向量下方，避开残差标签）
+    const gapOk=V.len(a)>1e-6&&V.len(b)>1e-6;
+    if(P.w>760) txt(P.ctx,P.X(pr[0]),P.Y(pr[1])+26,'proj_a(b)',C.g,12.5);
+    seg(P,pr,b,C.y,null,3.4);
+    // 残差标签：沿线段中点，沿残差方向的法向偏移 18px（与 proj 标签分居残差两侧）
+    const rmx=P.X((pr[0]+b[0])/2), rmy=P.Y((pr[1]+b[1])/2);
+    const rdx=P.X(b[0])-P.X(pr[0]), rdy=P.Y(b[1])-P.Y(pr[1]);
+    const rdl=Math.hypot(rdx,rdy)||1, nx=-rdy/rdl, ny=rdx/rdl;
+    txt(P.ctx,rmx+nx*18,rmy+ny*18,'残差 ⊥ a',C.y,12,'center');
+    // 正交态：投影塌成一点，显式点破
+    if(gapOk&&Math.abs(cs)<2e-3)
+      txt(P.ctx,clamp(P.X(0)+92,20,P.w-300),P.Y(0)-16,'⟂ 正交：投影塌成一点，a·b = 0',C.g,12.5,'left');
+    // 夹角扇形（只画一小段弧，不画整圆）
+    if(la>1e-6&&lb>1e-6){
+      const c=P.ctx, R=Math.max(8,Math.min(70,la*P.sx*.6,lb*P.sy*.6));
+      const A1=Math.atan2(-a[1],a[0]), A2=Math.atan2(-b[1],b[0]);
+      let d=A2-A1;
+      while(d> Math.PI) d-=2*Math.PI;
+      while(d<-Math.PI) d+=2*Math.PI;
+      c.save(); c.strokeStyle=C.y; c.fillStyle='rgba(251,191,36,.13)'; c.lineWidth=2.2;
+      c.beginPath();
+      c.moveTo(P.X(0),P.Y(0));
+      c.arc(P.X(0),P.Y(0),R,A1,A1+d,d<0);
+      c.closePath(); c.fill(); c.stroke();
+      c.restore();
+      txt(P.ctx,P.X(0)+Math.cos(A1+d/2)*(R+16),P.Y(0)+Math.sin(A1+d/2)*(R+16)+4,fmt(ang,0)+'°',C.y,12);
+    }
+    // 关系判定：先看 cosθ（同向/反向/正交），残差判据放最后兜底，四态互不遮蔽。
+// 阈值取 1e-4 / 2e-3：鼠标拖拽只能到屏幕像素级精度，卡太死会永远判不出"正交"
+    const ORTH=2e-3;
+    const relTxt = Math.abs(la)<1e-9 ? 'a 是零向量'
+      : (Math.abs(lb)<1e-9 ? 'b 是零向量'
+      : (Math.abs(cs-1)<1e-4 ? '同向（残差 = 0）'
+      : (Math.abs(cs+1)<1e-4 ? '反向（残差 = 0）'
+      : (Math.abs(cs)<ORTH ? '正交 ✓ a ⊥ b'
+      : (Math.abs(rs)<1e-4 ? '平行（残差 = 0）'
+      : (cs>0 ? '锐角' : '钝角'))))));
+    rows(o1,[
+      ['a', '('+fmt(a[0])+', '+fmt(a[1])+')'],
+      ['b', '('+fmt(b[0])+', '+fmt(b[1])+')'],
+      '-',
+      ['|proj_a b| = |b|cosθ','  恒等式 ✓','hl'],
+      ['a · b','  '+fmt(dt),'hl'],
+      ['|a||b|cosθ','  '+fmt(la*lb*cs),'hl'],
+      ['cos θ','  '+fmt(cs,4)],
+      ['θ (角度)','  '+fmt(ang,1)+'°'],
+      '-',
+      ['proj_a(b)','  ('+fmt(pr[0])+', '+fmt(pr[1])+')'],
+      ['|proj|','  '+fmt(la>1e-9?Math.abs(dt)/la:0,3)],
+      ['|残差|','  '+fmt(lr,3),Math.abs(lr)<1e-4?'':'warn'],
+      ['平行四边形面积 |a×b|','  '+fmt(Math.abs(V.cr(a,b)),3),'hl'],
+      ['  = |a||b|sinθ','  '+fmt(la*lb*Math.sqrt(Math.max(0,1-cs*cs)),3),''],
+      ['对比 |a·b|=|a||b|cosθ','  '+fmt(dt,3),'warn'],
+      '-',
+      ['关系', relTxt, Math.abs(cs)<ORTH&&la>1e-6&&lb>1e-6?'hl':''],
+    ]);
+  };
+  hooks(P,
+    pt=>{ if(hit(P,pt,a)) return 'a'; if(hit(P,pt,b)) return 'b'; return false; },
+    pt=>{
+      const v=lim(pt.w);
+      if(P.drag==='a'){ if(V.len(v)>1e-6) a=v; } else b=v;
+      P.render();
+    });
+  P.resize();
+  $('#d1-perp').onclick=()=>{ const l=V.len(a); if(l<1e-6)a=[1.6,1.1];
+    const u=V.norm([-a[1],a[0]]); const s=V.cr(a,u)>0?-1:1;
+    b=V.mul(u,Math.abs(V.dot(a,[2.0,-0.4]))*s||1.4); b=V.mul(V.norm(b),2.0); P.render(); };
+  $('#d1-par').onclick=()=>{ if(V.len(a)<1e-6) a=[1.4,1.2];
+    const u=V.norm(a); b=V.mul(u,2.1); P.render(); };
+  $('#d1-reset').onclick=()=>{ a=[1.7,1.1]; b=[0.7,2.0]; P.render(); };
+})();
+
+/* =========================================================
+   02 基与坐标
+   ========================================================= */
+(()=>{
+  // x 向拓宽到 ~1.97:1 铺满画布；y 向保持 ±3，等比缩放 s 与改动前一致
+  const P=make('p2',{xmin:-5.9,xmax:5.9,ymin:-3,ymax:3});
+  let u=[2.0,0.6], v=[0.4,1.9], pt=[1.6,1.5], lat=true;
+  const o2=$('#o2');
+  const lim=limBox(P);
+  const mul=(A,w)=>[A[0][0]*w[0]+A[0][1]*w[1], A[1][0]*w[0]+A[1][1]*w[1]];
+  P.render=()=>{
+    base(P);
+    const B=[[u[0],v[0]],[u[1],v[1]]], det=V.cr(u,v);
+    const inv=Math.abs(det)>1e-9?[[v[1]/det,-v[0]/det],[-u[1]/det,u[0]/det]]:null;
+    const c=inv?mul(inv,pt):null;
+    // 塌陷后 P 是否恰好落在 span{u} 上（决定 0 解还是 ∞ 解）
+    const onLine=V.len(u)>1e-9&&Math.abs(V.cr(pt,u))<1e-6;
+    // 生成格（整段裁剪到坐标框内，避免画到画布外）
+    if(lat&&inv){
+      const ctx=P.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(P.X(P.v.xmin),P.Y(P.v.ymax),P.X(P.v.xmax)-P.X(P.v.xmin),P.Y(P.v.ymin)-P.Y(P.v.ymax));
+      ctx.clip();
+      ctx.fillStyle='rgba(96,165,250,.30)';
+      for(let i=-4;i<=4;i++)for(let j=-4;j<=4;j++){
+        const q=mul(B,[i,j]);
+        ctx.beginPath(); ctx.arc(P.X(q[0]),P.Y(q[1]),1.7,0,7); ctx.fill();
+      }
+      // 格子线
+      ctx.strokeStyle='rgba(148,163,184,.10)'; ctx.lineWidth=1;
+      ctx.beginPath();
+      for(let i=-4;i<=4;i++){ let A=mul(B,[i,-4]),B2=mul(B,[i,4]);
+        ctx.moveTo(P.X(A[0]),P.Y(A[1])); ctx.lineTo(P.X(B2[0]),P.Y(B2[1])); }
+      for(let j=-4;j<=4;j++){ let A=mul(B,[-4,j]),B2=mul(B,[4,j]);
+        ctx.moveTo(P.X(A[0]),P.Y(A[1])); ctx.lineTo(P.X(B2[0]),P.Y(B2[1])); }
+      ctx.stroke(); ctx.restore();
+    }
+    if(inv){
+      poly(P,[ [0,0],u,V.add(u,v),v ],'rgba(167,139,250,.14)','rgba(167,139,250,.45)',1.6);
+      seg(P,[0,0],V.mul(u,c[0]),'rgba(167,139,250,.55)',[5,4],2);
+      seg(P,V.mul(u,c[0]),pt,'rgba(167,139,250,.55)',[5,4],2);
+      seg(P,V.mul(v,c[1]),pt,'rgba(52,211,153,.55)',[5,4],2);
+    }else{
+      collapseLine(P,u);
+    }
+    vec(P,u,{color:C.g,label:'u = b₁',dot:true});
+    vec(P,v,{color:C.p,label:'v = b₂',dot:true});
+    // 原基 e1 e2 淡显
+    const ctx=P.ctx; ctx.save(); ctx.globalAlpha=.30;
+    vec(P,[1,0],{color:C.soft,width:2,dash:[3,3]});
+    vec(P,[0,1],{color:C.soft,width:2,dash:[3,3]});
+    ctx.restore();
+    txt(ctx,P.X(1)+8,P.Y(0)-8,'e₁',C.soft,11.5);
+    txt(ctx,P.X(0)+9,P.Y(1)-6,'e₂',C.soft,11.5);
+    vec(P,pt,{color:C.k,label:'P',dot:true,r:6.5,width:3});
+    if(inv) txt(ctx,P.X(pt[0]),P.Y(pt[1])+22,'('+fmt(c[0])+', '+fmt(c[1])+')',C.k,12);
+    // 塌陷后给"两条基向量同线"的证据：v 完全被 u 盖住，文字点破这件事
+    if(!inv&&V.len(u)>1e-6&&V.len(v)>1e-6)
+      txt(ctx,14,26,'u 和 v 都躺在这条红带上（det = 0，坐标系已塌）','#f87171',12.5,'left');
+
+    rows(o2,[
+      ['基 B = [u v]',''],
+      ['', '⎡ '+fmt(u[0])+'  '+fmt(v[0])+' ⎤','mat'],
+      ['', '⎣ '+fmt(u[1])+'  '+fmt(v[1])+' ⎦','mat'],
+      ['B · (a,b)ᵀ','= P','hl'],
+      ['P 在新基下的坐标', !c ? (onLine?'无穷多种（都在 span{u} 上）':'不存在（0 种）') : '('+fmt(c[0])+', '+fmt(c[1])+')',
+        !c&&!onLine?'bad':(!c?'':'hl')],
+      '-',
+      ['det(B) = 面积','  '+fmt(det,3),Math.abs(det)<1e-6?'bad':'hl'],
+      ['基是否独立', Math.abs(det)>1e-6?'是 ✓（2 个基向量）':'否 ✗（塌成一条线）',Math.abs(det)>1e-6?'':'bad'],
+      ['张成空间', Math.abs(det)>1e-6?'整个平面 ℝ²':'一条直线（1 维）',Math.abs(det)>1e-6?'':'warn'],
+      ['方程 B·x=P 解的个数', !c ? (onLine?'∞ 个（给 x 随便加几个 u 的倍数都行）':'0 个（无解）') : '唯一解',
+        !c ? (onLine?'warn':'bad') : 'hl'],
+      '-',
+      ['‖P‖（几何长度）','  '+fmt(V.len(pt),3)],
+      ['‖x‖（新坐标长度）', c? '  '+fmt(V.len(c),3):'  —（不存在）',
+        c&&Math.abs(V.len(c)-V.len(pt))>1e-6?'warn':''],
+      ['结论', !c?'坐标系已失效':Math.abs(V.len(c)-V.len(pt))>1e-6?'长度不守恒 → 斜的坐标系里数字不等于几何长度':'长度恰好相等（基是正交的）',
+        !c?'bad':(Math.abs(V.len(c)-V.len(pt))>1e-6?'':'hl')],
+    ]);
+  };
+  function collapseLine(P,u){
+    const ctx=P.ctx;
+    // 红带只画在坐标框内（不越界）
+    const done=clipView(P);
+    const d=V.norm(u), L=edgeT(P,d);
+    seg(P,V.mul(d,-L),V.mul(d,L),'rgba(248,113,113,.30)',null,14,.5);
+    done();
+    // 垂距：无解时的关键图形证据（P 到塌陷直线的最短距离）
+    const best=V.proj(pt,u);
+    if(V.len(V.sub(pt,best))>1e-6){
+      seg(P,pt,best,'#fbbf24',[5,4],3);
+      txt(ctx,P.X((pt[0]+best[0])/2)+12,P.Y((pt[1]+best[1])/2)-8,'这段垂距就是"够不着"的部分','#fbbf24',12,'left');
+    }
+    txt(ctx,P.w/2,P.h-30,'张成空间塌成一条直线 → u, v 不再是基！','#f87171',14);
+  }
+  hooks(P,
+    q=>{ if(hit(P,q,pt)) return 'p';
+         if(hit(P,q,u))  return 'u';
+         if(hit(P,q,v))  return 'v'; return false; },
+    q=>{ const w=lim(q.w);
+         if(P.drag==='p')      pt=w;
+         else if(P.drag==='u'){ if(V.len(w)>1e-6) u=w; }
+         else                  v=w;
+         P.render(); });
+  P.resize();
+  $('#d2-lat').onclick=e=>{ lat=!lat; e.target.classList.toggle('act',lat); P.render(); };
+  $('#d2-dep').onclick=()=>{ v=V.mul(V.norm(u),2.1); P.render(); };
+  $('#d2-reset').onclick=()=>{ u=[2.0,0.6]; v=[0.4,1.9]; pt=[1.6,1.5]; P.render(); };
+})();
+
+/* =========================================================
+   03 正交化 QR
+   ========================================================= */
+(()=>{
+  const P=make('p3',{xmin:-5.7,xmax:5.7,ymin:-2.9,ymax:2.9});   // 视野含 u+v 的角点 (2.7, 2.6)
+  let u=[2.1,0.9], v=[0.6,1.7], anim=1;
+  const o3=$('#o3');
+  const lim=limBox(P);
+  P.render=()=>{
+    base(P);
+    const w1=u.slice();
+    const pv=V.proj(v,w1);
+    const w2=V.sub(v,pv);
+    const n1=V.len(w1), n2=V.len(w2);
+    const l1=n1>1e-9?V.mul(w1,1/n1):[0,0];
+    const l2=n2>1e-9?V.mul(w2,1/n2):[0,0];
+    // ★ 真正的两段式进度：前半段只长 proj，后半段才长 w₂ 和新平行四边形
+    const t1=clamp(anim,0,0.5)*2, t2=clamp((anim-0.5)*2,0,1);
+    const w2s=V.mul(w2,t2), pvs=V.mul(pv,t1);
+
+    // 原平行四边形
+    poly(P,[ [0,0],u,V.add(u,v),v ],'rgba(96,165,250,.10)',null);
+    // 正交化后：跟着第 ② 步一起长大（t2=0 时自动退化成一条线，t2=1 时是完整平行四边形）
+    poly(P,[ [0,0],w1,V.add(w1,w2s),w2s ],'rgba(52,211,153,.13)','rgba(52,211,153,.4)',1.6);
+
+    // 投影（切下来的那部分）：第 ① 步先长出来
+    if(t1>1e-3) seg(P,[0,0],pvs,C.y,[5,4],2.2,.9);
+    // 残差：v 中被切掉后剩下的：第 ② 步才长出来
+    if(t2>1e-3) vec(P,w2s,{color:C.g,dot:true,alpha:.95});
+    // 三个中文标签都跟着各自的 t 走，绝不在 anim=0 时就钉在终态坐标上
+    if(t2>1e-3)
+      txt(P.ctx,P.X(w2s[0])+12,P.Y(w2s[1])+6,'w₂ = v − proj（② 垂直于 u）',C.g,11.5);
+
+    // 原始向量（虚线淡显）
+    vec(P,u,{color:C.b,dot:false,width:2,alpha:.45,dash:[4,3]});
+    vec(P,v,{color:C.b,dot:false,width:2,alpha:.45,dash:[4,3]});
+    txt(P.ctx,P.X(u[0])+14,P.Y(u[1])+20,'原始 u',C.b,11.5);
+    txt(P.ctx,P.X(v[0])+14,P.Y(v[1])-8,'原始 v',C.b,11.5);
+
+    vec(P,w1,{color:C.c1,dot:true});
+    txt(P.ctx,P.X(w1[0])+14,P.Y(w1[1])-8,'w₁ = u（① 不动）',C.c1,11.5);
+    if(t1>1e-3) txt(P.ctx,P.X(pvs[0])+10,P.Y(pvs[1])+22,'proj_u(v) 被切掉',C.y,11.5);
+
+    // 阶段提示：告诉学生现在正在演哪一步（切换点用 t2，第 ② 步一开始动就翻页）
+    txt(P.ctx,P.w/2,P.h-26,
+      t2<=0 ? '第 ① 步：先标出要切掉的 proj_u(v)'
+            : '第 ② 步：减掉它，剩下的就垂直于 u 了', C.y, 13);
+
+    const A1=Math.abs(V.cr(u,v)), A2=n1*n2;
+    rows(o3,[
+      ['① 保留 u','  w₁ = u'],
+      ['② 减掉平行分量','  w₂ = v − proj_u(v)'],
+      ['', 'proj_u(v) = ('+fmt(pv[0])+', '+fmt(pv[1])+')','mat'],
+      '-',
+      ['w₁ · w₂ (内积)', fmt(V.dot(w1,w2),6),Math.abs(V.dot(w1,w2))<1e-9?'hl':'bad'],
+      ['是否正交', Math.abs(V.dot(w1,w2))<1e-6?'✓ 完全垂直':'✗ 还没掰直',Math.abs(V.dot(w1,w2))<1e-6?'':'bad'],
+      '-',
+      ['平行四边形面积 |u×v|','  '+fmt(A1,4)],
+      ['正交化后 |w₁||w₂|（w₁⊥w₂ 时也是面积）','  '+fmt(A2,4)],
+      ['面积变化', fmt(A2-A1,8),'hl'],
+      '-',
+      ['A = QR',''],
+      ['Q (正交基)',''],
+      ['', '⎡ '+fmt(l1[0])+'  '+fmt(l2[0])+' ⎤','mat'],
+      ['', '⎣ '+fmt(l1[1])+'  '+fmt(l2[1])+' ⎦','mat'],
+      ['R (上三角)',''],
+      ['', '⎡ '+fmt(V.dot(l1,u))+'  '+fmt(V.dot(l1,v))+' ⎤','mat'],
+      ['', '⎣ '+fmt(V.dot(l2,u))+'  '+fmt(V.dot(l2,v))+' ⎦','mat'],
+    ]);
+  };
+  hooks(P,
+    pt=>{ if(hit(P,pt,u)) return 'u'; if(hit(P,pt,v)) return 'v'; return false; },
+    pt=>{ const w=lim(pt.w);
+      if(P.drag==='u'){ if(V.len(w)>1e-6) u=w; } else v=w; anim=1; P.render(); });
+  P.resize();
+  $('#d3-step').onclick=()=>{
+    anim=0; const t0=performance.now();
+    (function tick(now){
+      const k=(now-t0)/1400; anim=clamp(k,0,1);   // 两段各占 700ms
+      P.render();
+      if(k<1) requestAnimationFrame(tick);
+    })(t0);
+  };
+  $('#d3-reset').onclick=()=>{ u=[2.1,0.9]; v=[0.6,1.7]; anim=1; P.render(); };
+})();
+
+/* =========================================================
+   04 矩阵 = 变换
+   ========================================================= */
+(()=>{
+  const P=make('p4',{xmin:-4.6,xmax:4.6,ymin:-2.6,ymax:2.6});
+  let A={a:1.3,b:.5,c:.7,d:1.1};
+  const o4=$('#o4');
+  const M=v=>[A.a*v[0]+A.b*v[1], A.c*v[0]+A.d*v[1]];
+  function sync(){ $('#a4a').value=A.a; $('#a4b').value=A.b; $('#a4c').value=A.c; $('#a4d').value=A.d;
+    $('#v4a').textContent=fmt(A.a); $('#v4b').textContent=fmt(A.b);
+    $('#v4c').textContent=fmt(A.c); $('#v4d').textContent=fmt(A.d); P.render(); }
+  ['a','b','c','d'].forEach(k=>{
+    $('#a4'+k).addEventListener('input',e=>{ A[k]=parseFloat(e.target.value); sync(); });
+  });
+  P.render=()=>{
+    base(P);
+    const ctx=P.ctx, det=A.a*A.d-A.b*A.c;
+    // 单值奇异值 / 条件数：σ₁σ₂=|det|，σ₁²+σ₂²=Σ²（AᵀA 的迹 = 元素平方和）
+    const Sa=A.a*A.a+A.b*A.b+A.c*A.c+A.d*A.d, Da=Math.abs(det);
+    const _p=Math.sqrt(Math.max(0,Sa+2*Da)), _q=Math.sqrt(Math.max(0,Sa-2*Da));
+    const sig1=(_p+_q)/2, sig2=(_p-_q)/2;      // σ₁ ≥ σ₂ ≥ 0
+    const kappa=(_p-_q)<1e-12?Infinity:sig1/Math.max(sig2,1e-12);
+    const R=9;
+    // ① 变形前的输入网格（淡灰参照）——裁到坐标框内，只作为"变形前"的底片
+    const unG=clipView(P);
+    ctx.save(); ctx.globalAlpha=THEME==='light'?.42:.55; ctx.strokeStyle=THEME==='light'?'#64748b':'#94a3b8'; ctx.lineWidth=1;
+    ctx.beginPath();
+    for(let x=-R;x<=R+1e-9;x+=1){ ctx.moveTo(P.X(x),P.Y(-R)); ctx.lineTo(P.X(x),P.Y(R)); }
+    for(let y=-R;y<=R+1e-9;y+=1){ ctx.moveTo(P.X(-R),P.Y(y)); ctx.lineTo(P.X(R),P.Y(y)); }
+    ctx.stroke(); ctx.restore(); unG();
+    txt(ctx,14,20,'灰色方格 = 变形前的空间',THEME==='light'?'#475569':'#94a3b8',12,'left');
+    // ② 变形后的像网格（蓝/红随 det 符号）——必须把 M 作用上去才叫"变形网格"
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(P.X(P.v.xmin),P.Y(P.v.ymax),P.X(P.v.xmax)-P.X(P.v.xmin),P.Y(P.v.ymin)-P.Y(P.v.ymax));
+    ctx.clip();
+    ctx.globalAlpha=.34; ctx.strokeStyle=det>=0?'rgba(96,165,250,.9)':'rgba(248,113,113,.9)'; ctx.lineWidth=1;
+    ctx.beginPath();
+    const step=.5, fine=.1;
+    const inView=w=>{const X=P.X(w[0]),Y=P.Y(w[1]);
+      return X>=P.X(P.v.xmin)-1&&X<=P.X(P.v.xmax)+1&&Y>=P.Y(P.v.ymax)-1&&Y<=P.Y(P.v.ymin)+1;};
+    // 一条输入直线 → 切成小段 → 过 M 变成像线段 → 只保留"像"落在窗口内的部分
+    const drawLine=(p,q)=>{
+      const N=Math.max(2,Math.ceil(V.len(V.sub(p,q))/(fine*4)));
+      let prev=null;
+      for(let i=0;i<=N;i++){
+        const t=i/N, cur=V.add(V.mul(p,1-t),V.mul(q,t));
+        const w=M(cur);                        // ★ 关键：把变换作用上去
+        const ok=inView(w);                    // ★ 判断"像"是否在窗口内
+        if(prev&&ok){ ctx.moveTo(P.X(prev[0]),P.Y(prev[1])); ctx.lineTo(P.X(w[0]),P.Y(w[1])); }
+        prev=w;
+      }
+    };
+    for(let x=-R;x<=R+1e-9;x+=step) drawLine([x,-R],[x,R]);
+    for(let y=-R;y<=R+1e-9;y+=step) drawLine([-R,y],[R,y]);
+    ctx.stroke(); ctx.restore();
+
+    const e1=M([1,0]), e2=M([0,1]);
+    // 单位正方形的像（det=0 时面积为 0，poly 画不出东西 → 改画一条加粗线段）
+    const q=[M([0,0]),M([1,0]),M([1,1]),M([0,1])];
+    if(Math.abs(det)<1e-9){
+      const s=V.add(e1,e2);
+      if(V.len(s)>1e-9){
+        seg(P,[0,0],s,'#f472b6',null,7,.9);
+        // 标签沿线段法向偏到上方一侧，避开"第一列/第二列"的标注
+        const dd=V.norm(s); let nx=-dd[1], ny=dd[0];
+        if(ny<0){ nx=-nx; ny=-ny; }
+        txt(ctx,clamp(P.X(s[0])+nx*30,18,P.w-320),clamp(P.Y(s[1])-ny*30,18,P.h-18),
+            '单位正方形的像（塌成一条线段）','#f472b6',12,'left');
+      }
+    }else{
+      poly(P,q, det>=0?'rgba(248,113,113,.16)':'rgba(167,139,250,.18)',
+                det>=0?'rgba(248,113,113,.6)':'rgba(167,139,250,.65)',2);
+    }
+    // 原正方形（变形前的参照）：浅色主题下必须看得见，否则"变形前/后"无法对照
+    const ctx2=P.ctx; ctx2.save(); ctx2.setLineDash([4,4]);
+    ctx2.globalAlpha=THEME==='light'?.62:.5;
+    poly(P,[[0,0],[1,0],[1,1],[0,1]],null,
+         THEME==='light'?'rgba(71,85,105,.9)':'rgba(160,174,196,.95)',1.5);
+    ctx2.restore();
+    vec(P,[1,0],{color:C.soft,width:2,dash:[3,3],alpha:.5});
+    vec(P,[0,1],{color:C.soft,width:2,dash:[3,3],alpha:.5});
+
+    vec(P,e1,{color:C.a,dot:true,width:3});
+    vec(P,e2,{color:C.b,dot:true,width:3});
+    const sv=q=>'('+fmt(q[0])+', '+fmt(q[1])+')';
+    if(Math.abs(det)<1e-9){
+      const z1=V.len(e1)<1e-9, z2=V.len(e2)<1e-9;
+      // 被保留下来的一维"地盘"：刚好画到坐标框边缘，不冲出画布
+      const d=V.norm(V.len(e1)>1e-9?e1:e2), t=edgeT(P,d);
+      const unD=clipView(P);
+      seg(P,V.mul(d,-t),V.mul(d,t),'rgba(52,211,153,.55)',null,5,.85);
+      unD();
+      txt(ctx,14,26,'绿色 = 列空间（只剩 1 维）','#34d399',12.5,'left');
+      // 两列标注沿各自方向错开
+      if(!z1) txt(ctx,P.X(e1[0]*1.28)+14,P.Y(e1[1]*1.28)+16,'第一列 A·e₁ '+sv(e1),C.a,12);
+      if(!z2) txt(ctx,P.X(e2[0]*1.28)-14,P.Y(e2[1]*1.28)-10,'第二列 A·e₂ '+sv(e2),C.b,12,'right');
+      if(z1&&z2) txt(ctx,P.X(0)+70,P.Y(0)-14,'两列都是 (0,0)',th().fade,12,'left');
+      txt(ctx,P.w/2,P.h-30,
+        (z1&&z2)?'det = 0：零矩阵，整个平面被压成一点，什么都算不出来'
+                :(z1||z2)?'det = 0：有一列塌成零向量，平面被压成一条线'
+                        :'det = 0：两列共线，平面被压成一条线（信息永久丢失）',C.a,14);
+    }else{
+      txt(ctx,P.X(e1[0])+14,P.Y(e1[1])+16,'第一列 A·e₁',C.a,12);
+      txt(ctx,P.X(e2[0])+14,P.Y(e2[1])-8,'第二列 A·e₂',C.b,12);
+      vec(P,V.add(e1,e2),{color:C.k,label:'A·(1,1)',dot:true,width:2.6});
+      txt(ctx,P.w-14,22,'两列就是新基向量 —— 矩阵 = "按新基重新组装"',th().fade,12.5,'right');
+    }
+
+    rows(o4,[
+      ['A',''],
+      ['', '⎡ '+fmt(A.a)+'  '+fmt(A.b)+' ⎤','mat'],
+      ['', '⎣ '+fmt(A.c)+'  '+fmt(A.d)+' ⎦','mat'],
+      '-',
+      ['det(A)','  '+fmt(det,4),'hl'],
+      ['面积倍数 |det|','  '+fmt(Math.abs(det),4)],
+      ['方向', Math.abs(det)<1e-9?'—':(det>0?'保持（右手系）':'镜像翻转 ✋'),det<0?'bad':''],
+      ['秩 rank', V.len(e1)<1e-9&&V.len(e2)<1e-9?'0（零矩阵）'
+        :Math.abs(det)<1e-6?'1（信息压扁成一条线）':Math.abs(det-1)<1e-9?'2（满秩）':'2（可逆）',
+        Math.abs(det)<1e-6?'bad':'hl'],
+      ['可逆?', Math.abs(det)>1e-9?'是 A⁻¹ 存在':'否，信息永久丢失',Math.abs(det)>1e-9?'':'bad'],
+      '-',
+      ['‖A·e₁‖', '  '+fmt(V.len(e1),3)],
+      ['‖A·e₂‖', '  '+fmt(V.len(e2),3)],
+      ['两列夹角', (V.len(e1)<1e-9||V.len(e2)<1e-9)?'—（有一列是零向量）':'  '+fmt(V.ang(e1,e2)*180/Math.PI,1)+'°'],
+      ['σ₁（最大拉伸）','  '+fmt(sig1,3)],
+      ['σ₂（最小拉伸）','  '+fmt(sig2,3),sig2<1e-6?'bad':''],
+      ['条件数 κ = σ₁/σ₂', !isFinite(kappa)?'∞（奇异，σ₂=0）':'  '+fmt(kappa,2), !isFinite(kappa)||kappa>20?'bad':kappa>3?'warn':'hl'],
+      ['κ 的含义','  κ=1 等比；κ 大 = 快被压扁','hl'],
+    ]);
+  };
+  hooks(P,
+    pt=>{ const e1=M([1,0]),e2=M([0,1]);
+      if(hit(P,pt,e1)) return 'e1';
+      if(hit(P,pt,e2)) return 'e2'; return false; },
+    pt=>{ const w=[clamp(pt.w.x,-4,4),clamp(pt.w.y,-4,4)];
+      if(P.drag==='e1'){ A.a=clamp(w[0],-2,2); A.c=clamp(w[1],-2,2); }
+      else { A.b=clamp(w[0],-2,2); A.d=clamp(w[1],-2,2); }
+      sync(); });
+  P.resize();
+  const presets={
+    rot90:[-0,1,-1,0], shear:[1,0.9,0,1], proj:[1.2,0.6,0.9,0.45],
+    zero:[0,0,0,0], rank1:[1.3,0,0,0],
+    flip:[1,0,0,-1], scale2:[2,0,0,2], id:[1,0,0,1]
+  };
+  document.querySelectorAll('[data-preset]').forEach(b=>{
+    b.onclick=()=>{ const [a,bb,c,d]=presets[b.dataset.preset]; A={a,b:bb,c,d}; sync(); };
+  });
+  sync();
+})();
+
+/* =========================================================
+   05 特征值
+   ========================================================= */
+(()=>{
+  const P=make('p5',{xmin:-5.7,xmax:5.7,ymin:-2.2,ymax:3.6});   // 上界留给 λ₁c₁v₁（默认态就到 y≈3.34）
+  let A={a:1.8,b:.6,c:1.2,d:.7}, v=[1.1,1.6], trail=[], running=false;
+  const o5=$('#o5');
+  const lim=limBox(P);
+  const M=(m,x)=>[m.a*x[0]+m.b*x[1], m.c*x[0]+m.d*x[1]];
+  function eig(m){
+    const tr=m.a+m.d, det=m.a*m.d-m.b*m.c, disc=tr*tr-4*det;
+    const E=(l,e)=>({lam:l, vec:V.norm(e)});
+    if(disc<-1e-9) return {type:'complex',tr,det,alpha:tr/2,beta:Math.sqrt(-disc)/2};
+    const s=Math.sqrt(Math.max(0,disc)), l1=(tr+s)/2, l2=(tr-s)/2;
+    // 特征向量：取 (A-λI) 某一行的零空间方向，再统一朝上便于观察
+    const mk=l=>{
+      let e;
+      if(Math.abs(m.b)>1e-9)      e=[m.b, l-m.a];        // 用第一行：b·y = (λ-a)·y
+      else if(Math.abs(m.c)>1e-9) e=[l-m.d, m.c];        // 用第二行
+      else                        e=(Math.abs(l-m.a)<1e-9)?[0,1]:[1,0]; // 对角阵
+      if(V.len(e)<1e-9) e=[1,0];
+      return E(l,e);
+    };
+    let e1=mk(l1), e2=mk(l2);
+    const flip=q=>q.vec[1]<0?{lam:q.lam,vec:V.mul(q.vec,-1)}:q;
+    e1=flip(e1); e2=flip(e2);
+    const rep=Math.abs(l1-l2)<1e-9;
+    return {type:rep?(Math.abs(m.b)>1e-9?'defective':'identity'):'real',tr,det,e1,e2,lam1:l1,lam2:l2};
+  }
+  /* 迭代轨迹：步与步之间按角度插值画弧，纯旋转时看到的是圆弧而不是方块 */
+  function drawTrail(P,trail){
+    if(trail.length<2) return;
+    const ctx=P.ctx;
+    ctx.save(); ctx.strokeStyle='rgba(244,114,182,.42)'; ctx.lineWidth=2.4;
+    ctx.lineJoin='round'; ctx.lineCap='round';
+    ctx.beginPath();
+    for(let i=0;i<trail.length-1;i++){
+      const a=trail[i], b=trail[i+1];
+      const pa=Math.atan2(a[1],a[0]), pb=Math.atan2(b[1],b[0]);
+      let dp=pb-pa;
+      while(dp> Math.PI) dp-=2*Math.PI;
+      while(dp<-Math.PI) dp+=2*Math.PI;
+      const ra=V.len(a), rb=V.len(b);
+      if(Math.abs(dp)<1.9 && Math.abs(ra-rb)<0.45){
+        // 半径几乎不变 + 转角不大 → 画弧（每 ~7° 取一个插值点）
+        const N=Math.max(2,Math.ceil(Math.abs(dp)/0.12));
+        for(let k=0;k<=N;k++){
+          const t=k/N, f=pa+dp*t, r=ra+(rb-ra)*t;
+          const q=[Math.cos(f)*r,Math.sin(f)*r];
+          (i===0&&k===0)?ctx.moveTo(P.X(q[0]),P.Y(q[1])):ctx.lineTo(P.X(q[0]),P.Y(q[1]));
+        }
+      }else{
+        const w=M(A,a);   // 形状突变时直接连到变换后的点，别画假的插值
+        (i===0)?ctx.moveTo(P.X(a[0]),P.Y(a[1])):ctx.lineTo(P.X(w[0]),P.Y(w[1]));
+      }
+    }
+    ctx.stroke();
+    // 每一步落一个点：让"离散迭代"看得见
+    ctx.fillStyle='rgba(244,114,182,.75)';
+    for(let i=0;i<trail.length;i+=2){
+      ctx.beginPath(); ctx.arc(P.X(trail[i][0]),P.Y(trail[i][1]),2.5,0,7); ctx.fill();
+    }
+    ctx.restore();
+  }
+  function sync(){ $('#a5a').value=A.a;$('#a5b').value=A.b;$('#a5c').value=A.c;$('#a5d').value=A.d;
+    $('#v5a').textContent=fmt(A.a);$('#v5b').textContent=fmt(A.b);
+    $('#v5c').textContent=fmt(A.c);$('#v5d').textContent=fmt(A.d); P.render(); }
+  ['a','b','c','d'].forEach(k=>$('#a5'+k).addEventListener('input',e=>{A[k]=parseFloat(e.target.value);sync();}));
+
+  P.render=()=>{
+    base(P);
+    const E=eig(A), Av=M(A,v);
+    const ctx=P.ctx;
+    let decomp=null;
+    // 特征方向标注的统一兜底（real / defective / identity 三态共用）
+    // avoid 里的点是 v / Av 等实体；自动挑离它们更远的那一侧放标签
+    const safe=(q,s,col,avoid=[])=>{
+      const R=Math.min(2.9,Math.min(Math.abs(P.v.xmin),Math.abs(P.v.ymax))*0.92);
+      const score=sg=>{
+        const X=P.X(q[0]*R*sg), Y=P.Y(q[1]*R*sg);
+        return avoid.reduce((m,w)=>Math.min(m,Math.hypot(X-P.X(w[0]),Y-P.Y(w[1]))),1e9);
+      };
+      const sg=score(1)>=score(-1)?1:-1;
+      txt(ctx,clamp(P.X(q[0]*R*sg),8,P.w-8),clamp(P.Y(q[1]*R*sg),14,P.h-30),s,col,12);
+    };
+    if(E.type==='real'||E.type==='defective'||E.type==='identity'){
+      const u1=E.e1.vec,u2=E.e2.vec;
+      if(E.type==='real'&&Math.abs(V.cr(u1,u2))>1e-7){
+        const dt=V.cr(u1,u2);
+        const inv=[[u2[1]/dt,-u2[0]/dt],[-u1[1]/dt,u1[0]/dt]];
+        const c=[inv[0][0]*v[0]+inv[0][1]*v[1], inv[1][0]*v[0]+inv[1][1]*v[1]];
+        decomp={u1,u2,c};
+        poly(P,[[0,0],V.mul(u1,c[0]),v,V.mul(u2,c[1])],'rgba(148,163,184,.10)',null);
+        // 系数接近 0 的分量没有意义（既画不出线，"0.00v₂ = λ₂·0.00v₂" 也是废话）→ 直接跳过
+        // 标签近距避让：迭代收敛后 c₁v₁ / v / Av 会挤在一起，各自往不同方向让开
+        const big=Math.abs(c[0])+Math.abs(c[1]); if(big>1e-6){
+          const t1v=V.mul(u1,c[0]), t2v=V.mul(u2,c[1]);
+          const crowd=V.len(V.sub(t1v,v))<0.5;
+          vec(P,t1v,{color:C.c1,dot:true,width:2.4});
+          txt(P.ctx,P.X(t1v[0])+14,P.Y(t1v[1])+(crowd?26:16),'c₁v₁',C.c1,11.5);
+          const crowd2=V.len(V.sub(t2v,v))<0.5;
+          vec(P,t2v,{color:C.c2,dot:true,width:2.4});
+          txt(P.ctx,P.X(t2v[0])+14,P.Y(t2v[1])+(crowd2?-16:-14),'c₂v₂',C.c2,11.5);
+        }
+        const s1=V.mul(u1,c[0]*E.lam1), s2=V.mul(u2,c[1]*E.e2.lam);
+        // 虚线画"乘完 λ 之后"的位置；等式不再跟着向量跑（跟着跑必和 Av 撞字），
+        // 而是收进左上角的两行小图例，永远可读
+        if(V.len(s1)>0.25) vec(P,s1,{color:C.c1,dash:[5,4],width:2,alpha:.6,dot:true,r:4});
+        if(V.len(s2)>0.25) vec(P,s2,{color:C.c2,dash:[5,4],width:2,alpha:.6,dot:true,r:4});
+        let ly=22;
+        const key=(col,txtStr)=>{
+          ctx.save(); ctx.strokeStyle=col; ctx.lineWidth=2.6; ctx.setLineDash([5,4]);
+          ctx.beginPath(); ctx.moveTo(16,ly); ctx.lineTo(42,ly); ctx.stroke(); ctx.restore();
+          txt(ctx,49,ly,txtStr,col,11.5,'left');
+          ly+=19;
+        };
+        if(V.len(s1)>0.25) key(C.c1,'λ₁ = '+fmt(E.lam1,2)+'：'+fmt(c[0],2)+'v₁ → '+fmt(c[0]*E.lam1,2)+'v₁');
+        if(V.len(s2)>0.25) key(C.c2,'λ₂ = '+fmt(E.e2.lam,2)+'：'+fmt(c[1],2)+'v₂ → '+fmt(c[1]*E.e2.lam,2)+'v₂');
+      }
+      // 特征向量画成贯穿整个坐标框的长虚线（裁到框内，不越界）
+      const LR=6;
+      if(E.type==='identity'){
+        const unI=clipView(P);
+        seg(P,V.mul(u1,-LR),V.mul(u1,LR),'rgba(34,211,238,.28)',[6,5],1.4);
+        unI();
+        txt(ctx,P.w/2,P.h-26,'A = λI：每个方向都是特征向量，特征空间 = 整个平面（维数 2）',C.c1,13);
+      }else if(E.type==='defective'){
+        const unI=clipView(P);
+        seg(P,V.mul(u1,-LR),V.mul(u1,LR),'rgba(251,146,60,.65)',[6,5],1.8);
+        unI();
+        txt(ctx,P.w/2,P.h-26,'λ 重复出现但只有 1 个特征方向 → 几何重数 1 < 代数重数 2，不能对角化',C.c2,13);
+      }else{
+        const unE=clipView(P);   // 特征直线贯穿整个坐标框，不越界
+        seg(P,V.mul(u1,-LR),V.mul(u1,LR),'rgba(34,211,238,.5)',[6,5],1.8);
+        seg(P,V.mul(u2,-LR),V.mul(u2,LR),'rgba(251,146,60,.5)',[6,5],1.8);
+        unE();
+        // 标签放在两条特征线上离 v / Av 更远的那一侧，避免与 Av、c₁v₁ 叠字
+        const avoid=[v,Av];
+        safe(u1,'特征方向 v₁  λ='+fmt(E.lam1,3),C.c1,avoid);
+        safe(u2,'特征方向 v₂  λ='+fmt(E.e2.lam,3),C.c2,avoid);
+      }
+    }else if(E.type==='complex'){
+      // 复特征值：一条完整圆周 + 3 支顺时针/逆时针弧箭头（每步转 θ），而不是一圈乱刺
+      const r=Math.hypot(E.alpha,E.beta), th=Math.atan2(E.beta,E.alpha);
+      const unD=clipView(P);
+      const cx=P.X(0), cy=P.Y(0), rp=r*P.s;
+      ctx.save();
+      ctx.strokeStyle='rgba(167,139,250,.75)'; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(cx,cy,rp,0,Math.PI*2); ctx.stroke();
+      // 每步旋转角（弧箭头，方向跟着真实旋转方向走）
+      const span=Math.min(Math.abs(th),1.5), dir=th>=0?1:-1;
+      for(let k=0;k<3;k++){
+        const f0=k*Math.PI*2/3 - Math.PI/2;               // 起始世界角
+        const a0=-f0, a1=-(f0+dir*span);
+        ctx.strokeStyle='rgba(167,139,250,.95)'; ctx.lineWidth=2.6;
+        ctx.beginPath(); ctx.arc(cx,cy,rp*1.13,a0,a1,a1<a0); ctx.stroke();
+        // 弧末端箭头：沿该段弧的真实切线方向
+        const fe=f0+dir*span;
+        const px=cx+Math.cos(fe)*rp*1.13, py=cy-Math.sin(fe)*rp*1.13;
+        const tx=-dir*Math.sin(fe), ty=-dir*Math.cos(fe);   // 切线（行进方向）
+        const nx=Math.cos(fe), ny=-Math.sin(fe);            // 外法线
+        ctx.fillStyle='rgba(167,139,250,.95)';
+        ctx.beginPath();
+        ctx.moveTo(px+tx*10,py+ty*10);
+        ctx.lineTo(px-tx*5+nx*5.2,py-ty*5+ny*5.2);
+        ctx.lineTo(px-tx*5-nx*5.2,py-ty*5-ny*5.2);
+        ctx.closePath(); ctx.fill();
+      }
+      ctx.restore();
+      unD();
+      txt(ctx,P.w/2,P.h-26,'复特征值 ⇒ 螺旋（旋转 + 缩放），无实特征向量','#a78bfa',13);
+      // r = |λ| 与"每步转 θ"分别贴在圆周外的空白象限，避开 v / Av 及其标签
+      const gap1=th>0?Math.PI*1.30:Math.PI*(-0.30);       // 左下 / 右上
+      const gap2=th>0?Math.PI*0.30:Math.PI*1.70;           // 右上 / 左下
+      txt(ctx,clamp(P.X(Math.cos(gap1)*r*1.30),40,P.w-40),clamp(P.Y(Math.sin(gap1)*r*1.30),16,P.h-16),
+          'r = |λ|（每步长度倍数）','#a78bfa',12.5);
+      txt(ctx,clamp(P.X(Math.cos(gap2)*r*1.30),40,P.w-40),clamp(P.Y(Math.sin(gap2)*r*1.30),16,P.h-16),
+          '每步转 '+fmt(Math.abs(th)*180/Math.PI,0)+'°','#a78bfa',12.5);
+    }
+    // 轨迹画在特征结构之上：它是"每步实际走到哪"的证据，不能被圆周/虚线盖住
+    drawTrail(P,trail);
+    const vAvClose=V.len(V.sub(v,Av))<0.5;
+    vec(P,v,{color:C.k,dot:true,r:6.5});
+    txt(ctx,P.X(v[0])-15,P.Y(v[1])+(vAvClose?-14:19),'v',C.k,13.5,'right');
+    vec(P,Av,{color:C.a,dot:true,r:6.5});
+    // Av 标签：先沿 Av 方向外推一点（保证在画布内），再往法向错开 20px。
+    // 取 λ₁ 标注的反侧，于是"λ₁v₁ 的等式"和"Av"永远不会叠在一起
+    const avL=V.len(Av);
+    const ratio = avL>1e-9 ? Math.max(1.1, Math.min(P.v.xmax,P.v.ymax)*0.5/avL) : 1;
+    const tip=V.mul(Av,ratio), aA=Math.atan2(-tip[1],tip[0]);
+    const avTxt = E.type==='complex' ? 'Av（转了 '+fmt(Math.atan2(E.beta,E.alpha)*180/Math.PI,0)+'°，长度不变）'
+                : (Math.abs(V.len(Av)-V.len(v))<1e-3 ? 'Av（长度不变，只换了方向）' : 'Av（被拉长了）');
+    let avX=clamp(P.X(tip[0])-Math.sin(aA)*-20,44,P.w-44);
+    let avY=clamp(P.Y(tip[1])-Math.cos(aA)*-20,16,P.h-34);
+    if(avX<330&&avY<64) avY=64;      // 让开左上角的 λ 图例
+    if(vAvClose) avY=Math.max(avY,P.Y(v[1])+40);   // v 与 Av 贴太近时，Av 标签整体下压
+    txt(ctx,avX,avY,avTxt,C.a,12.5);
+
+    const rs=[['det(A)','  '+fmt(E.det,4)],
+              ['tr(A)','  '+fmt(E.tr,4)]];
+    if(E.type==='complex'){
+      rows(o5,[...rs,'-',
+        ['类型','  复特征值（共轭对）','hl'],
+        ['λ = α ± βi', fmt(E.alpha,3)+' ± '+fmt(E.beta,3)+'i','mat'],
+        ['每步旋转角','  '+fmt(Math.atan2(E.beta,E.alpha)*180/Math.PI,2)+'°','hl'],
+        ['每步长度倍数','  '+fmt(Math.hypot(E.alpha,E.beta),4),'hl'],
+        ['|λ| = 1 时',' 纯旋转（守面积）',Math.abs(Math.hypot(E.alpha,E.beta)-1)<1e-6?'hl':''],
+        '-',['迭代结果',' 永不收敛到某方向，一直转'],
+      ]);
+    }else{
+      const dec=Math.abs(E.e1.lam-E.e2.lam)>1e-9?'':'warn';
+      rows(o5,[...rs,'-',
+        ['特征值 λ₁','  '+fmt(E.e1.lam,4),'hl'],
+        ['特征值 λ₂','  '+fmt(E.e2.lam,4),'hl'],
+        ['λ₁ 行为', act(E.e1.lam)],
+        ['λ₂ 行为', act(E.e2.lam)],
+        ['代数重数', (E.type==='defective'||E.type==='identity')?'2（λ 出现两次）':'各 1'],
+        ['几何重数', E.type==='identity'?'2（整个平面）':E.type==='defective'?'1（只有一条线）':'各 1', E.type==='defective'?'bad':''],
+        ['能否对角化', E.type==='defective'?'否（特征向量不够）':E.type==='identity'?'是（已是对角阵）':'是 ✓ P⁻¹AP = Λ','warn'],
+        '-',
+        ['当前 v', '  ('+fmt(v[0])+', '+fmt(v[1])+')'],
+        ['Av', '  ('+fmt(Av[0])+', '+fmt(Av[1])+')','hl'],
+        ['‖v‖ → ‖Av‖', '  '+fmt(V.len(v),3)+' → '+fmt(V.len(Av),3)],
+        decomp?['系数 c₁','  '+fmt(decomp.c[0],3),'hl']:['系数 c₁','  （特征向量平行）'],
+        decomp?['系数 c₂','  '+fmt(decomp.c[1],3),'hl']:['系数 c₂','  （v 就在特征方向上）'],
+      ]);
+    }
+    function act(l){
+      const a=Math.abs(l);
+      if(a<1e-9)return '  归零（信息抹除）';
+      if(Math.abs(l-1)<1e-9)return '  完全不变（单位方向）';
+      if(l<0)return '  掉头并×'+fmt(a,3);
+      return a>1?'  放大 ×'+fmt(a,3):'  收缩 ×'+fmt(a,3);
+    }
+  };
+  hooks(P,
+    pt=>{ if(hit(P,pt,v)){P.drag='v';return true;} return false; },
+    pt=>{ v=lim(pt.w); trail=[]; P.render(); });
+  P.resize(); sync();
+  $('#d5-go').onclick=()=>{
+    if(running) return; running=true;
+    let x=v.slice(), i=0;
+    (function step(){
+      x=M(A,x);
+      const s=Math.max(1,V.len(x)); x=V.mul(x,1/s); trail.push(x.slice());
+      if(trail.length>260) trail.shift();
+      v=x.slice(); P.render(); i++;
+      if(i<20 && V.len(x)>1e-8) setTimeout(step,110);
+      else running=false;
+    })();
+  };
+  $('#d5-reset').onclick=()=>{ v=[1.1,1.6]; trail=[]; P.render(); };
+})();
+
+/* =========================================================
+   06 列空间 · 零空间
+   ========================================================= */
+(()=>{
+  const P=make('p6',{xmin:-4.2,xmax:4.2,ymin:-2.4,ymax:2.4});
+  let A={a:1.2,b:.6,c:.5,d:.9}, b=[2.2,1.2];
+  const o6=$('#o6');
+  const M=x=>[A.a*x[0]+A.b*x[1], A.c*x[0]+A.d*x[1]];
+  function sync(){ $('#a6a').value=A.a;$('#a6b').value=A.b;$('#a6c').value=A.c;$('#a6d').value=A.d;
+    $('#v6a').textContent=fmt(A.a);$('#v6b').textContent=fmt(A.b);
+    $('#v6c').textContent=fmt(A.c);$('#v6d').textContent=fmt(A.d); P.render(); }
+  ['a','b','c','d'].forEach(k=>$('#a6'+k).addEventListener('input',e=>{A[k]=parseFloat(e.target.value);sync();}));
+  P.render=()=>{
+    base(P);
+    const c1=[A.a,A.c], c2=[A.b,A.d], det=A.a*A.d-A.b*A.c;
+    const full=Math.abs(det)>1e-9;                     // rank 2
+    const zero=V.len(c1)<1e-9 && V.len(c2)<1e-9;       // rank 0：全零矩阵
+    const ctx=P.ctx;
+    const SPAN = V.len(c1)>1e-9 ? c1 : c2;   // rank1 时列空间的方向向量
+    // 目标向量 b：任何状态都必须画出来（否则它是不可见的拖拽热区）
+    vec(P,b,{color:C.y,label:'b',dot:true,r:7,width:3.6});
+    if(full){
+      shade(P,.06,'#60a5fa');
+      txt(ctx,P.w-14,22,'列空间 = 整个平面 ℝ²','#60a5fa',12.5,'right');
+    }else if(zero){
+      // 零空间是"整个平面"，不是两条线 —— 画两条 y=±6 虚线是误导，只用一句话点破
+      txt(ctx,P.w-14,24,'列空间 = {0}（只有原点，rank 0）','#60a5fa',12.5,'right');
+      txt(ctx,P.w-14,48,'零空间 = 整个平面（任何 x 都满足 Ax=0）','#f87171',12.5,'right');
+      txt(ctx,P.w/2,26,'A 是零矩阵：什么都算不出来，任何 b 都不可能',C.a,14);
+    }else{
+      const dir=V.norm(SPAN);
+      const unL=clipView(P);                       // 子空间直线：刚好贯穿坐标框，绝不越界
+      const tmax=edgeT(P,dir);
+      seg(P,V.mul(dir,-tmax),V.mul(dir,tmax),'rgba(96,165,250,.75)',null,7,.5);
+      txt(ctx,P.w-14,24,'列空间 = 一条直线（rank 1）','#60a5fa',12.5,'right');
+      const k=Math.abs(A.a)>1e-9?[-A.c,A.a]:[A.b,-A.a];
+      const kn=V.norm(k), t2=edgeT(P,kn);
+      seg(P,V.mul(kn,-t2),V.mul(kn,t2),'rgba(248,113,113,.75)',[7,5],3.4,.85);
+      unL();
+      txt(ctx,P.w-14,48,'零空间 = 这条红线（Ax=0 的方向）','#f87171',12.5,'right');
+    }
+    if(!full&&!zero) poly(P,[[0,0],c1,V.add(c1,c2),c2],'rgba(96,165,250,.22)',null);
+    vec(P,c1,{color:C.g,label:'列1',dot:true,width:2.6});
+    vec(P,c2,{color:C.p,label:'列2',dot:true,width:2.6});
+    if(full){
+      const inv=[[A.d/det,-A.b/det],[-A.c/det,A.a/det]];
+      const x=[inv[0][0]*b[0]+inv[0][1]*b[1], inv[1][0]*b[0]+inv[1][1]*b[1]];
+      const Ax=M(x);   // A·x —— 应等于 b，用于验证
+      // Ax = c1 x1 + c2 x2（接近奇异时 x 会非常大，整段裁到坐标框内）
+      const unF=clipView(P);
+      seg(P,[0,0],V.mul(c1,x[0]),'rgba(52,211,153,.5)',[4,3],2);
+      seg(P,V.mul(c1,x[0]),Ax,'rgba(52,211,153,.5)',[4,3],2);
+      seg(P,[0,0],V.mul(c2,x[1]),'rgba(167,139,250,.5)',[4,3],2);
+      seg(P,V.mul(c2,x[1]),Ax,'rgba(167,139,250,.5)',[4,3],2);
+      seg(P,c1,Ax,C.a,[5,4],2);
+      seg(P,c2,Ax,C.p,[5,4],2);
+      unF();
+      txt(ctx,P.w-14,42,'A x = b（两条虚线相加，b 就是黄色向量）',C.g,12.5,'right');
+      rows(o6,[
+        ['det(A)','  '+fmt(det,4),'hl'],
+        ['rank(A)','  2（满秩）','hl'],
+        ['列空间','  整个 ℝ²',''],
+        ['零空间','  {0}（只有零向量）',''],
+        ['A 可逆','  是','hl'],
+        '-',
+        ['目标 b','  ('+fmt(b[0])+', '+fmt(b[1])+')'],
+        ['b ∈ 列空间?','  是 ✓ 一定有解','hl'],
+        ['解 x = A⁻¹b','  ('+fmt(x[0])+', '+fmt(x[1])+')','hl'],
+        ['验证 A·x','  ('+fmt(Ax[0])+', '+fmt(Ax[1])+')'],
+        ['‖A·x − b‖ 残差','  '+fmt(Math.hypot(Ax[0]-b[0],Ax[1]-b[1]),12)],
+        '-',
+        ['解的唯一性','  唯一（零空间只有 0）','hl'],
+      ]);
+    }else if(zero){
+      rows(o6,[
+        ['det(A)','  '+fmt(det,4),'bad'],
+        ['rank(A)','  0（连一条线都没有）','bad'],
+        ['列空间','  {0}（只有零向量）','bad'],
+        ['零空间','  整个 ℝ²（任何 x 都行）','bad'],
+        ['A 可逆','  否（A⁻¹ 不存在）','bad'],
+        '-',
+        ['目标 b','  ('+fmt(b[0])+', '+fmt(b[1])+')'],
+        ['A·x 恒等于','  (0, 0)','bad'],
+        ['b ∈ 列空间?', V.len(b)<1e-9?'是（b=0，任何 x 都解）':'否 ✗ 只有 b=0 才有解',V.len(b)<1e-9?'hl':'bad'],
+        ['结论','  除非 b=0，否则无解','bad'],
+      ]);
+    }else{
+      const best=V.proj(b,SPAN), res=V.sub(b,best);
+      vec(P,best,{color:'rgba(52,211,153,.9)',label:'最优近似',dot:true,width:2.4,dash:[6,4]});
+      seg(P,b,best,C.a,[4,3],3);
+      const inSpan=Math.abs(V.cr(b,SPAN))<1e-6;
+      rows(o6,[
+        ['det(A)','  '+fmt(det,4),'warn'],
+        ['rank(A)','  1（不满秩）','warn'],
+        ['列空间','  一条直线','warn'],
+        ['零空间','  一整条直线（无穷多零解）','warn'],
+        ['A 可逆','  否（A⁻¹ 不存在）','bad'],
+        '-',
+        ['目标 b','  ('+fmt(b[0])+', '+fmt(b[1])+')'],
+        ['b ∈ 列空间?','  '+(inSpan?'是 ✓（无穷多解）':'否 ✗（无解）'),inSpan?'hl':'bad'],
+        inSpan?['解的个数','  ∞ 个','warn']:['最小二乘解','  把 b 投影到列空间','hl'],
+        ['', inSpan?'b 恰好落在直线上':'A x 无法等于 b','mat'],
+        '-',
+        ['proj_列空间(b)','  ('+fmt(best[0])+', '+fmt(best[1])+')','hl'],
+        ['残差 r = b − proj','  ('+fmt(res[0])+', '+fmt(res[1])+')','hl'],
+        ['‖r‖', '  '+fmt(V.len(res),4),Math.abs(V.len(res))<1e-9?'':'bad'],
+        ['残差 ⟂ 列空间?', Math.abs(V.dot(res,SPAN))<1e-6?'✓ 正是如此':'—'],
+      ]);
+    }
+  };
+  hooks(P,
+    pt=>{ if(hit(P,pt,b)){P.drag='b';return true;} return false; },
+    pt=>{ b=limBox(P)(pt.w); P.render(); });
+  P.resize(); sync();
+  document.querySelectorAll('[data-p6]').forEach(btn=>{
+    btn.onclick=()=>{
+      const k=btn.dataset.p6;
+      if(k==='ok'){ A={a:1.2,b:.6,c:.5,d:.9}; b=[1.7,1.9]; }
+      // 必须真的 rank 1（det=0），否则任意 b 都可解
+      if(k==='no'){ A={a:1.3,b:0,c:0.8,d:0}; b=[1.6,2.1]; }
+      if(k==='rand'){ A={a:Math.random()*2-1,b:Math.random()*2-1,c:Math.random()*2-1,d:Math.random()*2-1};
+        b=[Math.random()*2.4-1.2,Math.random()*2.4-1.2]; }
+      sync();
+    };
+  });
+})();
+
+/* =========================================================
+   07 最小二乘
+   ========================================================= */
+(()=>{
+  const P=make('p7',{xmin:0.2,xmax:6.8,ymin:-2.2,ymax:10.2});
+  P.stretch=true;   // 散点图允许非等比，让数据铺满画布
+  P.resize();
+  let xs=[1,2,3,4,5,6], ys=[1.1,2.3,2.9,4.4,4.9,6.2], through0=false;
+  const o7=$('#o7');
+  function fit(){
+    const n=xs.length;
+    if(through0){
+      let sxx=0,sxy=0; for(let i=0;i<n;i++){sxx+=xs[i]*xs[i];sxy+=xs[i]*ys[i];}
+      const a=sxy/(sxx||1e-9);
+      return {a,b:0};
+    }
+    const mx=xs.reduce((s,v)=>s+v,0)/n, my=ys.reduce((s,v)=>s+v,0)/n;
+    let sxx=0,sxy=0; for(let i=0;i<n;i++){sxx+=(xs[i]-mx)**2;sxy+=(xs[i]-mx)*(ys[i]-my);}
+    const a=sxy/(sxx||1e-9); return {a,b:my-a*mx};
+  }
+  P.render=()=>{
+    base(P,1);
+    const {a,b}=fit();
+    const ctx=P.ctx;
+    const rx=xs.map((x,i)=>[x,ys[i]-(a*x+b)]);
+    const sse=rx.reduce((s,r)=>s+r[1]*r[1],0);
+    // 拟合线
+    // 线只画到数据区域内，避免贴边；再按视窗裁剪，防止陡斜率冲出画布
+    const LX0=Math.max(P.v.xmin,xs[0]-.6), LX1=Math.min(P.v.xmax,xs[xs.length-1]+.6);
+    const unL=clipView(P);
+    seg(P,[LX0,a*LX0+b],[LX1,a*LX1+b],'#34d399',null,3);
+    unL();
+    // 公式标签：符号感知（b<0 时输出 "− 0.45" 而不是 "+ -0.45"）。
+    // 放在最右一个数据点右侧、线的上方 —— 中点会和中间的残差竖线打架
+    const sgn = b<0 ? ' − ' : ' + ';
+    const xLast=xs[xs.length-1], lx=clamp(P.X(xLast+.55),90,P.w-16);
+    txt(ctx,lx,clamp(P.Y(a*(xLast+.55)+b)-14,18,P.h-46),
+        'y = '+fmt(Math.abs(a),2)+'x'+sgn+fmt(Math.abs(b),2),'#34d399',13,'left');
+    // {1, x} 活在 ℝⁿ 里，画在 (x,y) 平面上没有意义 —— 只用一句话点破
+    txt(ctx,14,P.h-14,'残差 r 活在 ℝⁿ 里：它同时垂直于「全 1 向量」和「x 向量」',th().fade,12,'left');
+    // 残差：这是本模块的主角 → 加粗实线 + 两端方块 + 明显时标注 +残差 / −残差
+    rx.forEach(r=>{
+      const y0=r[0]*a+b, hpx=Math.abs(r[1])*P.sy;
+      seg(P,[r[0],y0],[r[0],y0+r[1]],'#f87171',null,3.2,.95);
+      const c2=P.ctx;
+      c2.save(); c2.fillStyle='#f87171';
+      c2.fillRect(P.X(r[0])-3.2,P.Y(Math.max(y0,y0+r[1]))-3.2,6.4,6.4);
+      c2.restore();
+      if(hpx>8){
+        // 两端各自朝远离对方的方向外推 13px；相邻残差间距够宽，不会互相叠字
+        const up=Math.sign(r[1])||1;          // +1：残差朝上，数据点在上端
+        txt(ctx,P.X(r[0]),P.Y(y0+r[1])-up*13,'+残差','#f87171',11);
+        txt(ctx,P.X(r[0]),P.Y(y0)+up*13,'−残差','#f87171',11);
+      }
+    });
+    // 数据点
+    xs.forEach((x,i)=>{
+      const ctx2=P.ctx;
+      ctx2.save();
+      ctx2.beginPath(); ctx2.arc(P.X(x),P.Y(ys[i]),6.5,0,7);
+      ctx2.fillStyle=ys[i]-(a*x+b)>0?'#f87171':'#60a5fa'; ctx2.fill();
+      ctx2.lineWidth=2.5; ctx2.strokeStyle=th().bg; ctx2.stroke(); ctx2.restore();
+    });
+    rows(o7,[
+      ['y = a·x + b','  a='+fmt(a,3)+'  b='+fmt(b,3),'hl'],
+      ['强制过原点', through0?'是':'否'],
+      '-',
+      ['斜率 a','  '+fmt(a,4)],
+      ['总平方误差 SSE','  '+fmt(sse,4),sse<1e-8?'':'hl'],
+      ['均方误差 MSE','  '+fmt(sse/xs.length,5)],
+      ['RMSE','  '+fmt(Math.sqrt(sse/xs.length),4)],
+      '-',
+      ['Σ rᵢ (残差和)','  '+fmt(rx.reduce((s,r)=>s+r[1],0),6),Math.abs(rx.reduce((s,r)=>s+r[1],0))<1e-6?'hl':'warn'],
+      ['Σ xᵢrᵢ','  '+fmt(rx.reduce((s,r)=>s+r[0]*r[1],0),6),Math.abs(rx.reduce((s,r)=>s+r[0]*r[1],0))<1e-6?'hl':'warn'],
+      ['r ⊥ span{1,x}?', !through0?(Math.abs(rx.reduce((s,r)=>s+r[1],0))<1e-6?'✓ 两个条件都成立':'—'):'Σxᵢrᵢ=0 ✓，Σrᵢ≠0',
+        !through0?'':'warn'],
+      '-',
+      ['几何解释',''],
+      ['', through0?'模型空间缩成 span{x}：只剩 1 个正交条件':'残差 ⊥ span{1, x} ⊂ ℝⁿ','mat'],
+      ['', through0?'⇒ Σxᵢrᵢ=0 仍成立，但 Σrᵢ≠0':'⇒ r = y − A(AᵀA)⁻¹Aᵀy，其中 A = [1 | x]','mat'],
+      ['结论', through0?'  强制过原点后残差不再"和为 0"':'  投影给出最短残差', through0?'warn':'hl'],
+    ]);
+  };
+  hooks(P,
+    pt=>{
+      let bi=-1,bd=1e9;
+      xs.forEach((x,i)=>{const d=Math.hypot(P.X(x)-pt.px,P.Y(ys[i])-pt.py); if(d<bd){bd=d;bi=i;}});
+      if(bd<22) return {i:bi};
+      return false;
+    },
+    pt=>{
+      const i=(typeof P.drag==='object'&&P.drag!==null)?P.drag.i:-1;
+      if(i>=0) ys[i]=clamp(pt.w.y,-1.2,9.2);
+      P.render(); });
+  P.resize();
+  $('#d7-o0').onchange=e=>{ through0=e.target.checked; P.render(); };
+  $('#d7-fix').onclick=()=>{ ys=xs.map(x=>1.8*x+0.4); through0=false; $('#d7-o0').checked=false; P.render(); };
+  $('#d7-noisy').onclick=()=>{ ys=xs.map(x=>1.5*x+1.1+ (Math.random()*2.4-1.2)); through0=false; $('#d7-o0').checked=false; P.render(); };
+  // 弯曲趋势：噪声刻意做小，保证 U 形残差清晰可辨（这是本模块最好的教学点，不能被随机抖动冲掉）
+  $('#d7-curve').onclick=()=>{ ys=xs.map(x=>9-0.30*(x-3.5)**2 + (Math.random()*0.5-0.25)); through0=false; $('#d7-o0').checked=false; P.render(); };
+})();
+
+/* =========================================================
+   全局：主题 / 导航高亮
+   ========================================================= */
+$('#themeBtn').onclick=()=>{
+  THEME = THEME==='dark'?'light':'dark';
+  document.documentElement.dataset.theme=THEME;
+  $('#themeBtn').textContent = THEME==='dark'?'☀ 浅色':'🌙 深色';
+  redraw();
+};
+const secs=[...document.querySelectorAll('.card[id]')];
+const links=[...document.querySelectorAll('nav.map a')];
+const io=new IntersectionObserver(es=>{
+  es.forEach(en=>{
+    if(en.isIntersecting){
+      links.forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+en.target.id));
+    }
+  });
+},{rootMargin:'-15% 0px -70% 0px'});
+secs.forEach(s=>io.observe(s));
+// sticky 头部在窄屏会换成两行，高度会变 → 锚点滚动余量必须跟着变，否则遮住卡片顶部
+(function(){
+  const head=document.querySelector('header.top');
+  const sync=()=>{
+    const h=Math.ceil(head.getBoundingClientRect().height);
+    document.documentElement.style.setProperty('--headH',(h+14)+'px');
+    secs.forEach(s=>s.style.scrollMarginTop=(h+14)+'px');
+  };
+  sync();
+  if('ResizeObserver' in window) new ResizeObserver(sync).observe(head);
+  window.addEventListener('resize',sync);
+})();
+
+window.addEventListener('resize',()=>redraw());
+</script>
+</body>
+</html>

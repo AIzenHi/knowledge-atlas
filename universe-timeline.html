@@ -1,0 +1,3125 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宇宙史 · 138亿年星图长卷</title>
+<meta name="description" content="从 10⁻⁴³ 秒到 10¹⁰⁰ 年：一本会自己讲故事的宇宙史长卷。滚动推进、13 个动态图版、宇宙日历双时钟、明暗双主题。">
+<link rel="icon" href="data:,">
+<script>
+(function(){try{var t=localStorage.getItem("us.theme");if(t==="light"||t==="dark")document.documentElement.dataset.theme=t;}catch(e){}})();
+</script>
+<style>
+/* ============================================================
+   宇宙史 · 138亿年星图长卷
+   设计：深空星图剧场（默认深色）/ 浅色「古籍星图」模式
+   单文件 · 零依赖 · 系列第三部（地球46亿年 / 数学大陆 / 医学版图）
+   ============================================================ */
+:root{
+  /* —— 深空（默认）—— */
+  --bg:#05060e; --bg2:#0a0d1c;
+  --panel:rgba(16,20,38,.62); --panel2:#10142a;
+  --ink:#e9edfa; --ink2:#aab4d4; --ink3:#6c7696;
+  --line:#2b3354; --line2:#1b2242;
+  --gold:#e6c46a; --gold2:#f2d98a;
+  --shadow:0 14px 34px -22px rgba(0,0,0,.95);
+  --tb-h:62px;
+  --era:#8f6ff2;
+  --stage:#070a16; --stage2:#0b1024;
+  --seal-ink:#fffdf5;
+}
+html[data-theme="light"]{
+  /* —— 古籍星图（浅色）—— */
+  --bg:#f2ede0; --bg2:#eae3d0;
+  --panel:#faf5e9; --panel2:#f3ecda;
+  --ink:#2a3149; --ink2:#5b6584; --ink3:#8a92ab;
+  --line:#c9bfa2; --line2:#ddd3b6;
+  --gold:#99742f; --gold2:#b8913f;
+  --shadow:0 12px 28px -20px rgba(52,44,20,.5);
+  --stage:#0a0e1e; --stage2:#101528;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html.nosmooth{scroll-behavior:auto}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  font-family:"Songti SC","STSong","SimSun","宋体",serif;
+  font-size:17px;line-height:1.9;color:var(--ink);
+  background:
+    radial-gradient(1200px 640px at 16% -12%, rgba(124,92,255,.17), transparent 62%),
+    radial-gradient(1000px 560px at 88% -8%, rgba(45,180,190,.11), transparent 60%),
+    radial-gradient(900px 720px at 52% 118%, rgba(232,140,80,.08), transparent 62%),
+    var(--bg);
+  overflow-x:hidden; padding-top:var(--tb-h);
+}
+html[data-theme="light"] body{
+  background:
+    radial-gradient(1200px 640px at 16% -12%, rgba(96,90,190,.10), transparent 62%),
+    radial-gradient(1000px 560px at 88% -8%, rgba(40,150,160,.08), transparent 60%),
+    radial-gradient(900px 720px at 52% 118%, rgba(200,140,60,.07), transparent 62%),
+    var(--bg);
+}
+body::before{ /* 星尘微纹理 */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.55;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='290' height='290'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='23' cy='41' r='.9'/%3E%3Ccircle cx='132' cy='17' r='.6'/%3E%3Ccircle cx='248' cy='63' r='1.1'/%3E%3Ccircle cx='68' cy='122' r='.7'/%3E%3Ccircle cx='193' cy='147' r='.9'/%3E%3Ccircle cx='284' cy='168' r='.6'/%3E%3Ccircle cx='39' cy='214' r='1'/%3E%3Ccircle cx='148' cy='237' r='.6'/%3E%3Ccircle cx='237' cy='252' r='.9'/%3E%3Ccircle cx='96' cy='274' r='.7'/%3E%3Ccircle cx='273' cy='105' r='.5'/%3E%3Ccircle cx='12' cy='152' r='.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-theme="light"] body::before{opacity:.28}
+::selection{background:var(--gold2);color:#241d0e}
+html[data-theme="light"] ::selection{color:#fffdf5}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+img,svg{display:block}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---------- 顶部常驻仪表 ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:var(--tb-h);z-index:50;
+  background:color-mix(in srgb, var(--bg) 82%, transparent);
+  backdrop-filter:blur(9px);-webkit-backdrop-filter:blur(9px);
+  border-bottom:1px solid var(--line2);
+}
+.tb-inner{max-width:1100px;height:100%;margin:0 auto;padding:0 14px;display:flex;align-items:center;gap:14px}
+.tb-clock{display:flex;align-items:center;gap:9px;flex:0 0 auto}
+.tb-dial{width:36px;height:36px}
+.tb-clock-txt{line-height:1.2}
+.tb-clock-txt .lab{display:block;font-size:9.5px;letter-spacing:.2em;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.tb-clock-txt .val{display:block;font-size:15px;font-weight:700;color:var(--gold);font-family:Georgia,"Times New Roman",serif;letter-spacing:.03em}
+.tb-clock-txt .val2{display:block;font-size:10.5px;color:var(--ink3);font-family:Georgia,"Times New Roman",serif;letter-spacing:.02em;margin-top:-1px}
+.tb-scale{flex:1 1 auto;position:relative;height:36px;min-width:110px}
+.tb-segs{display:flex;gap:2px;height:12px;margin-top:12px;border-radius:3px;overflow:hidden;border:1px solid var(--line2);background:var(--panel2)}
+.tb-segs .seg{flex:1 1 0;background:var(--era);opacity:.5;border:none;padding:0;transition:opacity .25s;cursor:pointer;min-width:0}
+.tb-segs .seg:hover{opacity:.95}
+.tb-segs .seg.on{opacity:1;box-shadow:0 0 8px color-mix(in srgb, var(--era) 70%, transparent)}
+.tb-needle{position:absolute;top:5px;bottom:2px;width:2px;background:var(--ink);left:0%;transition:left .15s linear;box-shadow:0 0 0 2px color-mix(in srgb, var(--bg) 72%, transparent)}
+.tb-needle::after{content:"";position:absolute;top:-3px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.tb-chapter{flex:0 1 auto;max-width:300px;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif}
+.tb-theme{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink2);transition:.25s}
+.tb-theme:hover{color:var(--gold);border-color:var(--gold)}
+.tb-theme svg{width:16px;height:16px}
+@media (max-width:760px){
+  .tb-inner{flex-wrap:wrap;gap:4px 10px;padding:6px 10px;height:auto}
+  .topbar{height:auto}
+  body{padding-top:88px}
+  .tb-scale{flex:1 1 100%;order:3;height:26px}
+  .tb-segs{height:10px;margin-top:7px}
+  .tb-chapter{max-width:150px}
+  .tb-clock-txt .val2{display:none}
+}
+
+/* ---------- 通用 ---------- */
+.wrap{max-width:940px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.no-anim .reveal{opacity:1!important;transform:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
+section[data-sec]{scroll-margin-top:calc(var(--tb-h) + 14px)}
+
+/* ---------- 序幕 ---------- */
+.hero{padding:70px 0 42px;text-align:center;position:relative}
+.hero .eyebrow{font-family:"FangSong","STFangsong","仿宋",serif;font-size:14px;letter-spacing:.35em;color:var(--ink3)}
+.hero h1{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(42px,7.4vw,68px);letter-spacing:.08em;margin:14px 0 6px;font-weight:700;
+  text-shadow:0 0 34px color-mix(in srgb, var(--gold) 26%, transparent)}
+.hero .sub{color:var(--ink2);font-size:15px;max-width:640px;margin:0 auto;font-family:"FangSong","STFangsong","仿宋",serif}
+.hero .orn{color:var(--gold);letter-spacing:.6em;font-size:12px;margin:18px 0 34px}
+.dial-panel{display:flex;gap:44px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:left}
+.dial{width:288px;height:288px;flex:0 0 auto}
+.dial .dial-ring{fill:none;stroke:var(--line);stroke-width:1.5}
+.dial .dial-tick{stroke:var(--ink3);stroke-width:1}
+.dial .dial-tick.big{stroke:var(--ink2);stroke-width:1.6}
+.dial .dial-lab{font-size:11px;fill:var(--ink3);font-family:Georgia,serif}
+.dial .dial-hand{stroke:var(--gold);stroke-width:2.5;stroke-linecap:round}
+.dial .dial-cap{fill:var(--gold)}
+.dial .dial-dot{fill:var(--gold)}
+.dial .dial-num{font-size:9.5px;fill:#fffbf0;font-weight:700;font-family:Georgia,"Times New Roman",serif}
+.dial .dial-mark{font-size:10.5px;fill:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.dial-legend{max-width:380px}
+.dial-legend h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:19px;margin-bottom:10px}
+.dial-legend p.lead{font-size:14.5px;color:var(--ink2);margin-bottom:14px;line-height:1.85}
+.mk-list{list-style:none;font-size:13.5px}
+.mk-list li{display:flex;gap:9px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line2)}
+.mk-num{width:17px;height:17px;border-radius:50%;background:var(--gold);color:#241d0e;font-size:10.5px;display:inline-grid;place-items:center;font-family:Georgia,"Times New Roman",serif;flex:0 0 auto}
+.mk-list .mk-t{font-family:Georgia,serif;color:var(--gold);font-weight:700;min-width:74px;text-align:right}
+.mk-list .mk-s{color:var(--ink3);font-size:12px;margin-left:auto;font-family:"FangSong","STFangsong","仿宋",serif}
+.hints{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:42px;font-size:13px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.hints span b{color:var(--gold);font-weight:400}
+.scroll-cue{margin:36px auto 0;width:22px;color:var(--ink3);animation:cue 2.2s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(8px);opacity:1}}
+@media (prefers-reduced-motion: reduce){.scroll-cue{animation:none}}
+
+/* ---------- 出发地图 ---------- */
+.map{padding:62px 0 30px}
+.sec-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(26px,3.6vw,34px);text-align:center;letter-spacing:.06em}
+.sec-title::before{content:"✦ ";color:var(--gold);font-size:.62em;vertical-align:.18em}
+.sec-sub{text-align:center;color:var(--ink3);font-size:14px;margin:8px auto 30px;max-width:680px;font-family:"FangSong","STFangsong","仿宋",serif}
+.ruler-panel{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:18px 16px 8px;box-shadow:var(--shadow);margin-bottom:18px}
+.ruler-panel h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17px;margin-bottom:2px}
+.ruler-panel .rp-sub{font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:10px}
+.ruler-panel svg{width:100%;height:auto}
+.ruler-panel text{font-family:"FangSong","STFangsong","仿宋",serif}
+.parts-strip{display:flex;gap:6px;margin:0 0 22px;border-radius:6px;overflow:hidden;border:1px solid var(--line2)}
+.parts-strip div{flex:1;text-align:center;font-size:12px;padding:7px 4px;color:var(--ink2);background:var(--panel2);font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.06em}
+.parts-strip div b{display:block;font-size:13px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-weight:700;color:inherit}
+.map-group{background:var(--panel);border:1px solid var(--line2);border-radius:8px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.map-group>h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17px;padding:12px 18px;border-bottom:1px solid var(--line2);display:flex;align-items:baseline;gap:10px}
+.map-group>h3 .yrs{font-size:12px;color:var(--ink3);font-weight:400;font-family:"FangSong","STFangsong","仿宋",serif;margin-left:auto}
+.map-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 18px;border-bottom:1px dashed var(--line2);transition:background .2s}
+.map-item:last-child{border-bottom:none}
+.map-item:hover{background:color-mix(in srgb, var(--era) 12%, transparent)}
+.map-item .swatch{width:14px;height:14px;border-radius:3px;background:var(--era);flex:0 0 auto;box-shadow:0 0 8px color-mix(in srgb, var(--era) 60%, transparent)}
+.map-item .nm{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16px}
+.map-item .yr{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.map-item .sub{font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;opacity:.85}
+.map-item .go{margin-left:auto;font-size:12px;color:var(--gold);opacity:0;transition:opacity .2s;font-family:"FangSong","STFangsong","仿宋",serif}
+.map-item:hover .go{opacity:1}
+.howto{background:var(--panel2);border:1px dashed var(--line);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink2);line-height:2;margin-bottom:16px;font-family:"FangSong","STFangsong","仿宋",serif}
+.howto b{color:var(--gold);font-weight:400}
+.howto .chain{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;color:var(--ink);letter-spacing:.03em}
+
+/* ---------- 章节 ---------- */
+.chapter{padding:34px 0 10px}
+.ch-head{
+  border-radius:12px;padding:26px 28px 24px;position:relative;overflow:hidden;color:var(--ink);
+  background:
+    radial-gradient(360px 200px at 86% 6%, color-mix(in srgb, var(--era) 40%, transparent), transparent 72%),
+    linear-gradient(165deg, color-mix(in srgb, var(--era) 26%, #0b0e1f) 0%, #090c1a 56%, #070913 100%);
+  border:1px solid color-mix(in srgb, var(--era) 42%, var(--line2));
+  box-shadow:var(--shadow);
+}
+.ch-head::before{ /* 章节头星尘 */
+  content:""; position:absolute; inset:0; opacity:.5; pointer-events:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='210' height='210'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='24' cy='38' r='.8'/%3E%3Ccircle cx='121' cy='16' r='.6'/%3E%3Ccircle cx='186' cy='72' r='1'/%3E%3Ccircle cx='57' cy='121' r='.6'/%3E%3Ccircle cx='151' cy='158' r='.8'/%3E%3Ccircle cx='35' cy='186' r='.7'/%3E%3Ccircle cx='198' cy='189' r='.5'/%3E%3C/g%3E%3C/svg%3E");
+}
+html[data-theme="light"] .ch-head{
+  color:var(--ink);
+  background:
+    radial-gradient(360px 200px at 86% 6%, color-mix(in srgb, var(--era) 26%, transparent), transparent 72%),
+    linear-gradient(160deg, color-mix(in srgb, var(--era) 13%, #fbf6ea) 0%, #f5efdf 62%, #f2ebd8 100%);
+  border:1px solid color-mix(in srgb, var(--era) 40%, var(--line2));
+}
+.ch-line1{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-family:"FangSong","STFangsong","仿宋",serif;font-size:13px;color:var(--ink2);letter-spacing:.06em;position:relative;z-index:1}
+.ch-num{border:1px solid color-mix(in srgb, var(--era) 70%, var(--line));border-radius:999px;padding:1px 12px;font-size:12.5px;color:var(--ink)}
+.ch-age{font-size:12px;color:var(--ink3);margin-left:auto}
+.ch-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(26px,4.5vw,36px);letter-spacing:.08em;margin-top:12px;font-weight:700;position:relative;z-index:1}
+.ch-tag{margin-top:8px;font-size:14.5px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif;position:relative;z-index:1}
+.ch-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
+  background:linear-gradient(90deg, transparent, var(--era), transparent);opacity:.75}
+.nar{margin:26px 2px 22px;font-size:17px}
+.nar p{margin-bottom:16px;text-indent:2em}
+.nar p.drop-cap::first-letter{font-size:2.1em;line-height:1;color:var(--gold);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;margin-right:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(255px,1fr));gap:14px;margin:8px 0 18px}
+.card{background:var(--panel);border:1px solid var(--line2);border-radius:9px;padding:15px 16px 13px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;transition:transform .25s ease,border-color .25s ease,box-shadow .25s ease}
+.card:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--era) 55%, var(--line2));box-shadow:0 16px 34px -20px color-mix(in srgb, var(--era) 45%, transparent)}
+.card-top{display:flex;gap:12px;align-items:flex-start}
+.seal{
+  width:44px;height:44px;flex:0 0 auto;border:1.5px solid var(--era);border-radius:50%;
+  display:grid;place-items:center;color:var(--era);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;
+  font-size:19px;font-weight:700;transform:rotate(-4deg);
+  box-shadow:inset 0 0 0 2px var(--panel), inset 0 0 0 3px color-mix(in srgb, var(--era) 40%, transparent);
+}
+.card-hd h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17.5px;line-height:1.4;letter-spacing:.03em}
+.card-hd .when{font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:2px}
+.ctext{font-size:14px;color:var(--ink2);line-height:1.8}
+.ck{margin-top:auto;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:6px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.02em}
+.ck svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
+.drawer{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;margin:6px 0 16px;overflow:hidden}
+.drawer summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:15.5px;color:var(--ink2);transition:color .2s}
+.drawer summary::-webkit-details-marker{display:none}
+.drawer summary:hover{color:var(--gold)}
+.drawer summary .dmark{width:22px;height:22px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:13px;color:var(--gold);flex:0 0 auto;transition:transform .25s}
+.drawer[open] summary .dmark{transform:rotate(45deg)}
+.drawer summary .dhint{margin-left:auto;font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.dbody{padding:2px 20px 16px;font-size:14.5px;color:var(--ink2)}
+.dpoint{padding:9px 0;border-top:1px dashed var(--line2);line-height:1.85}
+.dpoint b{color:var(--ink);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;margin-right:6px}
+.nugget{font-family:"FangSong","STFangsong","仿宋",serif;font-size:14px;color:var(--ink2);border-left:3px solid var(--gold);padding:6px 0 6px 14px;margin:2px 0 8px;line-height:1.9}
+.nugget .nglabel{color:var(--gold);letter-spacing:.14em;margin-right:8px}
+
+/* ---------- 终幕 ---------- */
+.finale{padding:72px 0 30px}
+.coord-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:26px 0}
+.coord-card{background:var(--panel);border:1px solid var(--line2);border-radius:9px;padding:18px;box-shadow:var(--shadow)}
+.coord-card .fc-t{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16.5px;color:var(--ink);margin-bottom:6px}
+.coord-card .fc-w{font-size:12px;color:var(--gold);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:8px;letter-spacing:.05em}
+.coord-card p{font-size:14px;color:var(--ink2)}
+.oneline-panel{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:22px 18px 12px;margin:30px 0;box-shadow:var(--shadow)}
+.oneline-panel h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:20px;text-align:center;margin-bottom:4px}
+.oneline-panel .ol-sub{text-align:center;font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:14px}
+#oneline svg{width:100%;height:auto}
+#oneline text{font-family:"FangSong","STFangsong","仿宋",serif}
+.closing{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(19px,3vw,24px);text-align:center;line-height:2.1;margin:44px auto;max-width:720px;letter-spacing:.05em}
+.closing em{color:var(--gold);font-style:normal}
+
+/* ---------- 页脚 ---------- */
+footer{border-top:1px solid var(--line2);margin-top:50px;padding:30px 0 60px;font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+footer .wrap{max-width:940px}
+footer p{margin-bottom:8px}
+footer .fk{color:var(--ink2)}
+.sources{margin-top:10px;line-height:1.9}
+.sources a{color:var(--ink2);text-decoration:underline dotted}
+.sources a:hover{color:var(--gold)}
+
+/* ---------- 悬浮按钮 ---------- */
+.fab{position:fixed;right:18px;bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:40}
+.fab button{width:42px;height:42px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink2);display:grid;place-items:center;transition:.25s}
+.fab button:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-2px)}
+.fab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- 动态图版（永远深空控制台风） ---------- */
+.plate{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:16px 18px 14px;margin:8px 0 16px;box-shadow:var(--shadow)}
+.plate-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:3px}
+.plate-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17px;letter-spacing:.04em}
+.plate-tag{font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 9px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.08em;white-space:nowrap}
+.plate-sub{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:10px}
+.plate-stage{position:relative;background:var(--stage);border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.plate-stage::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.4;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='190' height='190'%3E%3Cg fill='%23ffffff'%3E%3Ccircle cx='21' cy='34' r='.7'/%3E%3Ccircle cx='112' cy='15' r='.5'/%3E%3Ccircle cx='171' cy='66' r='.8'/%3E%3Ccircle cx='52' cy='112' r='.5'/%3E%3Ccircle cx='138' cy='143' r='.7'/%3E%3Ccircle cx='31' cy='170' r='.6'/%3E%3C/g%3E%3C/svg%3E")}
+.plate-stage canvas{display:block;width:100%;height:auto;position:relative;z-index:1}
+.plate-stage .stage-msg{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:#8d97b8;font-family:"FangSong","STFangsong","仿宋",serif;z-index:2}
+.plate-foot{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;min-height:24px}
+.plate-note{font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:8px}
+.pbtn{font-size:12.5px;font-family:"FangSong","STFangsong","仿宋",serif;border:1px solid var(--line);border-radius:999px;padding:4px 15px;color:var(--ink2);transition:.2s;cursor:pointer}
+.pbtn:hover{color:var(--gold);border-color:var(--gold)}
+.pbtn:active{transform:translateY(1px)}
+.prange{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.prange input[type=range]{width:175px;accent-color:var(--gold)}
+.pval{font-size:12.5px;color:var(--gold);font-family:Georgia,"Times New Roman",serif;min-width:76px}
+
+/* ---------- 打印 ---------- */
+@media print{
+  .topbar,.fab,body::before{display:none!important}
+  body{padding-top:0;background:#fff}
+  .chapter,.map-group,.card,.drawer,.oneline-panel,.ruler-panel{break-inside:avoid}
+  .reveal{opacity:1!important;transform:none!important}
+  a{color:inherit}
+}
+
+</style>
+</head>
+<body>
+<!-- ======== 顶部常驻仪表 ======== -->
+<header class="topbar" id="topbar">
+  <div class="tb-inner">
+    <div class="tb-clock" title="宇宙日历：把138亿年压缩成一年">
+      <svg class="tb-dial" viewBox="0 0 80 80" aria-hidden="true">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <g id="tbDialTicks"></g>
+        <line id="tbClockHand" x1="40" y1="40" x2="40" y2="10" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="3.2" fill="var(--gold)"/>
+      </svg>
+      <div class="tb-clock-txt">
+        <span class="lab">宇宙日历</span>
+        <span class="val" id="tbClockTime">1月1日 00:00</span>
+        <span class="val2" id="tbClockReal">10⁻⁴³ 秒</span>
+      </div>
+    </div>
+    <div class="tb-scale" id="tbScale">
+      <div class="tb-segs" id="tbSegs"></div>
+      <div class="tb-needle" id="tbNeedle"></div>
+    </div>
+    <div class="tb-chapter" id="tbChapter">序幕 · 读时间的人</div>
+    <button class="tb-theme" id="tbTheme" title="切换星图模式" aria-label="切换明暗主题"></button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======== 序幕 ======== -->
+<section class="hero" id="hero" data-sec="hero">
+  <div class="wrap">
+    <p class="eyebrow">一本会自己讲故事的宇宙史长卷</p>
+    <h1>宇宙 138 亿年</h1>
+    <p class="sub">从比原子核还小的一瞬，到所有恒星熄灭之后的漫长余音——<br>往下滚，时间会从你指尖流过。</p>
+    <p class="orn">✧ ✦ ✧</p>
+
+    <div class="dial-panel">
+      <svg class="dial" id="heroDial" viewBox="0 0 300 300" role="img" aria-label="把138亿年压缩成一年的日历表盘"></svg>
+      <div class="dial-legend">
+        <h3>先看懂一个换算：138亿年 = 一年</h3>
+        <p class="lead">如果把宇宙的 138 亿年压缩进一本日历：大爆炸发生在 1 月 1 日的零点钟声里；第一代恒星赶在 1 月上旬点亮；太阳系 9 月 1 日出生；而人类文明，是 12 月 31 日最后的半分钟里才开始写字的。本页右上的「宇宙日历」就是这个时钟。</p>
+        <ul class="mk-list" id="heroMarks"></ul>
+      </div>
+    </div>
+
+    <div class="hints">
+      <span>往下滚 <b>▸</b> 时间前进</span>
+      <span>滚到「动态图版」<b>▸</b> 自动播放演示</span>
+      <span>点开「深挖抽屉」<b>▸</b> 看进阶细节</span>
+      <span>点右上角 <b>☾</b> 切换星图模式</span>
+    </div>
+
+    <svg class="scroll-cue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v16M5 13l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ======== 出发地图 ======== -->
+<section class="map" id="map" data-sec="map">
+  <div class="wrap">
+    <h2 class="sec-title">出发前，先看一眼时间的地图</h2>
+    <p class="sec-sub">从 10⁻⁴³ 秒到 10¹⁰⁰ 年——这是一条横跨 150 个数量级的航线。（点击任意名称直达对应章节）</p>
+    <div class="howto" id="howto"></div>
+    <div class="parts-strip" id="partsStrip"></div>
+    <div id="mapGroups"></div>
+    <div class="plate reveal" data-demo="ruler" id="plate-ruler" style="--era:#8f6ff2">
+      <div class="plate-head"><span class="plate-title">时间尺：从 10⁻⁴³ 秒到 10¹⁰⁰ 年</span><span class="plate-tag">动态图版 · 可拖动</span></div>
+      <p class="plate-sub">拖动滑块，让指针滑过整个宇宙史——每一站都标着「此刻正在发生什么」</p>
+      <div class="plate-stage"><canvas role="img" aria-label="时间尺动态演示"></canvas></div>
+      <div class="plate-foot"></div>
+      <p class="plate-note">横轴为对数刻度（每一格 = 时间 ×10）；温度与描述为示意简化，精确口径见各章正文与事实核对清单。</p>
+    </div>
+  </div>
+</section>
+
+<!-- ======== 滚动长卷 · 章节 ======== -->
+<div class="wrap"><main id="chapters"></main></div>
+
+<!-- ======== 终幕 ======== -->
+<section class="finale" id="finale" data-sec="finale">
+  <div class="wrap">
+    <h2 class="sec-title">终幕 · 你站在这里</h2>
+    <p class="sec-sub">回望 138 亿年，也眺望 10¹⁰⁰ 年之后——两条路，都通向同一个远方。</p>
+    <div class="coord-cards" id="coordCards"></div>
+    <div class="oneline-panel">
+      <h3>一图流 · 把整个宇宙折进一张纸</h3>
+      <p class="ol-sub">上排：21 个章节，等宽排列（叙事顺序）；下排：在对数时间里，它们各自的真实跨度。悬停查看详情。</p>
+      <div id="oneline"></div>
+    </div>
+    <p class="closing">曾经，有一种被称作「原子」的东西，在恒星的火炉里熬过了数十亿年，<br>聚成了能思考的我们；<br>现在，宇宙终于有一部分的它，<br>开始在纸上回望整条来路。<br><em>这个故事还没有写完——余下的篇章，写在正在读这句话的物种手里。</em></p>
+  </div>
+</section>
+
+</main>
+
+<!-- ======== 页脚 ======== -->
+<footer>
+  <div class="wrap">
+    <p class="fk">《宇宙史 · 138亿年星图长卷》 · 单文件 HTML · 零外部依赖 · 双击即开</p>
+    <p>时钟换算：138亿年 = 1年（宇宙日历）；1 天 ≈ 3780 万年，1 小时 ≈ 158 万年，1 秒 ≈ 437 年。年代与数值以 Planck 卫星 / NASA / ESA / JWST / DESI 等公开口径为准；存争议处已在「深挖抽屉」与「图鉴注脚」中标注限定词。</p>
+    <p class="sources" id="sources">主要来源：NASA · ESA · Planck 2018 · JWST · DESI DR2 · Nature / Science 等公开文献。全量事实核对清单（含逐条出处与常见误区）：《宇宙史_事实核对清单.md》（同目录）。</p>
+    <p>生成于 2026-10-07 · 深空星图剧场 · 「地球46亿年」系列续作</p>
+  </div>
+</footer>
+
+<!-- ======== 悬浮按钮 ======== -->
+<div class="fab">
+  <button id="fabMap" title="回到地图"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg></button>
+  <button id="fabTop" title="回到顶部"><svg viewBox="0 0 24 24"><path d="M12 21V5M5 11l7-7 7 7"/></svg></button>
+</div>
+
+<script>
+/* ============================================================
+   DATA · 上部（元信息 + 第 1–7 章）
+   口径：facts_raw.md（截至 2026-10 核验）；l = log10(大爆炸后年数)
+   ============================================================ */
+const DATA = {
+  meta:{ calYears: 1.38e10, l0: -50.5, l1: 100.0, title:"宇宙史 · 138亿年星图长卷" },
+  parts:[
+    {id:"p1", name:"壹 · 前传",      sub:"时间开始的地方",   range:"10⁻⁴³ – 10⁻³⁶ 秒",     l0:-50.5, l1:-43.5, color:"#8f6ff2", chapters:["ch-01","ch-02"]},
+    {id:"p2", name:"贰 · 创世",      sub:"从火球到第一道光", range:"10⁻³⁶ 秒 – 38 万年",  l0:-43.5, l1:5.58,  color:"#e08a3c", chapters:["ch-03","ch-04","ch-05"]},
+    {id:"p3", name:"叁 · 黑暗与黎明", sub:"星系与太阳系的百亿年", range:"38 万年 – 92 亿年", l0:5.58,  l1:9.96,  color:"#36b0a4", chapters:["ch-06","ch-07","ch-08","ch-09","ch-10","ch-11","ch-12"]},
+    {id:"p4", name:"肆 · 家门口",    sub:"太阳系与生命",     range:"92 亿 – 138 亿年",     l0:9.96,  l1:10.14, color:"#6fae6f", chapters:["ch-13","ch-14"]},
+    {id:"p5", name:"伍 · 人类破案",  sub:"此刻 · 回望与追问", range:"此刻",                 l0:10.135, l1:10.135, color:"#5f8fe8", chapters:["ch-15","ch-16","ch-17"]},
+    {id:"p6", name:"陆 · 未来",      sub:"恒星熄灭之后",     range:"今天 – 10¹⁰⁰ 年",      l0:10.14, l1:100,   color:"#8a6fc9", chapters:["ch-18","ch-19","ch-20","ch-21"]}
+  ],
+  marks:[
+    {l:-50.5, name:"大爆炸第一瞬", note:"宇宙的零点"},
+    {l:8.18,  name:"第一代恒星点亮", note:"约 1–4 亿年"},
+    {l:9.0,   name:"再电离完成",   note:"约 10 亿年之内"},
+    {l:9.96,  name:"太阳系诞生",   note:"46 亿年前"},
+    {l:10.14, name:"此刻 · 你在读它", note:"138 亿年"}
+  ],
+  chapters:[]
+};
+
+/* ===== 第 1 章 · 普朗克时期 ===== */
+DATA.chapters.push({
+  id:"ch-01", part:"p1", era:"普朗克时期", name:"物理定律失效的那一页",
+  range:"大爆炸后 0 – 10⁻³⁶ 秒", l0:-50.5, l1:-43.5, c:"#8f6ff2", cd:"#a48bf5",
+  tag:"时间的最初一页上，没有字——因为写字的规则还没生效。",
+  nar:[
+    "故事有一个开头，但物理定律在开头处「罢工」。在大爆炸后的第一个 10⁻⁴³ 秒里，时间、空间和能量的量子涨落搅在一起，「之前」「之后」这样的词都暂时失去了意义。这一页，是现有物理课本被撕掉的那一页。",
+    "我们唯一能确定的是：那一刻的宇宙，温度高得不可理喻——约 10³² K 的量级（亿亿亿亿度）；密度高得不可理喻；四大基本作用力还挤在一起，没来得及分开。描述它们「分开之后」的规则，我们都会写；而「挤在一起」时怎么写——没人会。",
+    "所以「大爆炸之前发生了什么」这个问题，很可能问错了方向：如果时间本身从这一刻才开始，「之前」就像「北极以北」——不是我们不知道答案，而是这个问题没有定义。物理学在这里的诚实，比任何想象力都更动人。"
+  ],
+  cards:[
+    {seal:"尺", when:"5.39×10⁻⁴⁴ 秒 · 时间的最小刻度", l:-50.8, t:"普朗克时间", d:"现有物理能谈论的最短瞬间。比它更短的「时间」，没有可测量的意义。普朗克长度 1.616×10⁻³⁵ 米、普朗克温度约 1.42×10³² K——它们是宇宙的「分辨率下限」。"},
+    {seal:"温", when:"约 10³² K 以上", l:-48, t:"炉温爆表", d:"四大基本作用力被认为处于统一状态。没有原子、没有粒子、甚至没有稳定的「作用力」概念——只有一锅高温的统一场。"},
+    {seal:"墙", when:"理论边界 · 非时间点", l:-46, t:"爱因斯坦方程在这里冒烟", d:"把广义相对论外推到 t→0，密度和曲率会发散——这是数学外推的「奇点」，不是被证实的物理点。奇点定理（Penrose 1965 / Hawking & Penrose 1970）恰恰是在宣告：这套理论在这里失效。"},
+    {seal:"谜", when:"至今无实验检验", l:-44.5, t:"量子引力：缺失的一页", d:"把引力和量子力学合并的理论——弦论、圈量子引力——都还是候选框架。宇宙最早一瞬因此不可计算：我们知道它在「讲」，但听不懂语言。"}
+  ],
+  deep:{title:"普朗克尺度、奇点与「北极以北」", hint:"点开看进阶细节", points:[
+    {t:"普朗克单位：理论的「分辨率下限」", d:"普朗克长度 1.616×10⁻³⁵ 米，普朗克时间 5.39×10⁻⁴⁴ 秒。低于这个尺度，「时空」这个概念本身都变得可疑——它们不是测量的极限，而是现有理论语言的极限。"},
+    {t:"奇点定理说了什么（和没说什么）", d:"Penrose（1965）与 Hawking-Penrose（1970）证明：在很一般的条件下，广义相对论必然推出奇点。注意——这恰恰说明理论在奇点处崩溃，而不是宣布「存在一个物理的奇点」。一个理论推出自己算不下去的地方，这就是它的边界。"},
+    {t:"「北极以北」：为什么这个问题没有答案", d:"你问「大爆炸之前有什么」，问题里预设了「大爆炸之前存在时间」。可如果时间是随大爆炸展开的，这个「之前」就像「北极以北」——词是现成的，指的东西不存在（Lineweaver & Davis, Scientific American 2005）。"},
+    {t:"量子引力的候选们", d:"弦论：把粒子换成弦，自带引力子；圈量子引力：把时空本身量子化成「泡沫」。两套数学都很优美，都没有实验裁决。大爆炸的「第一刻」还要等它们之中先有人算出可检验的预言。"}
+  ]},
+  nugget:"把普朗克时间放大到 1 秒，那 1 秒本身会被拉长到约 10³⁶ 年——比宇宙现在的年龄还长 10²⁶ 倍。这个尺度，小得不像话。"
+});
+
+/* ===== 第 2 章 · 暴胀 ===== */
+DATA.chapters.push({
+  id:"ch-02", part:"p1", era:"暴胀时期", name:"一瞬间放大 10²⁶ 倍",
+  range:"大爆炸后 10⁻³⁶ – 10⁻³² 秒", l0:-43.5, l1:-39.5, c:"#a06af0", cd:"#b791f4",
+  tag:"创世的第二页，空间自己动手，把原子核拉成星系。",
+  nar:[
+    "创世的第二页，宇宙干了一件不可思议的事：空间自身在一瞬之间被拉伸了至少 10²⁶ 倍。想象一个原子核，突然被拉成一座星系那么大的舞台——暴胀，就是这场「超级拉伸」。注意：拉伸的是空间本身，不是有什么东西被「炸」出去。",
+    "为什么物理学家愿意相信一个看不见摸不着的「拉伸」？因为它一口气救下了三个几乎无解的问题：为什么天空两端的温度一模一样（视界问题）、为什么空间平得像没起皱的纸（平坦性问题）、为什么找不到理论预言的磁单极子。动机不是证据，但它让这门理论值得被认真对待。",
+    "证据等级要说清楚：暴胀得到的是「间接支持」——它留下的涟漪指纹（谱指数 ns≈0.965）与微波背景的观测吻合；而它最硬核的预言「原初引力波」，至今没有被找到（r<0.036）。2014 年，BICEP2 团队曾宣布找到「确凿证据」，一年后被判定是银河系尘埃的假信号。审慎，是这门学问的一部分。"
+  ],
+  cards:[
+    {seal:"拉", when:"10⁻³⁶ – 10⁻³² 秒", l:-43.5, t:"指数级拉伸", d:"空间至少被拉长 e⁶⁰ ≈ 10²⁶ 倍。微观的量子涨落被顺手放大成了宇宙学尺度的「种子」——这是暴胀留给今天最珍贵的遗产。"},
+    {seal:"救", when:"三大疑难", l:-42, t:"一口气救三个场", d:"① 视界问题：来不及通信的两端为何温度一致；② 平坦性问题：空间为何平得如此彻底；③ 磁单极子问题：理论的「大件垃圾」为何找不到。"},
+    {seal:"证", when:"Planck 2018", l:-41, t:"间接证据：涟漪指纹", d:"标量谱指数 ns=0.965±0.004：接近标度不变的谱，与「早期存在近指数膨胀阶段」吻合。但 CMB 只能确认「曾经拉伸过」，指认不了具体是哪种暴胀模型。"},
+    {seal:"缺", when:"BICEP/Keck 2021", l:-40, t:"直接证据：仍然缺席", d:"原初引力波（张量模）未检出：r<0.036。2014 年 BICEP2 的「宣布—撤回」是著名的审慎教材。直接证据不出现，暴胀就始终戴着「假说」的帽子。"}
+  ],
+  plates:[
+    {d:"inflation", title:"暴胀拉伸：一瞬间放大 10²⁶ 倍", sub:"从视界问题到量子涨落的冻结——三幕看完创世第一推", tag:"动态图版", note:"机制示意；暴胀的观测支持为间接证据（Planck 2018），直接证据（原初引力波）尚未检出。"}
+  ],
+  deep:{title:"视界、涨落与证据等级", hint:"点开看进阶细节", points:[
+    {t:"视界问题到底问什么", d:"今天天空两端相距极远，按膨胀速度的账本，它们从未有机会互相通信——可为什么它们的温度精确到十万分之一以内还完全一致？暴胀的答案：它们本来挨得很近，是后来被「拉」远的。"},
+    {t:"量子涨落如何变成星系", d:"真空中不停有量子抖动。暴胀把这些微观抖动拉伸并「冻结」成密度涟漪：有的地方略密，有的略疏。略密的地方引力占上风，滚雪球式长大——这就是所有星系团的胚胎。"},
+    {t:"证据等级一览", d:"支持：ns≈0.965、大尺度平坦、均匀；缺失：张量模 r（直接证据）；待检：非高斯性。科普上最容易犯的错误，是把「能解释三个问题」当成「已被证明」。"},
+    {t:"「暴胀是爆炸吗？」", d:"不是。暴胀是空间自身的指数级拉伸；结束时能量「再加热」成粒子，才衔接上标准的大爆炸叙事。它也不是发生「在」空间里的某处——拉伸的就是整个空间。"}
+  ]},
+  nugget:"你今天所在的银河系，出身于一次比原子还小的量子抖动——暴胀把它从「虚无」拉伸成了蓝图。"
+});
+
+/* ===== 第 3 章 · 第一秒 ===== */
+DATA.chapters.push({
+  id:"ch-03", part:"p2", era:"粒子时期", name:"夸克汤与十亿分之一的幸运",
+  range:"大爆炸后 10⁻³² 秒 – 1 秒", l0:-39.5, l1:-7.5, c:"#e06a3c", cd:"#e88f66",
+  tag:"宇宙的第一秒，是从一锅汤到一堆积木的相变史。",
+  nar:[
+    "暴胀结束，宇宙把全部精力交还给「热」。接下来的第一秒，是一部从「汤」到「积木」的相变史：最开始，能量太足，夸克和胶子像一锅沸腾的自由汤，谁也管不了谁；随着温度掉到约 10¹³ K 以下，它们突然被「囚禁」——三三成群，绑成质子与中子。你身体里的每一个质子，都是从那口锅里捞出来的。",
+    "这口「夸克汤」并不是纯理论：欧洲大型强子对撞机用重离子对撞，已经能在实验室里再现它的微小样本。宇宙史的一部分，是可以被「微缩重演」的——这大概是物理学最浪漫的实验能力。",
+    "还有一件事在这第一秒里悄悄定了案：粒子与反粒子几乎完全对称，但物质多出了「十亿分之一」。别小看这个零头——接下来长达几十万年的湮灭大战里，正是这个余数活了下来，成了所有星系、恒星、行星，以及你。为什么不对称？标准模型给不出完整答案，这是宇宙留给我们的顶级谜题之一。"
+  ],
+  cards:[
+    {seal:"衡", when:"约 10⁻¹² 秒", l:-19.5, t:"电弱对称破缺", d:"电磁与弱作用在这一刻「分家」，希格斯机制启动——粒子开始拥有质量。没有这一步，世界将是没有「体重」的粒子云。"},
+    {seal:"汤", when:"10⁻¹² – 10⁻⁶ 秒", l:-16, t:"夸克汤时代", d:"温度 >10¹³ K：夸克、胶子自由游荡，无法结合。LHC 的重离子碰撞已能原位重现这种夸克-胶子等离子体。"},
+    {seal:"锁", when:"10⁻⁶ 秒 – 1 秒", l:-9, t:"夸克被「囚禁」", d:"温度降到约 10¹³→10¹⁰ K：夸克被强作用力锁成质子与中子（强子）。宇宙的「基本积木」正式出厂。"},
+    {seal:"幸", when:"第一个微秒里注定", l:-10, t:"十亿分之一的偏袒", d:"每约 10 亿对正反夸克中，物质多出 1 个。湮灭潮过后只剩这个「零头」——它决定了宇宙不是一锅光。不对称的成因仍是未解之谜。"}
+  ],
+  plates:[
+    {d:"annihilation", title:"湮灭大戏：十亿分之一的幸存者", sub:"正反粒子的对撞潮，与一个救了整个宇宙的「零头」", tag:"动态图版", note:"粒子数量为示意；真实比例约为每 10 亿对多 1 个夸克，具体机制（重子生成）尚未定论。"}
+  ],
+  deep:{title:"质量、囚禁与十亿分之一", hint:"点开看进阶细节", points:[
+    {t:"「获得质量」是什么意思", d:"在电弱对称破缺之前，基本粒子没有静质量——它们像光一样只能狂奔。希格斯场「凝聚」之后，粒子与它相互作用才获得质量。格点计算给出的临界温度约 159.5 GeV（约 10¹⁵ K），这是标准模型框架内最戏剧性的一次「集体变身」。"},
+    {t:"为什么夸克不能单独出门", d:"强作用力有个怪脾气（色禁闭）：能量越高，束缚反而越紧。想把夸克拽出来？你投入的能量会直接「生」出一对新的夸克-反夸克，包裹住它。宇宙里从没有过孤立的夸克，以后也不会有。"},
+    {t:"在实验室里「重演宇宙」", d:"ALICE 等实验让铅核对撞，瞬间产生约 5 万亿度的夸克-胶子等离子体——比太阳核心热 25 万倍。它只存在约 10⁻²³ 秒，但足够物理学家量一量「宇宙第一微秒」的黏度。"},
+    {t:"物质为什么赢：还是悬案", d:"要造出物质-反物质的不对称，需要同时满足三个条件（萨哈罗夫条件：重子数破坏、C 与 CP 破坏、偏离热平衡）。标准模型里的 CP 破坏太弱，远不够数——所以答案大概率藏在「新物理」里。"}
+  ]},
+  nugget:"你每一次呼吸里，都藏着第一秒的判决：如果不是那十亿分之一的偏袒，宇宙今天只会剩下一锅光，连一粒尘埃都攒不成。"
+});
+
+/* ===== 第 4 章 · 原初核合成 ===== */
+DATA.chapters.push({
+  id:"ch-04", part:"p2", era:"原初核合成", name:"前三分钟：宇宙的元素配方",
+  range:"大爆炸后 1 秒 – 20 分钟", l0:-7.5, l1:-4.42, c:"#e08a3c", cd:"#e8a86d",
+  tag:"宇宙的第一间厨房，也是最准时的一间：三分钟，出锅。",
+  nar:[
+    "大爆炸的前三分钟，是宇宙第一间、也是最重要的一间厨房。温度从十亿度的量级一路回落到「可以下锅」的区间：质子与中子开始配对，先焊出氘，再拼装成氦-4。宇宙里约四分之一的普通物质质量，就在这三分钟里打包完成——然后热度和密度双双跌破开工线，厨房打烊。",
+    "配方的精确度令人难以置信：理论预测的氦丰度 Yp≈0.247，观测值是 0.245–0.249；氘的丰度 D/H≈2.55×10⁻⁵，与微波背景的独立测量严丝合缝。一套 138 亿年前的菜谱，能被今天的望远镜逐项对账——这是大爆炸模型最硬的证据之一。",
+    "但厨房只做轻元素：氢、氦，加上一点点锂的痕迹。碳、氧、铁这些「硬菜」，要等恒星点火之后才有得吃。换句话说：氢是原厂件，其他的基本都是恒星后装件——第 12 章会专门去拜访那些星际厨房。"
+  ],
+  cards:[
+    {seal:"比", when:"约 1 秒 · 弱作用冻结", l:-7.0, t:"中子：质子 ≈ 1:6", d:"弱作用在约 1 秒时「冻结」，此时中子占 1/6；中子会衰变（半衰期 611 秒），等核合成开火时已降到约 1/7——这个比例直接决定了氦产量。"},
+    {seal:"锅", when:"1 – 2 分钟", l:-5.6, t:"氘核开始稳定", d:"温度降到氘核能幸存的门槛以下，第一步反应（p+n→D）终于能「存住货」。此前每次刚焊好的氘核，转眼就被高能光子拆掉。"},
+    {seal:"火", when:"约 3 分钟", l:-5.24, t:"连锁反应奔涌", d:"D+p、D+D、³He+n 一连串反应把物质快速送进氦-4——因为氦-4 异常稳定，反应的洪流在此汇成「死胡同」，批量堆积。"},
+    {seal:"冻", when:"约 180 秒", l:-5.2, t:"丰度冻结", d:"温度密度双双跌破门槛，核反应熄火。出厂配置锁定：约 75% 氢、25% 氦（按质量）、痕迹级锂。这套配方 138 亿年没有变过。"}
+  ],
+  plates:[
+    {d:"bignucleo", title:"三分钟厨房：宇宙的元素配方", sub:"拖动时间：从 1 秒到 20 分钟，看氢、氦、锂如何出炉", tag:"动态图版 · 可拖动", note:"丰度口径：氦 Yp≈0.247、氘 D/H≈2.547×10⁻⁵（PDG 2020）；「锂问题」（理论比观测多 2–4 倍）仍未解决。"}
+  ],
+  deep:{title:"氦-4 的死胡同与锂的悬案", hint:"点开看进阶细节", points:[
+    {t:"为什么宇宙「偏爱」氦-4", d:"轻核的稳定名单很短：氘、氦-3、氦-4、锂-7。其中氦-4 结合能特别高，是最稳的「轻核保险箱」；而通往更重元素的路上卡着两个极不稳定的幽灵核（锂-5、铍-8），一遇就散。宇宙的三分钟，注定只能造到这里。"},
+    {t:"中子衰变：配方里的隐藏系数", d:"自由中子不老实，半衰期约 611 秒——它会衰变成质子。所以「出锅」越晚，中子越少、氦也越少。核合成的速度与天体物理参数咬合得如此精确，这本身就是对理论的压力测试。"},
+    {t:"锂问题：多出来的 4 倍", d:"按核合成理论，宇宙该有的锂-7 是观测值的 2–4 倍。是恒星把锂消耗掉了？核反应率算错了？还是新物理？快三十年过去，这桩悬案仍未结（PDG 2020）。"},
+    {t:"从「元素配方」到「物质-辐射相等」", d:"核合成之后的漫长岁月里，辐射（光子、中微子）一直主导宇宙的能量账本，直到约 5 万年后的「物质-辐射相等」——从那一刻起，物质的引力开始主导结构的生长，为后来的一切结构竞争按下加速键。"}
+  ]},
+  nugget:"今天宇宙里的氦，大部分不是恒星造的——而是这「三分钟厨房」的原厂出品。你生日气球里的氦原子，尝起来是 138 亿年前的味道。"
+});
+
+/* ===== 第 5 章 · 复合与 CMB ===== */
+DATA.chapters.push({
+  id:"ch-05", part:"p2", era:"复合 · CMB", name:"38 万年：第一次放晴",
+  range:"大爆炸后 20 分钟 – 38 万年", l0:-4.42, l1:5.58, c:"#e2b23c", cd:"#eac372",
+  tag:"雾散了。光子拿到自由通行证，留下了宇宙最早的一张自拍。",
+  nar:[
+    "接下来的三十八万年，宇宙是一锅发光的浓雾：光子每走几步就被自由电子撞飞，光被困在雾里，哪也去不了。直到温度降到约 3000 K，电子终于被质子「领回家」、结合成中性氢——雾，散了。",
+    "雾散的那一刻，光子第一次可以自由飞行。这批「解放」出来的光一直飞到现在，被空间的膨胀拉长成了微波——这就是宇宙微波背景（CMB）：宇宙能提供的最早一张「婴儿照」。",
+    "照片的内容平淡得震撼：温度起伏只有约十万分之一；黑体谱完美到让理论家起鸡皮疙瘩。恰恰是这些微不可察的涟漪，后来滚雪球长成了星系、星系团和一切结构。1965 年，两位工程师在调试天线时意外听见了这束 138 亿年前的回声——大爆炸理论从此有了照片级证据。"
+  ],
+  cards:[
+    {seal:"等", when:"约 5 万年 · z≈3400", l:4.7, t:"物质-辐射相等", d:"辐射主导的时代落幕：物质开始主导宇宙的能量账本，引力第一次真正掌握结构生长的方向盘。"},
+    {seal:"合", when:"约 38 万年 · z≈1100", l:5.58, t:"复合：雾散了", d:"温度降至约 3000 K，电子与质子结合成中性氢。宇宙从一锅不透明等离子体，变成透明的世界——这个转折点叫「复合」。"},
+    {seal:"光", when:"同一时刻", l:5.59, t:"光子解耦：第一次自由飞行", d:"不再被撞飞的光子开始自由传播——这就是今天看到的宇宙微波背景。它不是「大爆炸那一刻的光」，而是 38 万年时的第一束自由光。"},
+    {seal:"冷", when:"今天 · 2.72548 K", l:10.1399, t:"1100 倍的冷却", d:"当年约 3000 K 的光，被膨胀红移了约 1100 倍，如今只剩 2.7255 K 的微波。它是自然界最完美的黑体谱——偏离不到万分之几。"}
+  ],
+  plates:[
+    {d:"firstlight", title:"光子脱身：38 万年后的第一次自由飞行", sub:"拖动时间：看雾如何散开、光如何被拉长成微波", tag:"动态图版 · 可拖动", note:"示意演示；CMB 温度口径 2.72548±0.00057 K（Fixsen 2009），「完美黑体」由 COBE/FIRAS 验证。"}
+  ],
+  deep:{title:"3000 K 的门槛与三大里程碑", hint:"点开看进阶细节", points:[
+    {t:"为什么是 3000 K", d:"氢原子的结合能约 13.6 eV。当光子气体的温度高于约 3000 K 时，碰撞能量足以把刚拼好的氢原子再打散；降到门槛以下，中性氢才终于「存得住」，光子也终于获得自由。"},
+    {t:"CMB 三大里程碑", d:"1965 年：Penzias & Wilson 在天线噪声里意外发现（1978 年诺奖）；1992 年：COBE 测到十万分之一量级的各向异性（2006 年诺奖）；2013/2018 年：Planck 给出高精度全天空地图——宇宙学的「标准尺」逐级校准。"},
+    {t:"涟漪为什么是宝藏", d:"ΔT/T≈10⁻⁵ 的温差，记录着暴胀冻结下来的密度涨落。没有这些涟漪，宇宙会是一锅均匀的热汤，永远长不出星系。可以说：星系是「十万分之一的不完美」的产物。"},
+    {t:"重子声学振荡（BAO）：标准尺", d:"等离子体时代的声波被冻结在物质分布里，留下尺度约 147 Mpc（约 4.8 亿光年）的周期性涟漪。这把「宇宙标准尺」让 DESI 等巡天项目可以测量几十亿年的膨胀史——本卷第 17 章的悬案，也靠它推进。"}
+  ]},
+  nugget:"旧电视机的雪花噪声里，约 1% 来自 CMB——那是 138 亿年前的光，在你家客厅里轻轻敲了一下。"
+});
+
+/* ===== 第 6 章 · 黑暗时代 ===== */
+DATA.chapters.push({
+  id:"ch-06", part:"p3", era:"黑暗时代", name:"没有星星的一亿年",
+  range:"大爆炸后 38 万年 – 约 1 亿年", l0:5.58, l1:8.0, c:"#4a5fb0", cd:"#7583cf",
+  tag:"雾散了，灯还没开。宇宙有一段漫长的沉默。",
+  nar:[
+    "从 38 万年到大约一亿年，宇宙进入一段没有星星的岁月——「黑暗时代」。中性氢雾弥漫，没有核聚变的火光，唯一的照明是越来越冷的 CMB 余温。",
+    "但「黑暗」只是相对星光而言：雾里一直有微光在游走——冷却中的 CMB 光子，以及氢原子每隔千万年才轻轻翻转一次的 21 厘米辐射。天文学家正努力捕捉这缕极弱的信号：它将告诉我们，第一批星星到底是「何时」点亮的。",
+    "这段平静是一根拉满的弦。引力在暗处耐心工作，把气体一点点聚拢进暗物质的引力井。当第一团气体终于踩中核聚变的门槛——宇宙的历史翻页了。"
+  ],
+  cards:[
+    {seal:"雾", when:"38 万年 – 1 亿年", l:6.5, t:"中性氢雾笼罩", d:"宇宙以中性氢为主，没有星光。这是大爆炸与第一代恒星之间最漫长的「中场休息」。"},
+    {seal:"微", when:"贯穿全程", l:7.0, t:"黑暗不是绝对的黑", d:"CMB 余温的暗红微光 + 中性氢的 21 厘米辉光。如果在那个时代睁开眼，你看到的是整片天空均匀的暗红。"},
+    {seal:"听", when:"未来射电望远镜", l:7.5, t:"21 厘米：时代的低语", d:"中性氢超精细跃迁发出 21 厘米波长的辐射，是目前「直接监听」黑暗时代的最佳频道。SKA 等射电望远镜阵列正为此而建。"},
+    {seal:"弦", when:"1 – 4 亿年之间", l:8.0, t:"拉满的弦", d:"气体在暗物质引力井中持续聚集，密度与温度向核聚变门槛逼近。黑暗时代何时结束，取决于第一缕星光何时点亮（口径 1–4 亿年）。"}
+  ],
+  deep:{title:"21 厘米、脚手架与时间机器", hint:"点开看进阶细节", points:[
+    {t:"21 厘米线：黑暗时代的唯一广播", d:"氢原子里的电子每隔约千万年翻转一次自旋，发出波长 21.1 厘米的微弱辐射。它穿雾而行，是黑暗时代能「直接说话」的唯一频道。难点在于：信号被红移、被前景淹没，探测难度堪称宇宙级。"},
+    {t:"暗物质脚手架", d:"结构生长的顺序是：暗物质先聚成「引力井」，普通气体再被拽进井里。没有这层看不见的脚手架，气体根本来不及聚成第一代恒星——暗物质是宇宙最早的「建筑师」。"},
+    {t:"为什么结束时间这么难测", d:"第一代恒星本身早已死光，直接观测几乎没有；间接线索（21 厘米、CMB 光深、早期星系台账）各自带着不确定性。目前稳妥口径是「1–4 亿年之间」，且这一区间在不断被新数据收窄。"},
+    {t:"我们看到的都是过去", d:"看 10 亿光年外的天体，看到的是它 10 亿年前的样子。宇宙学本质上是一门「考古学」——黑暗时代的信使还在路上，我们只是还没收到全部信件。"}
+  ]},
+  nugget:"黑暗时代里其实不黑——如果你在那里睁开眼，天空会是一片均匀的暗红色微光，像一颗还在余温里的炭。"
+});
+
+/* ===== 第 7 章 · 宇宙黎明 ===== */
+DATA.chapters.push({
+  id:"ch-07", part:"p3", era:"宇宙黎明", name:"第一代恒星点火",
+  range:"大爆炸后约 1 – 4 亿年", l0:8.0, l1:8.5, c:"#3f8fd0", cd:"#6fb0e2",
+  tag:"宇宙点亮了它的第一盏灯——然后很快把它烧爆了。",
+  nar:[
+    "大约在大爆炸后 1 到 4 亿年之间，宇宙点亮了第一盏灯。第一批恒星（天文上叫「第三星族」）和今天的恒星完全不同：个头巨大（约 30 到 300 个太阳质量），浑身几乎只有氢和氦，烧得又急又猛——寿命只有几百万年。",
+    "它们的死亡比诞生更响亮：一场场超级超新星，把在炉膛里锻造的重元素第一次撒向星际空间。宇宙从此有了「金属」（天文学里，比氦重的一切都算金属）——去污名化的说法是：宇宙有了第一笔化学财富，后来的行星与生命都靠它分红。",
+    "找到它们本人非常困难——它们几乎肯定早已死光。2025–2026 年，研究者报告了一些疑似直接证据的候选信号，但都还需要独立验证。这一章的科学，是侦探在几乎没有目击证人的案发现场工作。"
+  ],
+  cards:[
+    {seal:"巨", when:"约 1 – 4 亿年", l:8.1, t:"第三星族：天生巨物", d:"约 30–300 个太阳质量，几乎不含重元素，以氢氦为原料。没有重元素的气体冷却效率低，只能整块坍缩——造出来的恒星自然又大又猛。"},
+    {seal:"短", when:"寿命仅几百万年", l:8.2, t:"烧得快，炸得亮", d:"巨型恒星一生都在「烧钱」，以猛烈超新星结束，把重元素抛向宇宙。第一批恒星是宇宙的「一次性打火机」。"},
+    {seal:"证", when:"2025–2026 候选证据", l:8.3, t:"候选证据：待独立验证", d:"研究者报告了疑似第三星族恒星的直接证据（光谱特征解读），但仍需独立验证。另有「超级恒星」（1000–10000 太阳质量）的研究报道——单来源，属于「研究中」而非结论。"},
+    {seal:"侦", when:"证据碎片拼图", l:8.4, t:"侦探工作现场", d:"没有目击证人，只能靠「余迹」追凶：极贫金属恒星（可能是它们后代）、早期超新星的化学指纹、以及未来望远镜的深空光谱。"}
+  ],
+  deep:{title:"为什么它们长得这么大", hint:"点开看进阶细节", points:[
+    {t:"重元素是「冷却剂」", d:"今天的分子云靠尘埃与重元素高效散热，塌缩时能碎成小块、孕育中小质量恒星。而第一代气体几乎只有氢氦，散热慢、塌缩「整块走」——所以普遍一出生就是巨无霸。"},
+    {t:"「金属」的黑话", d:"天文学家把所有比氦重的元素统称「金属」，哪怕碳、氧、氮在化学上是非金属。这只是一个古老的行话——「贫金属恒星」其实指的是「没怎么吃过恒星余粮的老前辈」。"},
+    {t:"候选证据之争", d:"2025–2026 年报告的光谱候选证据如果坐实，将是观察宇宙黎明的里程碑。但历史上类似宣布曾多次被修正（参考第 2 章 BICEP2），所以页面口径保持「候选」二字。"},
+    {t:"它们留下了什么", d:"超新星把重元素抛进星际介质；部分残骸可能成为后续恒星、行星、乃至生命的原料。你身体里的碳和氧，血统可以一直追溯到这批「初代打火机」的爆炸灰烬。"}
+  ]},
+  nugget:"宇宙的第一次点火，用的不是打火石，是 30 万倍于太阳的引力挤压——而它烧爆自己只用了几百万年。"
+});
+
+/* ============================================================
+   DATA · 中部（第 8–14 章）
+   ============================================================ */
+
+/* ===== 第 8 章 · 再电离 ===== */
+DATA.chapters.push({
+  id:"ch-08", part:"p3", era:"再电离", name:"宇宙重新亮起",
+  range:"大爆炸后约 2 – 10 亿年", l0:8.5, l1:9.0, c:"#35b0a8", cd:"#66c8c0",
+  tag:"星星们联手，把整片雾点亮了——宇宙第二次放晴。",
+  nar:[
+    "第一批星系点亮之后，它们的紫外光开始「清理」宇宙：把中性氢雾一块块重新电离，吹出一串串透明的泡泡。泡泡互相连接、吞并，直到约 10 亿年内，整片天空再次透明——这就是「再电离」。",
+    "这一次放晴和 38 万年前那次不同：第一次是「冷却」让雾自己散掉，第二次是星星自己动手开的灯。从这一刻起，宇宙对光彻底敞开——我们今天能遥望百亿光年外，就是因为空气（准确说，是空间）被清干净了。",
+    "这段历史的最新章节正在被 JWST 重写：观测到的早期星系电离光子似乎「产量超标」——照字面算，再电离会结束得太早，与 CMB 光深的推断打架。这场「光子预算危机」是 2026 年仍然活跃的前沿争论，答案还在路上。"
+  ],
+  cards:[
+    {seal:"泡", when:"约 2 – 6 亿年", l:8.6, t:"透明泡泡扩张", d:"第一批星系周围的氢雾被紫外光电离，形成一个个透明的「电离泡」，就像沸水里不断冒出的气泡。"},
+    {seal:"连", when:"约 6 – 10 亿年", l:8.9, t:"泡泡连成海", d:"电离区域彼此连接，中性氢雾被分割、稀释、最终清除——宇宙从「毛玻璃」变成了「透明玻璃」。"},
+    {seal:"印", when:"Planck 口径", l:8.8, t:"第二张婴儿照的印记", d:"再电离会散射 CMB 偏振光，留下「光深」τ=0.054±0.007 的印记——CMB 与星系观测用两种方式给同一段历史「对表」。"},
+    {seal:"危", when:"2024 – 至今 · JWST", l:8.7, t:"光子预算危机（进行中）", d:"JWST 测到早期星系的电离光子产率高于预期，照字面推算会与 CMB 光深结论矛盾。是星系「虚报产量」，还是我们对早期星系理解有缺口？仍在解决中。"}
+  ],
+  plates:[
+    {d:"reion", title:"宇宙亮灯曲线：黑暗 → 黎明 → 再电离", sub:"拖动时间：看透明的泡泡如何吞掉整片氢雾", tag:"动态图版 · 可拖动", note:"电离时间线仍是活跃研究领域（2024–2026）；稳妥口径：再电离约在宇宙 10 亿年内完成。"}
+  ],
+  deep:{title:"两次放晴与一场进行中的危机", hint:"点开看进阶细节", points:[
+    {t:"两次「放晴」的区别", d:"第一次（38 万年）：光子解耦，宇宙对光透明——雾散了，但还没有灯；第二次（约 10 亿年）：恒星的紫外光把剩余的中性氢全部电离——是「灯开着把雾照散」。"},
+    {t:"莱曼-α 森林：森林其实是「树影」", d:"远方的类星体光谱里有密密麻麻的吸收线——那是光线穿过一个个氢云留下的「树影」。氢云越少，森林越稀疏——它就是再电离结束时刻的「进度条」。"},
+    {t:"光子预算危机", d:"JWST 测量早期星系的电离光子产量，发现「产量 > 需求量」。这两种口径的张力（2024 年提出）可能指向：尘埃遮蔽、电子逃逸率估计偏差，或更深的原因。这是活生生的进行时科学。"},
+    {t:"为什么这段历史难以钉死", d:"再电离的「开始」模糊（个别星系早早吹泡），「结束」也因观测方向而异。2026 年的共识口径仍是区间式的：约 10 亿年内完成——确定性留给下一轮望远镜。"}
+  ]},
+  nugget:"宇宙的第一次透明用了 38 万年，第二次用了大约十亿年——区别在于：第二次，是星星自己动手开的灯。"
+});
+
+/* ===== 第 9 章 · 星系成长记 ===== */
+DATA.chapters.push({
+  id:"ch-09", part:"p3", era:"星系形成", name:"星系成长记：百亿年大并合",
+  range:"大爆炸后 10 – 92 亿年", l0:9.0, l1:9.96, c:"#3fae7f", cd:"#6cc6a0",
+  tag:"星系不是长大的，是「吃大」的。",
+  nar:[
+    "星系登场之后，宇宙的主角戏变成了「并合」。小团块在引力下互相吸引、追尾、融合，一步步长成大星系——天文学给它起的名字很严肃：「等级并合」；翻成大白话就是：吃是长个子的唯一方式。",
+    "这场百亿年的大并合里，宇宙的「建筑风格」逐渐成型：最早的星系小而密，随后出现成熟的大星系、盘星系，以及点缀其间的类星体焰火。到宇宙约 92 亿岁时，星系们已经排好了今天看到的「大尺度结构」：星系团、超星系团和连接它们的纤维——宇宙网。",
+    "JWST 这几年不断给这段历史加注脚：z>14 的星系（宇宙约 2.8 亿岁时）已经「成熟得出乎意料」，甚至演化出螺旋结构。纪录几乎每隔几个月就被刷新一次——搜索「最早星系」是当前天文界更新最快的岗位之一。"
+  ],
+  cards:[
+    {seal:"早", when:"宇宙约 2.8 亿岁 · z=14.44", l:8.45, t:"最早已知星系 MoM-z14", d:"2025 年确认的最遥远星系纪录保持者（截至 2026-10）：宇宙只有约 2.8 亿岁时，它已经成型发亮。纪录大概率还会被打破——这个赛道的更新周期以月计。"},
+    {seal:"吃", when:"贯穿百亿年", l:9.3, t:"等级并合：小并大", d:"暗物质晕中气体冷却 → 小星系 → 并合长大——ΛCDM 模型的基石图像。JWST 正在压力测试其中细节，但大框架依然稳。"},
+    {seal:"盘", when:"宇宙约 6 – 7 亿岁起", l:8.9, t:"「盘古」群体：最早的盘", d:"2024 年 Nature Astronomy 报告：一部分星系在宇宙 6–7 亿岁时已形成并保持盘状结构。银河系那样的「有序体型」比预想来得更早。"},
+    {seal:"网", when:"迄今 · 大尺度结构", l:9.9, t:"宇宙网成形", d:"星系不是均匀撒布的：它们沿暗物质的纤维分布，交汇处结成星系团——像一张无限延伸的「蛛网」，这是宇宙最大的建筑尺度。"}
+  ],
+  plates:[
+    {d:"merger", title:"等级汇聚：星系是「吃」出来的", sub:"动画演示：86 个小团块如何并合成巨星系", tag:"动态图版", note:"为示意模拟：真实并合历史复杂得多；模型基于 ΛCDM「层级结构形成」图像。"}
+  ],
+  deep:{title:"并合、考古与刷新的纪录", hint:"点开看进阶细节", points:[
+    {t:"并合不是「撞车」而是「合体」", d:"星系之间距离巨大，真正相撞的恒星极少；但引力会把双方撕扯、混合，最终合成一个更大的星系。银河系未来若与仙女座相遇（并非必然，见第 18 章），也是这种「温柔合体」。"},
+    {t:"星系考古学", d:"星流、壳层、双核……这些都是并合的「伤疤」。天文学家靠对恒星运动与化学成分的「尸检」，重建星系吃过的每一顿「饭」。"},
+    {t:"为什么纪录总被刷新", d:"JWST 红外灵敏度 + Euclid 广域巡天的组合，让「找到更早更亮的星系」从惊喜变成常规。找到之后的问题是：为什么它们出现得这么早、长这么快——这就撞上第 17 章的「过早成熟」悬案。"},
+    {t:"恒星不是均匀出生的", d:"最大规模的恒星诞生潮（「宇宙正午」）在宇宙 20–30 亿岁时到来：星系里的气体最充裕，点灯速度达到巅峰。之后随气体耗尽与黑洞反馈，产星率一路走低。"}
+  ]},
+  nugget:"如果把银河系的家谱摊开，你会发现它吞过几百个小星系——今天你看到的「银河」，是一个吃货的团体照。"
+});
+
+/* ===== 第 10 章 · 类星体与超大质量黑洞 ===== */
+DATA.chapters.push({
+  id:"ch-10", part:"p3", era:"类星体时代", name:"最早的巨兽：黑洞跑在了星系前面",
+  range:"大爆炸后约 5 – 50 亿年", l0:8.5, l1:9.7, c:"#8a5fd0", cd:"#a888e0",
+  tag:"星系还在学走路，黑洞已经吃成了巨兽。",
+  nar:[
+    "在星系成长的同时，另一条故事线以更夸张的速度展开：超大质量黑洞。它们是宇宙的「贪吃冠军」——吞入的气体在周围盘旋、摩擦、发光，比整个星系还亮，这就是「类星体」：宇宙中最亮的单个天体。",
+    "让天文学家头疼的是「先有鸡还是先有蛋」：今天的黑洞大多与星系体重挂钩，但在宇宙早期，黑洞似乎跑得更快——某些 4–7 亿岁的宇宙里，黑洞已经长到几亿太阳质量，而它们的宿主星系却「瘦小」得配不上它。按常规吸积速度，根本来不及。",
+    "2026 年，Euclid 望远镜一口气扫描出 31 颗 z=6.6–7.8 的早期类星体——「个别异常」升级成了「群体现象」。加上 JWST 发现的「小红点」（疑似快速生长的黑洞），一个事实逐渐清晰：要搞懂星系，先得搞懂黑洞怎么长得这么快。"
+  ],
+  cards:[
+    {seal:"兽", when:"宇宙约 4.7 亿岁 · z=10.07", l:8.67, t:"UHZ1：比星系还重的黑洞", d:"X 射线 + JWST 联合确认：这颗黑洞的质量与宿主星系相当甚至更重——「过重黑洞」现象，直接挑战黑洞与星系共同成长的常规剧本。"},
+    {seal:"群", when:"2026-07 · Euclid", l:8.82, t:"类星体纪录群体刷新", d:"EUCL J1729（z=7.77，约 660–670 Myr）登顶最遥远类星体；Euclid 前 18 个月发现 31 颗 z=6.6–7.8 类星体——从孤例到统计样本。"},
+    {seal:"点", when:"JWST 一大待解之谜", l:8.9, t:"「小红点」：快速进食的黑洞？", d:"JWST 发现大量早期红色致密点源；2026 年 Nature 论文的模拟支持「快速生长的黑洞」解读——黑洞种子可以数十倍超速进食。"},
+    {seal:"谜", when:"候选解释 · 均未定论", l:9.0, t:"长这么快，作弊了吧？", d:"候选解释：重种子（超级恒星直接坍缩成黑洞）、超埃丁顿吸积（狂吃）、持续供气通道……目前没有一种被证实。这是 2026 年黑洞天文学的开放问题。"}
+  ],
+  deep:{title:"类星体、超速进食与开放问题", hint:"点开看进阶细节", points:[
+    {t:"类星体为什么亮", d:"物质坠入黑洞前在「吸积盘」里摩擦生热，效率比核聚变高几十倍——最亮的类星体光度可达上万银河系之和。它们远在几十亿光年外，仍能被地面望远镜看见。"},
+    {t:"「重种子」路线", d:"普通恒星坍缩成的黑洞种子只有几十个太阳质量，长到十亿需要漫长时间。若早期存在直接坍缩的「重种子」（上百到上万太阳质量），就能解释部分巨兽的早熟——但这条路径尚未被直接观测。"},
+    {t:"超埃丁顿吸积：宇宙级暴食", d:"黑洞进食有理论上限（爱丁顿极限），但若有稳定的气体供应，可持续突破上限——模拟显示短期超速完全可能。真实宇宙里到底发生哪一种？等下一批观测。"},
+    {t:"黑洞与星系的共生", d:"今天两者体重高度相关（M–σ 关系），说明它们长期相互影响：黑洞喷流会「吹走」星系的气体、抑制恒星诞生。早期「黑洞超前」的阶段，正是理解这段共生关系的关键线索。"}
+  ]},
+  nugget:"类星体是宇宙的点天灯仪式——每一盏，都是一头正在进食的巨兽把喉咙照得通亮。"
+});
+
+/* ===== 第 11 章 · 银河系传 ===== */
+DATA.chapters.push({
+  id:"ch-11", part:"p3", era:"银河系", name:"银河系传：我们星系的编年史",
+  range:"大爆炸后约 7 – 138 亿年", l0:9.0, l1:9.96, c:"#567fd4", cd:"#86a2e8",
+  tag:"一份 130 亿年的履历表，写满了并合、流浪与重逢。",
+  nar:[
+    "现在，镜头转向我们自己的家。银河系不是「从天上掉下来」的——它有一部可考的成长史：最早的盘结构可以追溯到宇宙 6–7 亿岁的「盘古」群体；随后的百亿年里，它不断吞并小星系，把「口粮」纳入自己的旋臂与银晕。",
+    "最戏剧性的一顿「大餐」发生在约 100 亿年前：一个叫盖亚-恩克拉多斯（Gaia-Enceladus）的星系撞了进来，被撕碎后融入银晕——今天银河系里许多「逆行」的恒星，就是那场并合的遗民。盖亚卫星的精密测量，让天文学家得以「还原现场」。",
+    "今天的银河系是一台还在缓慢运转的恒星工厂：约 1000–4000 亿颗恒星、直径约 10 余万光年。它还在「吃」——大大小小的矮星系、以及门口的「大麦哲伦云」，都在引力账本上。而这一切，只是本星系群里一个普通成员的中年日常。"
+  ],
+  cards:[
+    {seal:"盘", when:"宇宙约 6 – 7 亿岁", l:8.87, t:"最早的盘：「盘古」群体", d:"一部分早期星系已形成盘状结构并保持稳定（Nature Astronomy 2024）。银河系的前身，大约就在这批「早熟盘」中。"},
+    {seal:"老", when:"约 135 亿年前形成", l:8.9, t:"2MASS J1808：最老恒星之一", d:"一颗几乎不含重元素的「活化石」恒星——宇宙最早期的产物，至今还在银河系里燃烧，像一位 135 亿岁的老人安静地坐着。"},
+    {seal:"撞", when:"约 100 亿年前", l:9.6, t:"盖亚-恩克拉多斯并合", d:"一场（或几场）大并合重塑了银晕。今天银晕里大量恒星的「逆行」运动，就是那场碰撞留下的化石证据（Helmi et al. 2018）。"},
+    {seal:"今", when:"此刻", l:10.1, t:"一台运转中的恒星工厂", d:"约 1000–4000 亿颗恒星；旋臂间的气体仍在缓慢生星。它下一个「大餐」候选就是我们的邻居——只是那顿饭可能要等几十亿年（且未必发生）。"}
+  ],
+  deep:{title:"恒星考古学：给银河系做「家谱」", hint:"点开看进阶细节", points:[
+    {t:"盖亚卫星：给十亿颗恒星「量步点」", d:"盖亚用十年时间精确测量十余亿颗恒星的位置与运动（天体测量学）。有了「步点数据」，天文学家就能反推哪些恒星的轨迹来自外部——并合现场一目了然。"},
+    {t:"逆行恒星：事故现场的证据", d:"银河系大部分恒星按同一方向绕银心运动；而银晕中一些恒星却「逆行」。它们是外来星系被撕碎后留下的碎片——运动方向就是它们的「口音」，一听就知道不是本地人。"},
+    {t:"银晕与银盘：两种血统", d:"银盘（太阳所在的扁平盘）主要由「本地出生」的恒星组成；银晕则是历次并合的「回收站」。研究银河系，本质上是在分拣两种血统的恒星。"},
+    {t:"恒星几乎永生，星系却会衰老", d:"低质量恒星能燃烧万亿年，但星系的「生育率」会随气体耗尽而下降。银河系的产星巅峰早已过去——它现在每年的新生恒星还不到两三颗太阳质量——某种意义上，它在慢慢变老。"}
+  ]},
+  nugget:"你抬头看到的每颗星星都属于同一个大家庭——而这个家庭的照片，是一张 130 亿年的「连续并合」长图。"
+});
+
+/* ===== 第 12 章 · 星尘账本 ===== */
+DATA.chapters.push({
+  id:"ch-12", part:"p3", era:"元素制造", name:"星尘账本：你身体里的原子从哪来",
+  range:"大爆炸后约 2 – 92 亿年", l0:8.2, l1:9.96, c:"#c07840", cd:"#d29a6a",
+  tag:"元素周期表不是教科书发明的，是恒星用命换来的。",
+  nar:[
+    "大爆炸只造了轻元素，就匆匆收工（第 4 章）。碳、氧、硅、铁——今天文明赖以存在的重元素，全部是恒星在炉膛里一件件锻造的。天文学家把这套流程叫做「恒星核合成」，翻成大白话：元素周期表，是恒星用命换来的。",
+    "流程表很清晰：主序恒星把氢烧成氦；大质量恒星继续烧——氦变碳、碳变氧、氧变硅、硅变铁。但铁是一个冷酷的终点站：往铁上继续聚变，只会「亏本」（消耗能量），所以恒星到铁就再也烧不下去了。",
+    "铁以后的元素（金、铂、铀……），要靠更暴力的事件：超新星爆发、中子星并合——宇宙最贵的「工坊」把最稀有的金属撒向星际。而所有尘埃与气体，最终成为下一代恒星、行星的材料……包括此刻正在读这一段话的、由星尘组成的你。"
+  ],
+  cards:[
+    {seal:"厂", when:"大爆炸后 2 亿年起", l:8.3, t:"恒星牌元素工厂", d:"大爆炸只能造氢、氦、痕量锂；碳以上的一切，都出自恒星炉膛（或更暴烈的事件）。" },
+    {seal:"阶", when:"一代代恒星接力", l:9.0, t:"核合成阶梯：氢 → 铁", d:"氦 → 碳 → 氧 → 氖 → 镁 → 硅 → 铁：每一步都要更高的温度。硅变铁只需约一昼夜——那是恒星生命最后的绝响前奏。"},
+    {seal:"爆", when:"超新星 / 中子星并合", l:9.5, t:"黄金价签：来自爆炸", d:"铁之后的元素（金、铂、铀）主要产自超新星与中子星并合抛出的中子洪流。你手指上的婚戒，是宇宙级暴力事件的纪念品。"},
+    {seal:"你", when:"此刻 · 检查你的成分", l:10.1399, t:"人体成分表：星尘占比", d:"按原子数算，人体约 93% 是氢、约 6% 是碳氧氮——氢来自大爆炸，碳氧氮来自恒星。按质量算，你身上的重元素全部是「死过一次的恒星」的产物。"}
+  ],
+  plates:[
+    {d:"forge", title:"元素熔炉：恒星牌「元素周期表」供应商", sub:"拖动滑杆，看一颗 25 太阳质量的恒星如何逐一锻造元素", tag:"动态图版 · 可拖动", note:"恒星演化阶段为示意简化；真实核合成网络远比图示复杂（此处只呈现主干链路）。"}
+  ],
+  deep:{title:"铁的尽头与宇宙的「贵重菜单」", hint:"点开看进阶细节", points:[
+    {t:"为什么铁是终点站", d:"核聚变的能量账本看「结合能曲线」：比铁轻的核聚变放能，比铁重的核聚变吸能。恒星烧到铁核，燃料账本彻底亏空——再也挤不出一分能量，于是引力立刻接管剧情：坍缩、爆炸、恒星谢幕。"},
+    {t:"r-过程：宇宙最贵的厨房", d:"超新星与中子星并合中，中子洪流轰击轻核，原子核疯狂「增重」——这就是「快中子俘获过程」（r-过程）。金、铂、铀都在这里出炉。2017 年引力波事件 GW170817 首次让人类直接观测了中子星并合的「forge 现场」。"},
+    {t:"你身上的分期付款", d:"水里的氢：大爆炸出品（138 亿年）；碳与氧：恒星炉膛（几亿年）；铁：超新星（一瞬）；金和铀：中子星并合（稀有事件）。你的身体是本宇宙最完整的「供应链展柜」。"},
+    {t:"「星尘」传言的两个常见错误", d:"①「人体 97% 是星尘」的说法要小心：按原子数算大部分是氢——而氢不是「星尘」（它是大爆炸的）。②注意区分「所有重元素都来自恒星」与「所有原子都来自恒星」——后者不对。严谨版本：你身上除氢以外的原子，几乎全部死过一次恒星。"}
+  ]},
+  nugget:"你左手的碳原子、血液里的铁原子，都曾在某颗恒星的核心「上过班」——然后在一场爆炸里集体辞职，辗转来到了你身上。"
+});
+
+/* ===== 第 13 章 · 太阳系诞生 ===== */
+DATA.chapters.push({
+  id:"ch-13", part:"p4", era:"太阳系", name:"46 亿年前：太阳系与地球登场",
+  range:"大爆炸后约 92 亿年（距今 46 亿年）", l0:9.96, l1:9.97, c:"#7fb069", cd:"#a0c68e",
+  tag:"镜头从星系拉近到一间恒星育婴房——主角是我们自己。",
+  nar:[
+    "宇宙 92 亿岁那年，在银河系一条不起眼的旋臂上，一团分子云开始坍缩。它越转越扁，中心点起一团火——太阳诞生了；残留的尘埃在盘中结块、碰撞、生长：行星系统成型。这一切，发生在距今约 46 亿年前。",
+    "定年证据硬得出奇：原始陨石中钙铝包裹体（CAI）的铅同位素年龄是 45.673±0.002 亿年——太阳系的「出生证明」，误差不到万分之一个零头。地球本身约 45.4 亿岁，最古老的矿物（杰克山锆石）约为 44.04 亿年。",
+    "从宇宙史的角度看，这一刻值得大书一笔：第 92 亿年才出现的太阳，只是银河系几千亿恒星中的一颗普普通通的「中年星」。但它恰好托住了后面 46 亿年的全部剧情——从第一滴海，到第一只细胞，到此刻阅读这段文字的眼睛。宇宙的故事，到此浓缩进了一颗行星的表面。"
+  ],
+  cards:[
+    {seal:"生", when:"距今 45.673 亿年", l:9.96, t:"太阳系出生证明", d:"原始陨石中 CAI 的铅同位素定年：45.673±0.002 亿年——宇宙 92 亿岁时，太阳系点火（Connelly et al., Science 2012）。"},
+    {seal:"火", when:"约 46 亿年前", l:9.96, t:"太阳点亮", d:"分子云坍缩到临界点，核心点燃核聚变。这颗「普通中年恒星」将稳定燃烧约 100 亿年——为行星上的漫长故事提供了可靠的电源。"},
+    {seal:"蓝", when:"约 45.4 亿年前", l:9.965, t:"地球成形", d:"尘埃吸积成行星。最古老矿物（杰克山锆石）约 44.04 亿年，其中的氧同位素痕迹提示：早期地球已经有了液态水。"},
+    {seal:"接", when:"下一章", l:9.97, t:"故事转场「家门口」", d:"《地球 46 亿年》图鉴从这里接棒：冥古宙地狱、月球大碰撞、第一片海……本卷只做一次精简回顾。"}
+  ],
+  plates:[
+    {d:"solarbirth", title:"星云坍缩：从云盘到行星", sub:"动画演示：分子云 → 原行星盘 → 行星就位", tag:"动态图版", note:"形态与顺序为示意简化；真实原行星盘动力学极其复杂。定年数据：CAI 45.673±0.002 亿年。"}
+  ],
+  deep:{title:"定年、盘演化与「大过滤」之前", hint:"点开看进阶细节", points:[
+    {t:"怎么给太阳系「测年龄」", d:"放射性定年：铀衰变成铅的「沙漏」在矿物结晶时启动。原始陨石中的 CAI 是最古老的固态物质，它的铅同位素比给出了太阳系的精确生日。"},
+    {t:"为什么行星盘能「摊平」", d:"云团坍缩时自转加快（角动量守恒），碰撞让粒子逐渐向同一旋转平面聚集——就像揉面团把它压扁。盘中不同距离的温度差异，决定了岩石行星（内）与气态巨行星（外）的分工。"},
+    {t:"为什么宇宙等了 92 亿年", d:"早期宇宙缺少重元素，行星建材供应不足。要等到数代恒星把「金属」富集到位，像太阳这样含重元素的恒星系统才有可能配上岩石行星——行星的诞生，是宇宙化学成熟度的产物。"},
+    {t:"太阳系在宇宙中并不特别", d:"银河系中数百亿颗位于宜居带的类地行星候选体。太阳系普通得不能再普通——这让「生命是否普遍」变成了一个必须用观测回答的问题（下一章）。"}
+  ]},
+  nugget:"太阳只是一颗普普通通的中年恒星——但它恰好在你出生前 45 亿年点亮，托住了这整段故事的舞台。"
+});
+
+/* ===== 第 14 章 · 生命 ===== */
+DATA.chapters.push({
+  id:"ch-14", part:"p4", era:"生命", name:"生命：宇宙认识自己的一种方式",
+  range:"距今约 35 亿年 – 此刻", l0:9.97, l1:10.14, c:"#4fbf9f", cd:"#7fd2b8",
+  tag:"137 亿年无人在场，直到某个物种学会了发问。",
+  nar:[
+    "接下来 46 亿年的地球故事，《地球 46 亿年》图鉴已经讲得很细：地狱开局、第一片海、大氧化、雪球地球、寒武纪大爆发……这里只取上帝视角的一瞥：距今至少 35 亿年前，微生物生态系已在地球上运转；24.5 亿年前氧气充值；再到几亿年前，「复杂生命」粉墨登场。",
+    "从宇宙的角度看，生命的出现是一串「低概率事件」的连锁：星系恰有重元素、恒星恰够稳定、行星恰有水、大气恰够厚、板块恰在活动……每一项概率都不高。但宇宙似乎执行了一句程序员箴言：「只要有足够多的机会，再小的概率也会命中。」",
+    "而现在，宇宙中至少有一处地方，氢原子组成的系统开始追问氢原子从哪来——你在读的这一页，就是这个进程的最新产物。生命是不是宇宙中的孤例？费米悖论问了一百年，答案仍在望远镜后面：也许我们很稀有，也许我们很普遍——但无论哪种答案，都足以改写所有教科书。"
+  ],
+  cards:[
+    {seal:"命", when:"至少 35 亿年前", l:9.97, t:"最早的生命证据", d:"Strelley Pool 叠层石等证据表明，至少 35 亿年前已有微生物生态系统；格陵兰 Isua 的 37 亿年结构更早但存争议。"},
+    {seal:"氧", when:"24.5 – 23.2 亿年前", l:9.99, t:"大氧化：换血革命", d:"光合作用把氧气灌满大气，重塑地表化学——为耗能的复杂生命铺路。这是地球史上的第一次「文明级」环境改造。"},
+    {seal:"杂", when:"约 18 亿年 – 5 亿年前", l:10.05, t:"复杂生命登场", d:"真核细胞、多细胞、有性生殖、寒武纪大爆发——生命用二十多亿年把「单机」升级成了「联网系统」。细节见《地球 46 亿年》。"},
+    {seal:"问", when:"此刻 · 你在读它", l:10.1399, t:"宇宙的自我提问", d:"宇宙中最晚出现的现象，是「会追问起源的物质」。费米悖论、德雷克方程、宜居行星普查——人类正在用仪器回答：我们是不是唯一一次「宇宙的自我认识」。"}
+  ],
+  deep:{title:"低概率链条与费米悖论", hint:"点开看进阶细节", points:[
+    {t:"生命的「低概率链条」", d:"从重元素供应、稳定恒星、液态水、磁场保护、板块循环到月亮稳定地轴——缺一环都可能停在「没有生命出现」。链条越长，宇宙中同时满足链条的天体数量就越少——这正是「稀有地球」假设的立论基础。"},
+    {t:"费米悖论的一句话版本", d:"「如果宇宙里到处都该有文明，那他们都在哪儿？」银河系有千亿恒星、百亿年历史，若有文明先于我们百万年，理应有可见的痕迹。可观测到的：没有。沉默本身，就是最重要的观测数据。"},
+    {t:"德雷克方程的当代版本", d:"把「有多少文明」拆成一串概率乘法：恒星形成率 × 宜居行星比例 × 生命起源概率 × 智慧演化概率 × 通讯寿命……前三项已有观测支持（系外行星普查），后两项仍是空白——空白不是零，等待数据。"},
+    {t:"「大过滤」假说", d:"文明演化可能横亘着若干道「大过滤」关口。人类已经过了其中几道（生命起源、复杂细胞、智慧），但前方是否还有更窄的门？这道题的答案，可能决定人类这个物种的终局剧本。"}
+  ]},
+  nugget:"宇宙用 137 亿年准备了一个问题，又用一条 35 亿年的演化流水线，造出了会问题目的生物——此刻，这个生物正在读这段文字。"
+});
+
+/* ============================================================
+   DATA · 下部（第 15–21 章）
+   ============================================================ */
+
+/* ===== 第 15 章 · 人类破案史 ===== */
+DATA.chapters.push({
+  id:"ch-15", part:"p5", era:"观测宇宙学", name:"从地心说到大爆炸：人类拼图三百年",
+  range:"此刻 · 回望", l0:10.135, l1:10.135, c:"#5f8fe8", cd:"#8fb0f0",
+  tag:"前面 14 章的故事，其实直到最近几十年才拼出来。",
+  nar:[
+    "你要问「宇宙有历史」这件事本身有多年轻——答案是不到一百年。在此之前，「宇宙」是人类想象力的战场：永恒静止、循环轮回、诸神居所……直到望远镜和数学联手，把「创世」从神话搬进了物理。",
+    "这条路走了三百年：哥白尼把地球从中心请出去；哈勃把「宇宙在膨胀」钉在了红移数据上；两位工程师在噪声里捡到了 CMB；然后是 COBE、WMAP、Planck——一代代卫星给婴儿宇宙拍出越来越清晰的照片。每一步，都是把前一步的「世界观」拆掉重建。",
+    "这章也是一个提醒：你手里这本长卷的每一个数字，背后都站着几代人、几十台仪器和无数次「曾经的正确答案被推翻」。宇宙史是科学史的一部分——而且这一部分，还在现场直播。"
+  ],
+  cards:[
+    {seal:"让", when:"1543 – 1687", l:10.135, t:"地球让位", d:"哥白尼把太阳放到中心，伽利略用望远镜看见证据，牛顿用方程统一天地——「我们不在中心」从此成为常识。"},
+    {seal:"移", when:"1929", l:10.135, t:"哈勃红移：宇宙在膨胀", d:"远方星系的光普遍偏红，且越远越快——宇宙不是静止的，它正在舒展。爱因斯坦为此撤回了自己的「宇宙学常数」。"},
+    {seal:"波", when:"1965", l:10.135, t:"CMB 意外发现", d:"Penzias & Wilson 在调试天线时发现「怎么清都清不掉的噪声」——那是 138 亿年前的余温（1978 年诺奖）。"},
+    {seal:"图", when:"1992 / 2018", l:10.135, t:"给婴儿宇宙拍高清照", d:"COBE 测到 CMB 的十万分之一涟漪（2006 诺奖）；Planck 把全天空地图精确到新高度——宇宙学进入「精密测量」时代。"}
+  ],
+  deep:{title:"三次世界观地震", hint:"点开看进阶细节", points:[
+    {t:"地震一：从「宇宙中心」到「普通恒星旁」", d:"布鲁诺被烧、伽利略被审——「地球不是中心」在当年是危险的异端。今天回头看，这场地震真正的震撼不是「位置」，而是「平凡」：如果位置不特殊，那「我们」也可能不特殊。"},
+    {t:"地震二：从「永恒」到「有生日」", d:"哈勃的膨胀数据意味着：把时间倒放，宇宙必然有个起点。「永恒宇宙」两千年的哲学偏好，被一行红移数据击碎——大爆炸理论从此有了姓名。"},
+    {t:"地震三：从「猜」到「测」", d:"CMB 的发现让宇宙学第一次有了「照片级证据」；此后每一代卫星都把参数表的水位线压得更低。今天宇宙年龄的误差棒只有 0.15%——这是一个曾经只属于测量的精度。"},
+    {t:"为什么它值得单独一章", d:"因为「宇宙史」和「发现宇宙史的历史」是同一个故事的两面。理解后者，才知道每个数字的重量，和每个「定论」的保质期。"}
+  ]},
+  nugget:"三百年前，人类连「光年」都写不出来；今天，我们能给 138 亿年前拍证件照——这大概是自我意识最昂贵的一次升级。"
+});
+
+/* ===== 第 16 章 · 宇宙的配方 ===== */
+DATA.chapters.push({
+  id:"ch-16", part:"p5", era:"暗物质与暗能量", name:"看不见的 95%：抓不到的两只看不见的手",
+  range:"此刻 · 解剖宇宙", l0:10.135, l1:10.135, c:"#7a6fe0", cd:"#9f96ec",
+  tag:"我们能看见的一切，只是宇宙的 5%。",
+  nar:[
+    "如果宇宙是一道菜，人类至今只尝过 5%。Planck 卫星的「精确配方」：暗能量 68.3%、暗物质 26.8%、普通物质 4.9%（精确值：Ωm=0.315±0.007）。星辰、海洋、山脉和你——都挤在那 4.9% 里。",
+    "暗物质的证据非常扎实：星系外围转得太快（旋转曲线）、星系团里的引力透镜过于扭曲、CMB 涟漪的图案也对不上「没有暗物质」的剧本。它不发光、不反光、不参与电磁相互作用——但它有引力：宇宙看不见的「重量地基」。",
+    "暗能量则更玄：1998 年，两组团队用超新星测距发现宇宙膨胀在「加速」（2011 年诺奖）。一定有某种带「负压」的东西在推着宇宙，天文学家把它命名为暗能量。注意它不是「反引力」，也不是反物质——它只是一种我们尚不理解、均匀充满空间的能量形态。大约 50–60 亿年前，它开始主导宇宙：星系互相远离的步伐，从此越来越快。"
+  ],
+  cards:[
+    {seal:"谱", when:"Planck 2018 精确值", l:10.135, t:"宇宙配方表", d:"暗能量 68.3% / 暗物质 26.8% / 普通物质 4.9%。这张表是当代宇宙学的「地址簿」——每个数字背后都有多套独立观测的交叉验证。"},
+    {seal:"重", when:"1930s – 1970s 起", l:10.135, t:"暗物质：重量地基", d:"从兹威基的星系团质量异常，到 Rubin 的旋转曲线——证据链横跨半个世纪：引力在哪都「超载」，缺的重量全是看不见的。"},
+    {seal:"推", when:"1998 · 诺奖 2011", l:10.135, t:"暗能量：加速的手", d:"超新星测距揭示：膨胀不但没减速，还在加速。约 50–60 亿年前起，暗能量压过引力，成为宇宙舞台的导演。"},
+    {seal:"清", when:"三个常见误区别踩", l:10.135, t:"它不是什么", d:"① 暗能量≠反引力；② 暗物质≠反物质；③ 暗能量不撕太阳系——引力束缚系统内部不受它影响（「大撕裂」剧本除外，前提未证实）。"}
+  ],
+  plates:[
+    {d:"rotcurve", title:"旋转曲线：看不见的质量（暗物质现形）", sub:"一键对比：只有可见物质 vs 加上暗物质，星系转速之谜瞬间破解", tag:"动态图版 · 可切换", note:"曲线为示意；真实证据来自数十个旋涡星系的系统测量（Rubin 等，1970–80 年代）。"},
+    {d:"expand3d", title:"宇宙膨胀剧场：亲手拉大宇宙", sub:"拖动尺度因子，看空间网格在暗能量的推动下如何加速膨胀（旗舰 3D 演示）", tag:"动态图版 · 旗舰", note:"3D 演示需联网加载 three.js；断网或性能不足时自动降级为 2D 版。"}
+  ],
+  deep:{title:"两只手的证据链与两个误区", hint:"点开看进阶细节", points:[
+    {t:"暗物质凭什么被相信", d:"三条独立证据线：① 旋转曲线（星系外围不该那么快）；② 引力透镜（星系团弯折光线超出可见质量）；③ CMB 声学峰的相对高度（对不上纯普通物质模型）。三条线彼此独立却收口到同一数值——这是它可信的原因。"},
+    {t:"暗能量的发现过程", d:"两类超新星（Ia 型）被当作「标准烛光」测距：结果比「减速膨胀」的预期更暗——意味着它们比预想更远，膨胀在加速。1998 年两组团队几乎同时发布，2011 年共享诺奖。"},
+    {t:"「加速」的准确含义", d:"常见误解：以为「加速=哈勃参数 H 在变大」。实际上在 ΛCDM 里 H(t) 仍在下降——「加速」指的是膨胀速度（尺度因子增速）为正。就像松开油门后车速仍在增加——踩的是一只有负压的「油门」。"},
+    {t:"下一个未解问题", d:"暗能量是不是真的「恒定」（宇宙学常数）？2024–2026 年 DESI 的测量开始动摇这个假设——但那是一个「悬案」，留到下一章回廊里细说。"}
+  ]},
+  nugget:"宇宙最谦虚的事实：我们制造了航天器、核电站和 AI，却至今不知道宇宙 95% 的成分叫什么名字。"
+});
+
+/* ===== 第 17 章 · 悬案现场 ===== */
+DATA.chapters.push({
+  id:"ch-17", part:"p5", era:"未解之谜", name:"悬案现场：哈勃张力与暗能量疑云",
+  range:"此刻 · 悬案待破", l0:10.135, l1:10.135, c:"#c05f8f", cd:"#d28aac",
+  tag:"宇宙学最强的两个数字，正在互相「打架」。",
+  nar:[
+    "有两条路可以测量宇宙的膨胀率：一条看「早期」（CMB 的印记），一条看「本地」（附近超新星、造父变星的距离阶梯）。两条路各自精确到 ±1% 上下——但它们给出的答案差了约 9%：早期测得 67.4（km/s/Mpc），本地测得 73 左右。这就是「哈勃张力」。",
+    "九个百分点听起来不多，但统计显著性已经到 4–6σ 的量级——不是「误差没消完」，而更像「两个宇宙」在打架。2025 年，JWST 对「完美宿主星系」的复核把本地值进一步钉死在 73.49±0.93；而 ACT 的独立测量把早期值钉在 68.22±0.36。「某个测量出错」的解释，基本退场。",
+    "几乎同时，另一桩悬案浮出水面：DESI 巡天（2024–2026）对数十亿年膨胀史的高精密测绘，暗示暗能量可能「不恒定」——它的密度也许随宇宙年龄在演化。目前显著度在 2.8–4.2σ 之间，「极其有趣，但先别定论」。如果坐实，标准宇宙学模型的页脚要被撕下来重印。"
+  ],
+  cards:[
+    {seal:"裂", when:"67.4±0.5 vs 73.49±0.93", l:10.135, t:"哈勃张力：9% 的裂痕", d:"早期宇宙口径与本地测量口径的膨胀率差距，显著性 4–6σ。2025 年 JWST 复核排除「拥挤效应」测量偏差；2026 年十年综述直接称其为「现代宇宙学的危机」。"},
+    {seal:"钉", when:"2025 · ACT DR6", l:10.135, t:"低值不是一家之言", d:"ACT 卫星独立测出 68.22±0.36，与 Planck 一致——早期口径稳健。这意味着张力大概率不是某一台仪器的问题，而是模型里缺了一页。"},
+    {seal:"动", when:"DESI DR2 · 2025-2026", l:10.135, t:"暗能量疑似「不恒定」", d:"DESI 的膨胀史测绘偏好「演化型暗能量」（2.8–4.2σ，未达 5σ 发现标准）。2026 年 4 月完成五年巡天（>4700 万天体），观测延长至 2028——最终裁决交给未来数据。"},
+    {seal:"免", when:"2025 · 星震学复核", l:10.135, t:"玛土撒拉星：误会解除", d:"这颗「最老恒星」曾疑似比宇宙还老；2025 年星震学给出 14.2±0.4 Gyr，与宇宙年龄 13.787±0.020 Gyr 在约 1σ 内相容——悖论消失，但提醒我们：恒星定年有方法误差。"}
+  ],
+  deep:{title:"悬案的候选凶手与一个反面教材", hint:"点开看进阶细节", points:[
+    {t:"候选凶手一号：早期暗能量", d:"如果在宇宙早期（复合并之前）存在一小段「额外的暗能量」，它会把 CMB 推出的 67 推高——恰好抹平张力。数学自洽，可惜目前没有独立观测证据。"},
+    {t:"候选凶手二号：相互作用暗能量", d:"若暗物质与暗能量之间交换能量，宇宙膨胀史会被改写。这类模型很多、很灵活——「灵活性」既是生机也是隐患：太灵活的模型难以被证伪。"},
+    {t:"「过早成熟」星系的三年反转剧", d:"2023 年：6 个 z≈7–9 的星系又大又亮又成熟，疑似挑战模型；2024 年：NASA 团队研究显示质量可能被高估，「没有危机」；2026 年：新分析指出隐匿的小质量恒星可能使质量再上调 3–4 倍，张力重新加剧——悬案的标准剧本：证据双向拉扯，天平未定。"},
+    {t:"一个反面教材：BICEP2", d:"2014 年「原初引力波确凿证据」的宣布曾是头条；一年后被证明是银河系尘埃。这桩旧案教育了整个领域：对激动人心的结论，先问「有没有别的解释」。"}
+  ]},
+  nugget:"两个数字各自精确到百分位，合在一起却差出 9%——这不是测量事故，这是宇宙在暗示：账本里少写了一个人。"
+});
+
+/* ===== 第 18 章 · 恒星时代落幕 ===== */
+DATA.chapters.push({
+  id:"ch-18", part:"p6", era:"恒星时代晚期", name:"恒星时代落幕：最后的星光",
+  range:"今天 – 10¹⁴ 年", l0:10.14, l1:14, c:"#6f7fb8", cd:"#93a0d0",
+  tag:"从「灯火通明」到「逐盏熄灭」，还有一百万亿年的漫长余温。",
+  nar:[
+    "从今天开始，宇宙进入「恒星时代的黄昏」。望远镜里的夜空会继续热闹很久——但趋势已经写定：气体在被锁定，恒星在变少，新点亮的灯一年比一年稀缺。这不是突然的停电，而是缓慢的熄灯仪式。",
+    "先看一个近邻预告：银河系与仙女座星系——旧课本说 45 亿年后必然相撞；但 ESA/Hubble+Gaia 的最新重审表明：这场相遇并非必然，未来 100 亿年内也只有约 50% 的概率。宇宙在提醒我们：连「史诗级撞车」都可能爽约。",
+    "真正的大限在极远处：红矮星是恒星家族最耐用的品种，可以燃烧上万亿年。它们会一颗一颗地撑到最后——大约 10¹⁴ 年（一百万亿年）后，最后一颗红矮星也耗尽燃料，熄灭了。那一刻起，宇宙里再不会有新的光诞生。恒星的纪元，正式落幕。"
+  ],
+  cards:[
+    {seal:"约", when:"未来 100 亿年内 · 50%", l:10.26, t:"仙女座：可能不撞了", d:"银河系与仙女座的碰撞并非「必然命运」——2025 年 ESA 最新重审给出约 50% 的概率（100 亿年内）。相遇过，但「擦肩而过」也有可能。"},
+    {seal:"日", when:"约 50 亿年后", l:10.27, t:"太阳的红巨星终章", d:"太阳燃烧殆尽后膨胀成红巨星，随后抛出外层、留下白矮星。地球的命运（被吞没还是烤焦后幸存）尚无定论——无论哪种，都不适合直播。"},
+    {seal:"衰", when:"此后数万亿年", l:11.5, t:"恒星生育率归零", d:"大部分气体已锁进白矮星与黑矮星。红矮星成为最后一批「火种」——它们耐烧得惊人，把恒星纪元拉长到万亿年尺度。"},
+    {seal:"熄", when:"约 10¹⁴ 年后", l:14, t:"最后一颗红矮星", d:"约一百万亿年后，最后一颗红矮星熄灭——此后宇宙再无新的星光。夜空将只剩冷却中的余烬与黑洞的微光。"}
+  ],
+  deep:{title:"熄灯时间表与「活化石」红矮星", hint:"点开看进阶细节", points:[
+    {t:"为什么红矮星最耐用", d:"恒星寿命与质量成反比：红矮星只有太阳的一小部分质量，聚变速率极慢，燃料烧得省——寿命可达数万亿年。宇宙的灯一盏盏熄灭时，红矮星是坚持到最后的守夜人。"},
+    {t:"白矮星→黑矮星：漫长的降温", d:"太阳类的残骸会变成白矮星，再在远超宇宙当前年龄的时间里冷却成不发光的黑矮星——这个过程漫长到：宇宙现在的年龄里，一颗黑矮星都还没来得及完全诞生（理论图景）。"},
+    {t:"「50% 概率不撞」的意义", d:"教科书上的「必然碰撞」被更新为概率事件——这本身就是科学方法的好例子：天文精度提升后，宿命论的叙事被替换为概率论的叙事。宇宙不承诺剧本。"},
+    {t:"10¹⁴ 年有多远", d:"一百万亿年，是当前宇宙年龄的一万倍。如果宇宙史是 1 年，这一刻在「第 1 万年的年末」——彻底超出直觉的时间尺度，从本章起，只能用数量级思考。"}
+  ]},
+  nugget:"未来的夜空会越来越冷清：等红矮星们烧完最后一口气，宇宙将迎来一场没有观众的熄灯仪式。"
+});
+
+/* ===== 第 19 章 · 黑洞时代 ===== */
+DATA.chapters.push({
+  id:"ch-19", part:"p6", era:"黑洞时代", name:"黑洞时代：宇宙最后的灯塔",
+  range:"10¹⁴ – 10⁴⁰ 年", l0:14, l1:40, c:"#525f9f", cd:"#7a86bf",
+  tag:"星星熄灭之后，宇宙只剩一种还亮着的东西：黑洞。",
+  nar:[
+    "恒星全部熄灭后，宇宙进入「简并时代」：白矮星、中子星、黑矮星与黑洞成为全部住户，偶尔的碰撞会点亮一抹转瞬即逝的微光。再后来，连残骸也逐一湮灭——宇宙的主角只剩下黑洞。",
+    "黑洞就永恒吗？霍金 1974 年的答案是「不」：量子效应让黑洞持续辐射能量（霍金辐射），质量缓慢「漏气」。漏气的速度与质量成反比：太阳质量的小黑洞要 10⁶⁷ 年；超大质量黑洞要 10⁹¹ 年；而最大的巨兽可以拖到 10¹¹⁰ 年左右。黑洞时代因此从约 10⁴⁰ 年一直延伸到 10¹⁰⁰ 年之后——宇宙最漫长的纪元。",
+    "本章还藏着一个巨大的悬案：质子会不会衰变？理论预言它会，实验至今没逮到（下限：寿命大于 2.4×10³⁴ 年）。如果质子衰变：物质残骸会在 10⁴⁰ 年后陆续解体；如果质子永恒：时间线将夸张到「10 的 10 的 10 的 105 次方」年——远超可想象的尺度。宇宙最后阶段的剧本，取决于这扇「不确定的开关」。"
+  ],
+  cards:[
+    {seal:"墓", when:"约 10¹⁴ – 10⁴⁰ 年", l:15, t:"简并时代：恒星墓场", d:"白矮星、中子星、黑矮星主导宇宙；偶发的碰撞让残骸短暂点亮，随即归于黑暗。恒星与行星的舞池，散场了。"},
+    {seal:"关", when:"理论预言 vs 实验下限", l:34, t:"质子衰变：最大的开关", d:"大统一理论预言质子的寿命有限；实验下限已推到 2.4×10³⁴ 年，仍未观测到衰变。物质会彻底解体，还是永远残留？宇宙没有提前公布答案。"},
+    {seal:"漏", when:"霍金 1974 · 理论", l:36, t:"霍金辐射：黑洞也会漏气", d:"量子效应在视界边缘产生粒子对，一个逃逸、一个落回——黑洞因此持续损失质量。这是把量子力学与引力摆上同一张桌子的第一次成功尝试。"},
+    {seal:"灯", when:"10⁴⁰ – 10¹⁰⁰ 年以后", l:40, t:"最后的灯塔", d:"黑洞是宇宙最后一类还在「发光」的天体。等它们也蒸发殆尽，宇宙将进入只剩稀薄粒子的黄昏——「光子时代」的尾声。"}
+  ],
+  plates:[
+    {d:"hawking", title:"黑洞蒸发长跑：宇宙最后的告别", sub:"拖动时间轴：从 10⁴⁰ 年到 10¹⁰⁰ 年，看黑洞如何慢慢「漏」完自己", tag:"动态图版 · 可拖动", note:"时间标度 2.1×10⁶⁷ ×(M/太阳质量)³ 年（理论图景）；「最后一声噗」为艺术化示意。"}
+  ],
+  deep:{title:"霍金辐射、质子之谜与最大时间尺度", hint:"点开看进阶细节", points:[
+    {t:"霍金辐射为什么越漏越快", d:"黑洞温度与质量成反比：质量越小，温度越高，辐射越强。所以蒸发是「加速滑坡」——最后阶段以一场爆发收尾。太阳质量黑洞的寿命约 10⁶⁷ 年，超大质量黑洞约 10⁹¹ 年。"},
+    {t:"质子衰变：一个悬而未决的开关", d:"如果质子衰变率落在理论区间的「快端」，物质残骸会在约 10⁴⁰–10⁴³ 年间解体；如果极慢或完全不衰变，时间线被拉长到天方夜谭的尺度。超级神冈等探测器正持续「蹲守」这个瞬间——到目前为止，一无所获（这本身也是信息）。"},
+    {t:"「10 的 10 的 10 的 105 次方」", d:"若无质子衰变，黑洞蒸发之后的时间尺度外推到超出所有直觉——这个数字甚至没法写成普通的形式（指数塔）。这正是「极端外推」应当标注【存疑】的原因：它是数学的延长线，不是观测的地图。"},
+    {t:"黑洞不是终点，是账本", d:"黑洞信息悖论（落入黑洞的信息去哪了）是当代物理最深的问题之一。黑洞时代长达 10⁶⁰ 年的故事提醒我们：宇宙的「结局账本」，最终要由量子引力理论来结算。"}
+  ]},
+  nugget:"从现在到最后一颗黑洞蒸发，要跨过约 90 个数量级；而所有恒星照亮宇宙的岁月，只占开头那约 4 个。"
+});
+
+/* ===== 第 20 章 · 四种结局 ===== */
+DATA.chapters.push({
+  id:"ch-20", part:"p6", era:"宇宙结局", name:"四种结局：热寂、大撕裂、大挤压、真空衰变",
+  range:"10⁴⁰ 年之后 · 四种平行剧本", l0:40, l1:100, c:"#8f5f7f", cd:"#b088a0",
+  tag:"宇宙的最后一页有四个草稿——目前只有一份证据最多。",
+  nar:[
+    "关于宇宙的结局，人类目前手握四份剧本：热寂（大冻结）、大撕裂、大挤压、真空衰变。它们不是「按顺序发生」的四个阶段，而是「四种可能的世界线」——取决于暗能量的性质、膨胀会不会反转、以及物理学深处的开关。",
+    "按目前证据的权重：热寂是主流推论——加速膨胀 + 熵增，宇宙永远冷却、稀薄、寂静；大撕裂需要尚未证实的「幻能量」（w<-1），且按现有数据最早也要千亿年之后；大挤压需要膨胀反转，而目前的加速膨胀数据不支持；真空衰变则是最玄学的一份——如果希格斯真空是亚稳态，理论计算给出的触发时间是 10¹³⁹ 年量级。",
+    "有趣的是，DESI 的「暗能量可能演化」迹象如果坐实，天平会更偏向「温和」的未来：暗能量若在减弱，大撕裂与突变剧本的概率进一步降低——宇宙可能以最安静的方式，慢慢讲完最后一句话。"
+  ],
+  cards:[
+    {seal:"寂", when:"主流推论", l:99, t:"热寂 / 大冻结", d:"加速膨胀 + 熵增 → 宇宙永远冷却、稀薄、寂静。这是 ΛCDM 与当前观测的默认推论——最安静，也证据最多的一份剧本。"},
+    {seal:"撕", when:"前提：幻能量 w<-1（未证实）", l:11.3, t:"大撕裂", d:"若暗能量的密度随时间增强，膨胀会越来越暴烈，连星系、恒星系甚至原子都被撕开。现有数据给出的最早时间也在 1500–2000 亿年之后——且前提未被证实。"},
+    {seal:"缩", when:"前提：膨胀反转（数据不支持）", l:60, t:"大挤压", d:"如果引力最终战胜膨胀，宇宙将重归炽热致密——大到星系、小到原子都被压缩回起点。目前加速膨胀的数据不支持这条剧本，但它是历史上第一个被认真对待的结局。"},
+    {seal:"泡", when:"理论寿命 ~10¹³⁹ 年", l:100, t:"真空衰变", d:"若希格斯真空处于亚稳态，宇宙某个角落可能「量子隧穿」出一个新物理的泡泡，以光速扩张改写常数。听起来可怕，但理论寿命远超一切现实担忧——纯理论悬想。"}
+  ],
+  plates:[
+    {d:"endings", title:"四种死法分镜：四种宇宙结局的戏剧预演", sub:"四幕动画 + 判词：每份剧本的前提与证据权重一目了然", tag:"动态图版 · 四幕可选", note:"所有情景均为外推图景；「判词」依据当前观测证据（参考 DESI 2025 / NASA 口径）。"}
+  ],
+  deep:{title:"剧本的判词与证据天平", hint:"点开看进阶细节", points:[
+    {t:"判词一览", d:"热寂：主流推论；大撕裂：前提未证实；大挤压：证据不支持；真空衰变：理论悬想。四行判词，就是 2026 年宇宙学对「结局问题」的谨慎回答。"},
+    {t:"暗能量的「一票之权」", d:"结局的分野几乎全押在暗能量的性质上：恒定（热寂）、增强（大撕裂）、减弱（温和冷却延长版）、逆转（大挤压）。DESI 的演化迹象如果坐实，多数剧本的权重都要重排。"},
+    {t:"「熵」到底意味着什么", d:"热寂的核心不是「冷」，而是「没有可用能量」。冷也可以有结构——但热寂意味着能量被摊到最平，没有任何梯度可以驱动任何过程。宇宙不会「爆炸」，只会「静音」。"},
+    {t:"为什么真空衰变不慌", d:"10¹³⁹ 年 vs 宇宙现在 1.4×10¹⁰ 岁——这个比值小到无从画图。科学家研究它，是因为它关乎希格斯场的性质；普通人不需要它出现在睡前读物里。"}
+  ]},
+  nugget:"四种剧本里，「最安静的那种」证据最足——宇宙大概率的结局，不是轰然一爆，而是缓慢的、彻底的安静。"
+});
+
+/* ===== 第 21 章 · 循环宇宙 ===== */
+DATA.chapters.push({
+  id:"ch-21", part:"p6", era:"终极追问", name:"终点即起点？循环宇宙的诱惑",
+  range:"10¹⁰⁰ 年之后 · 终极追问", l0:100, l1:100, c:"#7f6fa8", cd:"#a297c4",
+  tag:"如果宇宙不是一次性的，答案会不会藏在「下一次」里？",
+  nar:[
+    "最后一章，我们回到起点处的那个问题（第 1 章）：如果「大爆炸之前」没有定义，那宇宙会不会像一个节拍器——膨胀、收缩、再膨胀？或者干脆像一张被反复冲洗的胶片，每一轮都留下淡淡的上一次印记？",
+    "循环宇宙有很多版本：火劫模型（高维膜宇宙的碰撞点燃每一轮）、圈量子反弹（时空量子化阻止奇点、让坍缩反弹成膨胀）、共形循环（上一轮的终点与下一轮的起点在数学上「无缝对接」）。它们都很优美——但都停留在假说阶段，没有任何观测证据。",
+    "检验它们的关键，是寻找「上一轮留下的痕迹」：CMB 里的环形图案、原初引力波的特定频谱、黑洞蒸发的精细结构……各类搜索至今一无所获。所以本章最诚实的结尾是六个字：目前，我们不知道。而「不知道」并不是终点——它是下一代望远镜的设计说明书。"
+  ],
+  cards:[
+    {seal:"火", when:"假说 · 高维框架", l:100, t:"火劫模型", d:"两个高维「膜」宇宙周期性碰撞，每次碰撞点燃一轮大爆炸——把创世从「一次性事件」变成「周期现象」。数学优美，证据缺席。"},
+    {seal:"弹", when:"假说 · 量子引力", l:100, t:"圈量子反弹", d:"若时空在普朗克尺度量子化，坍缩到极限就会「弹回」——奇点被替换成一次翻页。这是量子引力框架里最自然的循环剧本。"},
+    {seal:"环", when:"假说 · 共形循环", l:100, t:"共形循环宇宙", d:"主张「无穷远的未来」与「大爆炸起点」在数学上不可区分——宇宙的每一轮共享同一条时间轴。提出者甚至在 CMB 里找过「前世环」，至今未见。"},
+    {seal:"诚", when:"2026 年的态度", l:100, t:"悬置判断", d:"没有观测证据 = 不采信，也不嘲笑。科学史上「太科幻」而后被证实的案例并不少——下一代 CMB 实验与引力波天文台，就是为这类问题准备的。"}
+  ],
+  deep:{title:"循环、反弹与「证据在哪里」", hint:"点开看进阶细节", points:[
+    {t:"循环宇宙的家族谱", d:"火劫（Steinhardt & Turok, 2002）、圈量子反弹、共形循环（Penrose）、反弹宇宙……不同版本共用一句话：奇点不是尽头，而是一次换乘。"},
+    {t:"为什么它们难以被检验", d:"大多数版本把「上一轮的信息」压在普朗克尺度的暴涨中——那是我们最看不清的地方。要检验，要么找到极低概率的「穿透信号」，要么等量子引力理论给出精确预言。"},
+    {t:"可以从「如果」里学到什么", d:"即使循环假说最终被证伪，研究它的过程也在推进量子引力、暴胀理论和宇宙学观测的边界。科学最大的产出，常常不是答案本身，而是「更好的问题」。"},
+    {t:"最后一个开放陈述", d:"「宇宙是否只大爆炸一次」——2026 年的答案是：不知道。而这份诚实，正是这本长卷想传递的最终气质：在 138 亿年的尺度上，最珍贵的不是确信，而是追问的勇气。"}
+  ]},
+  nugget:"「宇宙是否只大爆炸一次」——目前最好的答案是：我们诚实地不知道。而这份不知道，正是下一轮观测存在的理由。"
+});
+
+/* ============================================================
+   宇宙史 · 138亿年星图长卷 —— 主应用
+   DATA 在 data.js；本文件负责：主题 / 时钟换算 / 渲染 / 滚动联动 / QA
+   ============================================================ */
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const ROOT = document.documentElement;
+const Q = new URLSearchParams(location.search);
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CN = ["零","一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十","二十一","二十二","二十三"];
+const CAL = DATA.meta.calYears;   /* 138 亿年 = 1 年（宇宙日历） */
+const L0 = DATA.meta.l0, L1 = DATA.meta.l1;  /* log10(大爆炸后年数) 范围 */
+const SEC_Y = 3.15576e7;         /* 一年 = 3.15576e7 秒 */
+
+/* ---------- 数字美化 ---------- */
+const SUP = {"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹",".":"·"};
+function sup(s){ return String(s).split("").map(c=>SUP[c]||c).join(""); }
+function sciTxt(x){ /* x>0 → "10ⁿ" / "a×10ⁿ" */
+  if(!(x>0)) return "0";
+  const e = Math.floor(Math.log10(x));
+  let m = x/Math.pow(10,e);
+  if(m>=9.95) return supE(e+1);
+  if(Math.abs(m-1)<0.04 && e>=3) return supE(e);
+  if(Math.abs(m-Math.round(m))<0.05 && e>=3) return Math.round(m)+"×10"+sup(e);
+  return m.toFixed(1)+"×10"+sup(e);
+}
+function supE(e){ return "10"+sup(e); }
+function niceNum(v){
+  if(v>=100) return String(Math.round(v));
+  if(v>=10) return (Math.round(v*10)/10).toFixed(v%1?1:0);
+  if(v>=1) return (Math.round(v*10)/10).toFixed(1);
+  return v.toPrecision(2);
+}
+/* 真实时间（大爆炸后年数 → 人类单位） */
+function fmtReal(years){
+  if(years < SEC_Y){ /* 秒 / 分钟 / 小时 / 天 */
+    const s = years*SEC_Y;
+    let v = s, u = "秒";
+    if(s>=86400){ v=s/86400; u="天"; }
+    else if(s>=3600){ v=s/3600; u="小时"; }
+    else if(s>=60){ v=s/60; u="分钟"; }
+    if(v>=1e5 || (v>0 && v<0.005)) return sciTxt(v)+" "+u;
+    return niceNum(v)+" "+u;
+  }
+  let v = years, u = "年";
+  if(years>=1e15) return sciTxt(years)+" 年";
+  if(years>=1e12){ v=years/1e12; u="万亿年"; }
+  else if(years>=1e8){ v=years/1e8; u="亿年"; }
+  else if(years>=1e4){ v=years/1e4; u="万年"; }
+  if(v>=10000 && u!=="万亿年") return sciTxt(years)+" 年";
+  return niceNum(v)+" "+u;
+}
+/* 宇宙日历（138亿年 = 1年） */
+const MONTHS=[31,28,31,30,31,30,31,31,30,31,30,31];
+function fmtCal(years){
+  if(years > CAL*1.0000005) return null; /* 未来 */
+  const f = Math.max(0, years/CAL);
+  if(f>=0.99999985) return "此刻 · 12月31日";
+  const dayF = f*365.25;
+  let d = Math.floor(dayF), m=0, rest=dayF-d;
+  while(m<12 && d>=MONTHS[m]){ d-=MONTHS[m]; m++; }
+  if(m>=12){ m=11; d=30; }
+  const p2 = n=>String(n).padStart(2,"0");
+  const secs = Math.round(rest*86400);
+  let hh=Math.floor(secs/3600), mm=Math.floor((secs%3600)/60), ss=secs%60;
+  if(ss===60){ss=0;mm++;} if(mm===60){mm=0;hh++;}
+  const t = p2(hh)+":"+p2(mm);
+  if(m===0 && d===0){ /* 1月1日 当天，显示到分钟（再早显示秒） */
+    const early = secs<600 ? t+":"+p2(ss) : t;
+    return "1月1日 "+early;
+  }
+  return (m+1)+"月"+(d+1)+"日";
+}
+/* 组合显示：{cal, real} */
+function fmtAges(years){
+  const cal = fmtCal(years);
+  return { cal, real: fmtReal(years), future: cal===null };
+}
+
+/* ---------- 主题 ---------- */
+(function initTheme(){
+  const q = Q.get("theme");
+  if(q==="dark"||q==="light"){ ROOT.dataset.theme=q; return; }
+  try{ const saved=localStorage.getItem("us.theme"); if(saved) ROOT.dataset.theme=saved; }catch(e){}
+})();
+function drawThemeIcon(){
+  const dark = ROOT.dataset.theme!=="light";
+  $("#tbTheme").innerHTML = dark
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7z"/></svg>';
+}
+drawThemeIcon();
+$("#tbTheme").addEventListener("click",()=>{
+  ROOT.dataset.theme = (ROOT.dataset.theme==="light") ? "dark" : "light";
+  try{localStorage.setItem("us.theme", ROOT.dataset.theme)}catch(e){}
+  drawThemeIcon();
+  try{window.dispatchEvent(new CustomEvent("us:theme"))}catch(e){}
+});
+
+/* ---------- 序幕：年历表盘 ---------- */
+(function renderDial(){
+  const svg=$("#heroDial");
+  const cx=150, cy=150, R=124;
+  const polar=(frac,r)=>[cx+r*Math.cos(frac*2*Math.PI-Math.PI/2), cy+r*Math.sin(frac*2*Math.PI-Math.PI/2)];
+  let out='<circle class="dial-ring" cx="150" cy="150" r="124"/>';
+  out+='<circle class="dial-ring" cx="150" cy="150" r="86" opacity=".45"/>';
+  for(let mth=0;mth<12;mth++){
+    const f=mth/12, big=mth%3===0;
+    const [x1,y1]=polar(f,R), [x2,y2]=polar(f,big?R-15:R-8);
+    out+='<line class="dial-tick'+(big?' big':'')+'" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>';
+  }
+  [[0,"1月"],[3,"4月"],[6,"7月"],[9,"10月"]].forEach(([mth,lab])=>{
+    const [x,y]=polar(mth/12, R-28);
+    out+='<text class="dial-lab" x="'+x.toFixed(1)+'" y="'+(y+4).toFixed(1)+'" text-anchor="middle">'+lab+'</text>';
+  });
+  const list=$("#heroMarks");
+  DATA.marks.forEach((mk,i)=>{
+    const years=Math.pow(10, mk.l);
+    const f=Math.min(1, years/CAL);
+    const [x,y]=polar(f, R);
+    out+='<circle class="dial-dot" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="8.5"/>';
+    out+='<text class="dial-num" x="'+x.toFixed(1)+'" y="'+(y+3.3).toFixed(1)+'" text-anchor="middle">'+(i+1)+'</text>';
+    const a=fmtAges(years);
+    const li=document.createElement("li");
+    li.innerHTML='<span class="mk-num">'+(i+1)+'</span><span class="mk-t">'+(a.cal||a.real)+'</span><span>'+mk.name+'</span><span class="mk-s">'+mk.note+'</span>';
+    list.appendChild(li);
+  });
+  out+='<line class="dial-hand" x1="150" y1="150" x2="150" y2="44"/>';
+  out+='<circle class="dial-cap" cx="150" cy="150" r="5"/>';
+  out+='<text class="dial-mark" x="150" y="30" text-anchor="middle">此刻 ↗</text>';
+  svg.innerHTML=out;
+})();
+
+/* ---------- 顶部刻度 + 表盘小刻度 ---------- */
+const segs=[];
+(function renderSegs(){
+  const box=$("#tbSegs");
+  DATA.chapters.forEach((ch,i)=>{
+    const b=document.createElement("button");
+    b.className="seg";
+    b.style.setProperty("--era", ch.c);
+    b.title="第"+CN[i+1]+"章 · "+ch.era+" · "+ch.name;
+    b.setAttribute("aria-label", b.title);
+    b.addEventListener("click", ()=>goTo(ch.id));
+    box.appendChild(b); segs.push(b);
+  });
+  const g=$("#tbDialTicks");
+  for(let mth=0;mth<12;mth++){
+    const f=mth/12, a=f*2*Math.PI-Math.PI/2, big=mth%3===0;
+    const r1=36, r2=big?30:33;
+    g.innerHTML+='<line x1="'+(40+r1*Math.cos(a)).toFixed(1)+'" y1="'+(40+r1*Math.sin(a)).toFixed(1)+'" x2="'+(40+r2*Math.cos(a)).toFixed(1)+'" y2="'+(40+r2*Math.sin(a)).toFixed(1)+'" stroke="var(--ink3)" stroke-width="'+(big?1.6:1)+'"/>';
+  }
+})();
+
+/* ---------- 出发地图 ---------- */
+(function renderMap(){
+  const byId=id=>DATA.chapters.find(c=>c.id===id);
+  const how=$("#howto");
+  how.innerHTML='怎么读这页：宇宙史的时间跨度横跨 <b>150 个数量级</b>（从 10⁻⁴³ 秒到 10¹⁰⁰ 年），所以本卷配了两把尺子——'
+    +'① <span class="chain">真实时间</span>：秒 / 万年 / 亿年 / 10ⁿ 年；② <span class="chain">宇宙日历</span>：把 138 亿年压缩成一年（大爆炸 = 1 月 1 日零点，今天 ≈ 12 月 31 日）。'
+    +'右上角时钟会随滚动同步换算。<b>注意</b>：10⁻⁴³ 秒（普朗克时间）是第一把尺子上能写出的最早一刻——再往前，「时间」这个词本身可能就失效了。';
+  const se=$("#partsStrip");
+  DATA.parts.forEach(p=>{
+    const d=document.createElement("div");
+    d.style.background="color-mix(in srgb, "+p.color+" 14%, var(--panel2))";
+    d.innerHTML='<b style="color:var(--ink)">'+p.name+'</b>'+p.sub;
+    se.appendChild(d);
+  });
+  const box=$("#mapGroups");
+  DATA.parts.forEach(p=>{
+    const el=document.createElement("div");
+    el.className="map-group";
+    el.innerHTML='<h3><span class="eon-tag" style="border-color:'+p.color+';color:'+p.color+'">'+(p.id==="p5"?"回望":p.id.toUpperCase())+'</span>'+p.name+'<span class="yrs">'+p.range+'</span></h3>';
+    p.chapters.forEach(cid=>{
+      const ch=byId(cid); if(!ch) return;
+      const btn=document.createElement("button");
+      btn.className="map-item";
+      btn.style.setProperty("--era", ch.c);
+      btn.innerHTML='<span class="swatch"></span><span class="nm">'+ch.name+'</span>'
+        +'<span class="sub">'+ch.era+'</span>'
+        +'<span class="yr">'+ch.range+'</span><span class="go">直达 ▸</span>';
+      btn.addEventListener("click",()=>goTo(ch.id));
+      el.appendChild(btn);
+    });
+    box.appendChild(el);
+  });
+})();
+
+/* ---------- 章节渲染 ---------- */
+const clockSvg='<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>';
+(function renderChapters(){
+  const wrap=$("#chapters");
+  DATA.chapters.forEach((ch,i)=>{
+    const num=CN[i+1];
+    const part=DATA.parts.find(p=>p.id===ch.part)||{name:""};
+    const sec=document.createElement("section");
+    sec.className="chapter"; sec.id=ch.id; sec.dataset.sec=ch.id;
+    sec.style.setProperty("--era", ch.c);
+    let h='<header class="ch-head reveal">'
+      +'<div class="ch-line1"><span class="ch-num">第'+num+'章</span><span>'+part.name+' › '+ch.era+'</span><span class="ch-age">'+ch.range+'</span></div>'
+      +'<h2 class="ch-title">'+ch.name+'</h2>'
+      +'<p class="ch-tag">'+ch.tag+'</p></header>';
+    h+='<div class="nar">'+ch.nar.map((p,pi)=>'<p class="reveal'+(pi===0?' drop-cap':'')+'">'+p+'</p>').join("")+'</div>';
+    h+='<div class="cards">'+ch.cards.map(card=>{
+      const a=fmtAges(Math.pow(10,card.l));
+      const ck = a.cal? ("宇宙日历 · "+a.cal) : ("大爆炸后 "+a.real);
+      return '<article class="card reveal">'
+        +'<div class="card-top"><span class="seal">'+card.seal+'</span>'
+        +'<div class="card-hd"><h3>'+card.t+'</h3><p class="when">'+card.when+'</p></div></div>'
+        +'<p class="ctext">'+card.d+'</p>'
+        +'<p class="ck">'+clockSvg+ck+'</p></article>';
+    }).join("")+'</div>';
+    (ch.plates||[]).forEach((pl,pi)=>{
+      h+='<div class="plate reveal" data-demo="'+pl.d+'" id="plate-'+ch.id+'-'+pi+'" style="--era:'+ch.c+'">'
+        +'<div class="plate-head"><span class="plate-title">'+pl.title+'</span><span class="plate-tag">'+(pl.tag||"动态图版")+'</span></div>'
+        +'<p class="plate-sub">'+pl.sub+'</p>'
+        +'<div class="plate-stage"><canvas role="img" aria-label="'+pl.title+'"></canvas></div>'
+        +'<div class="plate-foot"></div>'
+        +'<p class="plate-note">'+pl.note+'</p></div>';
+    });
+    h+='<details class="drawer reveal"><summary><span class="dmark">+</span><span>深挖抽屉 · '+ch.deep.title+'</span><span class="dhint">'+ch.deep.hint+'</span></summary><div class="dbody">'
+      +ch.deep.points.map(p=>'<div class="dpoint"><b>'+p.t+'</b>'+p.d+'</div>').join("")
+      +'</div></details>';
+    h+='<p class="nugget reveal"><span class="nglabel">图鉴注脚</span>'+ch.nugget+'</p>';
+    sec.innerHTML=h;
+    wrap.appendChild(sec);
+  });
+})();
+
+/* ---------- 终幕 ---------- */
+(function renderFinale(){
+  const coords=[
+    {w:"你在空间里的坐标", t:"一个 930 亿光年的泡泡", d:"可观测宇宙直径约 930 亿光年——光跑了 138 亿年，空间沿途又被拉长了一倍多。泡泡之外还有更多宇宙，只是光还没来得及把信送到。"},
+    {w:"你在时间里的坐标", t:"宇宙的黄金中年", d:"138 亿岁，正处在恒星仍在点亮、膨胀开始加速的窗口期。再往后一万亿年，天将逐渐无新星可看。"},
+    {w:"你在物质里的坐标", t:"5% 的稀有派", d:"你由普通物质组成——它只占宇宙的 4.9%。其余 26.8% 是不发光的暗物质，68.3% 是把膨胀越推越快的暗能量。我们是宇宙的稀有样本。"}
+  ];
+  const box=$("#coordCards");
+  coords.forEach(f=>{
+    const el=document.createElement("div");
+    el.className="coord-card reveal";
+    el.innerHTML='<p class="fc-t">'+f.t+'</p><p class="fc-w">'+f.w+'</p><p>'+f.d+'</p>';
+    box.appendChild(el);
+  });
+  /* 一图流 SVG */
+  const chapters=DATA.chapters, parts=DATA.parts;
+  const W=1180, H=310, pad=34;
+  const N=chapters.length, segW=(W-pad*2-N*3)/N, top=44, segH=36;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="宇宙史一图流">';
+  s+='<text x="'+pad+'" y="24" font-size="12.5" fill="var(--ink3)">上排 · 21 个章节（等宽排列，按叙事顺序）</text>';
+  chapters.forEach((ch,i)=>{
+    const x=pad+i*(segW+3);
+    s+='<rect x="'+x.toFixed(1)+'" y="'+top+'" width="'+segW.toFixed(1)+'" height="'+segH+'" rx="3" fill="'+ch.c+'" opacity=".9"><title>第'+CN[i+1]+'章 '+ch.era+' · '+ch.name+'（'+ch.range+'）</title></rect>';
+    s+='<text x="'+(x+segW/2).toFixed(1)+'" y="'+(top+segH/2+4).toFixed(1)+'" text-anchor="middle" font-size="11.5" fill="#fffdf5" opacity=".95">'+(i+1)+'</text>';
+  });
+  /* 下排：对数时间带 */
+  const byBand={
+    p1:[-50.5,-39.5], p2:[-39.5,5.58], p3:[5.58,9.96], p4:[9.96,10.14], p6:[10.14,100]
+  };
+  const bandY=190, bandH=22;
+  const X=v=>pad+(clamp01((v-L0)/(L1-L0)))*(W-pad*2);
+  s+='<text x="'+pad+'" y="'+(bandY-58)+'" font-size="12.5" fill="var(--ink3)">下排 · 对数时间带：每往右一格，时间翻 10 倍（注意「我们所在的章节」被挤成了多细的一条缝）</text>';
+  s+='<line x1="'+pad+'" y1="'+(bandY+bandH/2)+'" x2="'+(W-pad)+'" y2="'+(bandY+bandH/2)+'" stroke="var(--line)" stroke-width="1"/>';
+  parts.forEach(p=>{
+    const b=byBand[p.id]; if(!b) return;
+    const x0=X(b[0]), x1=X(b[1]);
+    const w=Math.max(2, x1-x0);
+    s+='<rect x="'+x0.toFixed(1)+'" y="'+bandY+'" width="'+w.toFixed(1)+'" height="'+bandH+'" rx="3" fill="'+p.color+'" opacity=".34"><title>'+p.name+' '+p.range+'</title></rect>';
+    s+='<rect x="'+x0.toFixed(1)+'" y="'+bandY+'" width="'+w.toFixed(1)+'" height="'+bandH+'" rx="3" fill="none" stroke="'+p.color+'" stroke-width="1" opacity=".8"/>';
+    if(w>54){ s+='<text x="'+((x0+x1)/2).toFixed(1)+'" y="'+(bandY+15)+'" text-anchor="middle" font-size="11.5" fill="var(--ink)">'+p.name.replace(/^./,m=>m)+'</text>'; }
+  });
+  /* 此刻旗标 */
+  const xt=X(10.14);
+  s+='<line x1="'+xt.toFixed(1)+'" y1="'+(bandY-16)+'" x2="'+xt.toFixed(1)+'" y2="'+(bandY+bandH+4)+'" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 3"/>';
+  s+='<text x="'+(xt-6).toFixed(1)+'" y="'+(bandY-22)+'" text-anchor="end" font-size="12" fill="var(--gold)">此刻 · 伍「人类破案」就在这条线上回望</text>';
+  /* 关键长钉 */
+  const pins=[
+    {l:L0+0.0, lab:"大爆炸第一瞬", row:0},
+    {l:5.58,   lab:"第一道光 · 38 万年", row:1},
+    {l:8.18,   lab:"第一代恒星", row:2},
+    {l:10.14,  lab:"今天 · 138 亿年", row:0},
+    {l:14,     lab:"最后一颗恒星 · 10¹⁴ 年", row:1},
+    {l:100,    lab:"热寂 · 10¹⁰⁰ 年", row:2}
+  ];
+  const rows=[bandY+bandH+18, bandY+bandH+38, bandY+bandH+58];
+  pins.forEach(p=>{
+    const x=X(p.l), y=rows[p.row];
+    s+='<line x1="'+x.toFixed(1)+'" y1="'+(bandY+bandH+2)+'" x2="'+x.toFixed(1)+'" y2="'+(y-4)+'" stroke="var(--line)" stroke-width="1" stroke-dasharray="2 3"/>';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+(bandY+bandH)+'" r="2.6" fill="var(--gold)"/>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+y+'" text-anchor="'+(p.l>90?"end":"middle")+'" font-size="11" fill="var(--ink2)">'+p.lab+'</text>';
+  });
+  s+='<text x="'+pad+'" y="'+(H-10)+'" font-size="11" fill="var(--ink3)">左端 10⁻⁴³ 秒（普朗克时间） → 右端 10¹⁰⁰ 年（热寂量级）；🪐 = 数量级坐标，非等比</text>';
+  s+='</svg>';
+  $("#oneline").innerHTML=s;
+  function clamp01(v){ return v<0?0:v>1?1:v; }
+})();
+
+/* ---------- 深挖抽屉：打印时展开 ---------- */
+if(window.matchMedia("print").matches){ $$(".drawer").forEach(d=>d.open=true); }
+
+/* ---------- 滚动联动：刻度针 / 宇宙日历 / 章节名 ---------- */
+let offsets=[];
+function measure(){
+  offsets=DATA.chapters.map(ch=>{
+    const el=document.getElementById(ch.id);
+    return {el, top: el.getBoundingClientRect().top + window.scrollY, h: el.offsetHeight, ch};
+  });
+}
+const tbClockTime=$("#tbClockTime"), tbClockReal=$("#tbClockReal"), tbNeedle=$("#tbNeedle"),
+      tbChapter=$("#tbChapter"), tbHand=$("#tbClockHand");
+let lastState="";
+function onScroll(){
+  if(!offsets.length){ measure(); }
+  if(!offsets.length) return;
+  const refY=window.scrollY + window.innerHeight*0.33;
+  let idx=0, frac=0, l=L0;
+  for(let i=0;i<offsets.length;i++){
+    const o=offsets[i];
+    if(refY>=o.top){
+      idx=i;
+      frac=o.h>0 ? Math.min(1, Math.max(0,(refY-o.top)/o.h)) : 0;
+      l=o.ch.l0+(o.ch.l1-o.ch.l0)*frac;
+    }
+  }
+  const beforeAll = refY < offsets[0].top;
+  if(beforeAll){ l=L0; idx=-1; frac=0; }
+  const afterAll = refY > offsets[offsets.length-1].top + offsets[offsets.length-1].h;
+  if(afterAll){ l=L1; idx=offsets.length-1; frac=1; }
+  const years=Math.pow(10,l);
+  const a=fmtAges(years);
+  const disp = a.cal ? a.cal : ("＋"+a.real);
+  const pos=((idx<0?0:idx)+frac)/offsets.length;
+  const state=disp+"/"+Math.round(pos*1000);
+  if(state!==lastState){
+    lastState=state;
+    tbClockTime.textContent=disp;
+    tbClockReal.textContent=(a.cal?"大爆炸后 ":"未来 · ")+a.real;
+    tbNeedle.style.left=(pos*100).toFixed(2)+"%";
+    const fr=Math.max(0,Math.min(1, years/CAL));
+    tbHand.setAttribute("transform","rotate("+((fr*360)-90).toFixed(1)+" 40 40)");
+    if(idx<0) tbChapter.textContent="序幕 · 读时间的人";
+    else tbChapter.textContent="第"+CN[idx+1]+"章 · "+DATA.chapters[idx].name;
+    segs.forEach((s2,i)=>s2.classList.toggle("on", i===idx));
+  }
+}
+window.addEventListener("scroll", onScroll, {passive:true});
+window.addEventListener("resize", ()=>{measure(); onScroll();});
+document.addEventListener("visibilitychange", ()=>{measure(); onScroll();});
+window.addEventListener("load", ()=>{measure(); onScroll();});
+/* 保险丝：有的环境会吞掉滚动事件（后台标签、预览面板节流）——定期对表兜底 */
+setInterval(()=>{ if(!document.hidden){ onScroll(); } }, 700);
+measure(); onScroll();
+
+/* ---------- 平滑跳转 ---------- */
+const NOSMOOTH=Q.has("nosmooth")||REDUCED;
+function goTo(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  const y=el.getBoundingClientRect().top + window.scrollY - (document.documentElement.clientWidth>700?74:100);
+  window.scrollTo({top:y, behavior: NOSMOOTH?"auto":"smooth"});
+}
+$("#fabMap").addEventListener("click",()=>goTo("map"));
+$("#fabTop").addEventListener("click",()=>window.scrollTo({top:0, behavior: NOSMOOTH?"auto":"smooth"}));
+
+/* ---------- 渐显 ---------- */
+(function reveal(){
+  const els=$$(".reveal");
+  if(REDUCED||Q.has("noanim")){ els.forEach(e=>e.classList.add("in")); return; }
+  if(!("IntersectionObserver" in window)){ els.forEach(e=>e.classList.add("in")); return; }
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+  },{threshold:0.1, rootMargin:"0px 0px -6% 0px"});
+  els.forEach(e=>io.observe(e));
+  setTimeout(()=>{
+    els.forEach(e=>{
+      if(e.classList.contains("in")) return;
+      const r=e.getBoundingClientRect();
+      if(r.top < window.innerHeight*1.2) e.classList.add("in");
+    });
+  },2500);
+})();
+
+/* ---------- QA 模式（?shot=章节id 只显示一个区块，供截图） ---------- */
+(function shotMode(){
+  const shot=Q.get("shot");
+  const focus=Q.get("focus");
+  if(!shot && !focus) return;
+  ROOT.classList.add("no-anim");
+  document.body.classList.add("shot");
+  if(!Q.has("tb")){ $("#topbar").style.display="none"; }
+  document.querySelector(".fab").style.display="none";
+  if(shot){
+    $$("main > section, #chapters, #chapters > section").forEach(el=>{ el.style.display="none"; });
+    const el=document.getElementById(shot);
+    if(el){
+      el.style.display="block";
+      if(el.parentElement && el.parentElement.id==="chapters"){ el.parentElement.style.display="block"; }
+      if(el.classList.contains("chapter")){
+        const wrap=document.getElementById("chapters");
+        if(wrap && wrap.parentElement) wrap.parentElement.style.display="block";
+      }
+    }
+  }
+  measure(); onScroll();
+  if(focus){
+    const el2=document.getElementById(focus);
+    if(el2){
+      const yy=el2.getBoundingClientRect().top + window.scrollY + (parseFloat(Q.get("f"))||0.3)*el2.offsetHeight - window.innerHeight*0.35;
+      window.scrollTo(0, Math.max(0, yy));
+    }
+  } else if(Q.has("y")){
+    window.scrollTo(0, parseFloat(Q.get("y"))||0);
+  }
+  onScroll();
+  if(shot && Q.has("tb")){
+    tbClockTime.textContent="1月1日 00:00";
+    tbClockReal.textContent="大爆炸后 10⁻⁴³ 秒";
+    tbNeedle.style.left="0%";
+    tbChapter.textContent="序幕 · 读时间的人";
+    tbHand.removeAttribute("transform");
+    segs.forEach(s2=>s2.classList.remove("on"));
+  }
+})();
+
+/* ---------- QA 钩子 ---------- */
+window.__app={
+  goTo, measure, onScroll,
+  state(){ return {clock: tbClockTime.textContent, real: tbClockReal.textContent, chapter: tbChapter.textContent, needle: tbNeedle.style.left, theme: ROOT.dataset.theme}; },
+  fmtReal, fmtCal
+};
+})();
+
+</script>
+<script>
+/* ============================================================
+   动态图版引擎 v2：零依赖 Canvas 2D；「宇宙膨胀剧场」优先 three.js（断网降级 2D）
+   加固要点（来自实测坑）：RO 跳过首回调 / 静态终帧 dt=1 / 滑块 fromUser /
+   2D与WebGL各自 freshCanvas / readPixels 验证 / 后台标签冻结兜底
+   结构：本文件暴露 window.__ENGINE（注册表 + 工具），boot.js 负责最后启动
+   ============================================================ */
+(function(){
+"use strict";
+const Q = new URLSearchParams(location.search);
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NOANIM = REDUCED || Q.has("noanim") || document.documentElement.classList.contains("no-anim");
+const FORCE2D = Q.has("nod3");
+const FORCE_MOUNT = Q.has("mount");
+
+document.head.insertAdjacentHTML("beforeend",
+  "<style>.plate-stage .cap{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:13px \"FangSong\",\"STFangsong\",\"仿宋\",serif;color:rgba(240,245,255,.94);text-shadow:0 1px 6px rgba(0,0,0,.65);pointer-events:none;letter-spacing:.06em;line-height:1.7;padding:0 14px;z-index:3}"
+ +".plate-stage .cap2{position:absolute;left:14px;top:10px;font:12.5px Georgia,\"Times New Roman\",serif;color:rgba(230,196,106,.95);text-shadow:0 1px 6px rgba(0,0,0,.65);pointer-events:none;letter-spacing:.04em;z-index:3}</style>");
+
+/* ---------- 深空调色板（图版永远是「望远镜视野」） ---------- */
+const COSM={
+  bg:"#070a16", bg2:"#0b1024",
+  ink:"#e9edfa", ink2:"#aab4d4", ink3:"#6c7696",
+  line:"rgba(140,160,220,.28)", line2:"rgba(140,160,220,.14)",
+  gold:"#e6c46a", teal:"#43c8b8", orange:"#e58b45", violet:"#8f6ff2",
+  blue:"#5f8fe8", red:"#e06a6a", green:"#63c07f", pink:"#d370a8",
+  paper:"#f2f5ff"
+};
+const FANG='"FangSong","STFangsong","仿宋",serif';
+const KAI='"Kaiti SC","STKaiti","KaiTi","楷体",serif';
+function ease(t){ return t<0?0:t>1?1:t*t*(3-2*t); }
+function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function rrect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function chip(ctx,x,y,text,align){
+  ctx.font="12px "+FANG; ctx.textAlign="left"; const tw=ctx.measureText(text).width+16, th=22;
+  let bx = align==="c" ? x-tw/2 : (align==="r" ? x-tw : x);
+  rrect(ctx,bx,y-th/2,tw,th,11);
+  ctx.fillStyle="rgba(14,18,34,.88)"; ctx.fill();
+  ctx.strokeStyle=COSM.line; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle=COSM.ink; ctx.fillText(text,bx+8,y+4);
+}
+function starfield(rnd, n){ const a=[]; for(let i=0;i<n;i++) a.push([rnd(),rnd(),0.4+rnd()*1.1,0.5+rnd()*1.4]); return a; }
+function drawStars(ctx,w,h,stars,t,alpha){
+  for(const s of stars){
+    ctx.globalAlpha=(alpha||0.42)*(0.55+0.45*Math.sin(t*1.6*s[3]+s[0]*9));
+    ctx.fillStyle="#dfe6ff";
+    ctx.fillRect(s[0]*w,s[1]*h,s[2],s[2]);
+  }
+  ctx.globalAlpha=1;
+}
+
+function setupCanvas(cv, aspect){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const env={w:600,h:600,ctx:null,dpr};
+  function fit(){
+    const w=Math.max(260, cv.parentElement.clientWidth-2);
+    const h=Math.round(w/aspect);
+    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    cv.style.width="100%"; cv.style.height="auto";
+    env.w=w; env.h=h; env.ctx=cv.getContext("2d"); env.ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fit();
+  if(window.ResizeObserver){
+    let first=true;
+    new ResizeObserver(()=>{ if(first){ first=false; return; } fit(); if(env.onresize) env.onresize(); }).observe(cv.parentElement);
+  }
+  return env;
+}
+function ctlBtn(foot,label,fn){ const b=document.createElement("button"); b.type="button"; b.className="pbtn"; b.textContent=label; b.addEventListener("click",fn); foot.appendChild(b); return b; }
+function ctlRange(foot,label,min,max,step,val,oninput){
+  const wrap=document.createElement("label"); wrap.className="prange";
+  wrap.appendChild(document.createTextNode(label));
+  const inp=document.createElement("input"); inp.type="range"; inp.min=min; inp.max=max; inp.step=step; inp.value=val;
+  wrap.appendChild(inp);
+  const v=document.createElement("span"); v.className="pval";
+  wrap.appendChild(v); foot.appendChild(wrap);
+  const handler=()=>oninput(parseFloat(inp.value),v,true);
+  inp.addEventListener("input",handler);
+  oninput(parseFloat(inp.value),v,false);
+  return {inp,v,set(x){ inp.value=x; oninput(x,v,false); }};
+}
+function mkCap(stage){ const c=document.createElement("div"); c.className="cap"; stage.appendChild(c); return c; }
+function mkCap2(stage){ const c=document.createElement("div"); c.className="cap2"; stage.appendChild(c); return c; }
+
+/* ---------- 播放器 ---------- */
+class Player{
+  constructor(plate){
+    this.plate=plate; this.stage=plate.querySelector(".plate-stage");
+    this.cv=plate.querySelector("canvas"); this.foot=plate.querySelector(".plate-foot");
+    this.key=plate.dataset.demo; this.demo=null; this.mounted=false; this.playing=false;
+    this.t=0; this.last=0;
+  }
+  addReplay(){
+    if(!this.demo || this.demo.controls===false || this.foot.dataset.built) return;
+    this.foot.dataset.built="1";
+    const self=this;
+    ctlBtn(this.foot,"↺ 重播",()=>self.play());
+  }
+  play(){ if(!this.demo) return; this.addReplay(); this.playing=true; this.t=0; this.last=performance.now(); kick(); }
+  resume(){ if(!this.demo) return; this.playing=true; this.last=performance.now(); kick(); }
+  stop(){ this.playing=false; }
+  async mount(){
+    if(this.mounted) return; this.mounted=true;
+    const f=FACTORY[this.key]; if(!f) return;
+    try{ this.demo=await Promise.resolve(f(this)); }catch(e){ console.warn("[demo]",this.key,e); }
+    if(!this.demo) return;
+    if(NOANIM){ this.t=this.demo.END||0; this.demo.draw(this.t, 1.0); this.addReplay(); }
+    else { this.demo.draw(0, 0.016); if(this.demo.autoplay!==false) this.play(); }
+  }
+  step(ts){
+    if(!this.playing||!this.demo) return false;
+    const dt=Math.min(0.05,(ts-this.last)/1000||0.016); this.last=ts;
+    this.t=Math.min((this.demo.END||10), this.t+dt);
+    this.demo.draw(this.t, dt);
+    if(this.t>=(this.demo.END||10)) this.playing=false;
+    return this.playing;
+  }
+}
+const FACTORY={};
+
+/* ---------- three.js 加载与降级链 ---------- */
+function loadThree(){
+  return new Promise(res=>{
+    if(window.THREE) return res(true);
+    if(FORCE2D) return res(false);
+    const s=document.createElement("script");
+    const to=setTimeout(()=>done(false),6500);
+    function done(v){ clearTimeout(to); res(v); }
+    s.src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+    s.onload=()=>done(!!window.THREE);
+    s.onerror=()=>done(false);
+    document.head.appendChild(s);
+  });
+}
+function webglOK(){
+  try{ const c=document.createElement("canvas"); return !!(c.getContext("webgl2")||c.getContext("webgl")||c.getContext("experimental-webgl")); }catch(e){ return false; }
+}
+function freshCanvas(stage){
+  const old=stage.querySelector("canvas");
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img");
+  try{ const t=stage.closest(".plate").querySelector(".plate-title"); cv.setAttribute("aria-label", t?t.textContent+"（动态演示）":"动态演示"); }catch(e){}
+  if(old) old.replaceWith(cv); else stage.appendChild(cv);
+  return cv;
+}
+/* 时间显示（转发主应用的格式化） */
+function fmtReal(y){ try{ return window.__app.fmtReal(y); }catch(e){ return y.toExponential(1)+" 年"; } }
+function fmtCal(y){ try{ return window.__app.fmtCal(y); }catch(e){ return null; } }
+
+/* ---------- 挂载与调度 ---------- */
+const players=[];
+let rafOn=false;
+function loop(ts){
+  let any=false;
+  for(const p of players){ if(p.playing && p.step(ts)) any=true; }
+  if(any && !document.hidden){ requestAnimationFrame(loop); } else { rafOn=false; }
+}
+function kick(){ if(!rafOn && !document.hidden){ rafOn=true; requestAnimationFrame(loop); } }
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden){ players.forEach(p=>{ if(p.playing) p.last=performance.now(); }); kick(); }
+});
+function boot(){
+  document.querySelectorAll(".plate").forEach(plate=>{
+    const p=new Player(plate); plate.__p=p; players.push(p);
+    if("IntersectionObserver" in window){
+      const io=new IntersectionObserver(es=>{
+        es.forEach(en=>{
+          en.target.__visible=en.isIntersecting;
+          if(en.isIntersecting){
+            if(!p.mounted) p.mount();
+            else if(!NOANIM && p.demo && p.t<(p.demo.END||10)) p.resume();
+          } else p.stop();
+        });
+      },{threshold:0.18});
+      io.observe(plate);
+    } else {
+      plate.__visible=true; p.mount();
+    }
+  });
+  if(FORCE_MOUNT){
+    players.forEach(p=>{ if(!p.mounted){ p.mount().then(()=>{ if(p.demo && NOANIM!==true){ p.stop(); try{p.demo.draw(p.demo.END||0,1.0);}catch(e){} } }); } });
+  }
+  window.__demos=players; /* QA 钩子 */
+}
+window.addEventListener("resize",()=>{ clearTimeout(window.__rzT); window.__rzT=setTimeout(()=>{ players.forEach(p=>{ if(p.demo){ try{ p.demo.draw(p.t||0,0.001); }catch(e){} } }); },200); });
+window.addEventListener("us:theme",()=>{ players.forEach(p=>{ if(p.demo && p.demo.recolor){ try{ p.demo.recolor(p.t||0); }catch(e){} } }); });
+if(Q.has("qa")){
+  const mark=()=>{ setTimeout(()=>{ document.title="[READY] "+document.title.replace(/^\[READY\] /,""); }, 900); };
+  if(document.readyState==="complete") mark(); else window.addEventListener("load", mark);
+}
+
+window.__ENGINE={
+  Q, NOANIM, FORCE2D, FACTORY, Player, players,
+  COSM, FANG, KAI, ease, clamp, lerp, mulberry32, rrect, chip, starfield, drawStars,
+  setupCanvas, ctlBtn, ctlRange, mkCap, mkCap2,
+  loadThree, webglOK, freshCanvas, fmtReal, fmtCal, boot
+};
+})();
+
+/* ============================================================
+   动态图版 · 第一批：ruler / inflation / annihilation / bignucleo / firstlight
+   ============================================================ */
+(function(){
+"use strict";
+const E=window.__ENGINE; if(!E) return;
+const {COSM,FANG,KAI,ease,clamp,lerp,mulberry32,chip,rrect,starfield,drawStars,setupCanvas,ctlBtn,ctlRange,mkCap,mkCap2,loadThree,webglOK,freshCanvas,fmtReal,fmtCal}=E;
+const F=E.FACTORY;
+const sup=s=>String(s).split("").map(c=>({"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹",".":"·"}[c]||c)).join("");
+const L0=-50.5, L1=100;
+
+/* ===== 1 · 时间尺：从 10⁻⁴³ 秒到 10¹⁰⁰ 年 ===== */
+F.ruler=function(player){
+  const env=setupCanvas(player.cv,16/7.2); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  let lv=L0, interacted=false, lastT=-1;
+  const END=15;
+  const MS=[
+    {l:-50.5, lab:"普朗克",    r:0, d:"物理定律失效的最后一页——已知最小的「时间刻度」"},
+    {l:-39.5, lab:"暴胀",      r:1, d:"空间在一瞬之间被拉伸了至少 10²⁶ 倍"},
+    {l:-7.5,  lab:"第一秒",    r:2, d:"夸克被囚禁成质子与中子；中微子悄悄解耦溜走"},
+    {l:-5.24, lab:"三分钟",    r:0, d:"宇宙的第一间厨房：氢、氦、一点点锂出炉"},
+    {l:5.58,  lab:"38 万年",   r:1, d:"第一次放晴——光子拿到自由通行证（CMB）"},
+    {l:8.18,  lab:"第一代恒星", r:2, d:"黑暗时代结束，第一批恒星点亮（约 1–4 亿年）"},
+    {l:10.14, lab:"今天",      r:0, d:"138 亿年——你正在这里阅读它"},
+    {l:14,    lab:"最后的星光", r:1, d:"10¹⁴ 年：最后一颗红矮星熄灭"},
+    {l:100,   lab:"热寂",      r:2, d:"10¹⁰⁰ 年：黑洞蒸发完毕，只剩稀薄的光与粒子"}
+  ];
+  const scrub=ctlRange(player.foot,"时间指针（大爆炸 → 10¹⁰⁰ 年）",L0,L1,0.25,L0,(v,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    lv=v;
+    el.textContent = (lv<=10.14 ? "大爆炸后 " : "未来 ") + fmtReal(Math.pow(10,lv));
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动巡游",()=>{ interacted=false; player.play(); });
+  function tempOf(l){
+    if(l>10.14) return null;
+    const y=Math.pow(10,l), s=y*3.15576e7;
+    if(y<5e4) return 1.5e10/Math.sqrt(Math.max(s,1e-45));
+    return 1.19e4*Math.pow(5e4/y, 2/3);
+  }
+  function tempTxt(T){
+    if(T===null) return "温度 → 趋于绝对零度";
+    if(T>=1e4){ const e=Math.round(Math.log10(T)); return "温度 ≈ 10"+sup(e)+" K（数量级估算）"; }
+    if(T>=100) return "温度 ≈ 约 "+Math.round(T/100)*100+" K";
+    return "温度 ≈ "+Math.max(1,Math.round(T))+" K";
+  }
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      lv=L0+(L1-L0)*ease(k);
+      scrub.set(lv);
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    const m={l:42,r:26,t:64,b:88};
+    const axisY=h-m.b+30;
+    const X=l=>m.l+(l-L0)/(L1-L0)*(w-m.l-m.r);
+    /* 未来区底纹 */
+    const xNow=X(10.14);
+    ctx.fillStyle="rgba(143,111,242,.07)";
+    ctx.fillRect(xNow, m.t-30, X(100)-xNow, axisY-(m.t-30)+4);
+    ctx.font="11px "+FANG; ctx.textAlign="center"; ctx.fillStyle="rgba(160,140,235,.75)";
+    ctx.fillText("未 来 · 理论推测", (xNow+X(100))/2, m.t-38);
+    /* 轴 */
+    ctx.strokeStyle=COSM.line; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(m.l,axisY); ctx.lineTo(w-m.r,axisY); ctx.stroke();
+    ctx.textAlign="center"; ctx.font="10.5px "+FANG;
+    for(let n=-50;n<=100;n+=5){
+      const x=X(n), big=(n%10===0);
+      ctx.strokeStyle=big?"rgba(140,160,220,.5)":"rgba(140,160,220,.22)";
+      ctx.beginPath(); ctx.moveTo(x,axisY); ctx.lineTo(x,axisY+(big?8:5)); ctx.stroke();
+      if(big && n>=-60){
+        ctx.fillStyle=COSM.ink3;
+        ctx.fillText(n===0?"1 年":("10"+(n<0?sup(n):sup(n))+" 年"), x, axisY+20);
+      }
+    }
+    /* 里程碑 */
+    MS.forEach(mk=>{
+      const x=X(mk.l);
+      ctx.strokeStyle="rgba(230,196,106,.55)"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.moveTo(x,axisY-10); ctx.lineTo(x,axisY); ctx.stroke();
+      ctx.fillStyle=COSM.gold; ctx.beginPath(); ctx.arc(x,axisY,3,0,6.283); ctx.fill();
+      const ly=axisY+36+mk.r*18;
+      ctx.font="11px "+FANG; ctx.fillStyle=COSM.ink2; ctx.textAlign="center";
+      ctx.fillText(mk.lab, x, ly);
+    });
+    /* 游标 */
+    const cx=X(clamp(lv,L0,L1));
+    const grd=ctx.createLinearGradient(cx,0,cx,axisY+8);
+    grd.addColorStop(0,"rgba(230,196,106,0)"); grd.addColorStop(1,"rgba(230,196,106,.35)");
+    ctx.fillStyle=grd; ctx.fillRect(cx-1.2,m.t-26,2.4,axisY-(m.t-26)+8);
+    ctx.strokeStyle=COSM.gold; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(cx,m.t-26); ctx.lineTo(cx,axisY+8); ctx.stroke();
+    ctx.fillStyle=COSM.gold;
+    ctx.beginPath(); ctx.arc(cx,axisY,4.5,0,6.283); ctx.fill();
+    /* 读数框 */
+    const years=Math.pow(10,lv);
+    const cal=fmtCal(years);
+    const rx=Math.min(cx+14, w-230), ry=m.t-18;
+    ctx.textAlign="left";
+    ctx.font="bold 16px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText((lv<=10.14?"大爆炸后 ":"＋")+fmtReal(years)+(lv>10.14?"（未来）":""), rx, ry);
+    ctx.font="12.5px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText(cal?("宇宙日历 · "+cal):"宇宙日历 · 已走出 138 亿年", rx, ry+20);
+    ctx.fillStyle=COSM.ink3;
+    ctx.fillText(tempTxt(tempOf(lv)), rx, ry+40);
+    /* 最近里程碑说明 */
+    let best=null,bd=1e9;
+    MS.forEach(mk=>{ const d=Math.abs(mk.l-lv); if(d<bd){bd=d;best=mk;} });
+    cap.textContent = bd<1.4 ? best.d : "继续拖动——每一格，时间翻 10 倍";
+  }
+  /* 直接拖画布也能扫时间 */
+  const cv=player.cv;
+  function setByPointer(e){
+    const r=cv.getBoundingClientRect();
+    const fx=clamp((e.clientX-r.left)/r.width,0,1);
+    interacted=true; lv=L0+fx*(L1-L0);
+    scrub.set(lv); try{ draw(player.t||0,0.001); }catch(err){}
+  }
+  player.stage.addEventListener("pointerdown",e=>{ setByPointer(e); });
+  player.stage.addEventListener("pointermove",e=>{ if(e.buttons&1) setByPointer(e); });
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 2 · 暴胀拉伸 ===== */
+F.inflation=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const END=14;
+  const rnd=mulberry32(42);
+  const stars=starfield(rnd,80);
+  const fl=[]; for(let i=0;i<170;i++){
+    fl.push({x:(rnd()-0.5)*2, y:(rnd()-0.5)*2, v:(rnd()<0.5?-1:1)*(0.35+rnd()*0.65), ph:rnd()*6.28});
+  }
+  function glowSprite(col){
+    const c=document.createElement("canvas"); c.width=c.height=64; const g=c.getContext("2d");
+    const gr=g.createRadialGradient(32,32,0,32,32,32);
+    gr.addColorStop(0,"rgba("+col+",0.55)"); gr.addColorStop(0.5,"rgba("+col+",0.16)"); gr.addColorStop(1,"rgba("+col+",0)");
+    g.fillStyle=gr; g.fillRect(0,0,64,64); return c;
+  }
+  const spR=glowSprite("224,106,106"), spB=glowSprite("95,143,232");
+  function draw(t,dt){
+    const w=env.w,h=env.h, base=Math.min(w,h);
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.3);
+    const k1=clamp(t/4,0,1);
+    const k2=clamp((t-4)/5,0,1);
+    const k3=clamp((t-9)/4,0,1);
+    const cx=w*0.5, cy=h*0.52;
+    /* 视界问题（前段） */
+    const probeA=1-clamp((t-2.6)/1.4,0,1);
+    if(probeA>0){
+      ctx.globalAlpha=probeA;
+      [[w*0.20,"2.7255 K"],[w*0.80,"2.7255 K"]].forEach(([px,lab])=>{
+        ctx.strokeStyle="rgba(170,180,212,.6)"; ctx.setLineDash([3,4]); ctx.lineWidth=1.2;
+        ctx.beginPath(); ctx.arc(px,cy,base*0.13,0,6.283); ctx.stroke(); ctx.setLineDash([]);
+        ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2; ctx.textAlign="center";
+        ctx.fillText(lab,px,cy+4);
+      });
+      ctx.strokeStyle="rgba(224,106,106,.55)"; ctx.setLineDash([4,5]);
+      ctx.beginPath(); ctx.moveTo(w*0.33,cy-base*0.20); ctx.lineTo(w*0.67,cy-base*0.20); ctx.stroke(); ctx.setLineDash([]);
+      ctx.font="12px "+FANG; ctx.fillStyle="rgba(224,130,130,.9)"; ctx.textAlign="center";
+      ctx.fillText("这段距离：光来不及往返 ✕", w*0.5, cy-base*0.245);
+      if(t<0.4){ /* 揭示标题 */
+        ctx.font="14px "+KAI; ctx.fillStyle=COSM.ink; 
+      }
+      ctx.globalAlpha=1;
+    }
+    /* 暴胀中的空间网格 */
+    if(t>=3.4){
+      const g=clamp((t-3.4)/0.8,0,1);
+      ctx.globalAlpha=Math.min(1,g);
+      const scl=Math.exp(ease(k2)*6.4);
+      const cxr=cx, cyr=cy;
+      ctx.strokeStyle="rgba(140,160,220,.26)"; ctx.lineWidth=1;
+      const step=26*scl;
+      if(step<Math.max(w,h)*2.4){
+        const off=w*0.5, offy=h*0.52;
+        for(let gx=-10;gx<=10;gx++){
+          const x=cxr+gx*step;
+          if(x<-40||x>w+40) continue;
+          ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,h); ctx.stroke();
+        }
+        for(let gy=-10;gy<=10;gy++){
+          const y=cyr+gy*step;
+          if(y<-40||y>h+40) continue;
+          ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke();
+        }
+      }
+      /* 涨落点：随暴胀被拉开 */
+      if(k3>0){
+        fl.forEach((p,i)=>{
+          const x=cx+p.x*base*0.5*Math.exp(ease(k2)*1.35);
+          const y=cy+p.y*base*0.38*Math.exp(ease(k2)*1.35);
+          if(x<-20||x>w+20||y<-20||y>h+20) return;
+          const rr=2.6+k3*2.2;
+          const sp=p.v>0?spR:spB, sz=rr*7;
+          ctx.globalAlpha=k3*0.5;
+          ctx.drawImage(sp, x-sz/2, y-sz/2, sz, sz);
+          ctx.globalAlpha=k3*0.9;
+          if(p.v>0){ ctx.fillStyle="rgba(224,106,106,.75)"; } else { ctx.fillStyle="rgba(95,143,232,.75)"; }
+          ctx.beginPath(); ctx.arc(x,y,rr*(0.8+0.2*Math.sin(t*3+p.ph)),0,6.283); ctx.fill();
+        });
+      }
+      ctx.globalAlpha=1;
+    }
+    cap.textContent =
+      t<2.6 ? "视界问题：天空两端从未通过信，温度却锁死在同一个数值" :
+      t<4   ? "答案候选：暴胀——空间自身在一瞬之间被拉伸 ≥10²⁶ 倍" :
+      t<9   ? "距离被指数级拉开：原本挨着的量子涨落，被拉成了天文尺度" :
+      t<12  ? "涨落被「冻结」成密度涟漪：红=略密，蓝=略疏" :
+              "这些涟漪，就是后来所有星系的种子（精细到十万分之一）";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 3 · 湮灭大戏：十亿分之一的幸存者 ===== */
+F.annihilation=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const END=13;
+  const rnd=mulberry32(7);
+  const stars=starfield(rnd,60);
+  const N=110;
+  const ps=[];
+  for(let i=0;i<N;i++){
+    ps.push({x:rnd(), y:rnd(), a:rnd()*6.28, s:0.012+rnd()*0.03, ph:rnd()*6.28,
+             mat:i<Math.ceil(N/2), dead:false, dt:0});
+  }
+  /* 死亡时刻：2.2s 之后逐渐湮灭，最后留下 3 位「幸存者」 */
+  const order=[]; for(let i=0;i<N-3;i++) order.push(i);
+  for(let i=order.length-1;i>0;i--){ const j=Math.floor(rnd()*(i+1)); [order[i],order[j]]=[order[j],order[i]]; }
+  order.forEach((idx,k)=>{ ps[idx].dt = 2.2 + (k/(order.length-1))*6.4; });
+  const rings=[];
+  let lastT=0;
+  function draw(t,dt){
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.25);
+    /* 热汤底色 */
+    const soup=ctx.createRadialGradient(w*0.5,h*0.55,h*0.06,w*0.5,h*0.55,w*0.42);
+    soup.addColorStop(0,"rgba(120,70,40,.30)"); soup.addColorStop(1,"rgba(20,14,30,0)");
+    ctx.fillStyle=soup; ctx.beginPath(); ctx.arc(w*0.5,h*0.55,w*0.42,0,6.283); ctx.fill();
+    let alive=0, aliveM=0;
+    ps.forEach(p=>{
+      if(!p.dead && t>=p.dt && p.dt>0){ p.dead=true; rings.push({x:p.x*w,y:p.y*h,born:t}); }
+      if(p.dead) return;
+      alive++; if(p.mat) aliveM++;
+      const ang=p.a+t*p.s*3;
+      const x=p.x*w+Math.cos(ang)*6, y=p.y*h+Math.sin(ang*0.9)*6;
+      if(p.dt===0){ /* 幸存者：更大更亮，脉动 */
+        const pr=4.5+Math.sin(t*2.6+p.ph)*1.2;
+        const gg=ctx.createRadialGradient(x,y,0,x,y,pr*3.4);
+        gg.addColorStop(0,"rgba(255,222,150,.95)"); gg.addColorStop(1,"rgba(255,180,80,0)");
+        ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(x,y,pr*3.4,0,6.283); ctx.fill();
+        ctx.fillStyle="#ffdf9a"; ctx.beginPath(); ctx.arc(x,y,pr,0,6.283); ctx.fill();
+        ctx.fillStyle="#ffdf9a"; ctx.font="11px "+FANG; ctx.textAlign="center";
+        ctx.fillText("幸存者", x, y-pr*3.4-4);
+      } else {
+        ctx.fillStyle=p.mat?"rgba(232,150,80,.9)":"rgba(110,150,235,.9)";
+        ctx.beginPath(); ctx.arc(x,y,2.1,0,6.283); ctx.fill();
+      }
+    });
+    /* 湮灭环 */
+    rings.forEach(r=>{
+      const k=(t-r.born)/1.1;
+      if(k<0||k>1) return;
+      const rr=4+k*26;
+      ctx.strokeStyle="rgba(255,226,160,"+((1-k)*0.9)+")"; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.arc(r.x,r.y,rr,0,6.283); ctx.stroke();
+      for(let i2=0;i2<3;i2++){
+        const a2=(i2/3)*6.28+k*4;
+        ctx.fillStyle="rgba(255,236,190,"+((1-k)*0.8)+")";
+        ctx.fillRect(r.x+Math.cos(a2)*rr, r.y+Math.sin(a2)*rr, 2,2);
+      }
+    });
+    for(let i=rings.length-1;i>=0;i--){ if(t-rings[i].born>1.2) rings.splice(i,1); }
+    /* 计数读数 */
+    ctx.textAlign="left";
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    if(t<2.2){
+      ctx.fillText("正反粒子对：10 亿 : 10 亿（示意）", 18, 30);
+    } else if(alive>4){
+      ctx.fillText("湮灭中…… 粒子的数量在崩塌", 18, 30);
+      ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+      ctx.fillText("每一次闪光：一对正反粒子变成两束光", 18, 50);
+    } else {
+      ctx.fillText("剩下："+aliveM+" 个「多出来的」粒子", 18, 30);
+      ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+      ctx.fillText("真实比例：每 10 亿对里多 1 个——数量级示意", 18, 50);
+    }
+    cap.textContent =
+      t<2.2 ? "第一批粒子对登场：物质与反物质，数量几乎完全对称" :
+      t<5   ? "成对的相遇→湮灭成光：如果一直对称下去，宇宙只会剩下一锅光" :
+      t<9   ? "但物质比反物质多了「十亿分之一」——湮灭潮过后，余数留了下来" :
+              "这丁点余数，就是今天所有的星系、恒星、行星，以及你";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 4 · 三分钟厨房：原初核合成 ===== */
+F.bignucleo=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  let v=0, interacted=false, lastT=-1;
+  const END=16;
+  const EQ=[
+    {v:0.10, t:"p + n → 氘（D）+ 光"},
+    {v:0.30, t:"D + p → 氦-3 + 光"},
+    {v:0.48, t:"D + D → 氦-3 + n　/　氚 + p"},
+    {v:0.64, t:"氦-3 + n → 氦-4 + 光"},
+    {v:0.80, t:"氦-4 + 氚 → 锂-7 + 光（只留下痕迹）"}
+  ];
+  const scrub=ctlRange(player.foot,"时间：1 秒 → 20 分钟",0,1,0.005,0,(val,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    v=val;
+    const sec=10**(lerp(Math.log10(1),Math.log10(1200),v));
+    el.textContent = sec<60 ? ("约 "+sec.toFixed(sec<10?1:0)+" 秒") : ("约 "+(sec/60).toFixed(1)+" 分钟");
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      v=ease(k);
+      scrub.set(v);
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    const sec=10**(lerp(Math.log10(1),Math.log10(1200),v));
+    const T=1.5e10/Math.sqrt(Math.max(sec,1));
+    /* 左：温度计 */
+    const gx=w*0.10, gy0=h*0.18, gy1=h*0.82;
+    ctx.strokeStyle=COSM.line; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(gx,gy0); ctx.lineTo(gx,gy1); ctx.stroke();
+    const tk=clamp(Math.log10(T)/10.5,0,1);
+    const ty=gy1-tk*(gy1-gy0);
+    const g2=ctx.createLinearGradient(gx,gy1,gx,gy0);
+    g2.addColorStop(0,"rgba(230,140,80,.35)"); g2.addColorStop(1,"rgba(230,90,90,.55)");
+    ctx.strokeStyle=g2; ctx.lineWidth=6; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(gx,gy1); ctx.lineTo(gx,ty); ctx.stroke(); ctx.lineCap="butt";
+    ctx.fillStyle=COSM.gold; ctx.beginPath(); ctx.arc(gx,ty,6,0,6.283); ctx.fill();
+    ctx.font="12px "+FANG; ctx.textAlign="center"; ctx.fillStyle=COSM.ink2;
+    ctx.fillText("温度", gx, gy0-10);
+    ctx.font="bold 14px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText("≈10"+sup(Math.max(8,Math.round(Math.log10(T))))+" K", gx, gy1+22);
+    ctx.font="11px "+FANG; ctx.fillStyle=COSM.ink3;
+    ctx.fillText("（十亿度量级）", gx, gy1+38);
+    /* 中：反应阶梯 */
+    const ex=w*0.24;
+    ctx.textAlign="left";
+    ctx.font="13px "+KAI; ctx.fillStyle=COSM.ink;
+    ctx.fillText("核反应阶梯（示意）", ex, h*0.16);
+    EQ.forEach((eq,i)=>{
+      const al=ease(clamp((v-eq.v)/0.08,0,1));
+      if(al<=0) return;
+      const y=h*0.26+i*h*0.115;
+      ctx.globalAlpha=al;
+      ctx.fillStyle="rgba(24,30,54,.7)";
+      rrect(ctx,ex,y-14,w*0.44,26,6); ctx.fill();
+      ctx.strokeStyle=COSM.line2; ctx.lineWidth=1; ctx.stroke();
+      ctx.font="12.5px "+FANG; ctx.fillStyle=COSM.ink;
+      ctx.fillText("◇ "+eq.t, ex+8, y+4);
+      ctx.globalAlpha=1;
+    });
+    /* 右：成分表 */
+    const bx=w*0.76, bw=w*0.17;
+    const He=0.25*ease(clamp((v-0.18)/0.55,0,1));
+    const Li=0.0000001*ease(clamp((v-0.72)/0.2,0,1));
+    const H=0.75;
+    ctx.font="13px "+KAI; ctx.fillStyle=COSM.ink; ctx.textAlign="center";
+    ctx.fillText("出厂配方", bx+bw/2, h*0.16);
+    const items=[
+      {n:"氢（H）", val:H, col:"rgba(232,150,80,.85)", lab:"≈75%"},
+      {n:"氦（He）", val:He, col:"rgba(95,143,232,.85)", lab:"≈"+ (He*100).toFixed(1)+"%"},
+      {n:"锂（Li）", val:Math.max(Li,0.0012), col:"rgba(160,120,220,.85)", lab:"痕迹"}
+    ];
+    items.forEach((it,i2)=>{
+      const y=h*0.26+i2*h*0.16;
+      ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2; ctx.textAlign="left";
+      ctx.fillText(it.n, bx-58, y-10);
+      ctx.fillStyle="rgba(20,26,48,.8)";
+      rrect(ctx,bx-58,y-8,bw+70,16,8); ctx.fill();
+      ctx.fillStyle=it.col;
+      rrect(ctx,bx-58,y-8,Math.max(3,(bw+70)*it.val),16,8); ctx.fill();
+      ctx.fillStyle=COSM.ink; ctx.font="11px Georgia,serif"; ctx.textAlign="right";
+      ctx.fillText(it.lab, bx+bw+12, y+4);
+    });
+    /* 中微子/中子比 */
+    const np=1/6*(1-0.14*ease(clamp(v/0.9,0,1)));
+    ctx.textAlign="center";
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink3;
+    ctx.fillText("中子 : 质子 ≈ 1:6 → 1:7（中子会悄悄衰变）", w*0.5, h*0.90);
+    /* 冻结提示 */
+    if(v>0.94){
+      ctx.font="bold 14px "+KAI; ctx.fillStyle=COSM.gold;
+      ctx.fillText("≈180 秒 · 丰度冻结：宇宙的第一份菜谱出厂", w*0.5, h*0.90-24);
+    }
+    cap.textContent =
+      v<0.1 ? "温度还太高：夸克刚被囚禁成质子与中子" :
+      v<0.4 ? "降到约十亿度：质子与中子开始配对，第一批氘核诞生" :
+      v<0.75 ? "核反应连锁奔涌：氦-4 在流水线上被批量打包" :
+      v<0.95 ? "温度密度双双回落——反应窗口只有几分钟" :
+              "出锅：约 75% 氢、25% 氦、痕迹级锂。这份配方，至今没变过";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 5 · 光子脱身：38万年后第一次自由飞行 ===== */
+F.firstlight=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  let v=0, interacted=false, lastT=-1;
+  const END=15;
+  const rnd=mulberry32(21);
+  const stars=starfield(rnd,50);
+  /* 散射路径：左 45% 区域内的随机迂回 */
+  const path=[]; let px=0.16, py=0.52;
+  for(let i=0;i<90;i++){
+    path.push([px,py]);
+    px+= (0.004+rnd()*0.02)*(rnd()<0.85?1:-0.6);
+    py+= (rnd()-0.5)*0.075;
+    px=clamp(px,0.08,0.44); py=clamp(py,0.18,0.84);
+  }
+  path.push([0.42,0.52]);
+  const fog=[]; for(let i=0;i<200;i++) fog.push({x:0.02+rnd()*0.52, y:0.06+rnd()*0.88, ph:rnd()*6.28});
+  const scrub=ctlRange(player.foot,"时间：0 → 38 万年（拖动=快进）",0,1,0.005,0,(val,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    v=val;
+    el.textContent=Math.round(v*38)+" 万年";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      v= k<0.62? ease(k/0.62)*0.60 : (k<0.74? 0.60+(k-0.62)/0.12*0.05 : 0.65+(k-0.74)/0.26*0.35);
+      scrub.set(clamp(v,0,1));
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.2);
+    /* 等离子体雾（左） */
+    const fogAl=(1-ease(clamp((v-0.60)/0.16,0,1)))*0.95;
+    if(fogAl>0.02){
+      const fg=ctx.createRadialGradient(w*0.26,h*0.5,10,w*0.26,h*0.5,w*0.28);
+      fg.addColorStop(0,"rgba(226,130,70,"+(0.34*fogAl+0.05)+")");
+      fg.addColorStop(1,"rgba(120,60,40,0)");
+      ctx.fillStyle=fg; ctx.beginPath(); ctx.arc(w*0.26,h*0.5,w*0.28,0,6.283); ctx.fill();
+      fog.forEach(p=>{
+        ctx.globalAlpha=fogAl*(0.35+0.4*Math.sin(t*2.2+p.ph));
+        ctx.fillStyle=p.ph>3.2?"rgba(240,170,110,.8)":"rgba(120,160,240,.75)";
+        ctx.fillRect(p.x*w,p.y*h,2.2,2.2);
+      });
+      ctx.globalAlpha=1;
+      ctx.font="12px "+FANG; ctx.fillStyle="rgba(230,170,120,.85)"; ctx.textAlign="left";
+      ctx.fillText("自由电子雾：光子走两步就被撞飞", 14, h-30);
+    }
+    /* 光子 */
+    const travel=ease(clamp(v/0.60,0,1));
+    if(v<=0.66){
+      /* 迂回阶段 */
+      const idx=Math.floor(travel*(path.length-1));
+      ctx.strokeStyle="rgba(255,214,140,.9)"; ctx.lineWidth=1.8;
+      ctx.beginPath();
+      const st=Math.max(0,idx-26);
+      for(let i=st;i<=idx;i++){ const q=path[i]; if(i===st) ctx.moveTo(q[0]*w,q[1]*h); else ctx.lineTo(q[0]*w,q[1]*h); }
+      ctx.stroke();
+      const q=path[idx]; 
+      const gg=ctx.createRadialGradient(q[0]*w,q[1]*h,0,q[0]*w,q[1]*h,14);
+      gg.addColorStop(0,"rgba(255,240,200,.95)"); gg.addColorStop(1,"rgba(255,220,150,0)");
+      ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(q[0]*w,q[1]*h,14,0,6.283); ctx.fill();
+      if(v>0.56){
+        ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink3; ctx.textAlign="center";
+        ctx.fillText("坚持住……温度快降到 3000 K 了", w*0.26, h*0.12);
+      }
+    } else {
+      /* 脱身阶段：直线 + 波长拉伸 */
+      const k=clamp((v-0.60)/0.40,0,1);
+      const x0=path[path.length-1][0]*w, y0=path[path.length-1][1]*h;
+      const x1=w*0.965, y1=h*0.5;
+      const ex=lerp(x0,x1,ease(k)), ey=lerp(y0,y1,ease(k));
+      /* 波：波长随旅程拉长 */
+      const lam=7+k*30;
+      const hue=lerp(42,265,k), lum=lerp(74,42,k), sat=lerp(96,46,k);
+      ctx.strokeStyle="hsl("+hue+","+sat+"%,"+lum+"%)";
+      ctx.lineWidth=2;
+      ctx.beginPath();
+      for(let xx=x0;xx<=ex;xx+=4){
+        const yy=lerp(y0,y1,(xx-x0)/Math.max(1,(x1-x0)))+Math.sin((xx-x0)/lam*6.283)*7.5;
+        if(xx===x0) ctx.moveTo(xx,yy); else ctx.lineTo(xx,yy);
+      }
+      ctx.stroke();
+      ctx.fillStyle="hsl("+hue+","+sat+"%,"+(lum+10)+"%)";
+      ctx.beginPath(); ctx.arc(ex,ey,4,0,6.283); ctx.fill();
+      /* 今天读数的说明 */
+      ctx.font="12px "+FANG; ctx.textAlign="left";
+      ctx.fillStyle=k<0.5?"rgba(255,220,150,.85)":"rgba(190,170,240,.9)";
+      ctx.fillText((k<0.5? "逃出来了！" : "") + (k<0.25? "光开始自由飞行" : "波长正在被空间拉长……"), x0+10, y0-22);
+      if(k>0.72){
+        ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink3;
+        ctx.fillText("拉长 ≈1100 倍：可见光 → 微波", w*0.66, h*0.5-24);
+      }
+    }
+    /* 时间读数 */
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold; ctx.textAlign="left";
+    ctx.fillText("大爆炸后 "+(v<0.6?"约 "+Math.round(v/0.6*38)+" 万年以内":"38 万年"), 14, 30);
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText(v<0.62? "温度：3000 K 以上（不透明）" : "温度：≈3000 K → 光子自由（透明）", 14, 50);
+    cap.textContent =
+      v<0.35 ? "38 万年之前：宇宙是一锅不透明的高温等离子体" :
+      v<0.60 ? "电子与质子开始结合成中性氢——雾，一点点散开" :
+      v<0.85 ? "光子不再被撞飞：它们第一次开始「自由旅行」" :
+              "这些自由飞行的光子，就是今天无处不在的宇宙微波背景（2.7255 K）";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+})();
+
+/* ============================================================
+   动态图版 · 第二批：reion / merger / forge / solarbirth
+   ============================================================ */
+(function(){
+"use strict";
+const E=window.__ENGINE; if(!E) return;
+const {COSM,FANG,KAI,ease,clamp,lerp,mulberry32,chip,rrect,starfield,drawStars,setupCanvas,ctlBtn,ctlRange,mkCap,mkCap2,loadThree,webglOK,freshCanvas,fmtReal,fmtCal}=E;
+const F=E.FACTORY;
+const sup=s=>String(s).split("").map(c=>({"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}[c]||c)).join("");
+
+/* ===== 6 · 宇宙亮灯曲线（再电离） ===== */
+F.reion=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  let v=0, interacted=false, lastT=-1;
+  const END=15;
+  const rnd=mulberry32(33);
+  const stars=starfield(rnd,70);
+  const srcs=[];
+  for(let i=0;i<46;i++){
+    srcs.push({x:0.06+rnd()*0.88, y:0.08+rnd()*0.84, t0:0.12+rnd()*0.66, r:20+rnd()*85, ph:rnd()*6.28});
+  }
+  const scrub=ctlRange(player.foot,"时间：1 亿年 → 10 亿年",0,1,0.005,0,(val,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    v=val;
+    el.textContent="约 "+(1+v*9).toFixed(1)+" 亿年";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  function ionFrac(){
+    return clamp(1/(1+Math.exp(-(v-0.52)*9)),0,1);
+  }
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      v= k<0.75? ease(k/0.75)*0.55 : 0.55+(k-0.75)/0.25*0.45;
+      scrub.set(clamp(v,0,1));
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle="#0a0d1e"; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.22);
+    /* 氢雾（电离后渐渐隐去） */
+    const fogAl=0.75*(1-ease(ionFrac()));
+    if(fogAl>0.01){
+      const fg=ctx.createRadialGradient(w*0.5,h*0.55,20,w*0.5,h*0.55,w*0.6);
+      fg.addColorStop(0,"rgba(96,70,140,"+fogAl*0.5+")");
+      fg.addColorStop(1,"rgba(40,30,80,"+fogAl*0.25+")");
+      ctx.fillStyle=fg; ctx.fillRect(0,0,w,h);
+    }
+    /* 电离泡 */
+    srcs.forEach(s=>{
+      const k=ease(clamp((v-s.t0)/0.34,0,1));
+      if(k<=0) return;
+      const R=s.r*k;
+      const gg=ctx.createRadialGradient(s.x*w,s.y*h,0,s.x*w,s.y*h,R);
+      gg.addColorStop(0,"rgba(80,210,190,"+(0.30*k)+")");
+      gg.addColorStop(0.75,"rgba(60,170,180,"+(0.16*k)+")");
+      gg.addColorStop(1,"rgba(40,120,140,0)");
+      ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(s.x*w,s.y*h,R,0,6.283); ctx.fill();
+      const tw=1.6+2.2*k;
+      ctx.fillStyle="rgba(220,255,245,"+(0.5+0.4*Math.sin(t*3+s.ph))+")";
+      ctx.beginPath(); ctx.arc(s.x*w,s.y*h,tw,0,6.283); ctx.fill();
+    });
+    /* 读数 */
+    const frac=ionFrac();
+    ctx.textAlign="left";
+    ctx.font="bold 16px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText("电离比例 ≈ "+Math.round(frac*100)+"%", 18, 32);
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText(frac<0.5? "中性氢雾笼罩（黑暗时代）" : "透明区域正在连成片", 18, 54);
+    /* 底部进度条 */
+    const bx=18, by=h-30, bw=w-36;
+    ctx.fillStyle="rgba(22,28,50,.85)"; rrect(ctx,bx,by,bw,10,5); ctx.fill();
+    ctx.fillStyle="rgba(80,210,190,.85)"; rrect(ctx,bx,by,Math.max(4,bw*frac),10,5); ctx.fill();
+    ctx.font="10.5px "+FANG; ctx.fillStyle=COSM.ink3; ctx.textAlign="center";
+    ctx.fillText("1 亿年", bx+16, by-8); ctx.fillText("10 亿年", bx+bw-20, by-8);
+    cap.textContent =
+      frac<0.05 ? "黑暗时代：致密的氢雾把星光锁在其中" :
+      frac<0.45 ? "第一批恒星与星系点火：周围雾气被紫外光「吹」出透明的泡" :
+      frac<0.9  ? "泡泡互相连接、吞并——雾开始成片消散" :
+                  "约 10 亿年内完成：宇宙第二次放晴，彻底透明";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 7 · 等级汇聚：星系是「吃」出来的 ===== */
+F.merger=function(player){
+  const env=setupCanvas(player.cv,16/8.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const END=17;
+  const rnd=mulberry32(5);
+  const stars=starfield(rnd,60);
+  const W=()=>env.w, H=()=>env.h;
+  let bodies=[], flashes=[], simT=0, merged=0;
+  const NB=86;
+  function reset(){
+    bodies=[]; flashes=[]; simT=0; merged=0;
+    const w=W(),h=H(), cx=w/2, cy=h/2;
+    for(let i=0;i<NB;i++){
+      const a=rnd()*6.283, rr=Math.sqrt(rnd())*Math.min(w,h)*0.36;
+      bodies.push({
+        x:cx+Math.cos(a)*rr*1.25, y:cy+Math.sin(a)*rr*0.85,
+        vx:(rnd()-0.5)*16, vy:(rnd()-0.5)*16,
+        m:0.5+rnd()*1.3
+      });
+    }
+  }
+  function radiusOf(m){ return (2.4+Math.pow(m,0.5)*2.1)*(1+Math.min(3,bodies.length<8?0.6:0)); }
+  function radiusOfM(m){ return 2.2+Math.pow(m,0.52)*2.0; }
+  function stepSim(dt){
+    simT+=dt;
+    const w=W(),h=H(), cx=w/2, cy=h/2;
+    const n=bodies.length;
+    for(let i=0;i<n;i++){
+      const a=bodies[i]; let ax=0, ay=0;
+      for(let j=0;j<n;j++){
+        if(i===j) continue;
+        const b=bodies[j];
+        let dx=b.x-a.x, dy=b.y-a.y;
+        const d2=Math.max(dx*dx+dy*dy, 900);
+        const d=Math.sqrt(d2);
+        const f=1800*b.m/d2;
+        ax+=f*dx/d; ay+=f*dy/d;
+      }
+      ax+=(cx-a.x)*0.10; ay+=(cy-a.y)*0.10;
+      a.vx=(a.vx+ax*dt)*0.995; a.vy=(a.vy+ay*dt)*0.995;
+      a.x+=a.vx*dt; a.y+=a.vy*dt;
+    }
+    /* 并合 */
+    for(let i=0;i<bodies.length;i++){
+      for(let j=i+1;j<bodies.length;j++){
+        const a=bodies[i], b=bodies[j];
+        const rr=radiusOfM(a.m)+radiusOfM(b.m)+4;
+        const dx=a.x-b.x, dy=a.y-b.y;
+        if(dx*dx+dy*dy < rr*rr){
+          const m=a.m+b.m;
+          a.x=(a.x*a.m+b.x*b.m)/m; a.y=(a.y*a.m+b.y*b.m)/m;
+          a.vx=(a.vx*a.m+b.vx*b.m)/m; a.vy=(a.vy*a.m+b.vy*b.m)/m;
+          a.m=m;
+          bodies.splice(j,1); merged++;
+          flashes.push({x:a.x,y:a.y,born:simT});
+          break;
+        }
+      }
+    }
+  }
+  function draw(t,dt){
+    /* 把时间换算成模拟步进（静态终帧也能快进到位） */
+    while(simT < t*1.35){ stepSim(1/60); if(simT>60*1.35) break; }
+    const w=W(),h=H();
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.25);
+    /* 并合闪光 */
+    for(let i=flashes.length-1;i>=0;i--){
+      const k=(simT-flashes[i].born)/1.2;
+      if(k>1){ flashes.splice(i,1); continue; }
+      const R=6+k*40;
+      ctx.strokeStyle="rgba(255,226,170,"+((1-k)*0.8)+")"; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.arc(flashes[i].x,flashes[i].y,R,0,6.283); ctx.stroke();
+    }
+    /* 星系体 */
+    bodies.forEach(b=>{
+      const r=radiusOfM(b.m);
+      const gg=ctx.createRadialGradient(b.x,b.y,0,b.x,b.y,r*2.6);
+      const big=b.m>8;
+      gg.addColorStop(0, big?"rgba(255,222,150,.85)":"rgba(140,220,220,.7)");
+      gg.addColorStop(0.5, big?"rgba(230,170,90,.28)":"rgba(90,160,200,.22)");
+      gg.addColorStop(1,"rgba(20,30,60,0)");
+      ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(b.x,b.y,r*2.6,0,6.283); ctx.fill();
+      ctx.fillStyle=big?"rgba(255,236,190,.95)":"rgba(210,245,245,.9)";
+      ctx.beginPath(); ctx.arc(b.x,b.y,Math.max(1.6,r*0.45),0,6.283); ctx.fill();
+    });
+    /* 读数 */
+    const years=Math.min(92, 10+merged*(92-10)/NB);
+    ctx.textAlign="left";
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText("剩余星系团块："+bodies.length+" / "+NB, 18, 30);
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText("宇宙年龄 ≈ "+years.toFixed(0)+" 亿年 · 已并合 "+merged+" 次", 18, 52);
+    cap.textContent =
+      bodies.length>55 ? "宇宙黎明刚刚开场：成千上万的小团块各自点灯" :
+      bodies.length>18 ? "引力登场：小星系互相吸引、追尾、并合——「吃」是长个子的唯一方式" :
+      bodies.length>5  ? "百亿年快进：巨星系在场中央成形，周围散落着「零食」" :
+                         "今天的模样：一个大星系 + 卫星星系——而它们还在继续相遇";
+  }
+  reset();
+  env.onresize=()=>{ draw(player.t||0,0.001); };
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 8 · 元素熔炉：恒星牌元素工厂 ===== */
+F.forge=function(player){
+  const env=setupCanvas(player.cv,16/8.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  let v=0, interacted=false, lastT=-1;
+  const END=17;
+  const rnd=mulberry32(9);
+  const stars=starfield(rnd,50);
+  const STAGES=[
+    {t:"氢 → 氦",            el:"He",  note:"主序时代：把氢烧成氦（几百万年起）"},
+    {t:"氦 → 碳 · 氧",       el:"C O", note:"三氦过程：碳和氧登场"},
+    {t:"碳 · 氧 → 氖 · 镁 · 硅", el:"Ne Mg Si", note:"更重的炉膛：越来越快"},
+    {t:"硅 → 铁",           el:"Fe",  note:"硅闪燃：仅持续约一昼夜——铁，是聚变的终点站"},
+    {t:"超新星！",           el:"★",   note:"铁核顶不住引力：坍缩→爆发，把元素撒进星际"}
+  ];
+  const ELS=["H","He","C","O","Ne","Mg","Si","S","Fe"];
+  const scrub=ctlRange(player.foot,"恒星的一生（≈25 个太阳质量）",0,1,0.005,0,(val,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    v=val;
+    el.textContent = v<0.8 ? STAGES[Math.min(3,Math.floor(v/0.2))].t : "超新星爆发";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  const burst=[]; for(let i=0;i<140;i++) burst.push({a:rnd()*6.283, s:0.3+rnd()*1.1, ph:rnd()*6.28});
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      v= k<0.84 ? ease(k/0.84)*0.80 : 0.80+(k-0.84)/0.16*0.20;
+      scrub.set(clamp(v,0,1));
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.2);
+    const stage=clamp(Math.floor(v/0.2),0,4);
+    const sn=k=>ease(clamp((v-0.8)/0.16,0,1)); /* 超新星强度 */
+    /* 恒星剖面 */
+    const cx=w*0.40, cy=h*0.52, R=Math.min(w,h)*0.34;
+    if(sn()<=0.02){
+      const layers=[
+        {r:1.00, col:"rgba(226,130,80,.30)", name:"氢包层"},
+        {r:0.82, col:"rgba(240,190,90,.26)", name:"氦"},
+        {r:0.64, col:"rgba(120,200,180,.24)", name:"碳 · 氧"},
+        {r:0.48, col:"rgba(150,150,235,.26)", name:"氖 · 镁 · 硅"},
+        {r:0.30, col:"rgba(240,240,250,.30)", name:"铁核"}
+      ];
+      layers.forEach((L,i2)=>{
+        const vis = i2<=stage+0;
+        if(!vis) return;
+        ctx.fillStyle=L.col;
+        ctx.beginPath(); ctx.arc(cx,cy,R*L.r,0,6.283); ctx.fill();
+        ctx.strokeStyle="rgba(255,255,255,.10)"; ctx.lineWidth=1; ctx.stroke();
+      });
+      /* 核心脉动 */
+      const core=ctx.createRadialGradient(cx,cy,0,cx,cy,R*0.30);
+      core.addColorStop(0,"rgba(255,250,235,"+(0.5+0.2*Math.sin(t*4))+")");
+      core.addColorStop(1,"rgba(255,240,200,0)");
+      ctx.fillStyle=core; ctx.beginPath(); ctx.arc(cx,cy,R*0.30,0,6.283); ctx.fill();
+      /* 层标签 */
+      ctx.font="11.5px "+FANG; ctx.textAlign="left"; ctx.fillStyle=COSM.ink2;
+      const labs=[["氢包层",R*0.93],["氦层",R*0.74],["碳·氧层",R*0.56],["硅层",R*0.40],["铁核",R*0.22]];
+      labs.forEach((L,i2)=>{
+        if(i2>stage) return;
+        const y=cy-R*0.98+i2*16;
+        ctx.fillText("— "+L[0], cx+R+14, y+30);
+      });
+      ctx.textAlign="center"; ctx.font="13px "+KAI; ctx.fillStyle=COSM.ink;
+      ctx.fillText("大质量恒星剖面（示意）", cx, cy+R+26);
+    } else {
+      /* 超新星爆发 */
+      const k=sn();
+      const fl=ctx.createRadialGradient(cx,cy,0,cx,cy,R*3*k);
+      fl.addColorStop(0,"rgba(255,244,214,"+(0.9*(1-k*0.5))+")");
+      fl.addColorStop(0.4,"rgba(255,190,110,"+(0.5*(1-k*0.6))+")");
+      fl.addColorStop(1,"rgba(255,120,80,0)");
+      ctx.fillStyle=fl; ctx.beginPath(); ctx.arc(cx,cy,R*3*k,0,6.283); ctx.fill();
+      ctx.strokeStyle="rgba(255,230,180,"+(0.9*(1-k))+")"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(cx,cy,R*(1+k*5),0,6.283); ctx.stroke();
+      ctx.textAlign="center"; ctx.font="bold 22px "+KAI; ctx.fillStyle="#fff6df";
+      ctx.fillText("超 新 星", cx, cy+8);
+      /* 星尘四散 */
+      burst.forEach(p=>{
+        const d=(k-0.15)*(1+p.s*2.4);
+        if(d<=0) return;
+        const x=cx+Math.cos(p.a)*R*d*2.2, y=cy+Math.sin(p.a)*R*d*1.6;
+        ctx.fillStyle="rgba(255,"+Math.round(200-60*p.s)+",150,"+Math.max(0,0.9-k*0.7)+")";
+        ctx.fillRect(x,y,2.2,2.2);
+      });
+    }
+    /* 元素表 */
+    const bx=w*0.66, by=h*0.30;
+    ctx.textAlign="left"; ctx.font="13px "+KAI; ctx.fillStyle=COSM.ink;
+    ctx.fillText("宇宙的元素账本", bx, by-24);
+    ELS.forEach((el,i2)=>{
+      const lit = stage>=[6,0,1,1,2,2,3,3,4][i2] ? 1 : 0; /* Fe 只在超新星后点亮 */
+      const shown = i2===8 ? (sn()>0.1?1:0) : (stage>=1||i2===0?1:0);
+      const yy=by+i2*20;
+      ctx.globalAlpha= shown ? 1 : 0.18;
+      ctx.fillStyle="rgba(24,30,54,.8)";
+      rrect(ctx,bx,yy-11,120,17,5); ctx.fill();
+      ctx.strokeStyle= i2===8? "rgba(230,196,106,.8)" : COSM.line2; ctx.lineWidth=1; ctx.stroke();
+      ctx.font="12px "+FANG; ctx.fillStyle= i2===8? COSM.gold : COSM.ink;
+      ctx.fillText(el+"  "+(i2===0?"氢":i2===1?"氦":i2===2?"碳":i2===3?"氧":i2===4?"氖":i2===5?"镁":i2===6?"硅":i2===7?"硫":"铁"), bx+8, yy+2);
+      ctx.globalAlpha=1;
+    });
+    ctx.font="11px "+FANG; ctx.fillStyle=COSM.ink3;
+    ctx.fillText("铁之外（金、铀……）靠超新星与中子星并合锻造", bx, by+ELS.length*20+6);
+    /* 当前阶段说明 */
+    if(sn()<=0.02){
+      ctx.textAlign="left"; ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+      ctx.fillText("当前生产：", 18, h-40);
+      ctx.fillStyle=COSM.gold; ctx.font="bold 14px "+KAI;
+      ctx.fillText(STAGES[stage].note, 18, h-18);
+    }
+    cap.textContent =
+      v<0.2 ? "恒星升炉：宇宙第一代工厂开始熔炼氢和氦" :
+      v<0.4 ? "碳、氧下线——没有它们，就没有岩石行星与生命" :
+      v<0.6 ? "更重的元素排队出厂：氖、镁、硅、硫……炉温在狂飙" :
+      v<0.8 ? "铁：聚变的终点。再往下烧，恒星只会亏本" :
+              "铁核坍缩，超新星爆发——元素被撒向星际，等待下一批恒星回收";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 9 · 星云坍缩：太阳系诞生 ===== */
+F.solarbirth=function(player){
+  const env=setupCanvas(player.cv,16/8.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const END=15;
+  const rnd=mulberry32(11);
+  const stars=starfield(rnd,60);
+  /* 云粒子：phase1 塌缩；phase2 摊平成盘 */
+  const cloud=[]; for(let i=0;i<240;i++){
+    const a=rnd()*6.283, rr=0.35+rnd()*0.62;
+    cloud.push({a, rr, sp:0.5+rnd()*1.5, y:(rnd()-0.5)*0.5, ph:rnd()*6.28});
+  }
+  const planets=[
+    {r:0.20, t0:0.62, col:"#c9a27a", s:2.4},   /* 类地 */
+    {r:0.30, t0:0.66, col:"#e0b070", s:3.6},   /* 金星 */
+    {r:0.41, t0:0.70, col:"#6fa8dc", s:3.8},   /* 地球 */
+    {r:0.55, t0:0.76, col:"#c56a4a", s:3.0},   /* 火星 */
+    {r:0.72, t0:0.84, col:"#b98a5a", s:5.4},   /* 木星 */
+    {r:0.86, t0:0.90, col:"#c9b07a", s:4.6}    /* 土星 */
+  ];
+  function draw(t,dt){
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.25);
+    const k1=ease(clamp(t/5,0,1));          /* 云塌缩 */
+    const k2=ease(clamp((t-4)/5,0,1));      /* 盘成型 */
+    const k3=ease(clamp((t-8)/5,0,1));      /* 行星 */
+    const cx=w*0.5, cy=h*0.5, base=Math.min(w,h);
+    /* 云 */
+    const cloudAl=1-k2*0.75;
+    if(cloudAl>0.03){
+      cloud.forEach(p=>{
+        const collapse=1-k1*0.72*(1-p.rr*0.5);
+        const rr=p.rr*base*0.46*collapse;
+        const x=cx+Math.cos(p.a+t*0.02*p.sp)*rr;
+        const y=cy+Math.sin(p.a+t*0.02*p.sp)*rr*0.42 + p.y*base*0.10*(1-k1);
+        ctx.globalAlpha=cloudAl*(0.35+0.3*Math.sin(t*1.5+p.ph));
+        ctx.fillStyle=p.ph>3?"rgba(180,160,230,.8)":"rgba(150,140,220,.7)";
+        ctx.fillRect(x,y,2.6,2.6);
+      });
+      ctx.globalAlpha=1;
+    }
+    /* 盘 */
+    if(k2>0.05){
+      const da=k2*0.8;
+      ctx.save();
+      const gg=ctx.createRadialGradient(cx,cy,base*0.03,cx,cy,base*0.52);
+      gg.addColorStop(0,"rgba(255,220,160,"+(0.4*da)+")");
+      gg.addColorStop(0.35,"rgba(210,150,110,"+(0.24*da)+")");
+      gg.addColorStop(1,"rgba(120,80,90,0)");
+      ctx.fillStyle=gg;
+      ctx.beginPath(); ctx.ellipse(cx,cy,base*0.5,base*0.5*0.36,0,0,6.283); ctx.fill();
+      /* 盘内环流 */
+      for(let i=0;i<70;i++){
+        const a=i/70*6.283+t*0.12, rr=base*(0.12+ (i%7)*0.052);
+        const x=cx+Math.cos(a)*rr, y=cy+Math.sin(a)*rr*0.36;
+        ctx.globalAlpha=da*0.5;
+        ctx.fillStyle="rgba(240,200,150,.7)";
+        ctx.fillRect(x,y,1.8,1.8);
+      }
+      ctx.globalAlpha=1;
+      ctx.restore();
+    }
+    /* 原太阳 */
+    const sunK=ease(clamp((t-3)/4,0,1));
+    if(sunK>0){
+      const sr=base*0.045*(0.5+sunK*0.5);
+      const sg=ctx.createRadialGradient(cx,cy,0,cx,cy,sr*4);
+      sg.addColorStop(0,"rgba(255,246,220,"+(0.95*sunK)+")");
+      sg.addColorStop(0.4,"rgba(255,210,130,"+(0.5*sunK)+")");
+      sg.addColorStop(1,"rgba(255,170,90,0)");
+      ctx.fillStyle=sg; ctx.beginPath(); ctx.arc(cx,cy,sr*4,0,6.283); ctx.fill();
+      ctx.fillStyle="rgba(255,252,240,"+(0.95*sunK)+")";
+      ctx.beginPath(); ctx.arc(cx,cy,sr,0,6.283); ctx.fill();
+    }
+    /* 行星 */
+    planets.forEach(p=>{
+      const k=ease(clamp((t-p.t0*15*0.066)/2.2,0,1));
+      const kk=ease(clamp((t-p.t0*15)/2.2,0,1));
+      if(kk<=0) return;
+      /* 轨道淡入 */
+      ctx.strokeStyle="rgba(170,180,220,"+(0.16*kk)+")"; ctx.lineWidth=1;
+      ctx.beginPath(); ctx.ellipse(cx,cy,base*p.r*0.52,base*p.r*0.52*0.36,0,0,6.283); ctx.stroke();
+      const a=t*0.25+p.r*20;
+      const x=cx+Math.cos(a)*base*p.r*0.52, y=cy+Math.sin(a)*base*p.r*0.52*0.36;
+      const gg=ctx.createRadialGradient(x,y,0,x,y,p.s*3);
+      gg.addColorStop(0,p.col); gg.addColorStop(1,"rgba(0,0,0,0)");
+      ctx.globalAlpha=kk;
+      ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(x,y,p.s*3,0,6.283); ctx.fill();
+      ctx.fillStyle=p.col; ctx.beginPath(); ctx.arc(x,y,p.s*kk,0,6.283); ctx.fill();
+      ctx.globalAlpha=1;
+      if(p.col==="#6fa8dc" && kk>0.6){
+        ctx.font="12px "+FANG; ctx.fillStyle="rgba(140,200,255,.95)"; ctx.textAlign="center";
+        ctx.fillText("地球 ← 你在这", x, y-p.s*3-6);
+      }
+    });
+    ctx.textAlign="left"; ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText("大爆炸后约 92 亿年", 18, 30);
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText("距今天约 46 亿年 · 第 13 章", 18, 52);
+    cap.textContent =
+      t<4 ? "一团巨大的分子云，在自身引力的召唤下开始收缩" :
+      t<8 ? "越转越扁：云塌缩成盘，中心点亮第一簇火光——原始太阳" :
+      t<12? "尘埃在盘中结块、清空轨道：行星一颗颗上线" :
+              "太阳系就位。接下来，故事从「宇宙」转到「家门口」";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+})();
+
+/* ============================================================
+   动态图版 · 第三批：rotcurve / hawking / endings / expand3d（旗舰 3D + 2D 降级）
+   ============================================================ */
+(function(){
+"use strict";
+const E=window.__ENGINE; if(!E) return;
+const {COSM,FANG,KAI,ease,clamp,lerp,mulberry32,chip,rrect,starfield,drawStars,setupCanvas,ctlBtn,ctlRange,mkCap,mkCap2,loadThree,webglOK,freshCanvas,fmtReal,fmtCal}=E;
+const F=E.FACTORY;
+const sup=s=>String(s).split("").map(c=>({"-":"⁻","0":"⁰","1":"¹","2":"²","3":"³","4":"⁴","5":"⁵","6":"⁶","7":"⁷","8":"⁸","9":"⁹"}[c]||c)).join("");
+function interp(pts,x){
+  if(x<=pts[0][0]) return pts[0][1];
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i], b=pts[i+1];
+    if(x>=a[0]&&x<=b[0]){ const k=(x-a[0])/((b[0]-a[0])||1); return lerp(a[1],b[1],k); }
+  }
+  return pts[pts.length-1][1];
+}
+
+/* ===== 10 · 旋转曲线：看不见的质量 ===== */
+F.rotcurve=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const rnd=mulberry32(15);
+  const stars=starfield(rnd,40);
+  let dm=false, interacted=false, lastT=-1;
+  const END=14;
+  const VIS=[[0,0],[2,85],[4,138],[6,162],[8,172],[10,174],[14,158],[18,143],[22,131],[26,122],[30,115]];
+  const OBS=[[0,0],[2,92],[4,150],[6,182],[8,200],[10,210],[14,217],[18,219],[22,220],[26,220],[30,221]];
+  const btn=ctlBtn(player.foot,"✨ 加入暗物质",()=>{
+    dm=!dm; interacted=true;
+    btn.textContent= dm? "🙈 抽走暗物质（看看会怎样）" : "✨ 加入暗物质";
+    try{ draw(player.t||0,0.001); }catch(e){}
+  });
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      dm = k>=0.42;
+      btn.textContent= dm? "🙈 抽走暗物质（看看会怎样）" : "✨ 加入暗物质";
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.18);
+    /* 星系小图（左上）：转得飞快 */
+    const gx=w*0.11, gy=h*0.37, gr=Math.min(w,h)*0.085;
+    ctx.save();
+    ctx.translate(gx,gy); ctx.rotate(t*0.24);
+    const gg=ctx.createRadialGradient(0,0,0,0,0,gr*2.2);
+    gg.addColorStop(0,"rgba(255,236,200,.9)");
+    gg.addColorStop(0.35,"rgba(230,180,120,.35)");
+    gg.addColorStop(1,"rgba(120,90,160,0)");
+    ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(0,0,gr*2.2,0,6.283); ctx.fill();
+    for(let a=0;a<3;a++){
+      ctx.strokeStyle="rgba(210,230,255,.5)"; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.ellipse(0,0,gr*(0.5+a*0.35),gr*(0.16+a*0.10),a*2.1,0,6.283); ctx.stroke();
+    }
+    ctx.restore();
+    ctx.font="11px "+FANG; ctx.fillStyle=COSM.ink3; ctx.textAlign="center";
+    ctx.fillText("旋涡星系（俯视示意）", gx, gy+gr*1.9);
+    /* 坐标系 */
+    const m={l:110,r:36,t:34,b:44};
+    const x0=m.l, x1=w-m.r, y0=h-m.b, y1=m.t;
+    const X=r=>x0+clamp(r,0,30)/30*(x1-x0);
+    const Y=v=>y0-clamp(v,0,300)/300*(y0-y1);
+    ctx.strokeStyle=COSM.line2; ctx.lineWidth=1;
+    [50,100,150,200,250].forEach(v=>{ ctx.beginPath(); ctx.moveTo(x0,Y(v)); ctx.lineTo(x1,Y(v)); ctx.stroke();
+      ctx.font="10.5px Georgia,serif"; ctx.fillStyle=COSM.ink3; ctx.textAlign="right"; ctx.fillText(v,x0-6,Y(v)+3); });
+    [5,10,15,20,25,30].forEach(r=>{ ctx.beginPath(); ctx.moveTo(X(r),y0); ctx.lineTo(X(r),y0+4); ctx.stroke();
+      ctx.font="10.5px Georgia,serif"; ctx.fillStyle=COSM.ink3; ctx.textAlign="center"; ctx.fillText(r,X(r),y0+17); });
+    ctx.strokeStyle=COSM.line; ctx.lineWidth=1.4;
+    ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+    ctx.textAlign="left"; ctx.font="11.5px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.textAlign="left"; ctx.fillText("速度（公里/秒）", x0-64, y1-8);
+    ctx.textAlign="right"; ctx.fillText("半径（千秒差距）", x1, y0+34);
+    /* 绘制曲线 */
+    const drawCurve=(pts,col,lw,dash)=>{
+      ctx.beginPath();
+      for(let r=0;r<=30;r+=0.5){ const x=X(r), y=Y(interp(pts,r)); if(r===0) ctx.moveTo(x,y); else ctx.lineTo(x,y); }
+      ctx.strokeStyle=col; ctx.lineWidth=lw;
+      if(dash) ctx.setLineDash(dash);
+      ctx.stroke(); ctx.setLineDash([]);
+    };
+    /* 暗物质缺口（仅可见物质时） */
+    if(!dm){
+      ctx.fillStyle="rgba(224,106,106,.10)";
+      ctx.beginPath();
+      ctx.moveTo(X(10),Y(interp(VIS,10)));
+      for(let r=10;r<=30;r+=0.5) ctx.lineTo(X(r),Y(interp(VIS,r)));
+      for(let r=30;r>=10;r-=0.5) ctx.lineTo(X(r),Y(interp(OBS,r)));
+      ctx.closePath(); ctx.fill();
+      ctx.font="12px "+FANG; ctx.fillStyle="rgba(224,130,130,.95)"; ctx.textAlign="center";
+      ctx.fillText("？！无法解释的缺口", X(21), Y(188));
+    }
+    drawCurve(VIS,"rgba(120,200,220,.9)",2.6);
+    if(dm){
+      drawCurve(OBS,"rgba(230,196,106,.95)",2.8);
+      /* 暗物质晕示意 */
+      const halo=ctx.createRadialGradient(X(15),Y(210),4,X(15),Y(210),w*0.34);
+      halo.addColorStop(0,"rgba(143,111,242,.14)"); halo.addColorStop(1,"rgba(143,111,242,0)");
+      ctx.fillStyle=halo; ctx.beginPath(); ctx.arc(X(15),Y(210),w*0.34,0,6.283); ctx.fill();
+      chip(ctx, X(24), Y(190), "暗物质晕：看不见的「配重」", "c");
+    }
+    /* 图例 */
+    ctx.font="12px "+FANG; ctx.textAlign="left";
+    ctx.fillStyle="rgba(120,200,220,.95)"; ctx.fillText("■ 只按「看得见的物质」推算", x0+4, y1+14);
+    if(dm){ ctx.fillStyle="rgba(230,196,106,.95)"; ctx.fillText("■ 实际观测到的速度（平坦、不下降）", x0+4, y1+32); }
+    ctx.textAlign="left"; ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText(dm? "外围速度 ≈ 220 km/s · 拒绝下降" : "外围速度：应该掉下去，却没有", x0+190, y1+14);
+    cap.textContent =
+      !dm ? "按发光物质的总量推算：星系外围应该「转得越来越慢」——但望远镜看到的不是这样" :
+            "把看不见的质量（暗物质晕）加回去：曲线严丝合缝。这就是暗物质的经典证据";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 11 · 黑洞蒸发长跑 ===== */
+F.hawking=function(player){
+  const env=setupCanvas(player.cv,16/8); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const rnd=mulberry32(17);
+  const stars=starfield(rnd,70);
+  let l=40, interacted=false, lastT=-1;
+  const END=16;
+  const scrub=ctlRange(player.foot,"时间：10⁴⁰ 年 → 10¹⁰⁰ 年",40,100,0.25,40,(v,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    l=v;
+    el.textContent="10"+sup(Math.round(v))+" 年";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  const sparks=[];
+  function draw(t,dt){
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      l=40+ease(k)*(100-40);
+      scrub.set(l);
+    }
+    const w=env.w,h=env.h;
+    ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,t,0.2);
+    const p=clamp((l-40)/60,0,1);            /* 蒸发进度 */
+    const alive=1-ease(clamp((p-0.9)/0.09,0,1));
+    const cx=w*0.5, cy=h*0.48;
+    const bhR=Math.min(w,h)*(0.20)*(1-p*0.92);
+    if(alive>0.02){
+      /* 吸积盘余晖 */
+      const ag=ctx.createRadialGradient(cx,cy,bhR*0.9,cx,cy,bhR*3.4);
+      ag.addColorStop(0,"rgba(230,160,90,"+(0.34*alive)+")");
+      ag.addColorStop(0.5,"rgba(160,90,120,"+(0.16*alive)+")");
+      ag.addColorStop(1,"rgba(60,40,90,0)");
+      ctx.fillStyle=ag;
+      ctx.beginPath(); ctx.ellipse(cx,cy,bhR*3.4,bhR*1.2,0,0,6.283); ctx.fill();
+      /* 视界 */
+      ctx.fillStyle="#04050a";
+      ctx.beginPath(); ctx.arc(cx,cy,bhR,0,6.283); ctx.fill();
+      ctx.strokeStyle="rgba(230,196,106,"+(0.6*alive)+")"; ctx.lineWidth=1.6;
+      ctx.beginPath(); ctx.arc(cx,cy,bhR,0,6.283); ctx.stroke();
+      /* 霍金对：视界边缘出现虚粒子对，一个逃逸一个落回 */
+      if(rnd()<0.35){
+        const a=rnd()*6.283;
+        sparks.push({a, r:bhR, born:t, es:(0.6+rnd()*0.8)});
+      }
+    }
+    for(let i=sparks.length-1;i>=0;i--){
+      const s=sparks[i];
+      const k=(t-s.born);
+      if(k>2.2){ sparks.splice(i,1); continue; }
+      const rr=s.r+k*46*s.es;
+      const x=cx+Math.cos(s.a)*rr, y=cy+Math.sin(s.a)*rr*0.9;
+      ctx.fillStyle="rgba(180,220,255,"+((1-k/2.2)*0.9)+")";
+      ctx.fillRect(x,y,2,2);
+      const x2=cx+Math.cos(s.a)*(rr-4), y2=cy+Math.sin(s.a)*(rr-4)*0.9;
+      ctx.fillStyle="rgba(230,196,106,"+((1-k/2.2)*0.7)+")";
+      ctx.fillRect(x2,y2,1.6,1.6);
+    }
+    /* 读数 */
+    const mass=8-(p*8);
+    ctx.textAlign="left";
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=COSM.gold;
+    ctx.fillText("大爆炸后 10"+sup(Math.round(l))+" 年", 18, 30);
+    ctx.font="12px "+FANG; ctx.fillStyle=COSM.ink2;
+    ctx.fillText(alive>0.02
+      ? "剩余黑洞质量 ≈ 10"+sup(Math.max(0,Math.round(mass)))+" 个太阳质量 · 蒸发进度 "+Math.round(p*100)+"%"
+      : "最后一个黑洞已经蒸发完毕", 18, 52);
+    /* 时间轴 */
+    const bx=18, by=h-30, bw=w-36;
+    ctx.fillStyle="rgba(22,28,50,.85)"; rrect(ctx,bx,by,bw,10,5); ctx.fill();
+    ctx.fillStyle="rgba(230,196,106,.8)"; rrect(ctx,bx,by,Math.max(4,bw*p),10,5); ctx.fill();
+    ctx.font="10px "+FANG; ctx.fillStyle=COSM.ink3; ctx.textAlign="center";
+    ctx.fillText("10⁴⁰", bx+14, by-8);
+    ctx.fillText("恒星黑洞 10⁶⁷", bx+bw*0.45, by-8);
+    ctx.fillText("超大质量 10⁹¹", bx+bw*0.85, by-8);
+    ctx.fillText("10¹⁰⁰", bx+bw-16, by-8);
+    cap.textContent =
+      p<0.1  ? "黑洞时代开幕：星系早已熄灭，黑洞靠霍金辐射缓缓「漏气」" :
+      p<0.5  ? "量子效应在视界边缘偷走质量——太阳质量黑洞要漏 10⁶⁷ 年，超大质量要 10⁹¹ 年" :
+      p<0.9  ? "质量越漏越少，温度越来越高，蒸发越漏越快——进入终局的加速跑" :
+               "最后一声「噗」：黑洞把最后的能量交还给宇宙（理论图景）";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 12 · 四种死法分镜 ===== */
+F.endings=function(player){
+  const env=setupCanvas(player.cv,16/7.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage);
+  const rnd=mulberry32(23);
+  const ACTS=[
+    {name:"热寂",      verdict:"当前主流推论", vcol:"rgba(120,200,220,.9)",  bg:[5,7,14],  dur:5},
+    {name:"大撕裂",    verdict:"前提未证实",   vcol:"rgba(230,196,106,.9)", bg:[14,8,24], dur:5},
+    {name:"大挤压",    verdict:"证据不支持",   vcol:"rgba(224,130,130,.9)", bg:[16,8,10], dur:5},
+    {name:"真空衰变",  verdict:"理论悬想",     vcol:"rgba(120,220,150,.9)", bg:[6,12,14], dur:5}
+  ];
+  const END=20;
+  let tt=0, off=0, auto=true;
+  ACTS.forEach((a,i)=>{
+    ctlBtn(player.foot,(i+1)+"·"+a.name,()=>{ auto=false; off=i*a.dur; player.play(); });
+  });
+  ctlBtn(player.foot,"▶ 顺序播放",()=>{ auto=true; off=0; player.play(); });
+  const stars=starfield(rnd,110);
+  const grid=[]; for(let i=0;i<8;i++)for(let j=0;j<5;j++) grid.push([(i-3.5)*0.20,(j-2)*0.24,i]);
+  const dust=[]; for(let i=0;i<90;i++){ const a=rnd()*6.283, rr=Math.sqrt(rnd()); dust.push({a, rr, s:0.3+rnd()}); }
+  function draw(t,dt){
+    let te;
+    if(auto){ off=0; te=Math.min(END, t); }
+    else { te=Math.min(off+ACTS[Math.floor(off/5)%4].dur-0.001, off+t); }
+    const actI=clamp(Math.floor(te/5),0,3);
+    const aT=te-actI*5;
+    const A=ACTS[actI];
+    const w=env.w,h=env.h;
+    /* 背景 */
+    const bh=A.bg;
+    ctx.fillStyle="rgb("+bh[0]+","+bh[1]+","+bh[2]+")"; ctx.fillRect(0,0,w,h);
+    drawStars(ctx,w,h,stars,te*0.4,0.16);
+    const cx=w*0.5, cy=h*0.52;
+    if(actI===0){
+      /* 热寂：星光一盏盏熄灭 */
+      const k=aT/4.6;
+      stars.forEach((s,i)=>{
+        const die = 0.15 + (i%17)/17*0.75;
+        if(k>die) return;
+        const al=(1-k/die)*0.8;
+        ctx.globalAlpha=al;
+        ctx.fillStyle="#e8eeff";
+        ctx.fillRect(s[0]*w, s[1]*h, s[2]*1.4, s[2]*1.4);
+      });
+      ctx.globalAlpha=1;
+      const cold=clamp((k-0.6)/0.4,0,1);
+      if(cold>0){
+        ctx.font="13px "+FANG; ctx.fillStyle="rgba(160,180,220,"+(cold*0.9)+")"; ctx.textAlign="center";
+        ctx.fillText("所有恒星熄灭 · 温度 → 无限接近绝对零度", cx, cy);
+      }
+    } else if(actI===1){
+      /* 大撕裂：空间网格被越撕越开 */
+      const k=aT/4.8;
+      const stretch=Math.exp(ease(k)*4.2);
+      const unit=Math.min(w,h);
+      ctx.strokeStyle="rgba(190,150,235,"+(0.5*(1-k*0.6))+")"; ctx.lineWidth=1;
+      grid.forEach((g,i)=>{
+        if(k>0.55 && i%7===3) return; /* 部分连线被撕断 */
+        const x=cx+g[0]*unit*stretch, y=cy+g[1]*unit*stretch;
+        if(x<-50||x>w+50||y<-50||y>h+50) return;
+        const g2=grid[i+1];
+        if(g2 && g2[2]===g[2]){
+          const x2=cx+g2[0]*unit*stretch, y2=cy+g2[1]*unit*stretch;
+          if(!(x2<-50||x2>w+50||y2<-50||y2>h+50)){
+            ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x2,y2); ctx.stroke();
+          }
+        }
+        ctx.fillStyle="rgba(220,190,255,.85)";
+        ctx.beginPath(); ctx.arc(x,y,1.8,0,6.283); ctx.fill();
+      });
+      if(k>0.5){
+        ctx.font="13px "+FANG; ctx.fillStyle="rgba(230,196,106,"+((k-0.5)*1.8)+")"; ctx.textAlign="center";
+        ctx.fillText("连空间本身的织物都被撕开……", cx, h*0.9);
+      }
+    } else if(actI===2){
+      /* 大挤压：万流归宗 */
+      const k=ease(aT/4.8);
+      dust.forEach(p=>{
+        const rr=p.rr*(1-k*0.97);
+        const a=p.a+k*3.5*p.s;
+        const x=cx+Math.cos(a)*rr*w*0.48, y=cy+Math.sin(a)*rr*h*0.44;
+        ctx.fillStyle="rgba(255,"+Math.round(170-80*k)+","+Math.round(120-60*k)+","+(0.5+0.5*k)+")";
+        ctx.fillRect(x,y,2.2,2.2);
+      });
+      if(k>0.9){
+        const gg=ctx.createRadialGradient(cx,cy,0,cx,cy,Math.min(w,h)*0.30*(k-0.9)*10);
+        gg.addColorStop(0,"rgba(255,246,220,.95)"); gg.addColorStop(1,"rgba(255,160,90,0)");
+        ctx.fillStyle=gg; ctx.beginPath(); ctx.arc(cx,cy,Math.min(w,h)*0.5,0,6.283); ctx.fill();
+        ctx.font="13px "+FANG; ctx.fillStyle="rgba(255,230,200,0.95)"; ctx.textAlign="center";
+        ctx.fillText("一切重归炽热……", cx, h*0.9);
+      }
+    } else {
+      /* 真空衰变：新物理的泡泡 */
+      const k=ease(aT/4.8);
+      stars.forEach((s,i)=>{
+        const x=s[0]*w, y=s[1]*h;
+        const dx=x-cx, dy=y-cy, d=Math.sqrt(dx*dx+dy*dy);
+        const inside = d < Math.min(w,h)*0.62*k;
+        ctx.fillStyle= inside? "rgba(180,255,210,.85)" : "#e8eeff";
+        ctx.fillRect(x,y,s[2]*1.2,s[2]*1.2);
+      });
+      const R=Math.min(w,h)*0.62*k;
+      const rg=ctx.createRadialGradient(cx,cy,R*0.9,cx,cy,R*1.1);
+      rg.addColorStop(0,"rgba(120,220,150,0)"); rg.addColorStop(0.7,"rgba(120,220,150,.35)"); rg.addColorStop(1,"rgba(120,220,150,0)");
+      ctx.fillStyle=rg; ctx.beginPath(); ctx.arc(cx,cy,R*1.1,0,6.283); ctx.fill();
+      ctx.strokeStyle="rgba(160,255,200,.8)"; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.stroke();
+      if(k>0.4){
+        ctx.font="13px "+FANG; ctx.fillStyle="rgba(160,255,200,"+((k-0.4)*1.6)+")"; ctx.textAlign="center";
+        ctx.fillText("物理常数被重写：「旧宇宙」正在被替换", cx, h*0.9);
+      }
+    }
+    /* 幕标与判词 */
+    ctx.textAlign="left"; ctx.font="bold 17px "+KAI; ctx.fillStyle=COSM.ink;
+    ctx.fillText("第"+"一二三四"[actI]+"幕 · "+A.name+(actI===0?" · 大冻结":""), 18, 32);
+    chip(ctx, w-22, h-26, "判词："+A.verdict, "r");
+    /* 幕进度点 */
+    ACTS.forEach((a2,i)=>{
+      ctx.fillStyle= i===actI? A.vcol : "rgba(140,150,190,.35)";
+      ctx.beginPath(); ctx.arc(w*0.5+(i-1.5)*16, 26, 4, 0, 6.283); ctx.fill();
+    });
+    cap.textContent =
+      actI===0 ? "热寂：加速膨胀 + 熵增 → 永远冷却、稀薄、寂静（当前证据的默认推论）" :
+      actI===1 ? "大撕裂：需要「幻能量」（w<-1）——尚未证实；按现有数据最早也要千亿年之后" :
+      actI===2 ? "大挤压：膨胀反转、宇宙重坍缩——但当前的加速膨胀数据不支持这条剧本" :
+                "真空衰变：希格斯真空或为亚稳态，理论寿命约 10¹³⁹ 年——纯理论悬想，不必担心";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, autoplay:true, recolor(){ draw(player.t||0,0.001); }};
+};
+
+/* ===== 13 · 宇宙膨胀剧场（three.js 旗舰 / 2D 降级） ===== */
+F.expand3d=function(player){
+  const stage=player.stage;
+  const END=18;
+  let sVal=0.55, interacted=false, lastT=-1, impl=null;
+  const XSF=parseFloat(E.Q.get("xsf")||"");
+  if(!isNaN(XSF)){ sVal=XSF; interacted=true; }
+  const scrub=ctlRange(player.foot,"宇宙尺度因子 a（拖动=亲手拉大宇宙）",0.3,4,0.01,0.55,(v,el,fromUser)=>{
+    if(fromUser) interacted=true;
+    sVal=v;
+    el.textContent="a = "+v.toFixed(2);
+    if(impl){ try{ impl.render(tNow, sVal); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ interacted=false; player.play(); });
+  let tNow=0;
+  function tick(t,dt){
+    tNow=t;
+    if(t<lastT) interacted=false;
+    lastT=t;
+    if(!interacted){
+      const k=clamp(t/END,0,1);
+      /* 物质主导（减速）→ 暗能量主导（加速） */
+      if(k<0.55){ sVal=0.55+0.75*Math.pow(k/0.55,0.62); }
+      else { const k2=(k-0.55)/0.45; sVal=1.30+2.70*(Math.exp(1.9*k2*k2)-1)/(Math.exp(1.9)-1); }
+      scrub.set(clamp(sVal,0.3,4));
+    }
+    if(impl) impl.render(t, sVal);
+    cap.textContent =
+      sVal<0.9 ? "空间本身在膨胀——注意：拉伸的是网格本身，不是点在「飞」" :
+      sVal<1.6 ? "物质主导期：引力在踩刹车，膨胀速度在放缓（减速）" :
+                 "暗能量接管：膨胀转入加速——网格越拉越猛，宇宙开始「狂奔」";
+  }
+  const cap=mkCap(stage);
+  function make2D(){
+    const env=setupCanvas(player.cv,16/9); const ctx=env.ctx;
+    const rnd=mulberry32(3);
+    const bg=starfield(rnd,150);
+    const L=5, base=1.5, sites=[], key={};
+    for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)for(let k=-2;k<=2;k++){
+      key[i+","+j+","+k]=sites.length;
+      sites.push([i*base,j*base,k*base]);
+    }
+    const edges=[];
+    sites.forEach((p,idx)=>{
+      const x=Math.round(p[0]/base), y=Math.round(p[1]/base), z=Math.round(p[2]/base);
+      [[1,0,0],[0,1,0],[0,0,1]].forEach(d=>{
+        const k2=(x+d[0])+","+(y+d[1])+","+(z+d[2]);
+        if(key[k2]!==undefined) edges.push([idx,key[k2]]);
+      });
+    });
+    function render(t,s){
+      const w=env.w,h=env.h;
+      ctx.fillStyle=COSM.bg; ctx.fillRect(0,0,w,h);
+      drawStars(ctx,w,h,bg,t,0.3);
+      const ax=0.65+Math.sin(t*0.07)*0.3, ay=0.42+Math.sin(t*0.05)*0.1;
+      const ca=Math.cos(ax), sa=Math.sin(ax), cb=Math.cos(ay), sb=Math.sin(ay);
+      const unit=Math.min(w,h)/11;
+      const camZ=13;
+      const proj=p=>{
+        let x=p[0]*s, y=p[1]*s, z=p[2]*s;
+        let x2=x*ca+z*sa, z2=-x*sa+z*ca;
+        let y2=y*cb-z2*sb, z3=y*sb+z2*cb;
+        const sc=camZ/(camZ+z3*0.55+6);
+        return [w*0.5+x2*sc*unit, h*0.5-y2*sc*unit, sc];
+      };
+      const hue=lerp(0.47,0.12,clamp((s-0.7)/2.6,0,1));
+      edges.forEach(e=>{
+        const A=proj(sites[e[0]]), B=proj(sites[e[1]]);
+        ctx.strokeStyle="hsla("+(hue*360)+",58%,"+(lerp(52,64,clamp((s-0.7)/2.6,0,1)))+"%,"+(0.32*A[2]*3)+")";
+        ctx.lineWidth=1;
+        ctx.beginPath(); ctx.moveTo(A[0],A[1]); ctx.lineTo(B[0],B[1]); ctx.stroke();
+      });
+      sites.forEach((p,i)=>{
+        const P=proj(p);
+        const big=(i%9===0);
+        ctx.fillStyle= big? "rgba(255,226,160,.95)" : "rgba(150,235,225,.9)";
+        ctx.beginPath(); ctx.arc(P[0],P[1], (big?2.6:1.9)*P[2]*1.5, 0, 6.283); ctx.fill();
+      });
+    }
+    return {render};
+  }
+  function make3D(){
+    const THREE=window.THREE;
+    const cv=freshCanvas(stage);
+    const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+    renderer.setClearColor(0x070a16,1);
+    const scene=new THREE.Scene();
+    const cam=new THREE.PerspectiveCamera(42,16/9,0.1,900);
+    const rnd=mulberry32(3);
+    /* 远景星空（固定不缩放） */
+    const bgN=520, bgPos=new Float32Array(bgN*3);
+    for(let i=0;i<bgN;i++){
+      const a=rnd()*6.283, b=Math.acos(2*rnd()-1), rr=90+rnd()*180;
+      bgPos[i*3]=Math.sin(b)*Math.cos(a)*rr; bgPos[i*3+1]=Math.cos(b)*rr*0.7; bgPos[i*3+2]=Math.sin(b)*Math.sin(a)*rr;
+    }
+    const bgG=new THREE.BufferGeometry(); bgG.setAttribute("position",new THREE.BufferAttribute(bgPos,3));
+    scene.add(new THREE.Points(bgG,new THREE.PointsMaterial({color:0xcfd8ff,size:0.7,transparent:true,opacity:.75})));
+    /* 网格本体 */
+    const L=5, base=1.5, sitesArr=[], key={};
+    for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)for(let k=-2;k<=2;k++){
+      key[i+","+j+","+k]=sitesArr.length;
+      sitesArr.push([i*base,j*base,k*base]);
+    }
+    const posArr=new Float32Array(sitesArr.length*3);
+    sitesArr.forEach((p,i)=>{ posArr[i*3]=p[0]; posArr[i*3+1]=p[1]; posArr[i*3+2]=p[2]; });
+    const pg=new THREE.BufferGeometry(); pg.setAttribute("position",new THREE.BufferAttribute(posArr.slice(),3));
+    const pMat=new THREE.PointsMaterial({color:0x96ebe1,size:0.30,transparent:true,opacity:.95});
+    const points=new THREE.Points(pg,pMat); scene.add(points);
+    const eArr=[]; const edgeIdx=[];
+    sitesArr.forEach((p,idx)=>{
+      const x=Math.round(p[0]/base), y=Math.round(p[1]/base), z=Math.round(p[2]/base);
+      [[1,0,0],[0,1,0],[0,0,1]].forEach(d=>{
+        const k2=(x+d[0])+","+(y+d[1])+","+(z+d[2]);
+        if(key[k2]!==undefined){ edgeIdx.push([idx,key[k2]]); }
+      });
+    });
+    const lPos=new Float32Array(edgeIdx.length*6);
+    edgeIdx.forEach((e,i)=>{
+      const A=sitesArr[e[0]], B=sitesArr[e[1]];
+      lPos.set([A[0],A[1],A[2],B[0],B[1],B[2]], i*6);
+    });
+    const lg=new THREE.BufferGeometry(); lg.setAttribute("position",new THREE.BufferAttribute(lPos.slice(),3));
+    const lMat=new THREE.LineBasicMaterial({color:0x3a5f8f,transparent:true,opacity:0.55});
+    const lines=new THREE.LineSegments(lg,lMat); scene.add(lines);
+    function applyS(s){
+      const pa=pg.attributes.position.array, la=lg.attributes.position.array;
+      for(let i=0;i<sitesArr.length;i++){
+        pa[i*3]=sitesArr[i][0]*s; pa[i*3+1]=sitesArr[i][1]*s; pa[i*3+2]=sitesArr[i][2]*s;
+      }
+      for(let i=0;i<edgeIdx.length;i++){
+        const A=sitesArr[edgeIdx[i][0]], B=sitesArr[edgeIdx[i][1]];
+        la[i*6]=A[0]*s; la[i*6+1]=A[1]*s; la[i*6+2]=A[2]*s;
+        la[i*6+3]=B[0]*s; la[i*6+4]=B[1]*s; la[i*6+5]=B[2]*s;
+      }
+      pg.attributes.position.needsUpdate=true;
+      lg.attributes.position.needsUpdate=true;
+      const k=clamp((s-0.7)/2.6,0,1);
+      lMat.color.setHSL(lerp(0.55,0.10,k),0.6,lerp(0.40,0.52,k));
+      pMat.color.setHSL(lerp(0.48,0.13,k),0.62,0.72);
+    }
+    function render(t,s){
+      applyS(s);
+      const ang=0.62+Math.sin(t*0.06)*0.3;
+      cam.position.set(Math.cos(ang)*13, 6.2+Math.sin(t*0.05)*1.2, Math.sin(ang)*13);
+      cam.lookAt(0,0,0);
+      renderer.render(scene,cam);
+      if(E.Q.has("qa")){
+        try{
+          const gl=renderer.getContext();
+          const px=new Uint8Array(4);
+          gl.readPixels(Math.floor(renderer.domElement.width/2), Math.floor(renderer.domElement.height/2), 1,1, gl.RGBA, gl.UNSIGNED_BYTE, px);
+          window.__expandPx=Array.from(px);
+        }catch(e){}
+      }
+    }
+    function resize(){
+      const w=stage.clientWidth||700, h=Math.round(w*9/16);
+      renderer.setSize(w,h,false); cv.style.width="100%"; cv.style.height="auto";
+      cam.aspect=w/h; cam.updateProjectionMatrix();
+      try{ render(tNow,sVal); }catch(e){}
+    }
+    resize();
+    if(window.ResizeObserver){ new ResizeObserver(resize).observe(stage); }
+    return {render, resize};
+  }
+  /* 顶层 draw：负责调度（挂载时二选一） */
+  function draw(t,dt){ tick(t,dt); }
+  return loadThree().then(ok=>{
+    if(ok && webglOK()){
+      try{ impl=make3D(); window.__expandMode="3d"; }
+      catch(e){ console.warn("3D 降级",e); impl=make2D(); window.__expandMode="2d"; }
+    } else { impl=make2D(); window.__expandMode="2d"; }
+    window.__expand={ render:(s)=>impl.render(tNow||0,s), mode:window.__expandMode };
+    return {draw, END, recolor(t){ if(impl){ try{ impl.render(t||0, sVal); }catch(e){} } }, controls:true};
+  });
+};
+})();
+
+/* ============================================================
+   boot：等所有演示注册完毕后，启动图版挂载调度
+   ============================================================ */
+(function(){
+"use strict";
+var E=window.__ENGINE;
+if(E && E.boot){ E.boot(); }
+})();
+
+</script>
+</body>
+</html>

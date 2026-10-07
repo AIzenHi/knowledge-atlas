@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>微积分直观理解 · 交互式课堂</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --panel:#ffffff; --ink:#1c2126; --ink-2:#5a646f; --ink-3:#8a939e;
+    --line:#e4e7eb; --brand:#0b6bcb; --brand-soft:#eef4fc; --ok:#0a7d43; --warn:#b26a00; --bad:#c0392b;
+    --c-grid:#dfe3e8; --c-axis:#8a939e; --c-fn:#0b6bcb; --c-fn2:#b3261e; --c-sec:#b26a00;
+    --c-tan:#0a7d43; --c-fill:rgba(11,107,203,.14); --c-fill2:rgba(179,38,30,.14);
+    --c-soft:rgba(11,107,203,.08);
+    --radius:14px; --shadow:0 1px 2px rgba(16,24,40,.05),0 10px 26px -14px rgba(16,24,40,.22);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#101317; --panel:#181c22; --ink:#e8eaed; --ink-2:#a6aeba; --ink-3:#7c8590;
+           --line:#2a2f37; --brand:#5aa9ff; --brand-soft:#16202e; --ok:#4ade80; --warn:#fbbf24; --bad:#ff7b72;
+           --c-grid:#252b33; --c-axis:#79828d; --c-fn:#5aa9ff; --c-fn2:#ff8a80; --c-sec:#fbbf24;
+           --c-tan:#4ade80; --c-fill:rgba(90,169,255,.16); --c-fill2:rgba(255,138,128,.16);
+           --c-soft:rgba(90,169,255,.10); --shadow:none; }
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth; scroll-padding-top:78px}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans CJK SC",sans-serif;
+       line-height:1.75;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:26px 18px 70px}
+
+  /* 顶栏导航 */
+  nav.top{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 88%, transparent);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--line);margin:0 0 22px;padding:8px 18px}
+  nav.top .inner{max-width:1060px;margin:0 auto;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none}
+  nav.top .inner::-webkit-scrollbar{display:none}
+  nav.top a{white-space:nowrap;font-size:13px;color:var(--ink-2);text-decoration:none;
+    padding:5px 11px;border-radius:999px;border:1px solid transparent}
+  nav.top a:hover{background:var(--panel);border-color:var(--line);color:var(--brand)}
+
+  header.hero{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);
+    padding:26px 26px 22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+  header.hero::before{content:"";position:absolute;inset:0 auto 0 0;width:6px;background:var(--brand)}
+  h1{margin:0 0 8px;font-size:26px;line-height:1.35}
+  .lead{margin:0;color:var(--ink-2);font-size:15px}
+  .meta{margin-top:14px;display:flex;flex-wrap:wrap;gap:8px}
+  .badge{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--ink-2);
+    background:var(--brand-soft);border:1px solid var(--line);border-radius:999px;padding:3px 10px}
+
+  section{margin-top:34px;scroll-margin-top:78px}
+  h2{font-size:19.5px;margin:0 0 6px;padding-left:11px;border-left:4px solid var(--brand)}
+  .sec-sub{color:var(--ink-2);font-size:14px;margin:0 0 14px;padding-left:15px}
+  h3{font-size:15.5px;margin:16px 0 8px}
+  p{margin:8px 0}
+  code{font-family:Consolas,"Courier New",monospace;background:var(--brand-soft);border:1px solid var(--line);
+    border-radius:6px;padding:1px 6px;font-size:13px}
+  .m{font-family:"Cambria Math","Latin Modern Math",Cambria,Georgia,serif;font-style:italic}
+  .m b{font-style:normal;font-weight:600}
+  .frac{display:inline-flex;flex-direction:column;vertical-align:middle;text-align:center;line-height:1.15;margin:0 2px}
+  .frac>span:first-child{border-bottom:1.2px solid currentColor;padding:0 4px}
+  .frac>span:last-child{padding:0 4px}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow)}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:14px}
+  .grid3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+  .card h3{margin:0 0 6px;font-size:15px}
+  .card p{margin:0;color:var(--ink-2);font-size:14px}
+
+  .callout{border-left:4px solid var(--brand);background:var(--panel);border:1px solid var(--line);
+    border-radius:10px;padding:11px 15px;margin:12px 0;font-size:14px}
+  .callout.warn{border-left-color:var(--warn)} .callout.ok{border-left-color:var(--ok)} .callout.bad{border-left-color:var(--bad)}
+  .callout b.lab{display:inline-block;margin-right:6px}
+
+  table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);
+    border-radius:var(--radius);overflow:hidden;font-size:14px}
+  th,td{padding:9px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+  th{background:var(--brand-soft);font-weight:600;white-space:nowrap}
+  tr:last-child td{border-bottom:none}
+  .tablewrap{overflow-x:auto}
+
+  /* 交互实验台 */
+  .lab{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px 16px;box-shadow:var(--shadow)}
+  .ctrl{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;margin:10px 0 12px}
+  .ctrl label{font-size:13px;color:var(--ink-2);display:flex;align-items:center;gap:7px}
+  .ctrl .val{font-family:Consolas,monospace;font-size:12.5px;color:var(--brand);min-width:66px;
+    background:var(--brand-soft);border:1px solid var(--line);border-radius:6px;padding:1px 6px}
+  input[type=range]{width:150px;accent-color:var(--brand);height:22px}
+  select,button{font-family:inherit;font-size:13.5px;background:var(--panel);color:var(--ink);
+    border:1px solid var(--line);border-radius:8px;padding:5px 10px;cursor:pointer}
+  select:hover,button:hover{border-color:var(--brand);color:var(--brand)}
+  button.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+  button.primary:hover{filter:brightness(1.08);color:#fff}
+  .rowbtns{display:flex;flex-wrap:wrap;gap:6px}
+  canvas{display:block;width:100%;height:330px;background:var(--panel);border-radius:10px;touch-action:none}
+  canvas.tall{height:400px}
+  canvas.short{height:250px}
+  .readout{font-family:Consolas,"Courier New",monospace;font-size:13px;background:var(--brand-soft);
+    border:1px solid var(--line);border-radius:8px;padding:8px 11px;margin-top:10px;white-space:pre-wrap;line-height:1.6}
+  .readout b{color:var(--brand);font-weight:600}
+  .mini{font-size:13px;color:var(--ink-2);margin:6px 0 0}
+  .tag{display:inline-block;font-size:11.5px;padding:1px 8px;border-radius:999px;
+    background:var(--brand-soft);border:1px solid var(--line);color:var(--ink-2);margin-left:6px}
+
+  /* 概念地图 */
+  .map{display:grid;grid-template-columns:1fr;gap:12px}
+  .map .node{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .map .node .t{font-weight:600;font-size:14.5px;margin-bottom:3px}
+  .map .node .d{font-size:13.5px;color:var(--ink-2)}
+  .map .arrow{text-align:center;color:var(--ink-3);font-size:13px}
+
+  /* 自测 */
+  .q{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px;margin-bottom:10px}
+  .q .qt{font-size:14.5px;margin-bottom:9px}
+  .q .opts{display:grid;gap:6px}
+  .q .opt{font-size:14px;padding:7px 11px;border:1px solid var(--line);border-radius:8px;cursor:pointer;background:transparent;color:var(--ink)}
+  .q .opt:hover{border-color:var(--brand)}
+  .q .opt.right{background:color-mix(in srgb,var(--ok) 14%,transparent);border-color:var(--ok)}
+  .q .opt.wrong{background:color-mix(in srgb,var(--bad) 12%,transparent);border-color:var(--bad)}
+  .q .why{margin-top:9px;font-size:13.5px;color:var(--ink-2);display:none}
+  .q .why.show{display:block}
+  .q.is-ok{border-left:4px solid var(--ok)}
+  .q.is-no{border-left:4px solid var(--bad)}
+  .q .done{color:var(--ink-3);font-size:12.5px;margin-left:6px}
+
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  .steps li{counter-increment:s;position:relative;padding:10px 0 10px 46px;border-bottom:1px dashed var(--line)}
+  .steps li:last-child{border-bottom:none}
+  .steps li::before{content:counter(s);position:absolute;left:0;top:10px;width:28px;height:28px;
+    border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:14px}
+
+  footer{margin-top:40px;padding-top:16px;border-top:1px solid var(--line);color:var(--ink-2);font-size:13px}
+  a{color:var(--brand)}
+  @media (max-width:600px){ canvas{height:270px} canvas.tall{height:330px} h1{font-size:22px} }
+  @media print{ body{background:#fff} .wrap{max-width:none;padding:0} nav.top{display:none}
+    .card,.lab,table{box-shadow:none;break-inside:avoid} section{break-inside:avoid} }
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="inner">
+  <a href="#map">🧭 概念地图</a>
+  <a href="#limit">① 极限 ε-δ</a>
+  <a href="#deriv">② 导数=切线</a>
+  <a href="#rules">③ 求导规则</a>
+  <a href="#taylor">④ 泰勒展开</a>
+  <a href="#integ">⑤ 积分=面积</a>
+  <a href="#ftc">⑥ 基本定理</a>
+  <a href="#chain">⑦ 链式法则</a>
+  <a href="#trap">⑧ 常见陷阱</a>
+  <a href="#quiz">⑨ 自测 12 题</a>
+  <a href="#path">⑩ 学习路径</a>
+</div></nav>
+
+<div class="wrap">
+
+<header class="hero">
+  <h1>微积分直观理解 · 交互式课堂</h1>
+  <p class="lead">不讲历史，只解决一件事：<b>让你亲手把「局部放大成整体」这件事玩明白。</b>
+    9 个可拖动的实验台 + 12 道自测，把导数、积分、极限、泰勒、链式法则全部变成眼睛能看见的东西。</p>
+  <div class="meta">
+    <span class="badge">📅 2026-10-06</span>
+    <span class="badge">📌 交互教程 / 零基础友好</span>
+    <span class="badge">✍️ OpenCode · 单文件离线版</span>
+    <span class="badge">🧩 零依赖 · 双击即开</span>
+  </div>
+</header>
+
+<!-- ============ 概念地图 ============ -->
+<section id="map">
+  <h2>🧭 先建一张心智地图</h2>
+  <p class="sec-sub">微积分只有两个核心动作，其余全是它们的组合拳。</p>
+  <div class="grid grid3">
+    <div class="card">
+      <h3>🔬 局部动作：导数 <span class="tag">微分</span></h3>
+      <p>把镜头怼到某一点上，问：<b>此刻变化有多快、朝哪个方向？</b><br>
+        数学形式：<span class="m">f′(x) = lim<sub>h→0</sub> <span class="frac"><span>f(x+h) − f(x)</span><span>h</span></span></span>，
+        几何意义：<b>切线的斜率</b>。物理意义：瞬时速度 / 瞬时加速度。</p>
+    </div>
+    <div class="card">
+      <h3>🌊 整体动作：积分 <span class="tag">求和</span></h3>
+      <p>把镜头拉远，问：<b>这么一点点变化，攒起来一整段是多少？</b><br>
+        数学形式：<span class="m"><b>∫</b><sub>a</sub><sup>b</sup> f(x) dx</span>，
+        几何意义：<b>曲线下的面积</b>（可正可负，所以叫"有向面积"）。物理意义：总累积量。</p>
+    </div>
+    <div class="card">
+      <h3>🌉 连接它们的桥：极限</h3>
+      <p>局部和整体之间必须有"无限逼近"的严格地基，否则就只是图形直觉。<br>
+        <b>极限</b>是唯一允许"除以 0""取无穷"还仍然合法的通道。</p>
+    </div>
+  </div>
+  <div class="callout ok"><b class="lab">一句话记住：</b>
+    <b>导数是"这一瞬间的快"，积分是"这一整段时间的总"。</b>
+    两者互为逆运算，就像乘法和除法、平方和开方一样——这就是下面第 ⑥ 站要亲手验证的东西。</div>
+  <div class="map">
+    <div class="node"><div class="t">① 速度 → 位置（导数）</div>
+      <div class="d">给你每时刻的速度，想知道走了多远 → 积分。汽车仪表盘是导数，里程表是积分。</div></div>
+    <div class="arrow">▼</div>
+    <div class="node"><div class="t">② 面积 → 高度的变化率（微积分基本定理）</div>
+      <div class="d">"水位涨得有多快"＝"此刻的进水速度"。这一条把上面两个动作焊死成一体，是整个微积分的枢纽。</div></div>
+    <div class="arrow">▼</div>
+    <div class="node"><div class="t">③ 微分方程：规则的数学表达</div>
+      <div class="d">牛顿 F=ma 写成 <span class="m">dx/dt = v</span>，再积分回去就得到 <span class="m">x(t) = ½at²</span>。物理、工程、经济里 90% 的模型最后都长这样。</div></div>
+  </div>
+</section>
+
+<!-- ============ ① 极限 ============ -->
+<section id="limit">
+  <h2>① 极限：为什么能除以 0 还能得到数？</h2>
+  <p class="sec-sub">拖动滑块让 <span class="m">h</span> 一路逼近 0，看函数值乖乖地聚到某一点。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>函数 <select id="limFn"></select></label>
+      <label><span class="m">h</span> <input type="range" id="limH" min="-1000" max="1000" value="0" step="1">
+        <span class="val" id="limHv">0</span></label>
+      <div class="rowbtns">
+        <button id="limPlay" class="primary">▶ 自动逼近</button>
+        <button id="limShrink">h ÷ 10</button>
+      </div>
+    </div>
+    <canvas id="cvLimit"></canvas>
+    <div class="readout" id="limOut"></div>
+    <p class="mini">💡 拖动 <span class="m">h</span> 滑块时注意看：<b>函数值一直在变，但你和极限点的距离一直在缩小</b>——这就是极限的全部含义，它只关心"趋势"，不关心"取到没有"。</p>
+  </div>
+  <div class="callout"><b class="lab">ε-δ 定义（唯一需要背的）：</b>
+    <span class="m">lim<sub>x→a</sub> f(x) = L</span> ⟺ 对任意 ε&gt;0，都能找到 δ&gt;0，使得只要
+    <span class="m">0 &lt; |x − a| &lt; δ</span>，就一定有 <span class="m">|f(x) − L| &lt; ε</span>。<br>
+    <b>翻译成人话：</b>"你把 x 拿得足够靠近 a，我就保证 f(x) 落在 L 附近那个小圈里。"<b>注意 f(a) 本身是什么完全无关</b>——所以 <span class="m">1/x</span> 在 x=0 处没定义，但它的极限却可能存在。</div>
+</section>
+
+<!-- ============ ② 导数 ============ -->
+<section id="deriv">
+  <h2>② 导数：割线怎么变成切线？</h2>
+  <p class="sec-sub">这是整门课最该动手玩 10 分钟的地方。割线的一端死死钉住，另一端慢慢靠近。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>函数 <select id="dFn"></select></label>
+      <label>钉住点 <span class="m">a</span> <input type="range" id="dA" min="-200" max="200" value="0" step="1">
+        <span class="val" id="dAv">0.00</span></label>
+      <label><span class="m">h</span> <input type="range" id="dH" min="-1000" max="1000" value="400" step="1">
+        <span class="val" id="dHv">0.600</span></label>
+      <div class="rowbtns">
+        <button id="dPlay" class="primary">▶ 播放</button>
+        <button id="dShrink">h ÷ 10</button>
+        <button id="dTan">看切线</button>
+      </div>
+    </div>
+    <canvas id="cvDeriv"></canvas>
+    <div class="readout" id="dOut"></div>
+    <div class="tablewrap">
+      <table>
+        <thead><tr><th>割线长度 h</th><th>割线斜率 <span class="frac"><span>f(a+h) − f(a)</span><span>h</span></span></th><th>与真实导数的差</th><th>状态</th></tr></thead>
+        <tbody id="dTable"></tbody>
+      </table>
+    </div>
+    <p class="mini">🖱️ 也可以<b>直接在图上拖动那个实心圆点</b>来改变 a。拖到 <span class="m">|x|</span> 的拐角处，会看到左右斜率打架——这就是"不可导"。</p>
+  </div>
+  <div class="callout warn"><b class="lab">为什么必须"极限"而不是"真的取 h=0"？</b>
+    因为 <span class="m"><span class="frac"><span>f(a+h) − f(a)</span><span>h</span></span></span> 的分子里同时有 <span class="m">+f(a)</span> 和 <span class="m">−f(a)</span>，<b>h=0 时上下都变 0，直接代就得到 0/0</b>。
+    所以导数的定义必须写成"极限"，它是一句<b>条件性的话</b>：<i>只要 h 无限小且不等于 0，这个式子就趋近某个数</i>。这也解释了为什么 <span class="m">|x|</span> 在 0 处导数不存在——左右两个 h 的走向给出了不同的极限。</div>
+</section>
+
+<!-- ============ ③ 规则 ============ -->
+<section id="rules">
+  <h2>③ 求导规则实验室：原函数和导函数长什么样</h2>
+  <p class="sec-sub">蓝色实线是原函数 <span class="m">f</span>，红色虚线是它的导函数 <span class="m">f′</span>。切线斜率 = 虚线在该点的高度。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>函数 <select id="rFn"></select></label>
+      <label>观察点 <span class="m">a</span> <input type="range" id="rA" min="-200" max="200" value="0" step="1">
+        <span class="val" id="rAv">0.00</span></label>
+    </div>
+    <canvas id="cvRules" class="tall"></canvas>
+    <div class="readout" id="rOut"></div>
+  </div>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>规则</th><th>公式</th><th>一句话理解</th></tr></thead>
+      <tbody>
+        <tr><td>常数倍</td><td><span class="m">(cf)′ = cf′</span></td><td>放大曲线 f 倍，斜率也放大 f 倍</td></tr>
+        <tr><td>和差</td><td><span class="m">(f ± g)′ = f′ ± g′</span></td><td>两条曲线叠起来，斜率也跟着叠加</td></tr>
+        <tr><td>乘积</td><td><span class="m">(fg)′ = f′g + fg′</span></td><td>两人抬轿：谁在使劲，斜率就含谁</td></tr>
+        <tr><td>商</td><td><span class="m">(f/g)′ = (f′g − fg′)/g²</span></td><td>先变分子减去分母"自己变"，要除两次分母</td></tr>
+        <tr><td>链式</td><td><span class="m">(f∘g)′ = f′(g(x))·g′(x)</span></td><td>转两道弯，速度是两层速度相乘（见第 ⑦ 站）</td></tr>
+        <tr><td>反函数</td><td><span class="m">(f⁻¹)′(y) = 1 / f′(f⁻¹(y))</span></td><td>两条曲线关于 y=x 对称，斜率互为倒数</td></tr>
+        <tr><td>幂函数</td><td><span class="m">(xᵖ)′ = p·x<sup>p−1</sup></span></td><td>指数变成系数，次数减一</td></tr>
+        <tr><td>指数</td><td><span class="m">(e<sup>x</sup>)′ = e<sup>x</sup></span>, <span class="m">(a<sup>x</sup>)′ = a<sup>x</sup>ln a</span></td><td>e 的魔力：它的变化率等于自己</td></tr>
+        <tr><td>对数</td><td><span class="m">(ln x)′ = 1/x</span>, <span class="m">(log<sub>a</sub>x)′ = 1/(x ln a)</span></td><td>ln 与指数互为逆函数，斜率互为倒数</td></tr>
+        <tr><td>三角</td><td><span class="m">(sin x)′ = cos x</span>, <span class="m">(cos x)′ = −sin x</span></td><td>摆动 ↔ 倾斜互相转换，tan 则是两者相乘</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="callout"><b class="lab">一条能省命的线索：</b>
+    上面 10 条规则几乎都能从 <b>①乘积法则</b> 和 <b>②链式法则</b> 推出来。所以真正需要硬记的只有"基本函数求导值"这一张表，
+    剩下的都是拼装。<b>先背基本表，再练拼装</b>，比硬背 15 条公式效率高得多。</div>
+</section>
+
+<!-- ============ ④ 泰勒 ============ -->
+<section id="taylor">
+  <h2>④ 泰勒展开：用直线和曲线拼出整个函数</h2>
+  <p class="sec-sub">拖阶数 n，看红点区域（余项）如何被一项项吃掉。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>函数 <select id="tFn"></select></label>
+      <label>展开阶数 <span class="m">n</span> <input type="range" id="tN" min="0" max="18" value="3" step="1">
+        <span class="val" id="tNv">3</span></label>
+      <label>观察点 <span class="m">a</span> <input type="range" id="tA" min="0" max="100" value="50" step="1">
+        <span class="val" id="tAv">0.00</span></label>
+    </div>
+    <canvas id="cvTaylor"></canvas>
+    <div class="readout" id="tOut"></div>
+  </div>
+  <div class="callout ok"><b class="lab">泰勒是"用局部信息重建整体"：</b>
+    <span class="m">f(x) = f(a) + f′(a)(x−a) + <span class="frac"><span>f″(a)}{span><span>2!</span></span>(x−a)² + …</span><br>
+    一阶项是切线，二阶项是"弯曲的修正"，三阶项是"扭曲的修正"……<b>n 阶就是前 n 层修正。</b>
+    实用价值：<span class="m">e</span>、<span class="m">sin 1</span>、<span class="m">ln 2</span>、<span class="m">π</span> 这些"算不出来"的数，
+    牛顿就是靠它在纸上算出来的；今天的科学计算、误差估计、ODE 数值解也还靠它。</div>
+</section>
+
+<!-- ============ ⑤ 积分 ============ -->
+<section id="integ">
+  <h2>⑤ 积分：把无限多个矩形塞进曲线里</h2>
+  <p class="sec-sub">拖 n（分割数）看矩形怎么变细逼近面积，同时左边表格里的和怎么撞上真值。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>函数 <select id="iFn"></select></label>
+      <label>采样点 <select id="iMethod">
+        <option value="left">左端点</option><option value="right">右端点</option>
+        <option value="mid">中点</option><option value="trap">梯形</option>
+        <option value="simpson">辛普森(1/3)</option></select></label>
+      <label>分割数 <span class="m">n</span> <input type="range" id="iN" min="1" max="600" value="4" step="1">
+        <span class="val" id="iNv">4</span></label>
+      <div class="rowbtns">
+        <button id="iPlay" class="primary">▶ 加密动画</button>
+        <button id="iDouble">n × 2</button>
+      </div>
+    </div>
+    <canvas id="cvInt"></canvas>
+    <div class="readout" id="iOut"></div>
+    <div class="tablewrap">
+      <table><thead><tr><th>n</th><th>近似值 <span class="m">S<sub>n</sub></span></th><th>真值（精确到小数点后 6 位）</th><th>绝对误差</th><th>相对误差</th></tr></thead>
+      <tbody id="iTable"></tbody></table>
+    </div>
+  </div>
+  <div class="callout"><b class="lab">定积分的严格定义：</b>
+    <span class="m"><b>∫</b><sub>a</sub><sup>b</sup> f(x)dx = lim<sub>n→∞</sub> <b>Σ</b><sub>k=1</sub><sup>n</sup> f(x<sub>k</sub>)·Δx</sub>，
+    其中 <span class="m">Δx = (b−a)/n</span>。<br>
+    <b>关键：</b>左端点和右端点的和都趋近同一个数（就像 ∫ 的加法性质保证的那样），只有<b>取点方式</b>会影响速度，
+    不影响终点。这正是"面积"能脱离"点"而客观存在的原因。</div>
+  <div class="callout warn"><b class="lab">注意"左和 &lt; 真值 &lt; 右和"：</b>
+    对递增函数，左端点矩形永远偏小、右端点永远偏大。中间点、梯形、辛普森误差衰减得快得多
+    （辛普森是 <span class="m">O(1/n⁴)</span>，是左端点的 <span class="m">O(1/n)</span> 的四倍效率）——
+    这就是数值积分软件的默认算法选择逻辑。</div>
+</section>
+
+<!-- ============ ⑥ 基本定理 ============ -->
+<section id="ftc">
+  <h2>⑥ 微积分基本定理：导数和积分原来是同一件事</h2>
+  <p class="sec-sub">拖动上限 x：上面是"注水速率"，下面是"水位"。看下面那条切线的斜率。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>速率函数 <select id="ftcFn"></select></label>
+      <label>时刻 <span class="m">x</span> <input type="range" id="ftcX" min="0" max="628" value="180" step="1">
+        <span class="val" id="ftcXv">1.80</span></label>
+      <div class="rowbtns"><button id="ftcPlay" class="primary">▶ 注水演示</button></div>
+    </div>
+    <canvas id="cvFTC" class="tall"></canvas>
+    <div class="readout" id="ftcOut"></div>
+  </div>
+  <div class="callout ok"><b class="lab">生活类比：水箱注水</b><br>
+    <span class="m">f(t)</span> = 现在的<b>进水速度</b>（L/分钟，可能为负表示在漏水）→ 这是导数的世界。<br>
+    <span class="m">F(x) = <b>∫</b><sub>0</sub><sup>x</sup> f(t)dt</span> = 到此刻为止<b>一共进了多少水</b>（水位）→ 这是积分的世界。<br>
+    结论：<b>水位此刻的上升速度，恰好等于此刻的进水速度</b>。也就是 <span class="m">F′(x) = f(x)</span>。
+    微积分 2000 年来最深刻的一句话，就是"累积量和变化率互为逆运算"。</div>
+</section>
+
+<!-- ============ ⑦ 链式法则 ============ -->
+<section id="chain">
+  <h2>⑦ 链式法则：为什么速度要相乘？</h2>
+  <p class="sec-sub">两层嵌套函数，各自的速度乘起来就是复合函数的速度。</p>
+  <div class="lab">
+    <div class="ctrl">
+      <label>外层 <select id="cOuter"></select></label>
+      <label>内层 <select id="cInner"></select></label>
+      <label>输入 <span class="m">x</span> <input type="range" id="cX" min="0" max="200" value="100" step="1">
+        <span class="val" id="cXv">1.00</span></label>
+    </div>
+    <canvas id="cvChain" class="short"></canvas>
+    <div class="readout" id="cOut"></div>
+  </div>
+  <div class="callout"><b class="lab">机械传动比：</b>
+    想象 <span class="m">x</span> 是<b>主动轮</b>的转速，它先经过齿轮组变成 <span class="m">u = g(x)</span>，
+    <span class="m">u</span> 再驱动一台输出机得到 <span class="m">y = f(u)</span>。<br>
+    主动轮加速 → 中间轮加速 → 输出跟着加速。总传动比 = <b>中间轮比 × 输出机比</b> = <span class="m">g′(x) × f′(u)</span>。
+    如果中间轮会反向（<span class="m">g′&lt;0</span>）或空转（<span class="m">f′=0</span>），输出就减速、翻转或停摆——
+    <b>中间任一环为 0，整条链速度为 0</b>，这正是链式法则在物理上的意义。</div>
+</section>
+
+<!-- ============ ⑧ 陷阱 ============ -->
+<section id="trap">
+  <h2>⑧ 常见陷阱与易混概念</h2>
+  <p class="sec-sub">这些坑几乎每个人都会踩一遍，提前知道能省一周时间。</p>
+  <div class="tablewrap">
+    <table>
+      <thead><tr><th>坑</th><th>错误想法</th><th>正确理解</th></tr></thead>
+      <tbody>
+        <tr><td>把极限当代入</td><td>lim f(x) 就是 f(极限点)</td><td>完全错误。<span class="m">1/x</span> 在 0 无定义，但 lim(x→0)1/x 不存在；<span class="m">(x²−1)/(x−1)</span> 在 1 无定义，但极限 = 2。极限只承诺"附近的趋势"，从不承诺"点本身"。</td></tr>
+        <tr><td>连续 ⇒ 可导</td><td>没有跳变就是光滑的</td><td>反例 <span class="m">|x|</span> 在 0 处连续但不可导；<span class="m">x^(2/3)</span> 连续、竖直切线、导数无穷。可导 ⇒ 一定连续，反过来不成立。</td></tr>
+        <tr><td>面积永远为正</td><td>积分 = 曲线下面积</td><td>曲线在 x 轴下方时积分为负。"面积"是助记说法，严格说是<b>有向面积</b>，也可能是"曲线与 x 轴之间的几何面积"。</td></tr>
+        <tr><td>积分的 <span class="m">∫dx</span> 是"无穷小"</td><td>dx = 0</td><td>dx 是一个<b>符号</b>，代表"一点点 x"，是记号约定。它不能单独求值，只有乘上函数才有意义。</td></tr>
+        <tr><td>先求导再积分就对得上</td><td>中间可以随便来</td><td>只有定积分满足 <span class="m"><b>∫<sub>a</sub><sup>b</sup> f′ = f(b) − f(a)</b></span>，前提是 <span class="m">f</span> 在区间上连续。不定积分还要带 "+C"，因为原函数不唯一。</td></tr>
+        <tr><td>链式法则忘记乘内导</td><td>(x²)′ = 2x 就够了</td><td>若内层是 <span class="m">g(x)=sin x</span>，则 (sin(x²))′ = 2x·cos(x²)。漏乘内导是最常见计算错误，自检口诀：<b>每层都求导，一路乘下去</b>。</td></tr>
+        <tr><td>泰勒展开"处处精确"</td><td>有限项就是原函数</td><td>有限项只在展开点<b>附近</b>有效（局部逼近）。离展开点越远误差越大——这就是余项红色区域。工程上只在"离得足够近"时用它。</td></tr>
+        <tr><td>洛必达无脑用</td><td>看到 0/0 就洛</td><td>必须先确认是 <b>0/0 或 ∞/∞</b> 且该点附近可导、导数之比极限存在（需左右极限分别存在且相等）。<span class="m">x²/x</span> 是 0/0 但极限就是 0（还除了一定义域限制），直接洛会丢失 x≠0 的条件。</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="grid" style="margin-top:14px">
+    <div class="card"><h3>🔁 三组必须分清</h3>
+      <p><b>微分 df</b>：切线在 dx 上的"直线抬升量"，是线性近似 <span class="m">f(x+dx) ≈ f(x)+f′(x)dx</span>。<br>
+      <b>导数 dy/dx</b>：切线斜率，本质是<b>比值</b>。<br>
+      <b>积分 ∫</b>：无穷多个微分的<b>累加</b>。<br>
+      三者关系：<span class="m">Δy ≈ dy = f′(x)dx</span>，<span class="m">∫dy = Δy</span>。</p></div>
+    <div class="card"><h3>🧮 何时用哪个</h3>
+      <p><b>求瞬时变化率 / 优化 / 建模</b> → 导数。<br>
+      <b>求累积量 / 面积 / 质心 / 平均值</b> → 积分。<br>
+      <b>已知初始状态的运动规律</b> → 先列微分方程，再积分。<br>
+      判断口诀：<b>看到"每单位""瞬时""速率/最陡"用导数；看到"总共""累计""平均"用积分。</b></p></div>
+    <div class="card"><h3>🎓 学到什么程度算够</h3>
+      <p>如果你的目标是<b>看懂别人在说什么</b>（读经济、物理、工程文献）：能读懂导数/积分符号、会用基本定理和链式法则即可。<br>
+      如果要<b>做工程/科研计算</b>：再加上数值方法（欧拉法、辛普森积分、误差分析）。<br>
+      如果要<b>读数学证明</b>：极限的严格定义、连续/可微/可积的层级关系必须过关。</p></div>
+  </div>
+</section>
+
+<!-- ============ ⑨ 自测 ============ -->
+<section id="quiz">
+  <h2>⑨ 自测 12 题</h2>
+  <p class="sec-sub">点选项即时判分并给解释。做错的那几题，回到对应站点重玩一次实验。</p>
+  <div id="quizBox"></div>
+  <div class="rowbtns" style="margin-top:10px">
+    <button id="quizReset">重做一遍</button>
+    <span class="readout" id="quizScore" style="margin:0">0 / 12</span>
+  </div>
+</section>
+
+<!-- ============ ⑩ 路径 ============ -->
+<section id="path">
+  <h2>⑩ 一条 4 周的上手路径</h2>
+  <p class="sec-sub">每天 40 分钟，配上面 9 个实验台反复玩。核心是"先玩明白，再补符号"。</p>
+  <div class="grid">
+    <div class="card"><h3>第 1 周 · 建立局部直觉</h3>
+      <p>玩第 ② 站到"能自己解释割线表每一行为什么趋近那个数"为止。<br>
+        目标：<b>能徒手算出 x²、x³ 在任意点的导数</b>，理解可导必连续但反之不然。</p></div>
+    <div class="card"><h3>第 2 周 · 打通整体</h3>
+      <p>玩第 ⑤、⑥ 站，能讲出"左和/右和夹逼出真值"和"水位速度=进水速度"。<br>
+        目标：<b>会用 FTC 在求导与求积之间自由切换</b>，会算简单定积分。</p></div>
+    <div class="card"><h3>第 3 周 · 工具与近似</h3>
+      <p>玩第 ④ 站，理解为什么 <span class="m">e</span> 和 <span class="m">π</span> 能被算出来；再玩第 ⑦ 站做链式法则拼装。<br>
+        目标：<b>能对一个复合函数逐层求导并解释每一层的意义</b>。</p></div>
+    <div class="card"><h3>第 4 周 · 建模与陷阱</h3>
+      <p>读第 ⑧ 站表格，用"位置/速度/加速度""存量/流量""收益/边际"三组词把现实问题翻译成数学式。<br>
+        目标：<b>能独立写出并求解一个一阶微分方程的初值问题。</b></p></div>
+  </div>
+  <div class="callout ok" style="margin-top:16px"><b class="lab">给零基础的最后一句：</b>
+    微积分不神秘，它只是<b>"极小极大"和"无穷细分"这两件事被严格化了</b>。
+    你已经在用极限思考了（盯着手机信号从 4G 掉到 1G 时，你会说"快了快了"——
+    那就是一个极限过程）。把它写清楚，就叫微积分。</div>
+  <div class="tablewrap">
+    <table><thead><tr><th>基础函数</th><th>函数</th><th>导函数</th><th>原函数（+C）</th></tr></thead>
+    <tbody>
+      <tr><td>幂</td><td><span class="m">xᵖ</span></td><td><span class="m">p·x<sup>p−1</sup></span></td><td><span class="m">x<sup>p+1</sup>/(p+1) + C</span>（p≠−1）</td></tr>
+      <tr><td>指数</td><td><span class="m">e<sup>x</sup></span></td><td><span class="m">e<sup>x</sup></span></td><td><span class="m">e<sup>x</sup> + C</span></td></tr>
+      <tr><td>对数</td><td><span class="m">ln x</span></td><td><span class="m">1/x</span></td><td><span class="m">x·ln x − x + C</span></td></tr>
+      <tr><td>三角</td><td><span class="m">sin x / cos x</span></td><td><span class="m">cos x / −sin x</span></td><td><span class="m">−cos x / sin x + C</span></td></tr>
+      <tr><td>幂（特殊）</td><td><span class="m">1/x（xᵖ, p=−1）</span></td><td><span class="m">−1/x²</span></td><td><span class="m">ln|x| + C</span></td></tr>
+      <tr><td>反三角</td><td><span class="m">arcsin x / arctan x</span></td><td><span class="m">1/√(1−x²) / 1/(1+x²)</span></td><td>常按分部积分逐项算</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<footer>
+  由 OpenCode · html-deliverable 技能生成丨2026-10-06<br>
+  单文件网页，零外部依赖，可离线双击打开、直接转发分享。所有函数与数值均由页面内 JS 实时计算，图表为自绘 Canvas。
+</footer>
+
+</div>
+
+<script>
+"use strict";
+/* ============ 通用工具 ============ */
+const $ = id => document.getElementById(id);
+const C = (name, fb) => (getComputedStyle(document.documentElement).getPropertyValue(name).trim() || fb);
+const isFin = v => typeof v === 'number' && isFinite(v);
+function fmt(v, d){
+  d = (d === undefined) ? 3 : d;
+  if (v === Infinity) return '+∞';
+  if (v === -Infinity) return '−∞';
+  if (!isFin(v)) return String(v);
+  let s = v.toFixed(d);
+  if (/^-0(\.0+)?$/.test(s)) s = s.slice(1);
+  return s;
+}
+function lerp(a, b, t){ return a + (b - a) * t; }
+
+/* 画布：处理高分屏 + 坐标映射 */
+function setup(cv){
+  const r = cv.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.max(200, r.width), h = Math.max(120, r.height);
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  const ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  return { ctx, w, h };
+}
+function makeVP(w, h, v, pad){
+  pad = pad || { l: 52, r: 16, t: 14, b: 32 };
+  const pw = Math.max(10, w - pad.l - pad.r), ph = Math.max(10, h - pad.t - pad.b);
+  const sx = pw / (v.x1 - v.x0), sy = ph / (v.y1 - v.y0);
+  const X = x => pad.l + (x - v.x0) * sx;
+  const Y = y => h - pad.b - (y - v.y0) * sy;
+  return { pad, sx, sy, X, Y, w, h,
+    iX: px => (px - pad.l) / sx + v.x0,
+    iY: py => (h - pad.b - py) / sy + v.y0,
+    x0: v.x0, x1: v.x1, y0: v.y0, y1: v.y1 };
+}
+/* 网格 + 坐标轴 + 刻度 */
+function axes(ctx, vp, opt){
+  opt = opt || {};
+  const step = opt.step || 1;
+  ctx.save();
+  ctx.lineWidth = 1;
+  ctx.strokeStyle = C('--c-grid', '#dfe3e8');
+  const i0 = Math.ceil(vp.x0 / step), i1 = Math.floor(vp.x1 / step);
+  ctx.beginPath();
+  for (let i = i0; i <= i1; i++){ const x = vp.X(i * step); ctx.moveTo(x, vp.pad.t); ctx.lineTo(x, vp.h - vp.pad.b); }
+  const j0 = Math.ceil(vp.y0 / step), j1 = Math.floor(vp.y1 / step);
+  for (let j = j0; j <= j1; j++){ const y = vp.Y(j * step); ctx.moveTo(vp.pad.l, y); ctx.lineTo(vp.w - vp.pad.r, y); }
+  ctx.stroke();
+  /* 轴线 */
+  ctx.strokeStyle = C('--c-axis', '#8a939e'); ctx.lineWidth = 1.4;
+  ctx.beginPath();
+  if (vp.y0 <= 0 && vp.y1 >= 0){ const y = vp.Y(0); ctx.moveTo(vp.pad.l, y); ctx.lineTo(vp.w - vp.pad.r, y); }
+  if (vp.x0 <= 0 && vp.x1 >= 0){ const x = vp.X(0); ctx.moveTo(x, vp.pad.t); ctx.lineTo(x, vp.h - vp.pad.b); }
+  ctx.stroke();
+  /* 刻度文字 */
+  ctx.fillStyle = C('--ink-3', '#8a939e'); ctx.font = '11px Consolas, monospace';
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  if (step * vp.sx > 34) for (let i = i0; i <= i1; i++){
+    const s = (i * step).toFixed(step < 1 ? 1 : 0);
+    ctx.fillText(s === '-0' ? '0' : s, vp.X(i * step), vp.h - vp.pad.b + 5);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  if (step * vp.sy > 26) for (let j = j0; j <= j1; j++){
+    const s = (j * step).toFixed(step < 1 ? 1 : 0);
+    ctx.fillText(s === '-0' ? '0' : s, vp.pad.l - 6, vp.Y(j * step));
+  }
+  ctx.restore();
+}
+/* 画曲线（自动裁剪出图外点） */
+function curve(ctx, vp, f, opt){
+  opt = opt || {};
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(vp.pad.l, vp.pad.t, vp.w - vp.pad.l - vp.pad.r, vp.h - vp.pad.t - vp.pad.b);
+  ctx.clip();
+  const N = 900, xa = vp.x0, xb = vp.x1;
+  ctx.strokeStyle = opt.color || C('--c-fn', '#0b6bcb');
+  ctx.lineWidth = opt.width || 2.2;
+  ctx.lineJoin = 'round'; ctx.setLineDash(opt.dash || []);
+  ctx.beginPath();
+  let started = false, py = 0;
+  for (let i = 0; i <= N; i++){
+    const x = xa + (xb - xa) * i / N;
+    const y = f(x);
+    if (!isFin(y)){ started = false; continue; }
+    if (Math.abs(y) > (vp.y1 - vp.y0) * 8 + 50){ started = false; continue; }
+    const px = vp.X(x), pyy = vp.Y(y);
+    if (!started){ ctx.moveTo(px, pyy); started = true; py = pyy; }
+    else { if (Math.abs(pyy - py) > (vp.h)) { started = false; continue; } ctx.lineTo(px, pyy); py = pyy; }
+  }
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.restore();
+}
+/* 点 */
+function dot(ctx, x, y, r, fill, stroke){
+  ctx.beginPath(); ctx.arc(x, y, r, 0, 6.2832);
+  if (fill){ ctx.fillStyle = fill; ctx.fill(); }
+  if (stroke){ ctx.strokeStyle = stroke; ctx.lineWidth = 2; ctx.stroke(); }
+}
+/* 直线段 */
+function seg(ctx, x1, y1, x2, y2, color, width, dash){
+  ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = width || 2; ctx.setLineDash(dash || []);
+  ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2); ctx.stroke(); ctx.setLineDash([]); ctx.restore();
+}
+/* 文字 */
+function txt(ctx, s, x, y, opt){
+  opt = opt || {};
+  ctx.save();
+  ctx.font = opt.font || '12px -apple-system,"PingFang SC",sans-serif';
+  ctx.fillStyle = opt.color || C('--ink-2', '#5a646f');
+  ctx.textAlign = opt.align || 'left'; ctx.textBaseline = opt.base || 'alphabetic';
+  if (opt.bg){ ctx.fillStyle = opt.bg; }
+  ctx.fillText(s, x, y);
+  ctx.restore();
+}
+const redrawers = [];
+function register(fn){ redrawers.push(fn); }
+function redrawAll(){ redrawers.forEach(f => { try { f(); } catch (e) { console.warn(e); } }); }
+let rzT = null;
+window.addEventListener('resize', () => { clearTimeout(rzT); rzT = setTimeout(redrawAll, 90); });
+const darkMQ = window.matchMedia('(prefers-color-scheme: dark)');
+(darkMQ.addEventListener ? darkMQ.addEventListener.bind(darkMQ, 'change') : darkMQ.addListener.bind(darkMQ))(redrawAll);
+/* 动画循环管理 */
+const loops = {};
+function loop(key, fn){ if (loops[key]) cancelAnimationFrame(loops[key].raf); loops[key] = { on: true, raf: 0 };
+  let t0 = null;
+  const step = ts => { if (!loops[key] || !loops[key].on) return; if (t0 === null) t0 = ts;
+    fn((ts - t0) / 1000); loops[key].raf = requestAnimationFrame(step); };
+  loops[key].raf = requestAnimationFrame(step);
+}
+function stopLoop(key){ if (loops[key]){ loops[key].on = false; cancelAnimationFrame(loops[key].raf); } }
+
+/* ============ ① 极限模块 ============ */
+const LIMITS = {
+  sinx: { label: 'sin x / x   (x → 0)', a: 0, L: 1, hMax: 1,
+    f: x => Math.abs(x) < 1e-9 ? 1 : Math.sin(x) / x,
+    view: { x0: -1.15, x1: 1.15, y0: -0.35, y1: 1.55 }, step: 0.5,
+    tag: '∞·0 型：∞ 乘 0 是合法的极限（这里 =1，不是 0！）' },
+  expx: { label: '(1+x)^(1/x)   (x → 0)', a: 0, L: Math.E, hMax: 0.85,
+    f: x => Math.abs(x) < 1e-9 ? Math.E : Math.pow(1 + x, 1 / x),
+    view: { x0: -0.92, x1: 0.92, y0: 0.2, y1: 6.2 }, step: 0.25,
+    tag: '1^∞ 型：这就是 e 的定义式之一，1 从左边来比从右边来更"慢"' },
+  rat: { label: '(x²−1)/(x−1)   (x → 1)', a: 1, L: 2, hMax: 1.3,
+    f: x => Math.abs(x - 1) < 1e-9 ? 2 : (x * x - 1) / (x - 1),
+    view: { x0: -0.9, x1: 2.9, y0: -1, y1: 5 }, step: 1,
+    tag: '0/0 型：x=1 处没定义，但极限 = 2（挖掉一个点不影响极限）' },
+  inv: { label: '1 / x   (x → 0)', a: 0, L: null, hMax: 0.85,
+    f: x => 1 / x,
+    view: { x0: -1, x1: 1, y0: -7, y1: 7 }, step: 0.5,
+    tag: '极限不存在：左边跑到 −∞，右边跑到 +∞，两边不一致' }
+};
+let limKey = 'sinx', limT = 0;
+function limH(){
+  const L = LIMITS[limKey];
+  const t = +$('limH').value / 1000;
+  return t * L.hMax;
+}
+function drawLimit(){
+  const cv = $('cvLimit'), { ctx, w, h } = setup(cv);
+  const L = LIMITS[limKey], vp = makeVP(w, h, L.view);
+  axes(ctx, vp, { step: L.step });
+  /* 曲线 */
+  curve(ctx, vp, L.f, { color: C('--c-fn'), width: 2.4 });
+  /* x = a 竖线 */
+  const xa = vp.X(L.a);
+  seg(ctx, xa, vp.pad.t, xa, vp.h - vp.pad.b, C('--ink-3'), 1, [3, 4]);
+  txt(ctx, 'x = ' + L.a, xa + 4, vp.pad.t + 11, { color: C('--ink-3') });
+  /* L 水平线 + ε 带 */
+  const hv = limH(), xx = L.a + hv;
+  if (L.L !== null){
+    const yL = vp.Y(L.L);
+    const eps = 0.06 * (L.L !== 0 ? 1 : 1);
+    ctx.fillStyle = C('--c-soft', 'rgba(11,107,203,.08)');
+    ctx.fillRect(vp.pad.l, vp.Y(L.L + eps), vp.w - vp.pad.l - vp.pad.r, vp.Y(L.L - eps) - vp.Y(L.L + eps));
+    seg(ctx, vp.pad.l, yL, vp.w - vp.pad.r, yL, C('--c-tan'), 2, [7, 5]);
+    txt(ctx, 'L = ' + fmt(L.L, 4), vp.pad.l + 6, yL - 7, { color: C('--c-tan'), font: '600 12px Consolas,monospace' });
+    txt(ctx, 'ε 带', vp.w - vp.pad.r - 34, vp.pad.t + 12, { color: C('--ink-3'), font: '11px sans-serif' });
+  } else {
+    txt(ctx, 'x = ' + L.a + ' 处：极限不存在', vp.pad.l + 8, vp.pad.t + 14, { color: C('--bad'), font: '600 13px sans-serif' });
+  }
+  /* 移动点 */
+  const yv = L.f(xx);
+  const px = vp.X(xx);
+  if (isFin(yv) && yv > vp.y0 - 2 && yv < vp.y1 + 2){
+    /* 从点到 L 的竖线段 */
+    if (L.L !== null) seg(ctx, px, vp.Y(yv), px, vp.Y(L.L), C('--c-sec'), 2.2);
+    /* 到 x 轴的垂线 */
+    if (vp.y0 <= 0 && vp.y1 >= 0) seg(ctx, px, vp.Y(yv), px, vp.Y(0), C('--ink-3'), 1, [2, 3]);
+    dot(ctx, px, vp.Y(yv), 5.5, C('--c-sec'), '#fff');
+    txt(ctx, 'x = ' + fmt(xx, 4), px, vp.h - vp.pad.b + 5,
+        { color: C('--c-sec'), font: '600 11px Consolas,monospace', align: 'center' });
+    txt(ctx, 'f(x) = ' + fmt(yv, 4), px + 9, vp.Y(yv) - 9,
+        { color: C('--c-sec'), font: '600 12px Consolas,monospace' });
+  }
+  /* 图例 */
+  txt(ctx, L.label, vp.pad.l + 6, vp.h - 6, { color: C('--ink-3'), font: '11px Consolas,monospace' });
+
+  /* 读数 */
+  const gap = L.L !== null ? Math.abs(yv - L.L) : NaN;
+  const dist = Math.abs(hv);
+  let verdict;
+  if (L.L === null) verdict = '<b style="color:var(--bad)">不满足</b> —— 左右行为不一致，无论 h 多小都无法同时靠近同一个 L';
+  else verdict = (gap < 0.02 ? '<b style="color:var(--ok)">✓ 满足</b>' : '<b style="color:var(--warn)">✗ 还不满足</b>')
+      + '（当前 |f(x)−L| ' + fmt(gap, 5) + '，ε 取 0.02）';
+  $('limOut').innerHTML =
+    '极限：L = <b>' + (L.L === null ? '不存在' : fmt(L.L, 6)) + '</b>\n' +
+    '当前 h = <b>' + fmt(hv, 4) + '</b>，x = a+h = <b>' + fmt(xx, 4) + '</b>，f(x) = <b>' + fmt(yv, 5) + '</b>\n' +
+    '距离极限点的水平距离 |x−a| = <b>' + fmt(dist, 5) + '</b>　垂直误差 |f(x)−L| = <b>' + (isFin(gap) ? fmt(gap, 5) : '—') + '</b>\n' +
+    'ε-δ 判定：' + verdict + '\n' +
+    '💡 ' + L.tag;
+  $('limHv').textContent = fmt(hv, 3);
+}
+function fillLimitSelect(){
+  const s = $('limFn');
+  Object.keys(LIMITS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = LIMITS[k].label; s.appendChild(o); });
+  s.value = limKey;
+  s.addEventListener('change', () => { limKey = s.value; limT = 0; drawLimit(); });
+  $('limH').addEventListener('input', () => { stopLoop('lim'); drawLimit(); });
+  $('limPlay').addEventListener('click', e => {
+    if (loops.lim && loops.lim.on){ stopLoop('lim'); e.target.textContent = '▶ 自动逼近'; return; }
+    e.target.textContent = '⏸ 暂停';
+    loop('lim', t => { limT = t; const L = LIMITS[limKey]; $('limH').value = Math.round(Math.cos(t * 1.1) * 1000); drawLimit(); });
+  });
+  $('limShrink').addEventListener('click', () => { stopLoop('lim'); $('limPlay').textContent = '▶ 自动逼近';
+    $('limH').value = Math.round(+$('limH').value / 10); drawLimit(); });
+  register(drawLimit); drawLimit();
+}
+
+/* ============ ② 导数模块 ============ */
+const DFUNCS = {
+  x2:   { label: 'x²',        f: x => x * x,                 df: x => 2 * x,
+          view: { x0: -2.2, x1: 2.2, y0: -1.4, y1: 5.2 }, step: 1 },
+  x3:   { label: 'x³',        f: x => x ** 3,                df: x => 3 * x * x,
+          view: { x0: -1.7, x1: 1.7, y0: -4.6, y1: 4.6 }, step: 1 },
+  sinx: { label: 'sin x',     f: x => Math.sin(x),           df: x => Math.cos(x),
+          view: { x0: -3.4, x1: 3.4, y0: -1.6, y1: 2.6 }, step: 1 },
+  expx: { label: 'eˣ',   f: x => Math.exp(x),              df: x => Math.exp(x),
+          view: { x0: -1.4, x1: 1.6, y0: -0.3, y1: 5.2 }, step: 1 },
+  lnx:  { label: 'ln x',      f: x => x > 0 ? Math.log(x) : NaN, df: x => x > 0 ? 1 / x : NaN,
+          view: { x0: 0.25, x1: 3.6, y0: -0.6, y1: 1.6 }, step: 1 },
+  invx: { label: '1/x',       f: x => 1 / x,                 df: x => -1 / (x * x),
+          view: { x0: -1.7, x1: 1.7, y0: -4.6, y1: 4.6 }, step: 1 },
+  absx: { label: '|x|（不可导）', f: x => Math.abs(x),       df: x => Math.abs(x) < 1e-9 ? NaN : Math.sign(x),
+          view: { x0: -2, x1: 2, y0: -1.4, y1: 3.2 }, step: 1, cusp: 0, cuspSlopes: [-1, 1] },
+  cbrt: { label: '∛x（竖直切线）', f: x => Math.sign(x) * Math.abs(x) ** (1 / 3), df: x => Math.abs(x) < 1e-6 ? Infinity : (1 / 3) * Math.abs(x) ** (-2 / 3),
+          view: { x0: -2.2, x1: 2.2, y0: -2.4, y1: 3.4 }, step: 1 }
+};
+let dKey = 'x2', dShowTan = true, dHraw = 0.6;
+function dAVal(){ return +$('dA').value / 100; }
+function dHVal(){ return +$('dH').value / 1000 * 1.5; }
+function fillDTable(a, h, dfv){
+  const F = DFUNCS[dKey];
+  const rows = [1, 0.5, 0.2, 0.1, 0.05, 0.01, 0.001];
+  const tb = $('dTable'); tb.innerHTML = '';
+  rows.forEach(hh => {
+    const b = a + hh;
+    const slope = (F.f(b) - F.f(a)) / hh;
+    const err = isFin(dfv) ? Math.abs(slope - dfv) : NaN;
+    const cur = Math.abs(Math.abs(hh) - Math.abs(h)) < 1e-6;
+    const tr = document.createElement('tr');
+    tr.style.background = cur ? C('--c-soft') : '';
+    tr.innerHTML = '<td>' + (cur ? '<b>' + hh + '</b>' : String(hh)) + '</td>' +
+      '<td><b>' + fmt(slope, 6) + '</b></td>' +
+      '<td>' + (isFin(err) ? fmt(err, 6) : '—') + '</td>' +
+      '<td>' + (err < 0.01 ? '<span style="color:var(--ok)">几乎一样</span>'
+             : err < 0.3 ? '<span style="color:var(--warn)">还差一点</span>'
+             : '<span style="color:var(--ink-3)">差很远</span>') + '</td>';
+    tb.appendChild(tr);
+  });
+}
+function drawDeriv(){
+  const cv = $('cvDeriv'), { ctx, w, h } = setup(cv);
+  const F = DFUNCS[dKey], vp = makeVP(w, h, F.view);
+  const a = dAVal(), hh = dHVal(), b = a + hh;
+  axes(ctx, vp, { step: F.step });
+  curve(ctx, vp, F.f, { color: C('--c-fn'), width: 2.4 });
+  /* 导函数（虚线） */
+  curve(ctx, vp, F.df, { color: C('--c-fn2'), width: 1.8, dash: [5, 4] });
+  txt(ctx, "f′(x)", vp.w - vp.pad.r - 30, vp.h - 8, { color: C('--c-fn2'), font: '600 11px Consolas,monospace' });
+
+  const atCusp = (F.cusp !== undefined) && Math.abs(a - F.cusp) < 0.025;
+  const ta = F.f(a);
+  const slopeSec = (F.f(b) - ta) / hh;
+  const slopeTan = F.df(a);
+  let msg = '';
+
+  /* 割线 */
+  if (!atCusp && isFin(F.f(b))){
+    seg(ctx, vp.X(a), vp.Y(ta), vp.X(b), vp.Y(F.f(b)), C('--c-sec'), 2.4);
+    dot(ctx, vp.X(b), vp.Y(F.f(b)), 5, C('--c-sec'), '#fff');
+  }
+  /* 切线 */
+  if (atCusp){
+    /* 左右切线分离：斜率打架 */
+    const sl = F.cuspSlopes[0], sr = F.cuspSlopes[1];
+    [[sl, C('--c-sec')], [sr, C('--bad')]].forEach(pair => {
+      const m = pair[0];
+      seg(ctx, vp.X(vp.x0), vp.Y(ta + m * (vp.x0 - a)), vp.X(vp.x1), vp.Y(ta + m * (vp.x1 - a)), pair[1], 2.2, [6, 4]);
+    });
+    msg = '<b style="color:var(--bad)">✗ 此处不可导</b>：左边 h→0⁻ 的斜率极限是 ' + sl + '，右边 h→0⁺ 是 ' + sr +
+          '，两个极限不相等，所以导数不存在。<b>但函数在这里依然连续</b>——这就是"可导 ⇒ 连续，连续 ⇏ 可导"。';
+  } else if (dShowTan && isFin(slopeTan) && Math.abs(slopeTan) < 1e4){
+    const m = slopeTan;
+    seg(ctx, vp.X(vp.x0), vp.Y(ta + m * (vp.x0 - a)), vp.X(vp.x1), vp.Y(ta + m * (vp.x1 - a)), C('--c-tan'), 2.2, [7, 5]);
+  } else if (dShowTan && !isFin(slopeTan)){
+    seg(ctx, vp.X(a), vp.pad.t, vp.X(a), vp.h - vp.pad.b, C('--bad'), 2.4, [6, 4]);
+    txt(ctx, '竖直切线（斜率 ±∞）', vp.X(a) + 8, vp.pad.t + 30, { color: C('--bad'), font: '600 12px sans-serif' });
+    msg = '<b style="color:var(--warn)">⚠ 斜率 → ±∞</b>：这是一条<b>竖直切线</b>。导数在这一点的极限是无穷大，不是有限值，' +
+          '所以导数不存在；但函数依然连续。<b>可导 ⇒ 连续，连续 ⇏ 可导。</b>';
+  } else if (dShowTan){
+    txt(ctx, '斜率过大，切线已超出画布', vp.pad.l + 6, vp.pad.t + 13, { color: C('--ink-3'), font: '11.5px sans-serif' });
+  }
+  /* 点 A / B */
+  dot(ctx, vp.X(a), vp.Y(ta), 6, C('--c-fn'), '#fff');
+  txt(ctx, 'A(' + fmt(a, 2) + ', ' + fmt(ta, 2) + ')', vp.X(a) + 9, vp.Y(ta) - 10,
+      { color: C('--c-fn'), font: '600 11.5px Consolas,monospace' });
+  if (isFin(F.f(b))){
+    txt(ctx, 'B = A+h', vp.X(b) + 8, vp.Y(F.f(b)) + 15, { color: C('--c-sec'), font: '11.5px Consolas,monospace' });
+    if (!atCusp) txt(ctx, '割线', vp.X((a + b) / 2), vp.Y((ta + F.f(b)) / 2) - 12,
+        { color: C('--c-sec'), font: '600 11.5px sans-serif', align: 'center' });
+  }
+
+  $('dAv').textContent = fmt(a, 2);
+  $('dHv').textContent = fmt(hh, 3);
+  fillDTable(a, hh, slopeTan);
+  $('dOut').innerHTML =
+    '钉住点 a = <b>' + fmt(a, 3) + '</b>　　h = <b>' + fmt(hh, 3) + '</b>　　右端点 x = <b>' + fmt(b, 3) + '</b>\n' +
+    '割线斜率 <span class="frac" style="font-size:12px"><span>f(a+h)−f(a)</span><span>h</span></span> = <b>' + fmt(slopeSec, 6) + '</b>\n' +
+    (msg || ('真实导数 f′(a) = <b>' + fmt(slopeTan, 6) + '</b>　　误差 |割线斜率 − f′(a)| = <b>' +
+      fmt(Math.abs(slopeSec - slopeTan), 6) + '</b>')) +
+    '\n💡 把 h 一路调小：割线会"站"到切线的位置上，斜率数字就锁定不动了——这个锁定的数字就是导数。';
+  bindDrag(cv, vp, a, drawDeriv);
+}
+/* 在画布上拖动钉住点 a */
+let dragBind = null;
+function bindDrag(cv, vp, a, redraw){
+  if (dragBind && dragBind.cv === cv) return;
+  dragBind = { cv, vp };
+  let active = false;
+  const getA = e => {
+    const r = cv.getBoundingClientRect();
+    const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+    const v = Math.max(vp.x0 + 0.05, Math.min(vp.x1 - 0.05, vp.iX(cx)));
+    $('dA').value = Math.round(v * 100);
+    redraw();
+  };
+  cv.addEventListener('pointerdown', e => { active = true; cv.setPointerCapture(e.pointerId); stopLoop('deriv'); $('dPlay').textContent = '▶ 播放'; getA(e); });
+  cv.addEventListener('pointermove', e => { if (active) getA(e); });
+  cv.addEventListener('pointerup', () => { active = false; });
+  cv.addEventListener('pointercancel', () => { active = false; });
+}
+/* a 的滑块范围随函数自适应，并挑一个"有戏"的默认钉住点 */
+function adaptDerivRange(){
+  const F = DFUNCS[dKey], v = F.view;
+  if (dKey === 'absx' || dKey === 'cbrt'){ $('dA').min = -200; $('dA').max = 200; }
+  else {
+    const lo = Math.max(v.x0 + 0.1, Math.min(v.x0 + 0.6, v.x1 - 0.4));
+    const hi = Math.min(v.x1 - 0.1, Math.max(v.x1 - 0.4, v.x0 + 0.8));
+    $('dA').min = Math.round(lo * 100); $('dA').max = Math.round(hi * 100);
+  }
+  const mn = +$('dA').min, mx = +$('dA').max;
+  const def = dKey === 'absx' ? 0.9 : dKey === 'cbrt' ? 0.45 : v.x0 + (v.x1 - v.x0) * 0.33;
+  $('dA').value = Math.round(Math.max(mn, Math.min(mx, def * 100)));
+}
+function fillDerivSelect(){
+  const s = $('dFn');
+  Object.keys(DFUNCS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = DFUNCS[k].label; s.appendChild(o); });
+  s.value = dKey;
+  adaptDerivRange();
+  s.addEventListener('change', () => { dKey = s.value; adaptDerivRange(); drawDeriv(); });
+  $('dA').addEventListener('input', () => { stopLoop('deriv'); $('dPlay').textContent = '▶ 播放'; drawDeriv(); });
+  $('dH').addEventListener('input', () => { stopLoop('deriv'); $('dPlay').textContent = '▶ 播放'; drawDeriv(); });
+  $('dPlay').addEventListener('click', e => {
+    if (loops.deriv && loops.deriv.on){ stopLoop('deriv'); e.target.textContent = '▶ 播放'; return; }
+    e.target.textContent = '⏸ 暂停';
+    loop('deriv', t => { $('dH').value = Math.round(Math.cos(t * 1.2) * 1000); drawDeriv(); });
+  });
+  $('dShrink').addEventListener('click', () => { stopLoop('deriv'); $('dPlay').textContent = '▶ 播放';
+    $('dH').value = Math.max(-1000, Math.min(1000, Math.round(+$('dH').value / 10))); drawDeriv(); });
+  $('dTan').addEventListener('click', e => { dShowTan = !dShowTan; e.target.textContent = dShowTan ? '隐藏切线' : '看切线'; drawDeriv(); });
+  $('dTan').textContent = '隐藏切线';
+  register(drawDeriv); drawDeriv();
+}
+
+/* ============ ③ 规则模块 ============ */
+const RFUNCS = {
+  p3:  { label: 'x³ − 3x', f: x => x ** 3 - 3 * x, df: x => 3 * x * x - 3,
+         rule: '(x³)′ − (3x)′ = 3x² − 3', view: { x0: -2, x1: 2, y0: -3, y1: 3 }, step: 1 },
+  sinee: { label: 'eˣ + x²', f: x => Math.exp(x) + x * x, df: x => Math.exp(x) + 2 * x,
+         rule: '(eˣ)′ + (x²)′ = eˣ + 2x', view: { x0: -2, x1: 2, y0: -1, y1: 9.5 }, step: 1 },
+  sincos: { label: 'sin x · cos x', f: x => Math.sin(x) * Math.cos(x), df: x => Math.cos(2 * x),
+         rule: '(f·g)′ = f′g + fg′ = cos²x − sin²x = cos 2x', view: { x0: -3.3, x1: 3.3, y0: -1.2, y1: 1.2 }, step: 1 },
+  ln1px2: { label: 'ln(1+x²)', f: x => Math.log(1 + x * x), df: x => 2 * x / (1 + x * x),
+         rule: '链式法则：外层 ln 求导 = 1/(1+x²)，内层 x² 求导 = 2x，相乘', view: { x0: -2.4, x1: 2.4, y0: -0.8, y1: 2 }, step: 1 },
+  tanx: { label: 'tan x', f: x => Math.tan(x), df: x => 1 / Math.cos(x) ** 2,
+         rule: '链式法则：tan = sin/cos，商法则化简 = 1/cos²x = sec²x', view: { x0: -2, x1: 2, y0: -4, y1: 4 }, step: 1 },
+  expsinx: { label: 'eˣ · sin x', f: x => Math.exp(x) * Math.sin(x), df: x => Math.exp(x) * (Math.sin(x) + Math.cos(x)),
+         rule: '(fg)′ = f′g + fg′ = eˣsin x + eˣcos x = eˣ(sin x + cos x)', view: { x0: -2, x1: 1.6, y0: -3.5, y1: 6 }, step: 1 },
+  sqrt: { label: '∛(1+x)', f: x => Math.cbrt(1 + x), df: x => 1 / (3 * Math.cbrt(1 + x) ** 2 || Infinity),
+         rule: '幂函数：指数 1/3，系数 1/3，次数减一', view: { x0: -1.8, x1: 7.5, y0: -0.6, y1: 2.2 }, step: 2 },
+  x2exp: { label: 'x²·eˣ', f: x => x * x * Math.exp(x), df: x => Math.exp(x) * (2 * x + x * x),
+         rule: '乘积 + 链式：2x·eˣ + x²·eˣ', view: { x0: -3, x1: 1.4, y0: -0.6, y1: 12 }, step: 1 }
+};
+let rKey = 'p3';
+function drawRules(){
+  const cv = $('cvRules'), { ctx, w, h } = setup(cv);
+  const F = RFUNCS[rKey], vp = makeVP(w, h, F.view);
+  const a = +$('rA').value / 100;
+  axes(ctx, vp, { step: F.step });
+  curve(ctx, vp, F.df, { color: C('--c-fn2'), width: 1.8, dash: [5, 4] });
+  curve(ctx, vp, F.f, { color: C('--c-fn'), width: 2.6 });
+  const fa = F.f(a), fa2 = F.df(a);
+  if (isFin(fa)){
+    const m = fa2, y1 = fa + m * (vp.x0 - a), y2 = fa + m * (vp.x1 - a);
+    if (isFinite(m) && Math.abs(m) < 5000){
+      seg(ctx, vp.X(vp.x0), vp.Y(y1), vp.X(vp.x1), vp.Y(y2), C('--c-tan'), 2.2, [7, 5]);
+      dot(ctx, vp.X(a), vp.Y(fa), 6, C('--c-fn'), '#fff');
+      txt(ctx, 'f(' + fmt(a, 2) + ') = ' + fmt(fa, 4), vp.X(a) + 10, vp.Y(fa) - 12, { color: C('--c-fn'), font: '600 12px Consolas,monospace' });
+      txt(ctx, '斜率 = f′(' + fmt(a, 2) + ') = ' + fmt(fa2, 4), vp.X(a) + 10, vp.Y(fa) + 6, { color: C('--c-tan'), font: '600 12px Consolas,monospace' });
+    }
+    /* 竖直连接：把曲线上一点连到导函数同 x 处 */
+    if (isFin(fa2)){
+      seg(ctx, vp.X(a), vp.Y(fa2), vp.X(a), vp.Y(fa), C('--ink-3'), 1.2, [2, 3]);
+      dot(ctx, vp.X(a), vp.Y(fa2), 4.5, C('--c-fn2'), '#fff');
+    }
+  }
+  txt(ctx, 'f(x) = ' + F.label, vp.pad.l + 6, vp.pad.t + 13, { color: C('--c-fn'), font: '600 12px Consolas,monospace' });
+  txt(ctx, "f′(x) = d/dx[ " + F.label + " ]", vp.pad.l + 6, vp.pad.t + 29, { color: C('--c-fn2'), font: '600 12px Consolas,monospace' });
+  txt(ctx, '灰虚线连接：导函数在同一 x 处的高度 = 原函数在该点的切线斜率', vp.pad.l + 6, vp.h - 8, { color: C('--ink-3'), font: '11px sans-serif' });
+  $('rAv').textContent = fmt(a, 2);
+  $('rOut').innerHTML = '求导过程：<b>' + F.rule + '</b>\n' +
+    '在 a = <b>' + fmt(a, 2) + '</b> 处：f = <b>' + fmt(fa, 4) + '</b>，f′ = <b>' + fmt(fa2, 4) + '</b>（= 切线斜率）';
+}
+function adaptRulesRange(){
+  const v = RFUNCS[rKey].view;
+  $('rA').min = Math.round((v.x0 + (v.x1 - v.x0) * 0.06) * 100);
+  $('rA').max = Math.round((v.x1 - (v.x1 - v.x0) * 0.06) * 100);
+  const def = v.x0 + (v.x1 - v.x0) * 0.42;
+  $('rA').value = Math.round(Math.max(+$('rA').min, Math.min(+$('rA').max, def * 100)));
+}
+function fillRules(){
+  const s = $('rFn');
+  Object.keys(RFUNCS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = RFUNCS[k].label; s.appendChild(o); });
+  s.value = rKey;
+  adaptRulesRange();
+  s.addEventListener('change', () => { rKey = s.value; adaptRulesRange(); drawRules(); });
+  $('rA').addEventListener('input', drawRules);
+  register(drawRules); drawRules();
+}
+
+/* ============ ④ 泰勒模块 ============ */
+function fact(n){ let r = 1; for (let i = 2; i <= n; i++) r *= i; return r; }
+const TAYLOR = {
+  exp: { label: 'eˣ（在 x = 1 展开）', a: 1,
+    P: (x, n) => { let s = 0; for (let k = 0; k <= n; k++) s += Math.E * Math.pow(x - 1, k) / fact(k); return s; },
+    terms: n => { let t = 'e'; for (let k = 1; k <= n; k++) t += ' + e·(x−1)^' + k + '/' + k + '!'; return t; },
+    f: x => Math.exp(x), view: { x0: -0.8, x1: 3.2, y0: -0.5, y1: 8.5 }, step: 1 },
+  sin: { label: 'sin x（在 x = 0 展开）', a: 0,
+    P: (x, n) => { let s = 0; for (let k = 0; k <= Math.floor((n - 1) / 2) + 1; k++){ if (2 * k + 1 > n) break; s += (k % 2 ? -1 : 1) * Math.pow(x, 2 * k + 1) / fact(2 * k + 1); } return s; },
+    terms: n => { let t = ''; for (let k = 0; 2 * k + 1 <= n; k++) t += (k ? (k % 2 ? ' − ' : ' + ') : '') + 'x^' + (2 * k + 1) + '/' + (2 * k + 1) + '!'; return t; },
+    f: x => Math.sin(x), view: { x0: -6.4, x1: 6.4, y0: -2.6, y1: 2.6 }, step: 2 },
+  cos: { label: 'cos x（在 x = 0 展开）', a: 0,
+    P: (x, n) => { let s = 0; for (let k = 0; k <= Math.floor(n / 2); k++) s += (k % 2 ? -1 : 1) * Math.pow(x, 2 * k) / fact(2 * k); return s; },
+    terms: n => { let t = '1'; for (let k = 1; 2 * k <= n; k++) t += (k % 2 ? ' − ' : ' + ') + 'x^' + (2 * k) + '/' + (2 * k) + '!'; return t; },
+    f: x => Math.cos(x), view: { x0: -6.4, x1: 6.4, y0: -1.6, y1: 2.6 }, step: 2 },
+  ln: { label: 'ln(1+x)（在 x = 0 展开）', a: 0,
+    P: (x, n) => { let s = 0; for (let k = 1; k <= n; k++) s += (k % 2 ? 1 : -1) * Math.pow(x, k) / k; return s; },
+    terms: n => { let t = ''; for (let k = 1; k <= n; k++) t += (k > 1 ? (k % 2 ? ' + ' : ' − ') : '') + 'x^' + k + '/' + k; return t; },
+    f: x => Math.log(1 + x), view: { x0: -0.96, x1: 2, y0: -2.6, y1: 1.4 }, step: 0.5 },
+  inv: { label: '1/(1+x)（在 x = 0 展开）', a: 0,
+    P: (x, n) => { let s = 0; for (let k = 0; k <= n; k++) s += (k % 2 ? -1 : 1) * Math.pow(x, k); return s; },
+    terms: n => { let t = '1'; for (let k = 1; k <= n; k++) t += (k % 2 ? ' − ' : ' + ') + 'x^' + k; return t; },
+    f: x => 1 / (1 + x), view: { x0: -0.96, x1: 2, y0: -2.6, y1: 4.2 }, step: 0.5 }
+};
+let tKey = 'exp';
+function drawTaylor(){
+  const cv = $('cvTaylor'), { ctx, w, h } = setup(cv);
+  const T = TAYLOR[tKey], n = +$('tN').value, a = +$('tA').value / 100;
+  const vp = makeVP(w, h, T.view);
+  axes(ctx, vp, { step: T.step });
+  /* 余项区域 */
+  ctx.save();
+  ctx.beginPath();
+  ctx.rect(vp.pad.l, vp.pad.t, vp.w - vp.pad.l - vp.pad.r, vp.h - vp.pad.t - vp.pad.b);
+  ctx.clip();
+  ctx.beginPath();
+  let started = false;
+  const N = 700;
+  for (let i = 0; i <= N; i++){
+    const x = T.view.x0 + (T.view.x1 - T.view.x0) * i / N;
+    const u = T.f(x), p = T.P(x, n);
+    if (!isFin(u) || !isFin(p)){ started = false; continue; }
+    if (Math.abs(u) > 60 || Math.abs(p) > 60){ started = false; continue; }
+    const px = vp.X(x);
+    if (!started){ ctx.moveTo(px, vp.Y(u)); started = true; } else ctx.lineTo(px, vp.Y(u));
+  }
+  for (let i = N; i >= 0; i--){
+    const x = T.view.x0 + (T.view.x1 - T.view.x0) * i / N;
+    const p = T.P(x, n);
+    if (!isFin(p) || Math.abs(p) > 60) continue;
+    ctx.lineTo(vp.X(x), vp.Y(p));
+  }
+  ctx.closePath();
+  ctx.fillStyle = C('--c-fill2', 'rgba(179,38,30,.14)');
+  ctx.fill();
+  ctx.restore();
+  curve(ctx, vp, T.f, { color: C('--c-fn'), width: 2.6 });
+  curve(ctx, vp, x => T.P(x, n), { color: C('--c-sec'), width: 2.4, dash: [7, 5] });
+  /* 展开点 */
+  const fA = T.f(T.a), pA = T.P(T.a, n);
+  if (isFin(fA)){
+    seg(ctx, vp.X(T.a), vp.pad.t, vp.X(T.a), vp.h - vp.pad.b, C('--ink-3'), 1, [3, 4]);
+    dot(ctx, vp.X(T.a), vp.Y(fA), 6, C('--c-fn'), '#fff');
+    txt(ctx, '展开点 x=' + T.a, vp.X(T.a) + 8, vp.pad.t + 12, { color: C('--ink-3'), font: '11px Consolas,monospace' });
+    /* 观察点 */
+    if (isFin(pA)){
+      dot(ctx, vp.X(a), vp.Y(pA), 5.5, C('--c-sec'), '#fff');
+      seg(ctx, vp.X(a), vp.Y(fA), vp.X(a), vp.Y(pA), C('--bad'), 2.2);
+      txt(ctx, '误差 ' + fmt(Math.abs(fA - pA), 4), vp.X(a) + 9, vp.Y((fA + pA) / 2), { color: C('--bad'), font: '600 12px Consolas,monospace' });
+    }
+  }
+  txt(ctx, 'f(x) 蓝实线', vp.pad.l + 6, vp.pad.t + 13, { color: C('--c-fn'), font: '600 11.5px sans-serif' });
+  txt(ctx, 'n 阶多项式 橙虚线', vp.pad.l + 6, vp.pad.t + 29, { color: C('--c-sec'), font: '600 11.5px sans-serif' });
+  txt(ctx, '红色区域 = 余项（没抓住的部分）', vp.w - vp.pad.r - 170, vp.h - 8, { color: C('--bad'), font: '11px sans-serif' });
+
+  $('tNv').textContent = n; $('tAv').textContent = fmt(a, 2);
+  const terms = T.terms(n);
+  $('tOut').innerHTML = T.label + '　展开到 n = <b>' + n + '</b> 阶：\nP(x) = ' + (terms.length > 320 ? terms.slice(0, 320) + ' …' : terms) +
+    '\n在 x = <b>' + fmt(a, 2) + '</b> 处：真值 f = <b>' + fmt(T.f(a), 6) + '</b>，近似 P = <b>' + fmt(T.P(a, n), 6) +
+    '</b>，绝对误差 <b>' + fmt(Math.abs(T.f(a) - T.P(a, n)), 6) + '</b>\n' +
+    '💡 阶数越高，展开点附近贴得越紧；离展开点越远，红区越大 → 这就是"局部逼近"。';
+}
+function fillTaylor(){
+  const s = $('tFn');
+  Object.keys(TAYLOR).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = TAYLOR[k].label; s.appendChild(o); });
+  s.value = tKey;
+  s.addEventListener('change', () => { tKey = s.value; drawTaylor(); });
+  $('tN').addEventListener('input', drawTaylor);
+  $('tA').addEventListener('input', drawTaylor);
+  register(drawTaylor); drawTaylor();
+}
+
+/* ============ ⑤ 积分模块 ============ */
+const IFUNCS = {
+  x2:   { label: 'x²  (0→3)',       f: x => x * x, a: 0, b: 3, exact: 9,
+          view: { x0: -0.2, x1: 3.25, y0: -0.4, y1: 9.6 }, step: 1 },
+  sinx: { label: 'sin x  (0→π)',    f: x => Math.sin(x), a: 0, b: Math.PI, exact: 2,
+          view: { x0: -0.2, x1: Math.PI + 0.2, y0: -1.4, y1: 1.4 }, step: 1 },
+  expx: { label: 'eˣ  (0→2)', f: x => Math.exp(x), a: 0, b: 2, exact: Math.E * Math.E - 1,
+          view: { x0: -0.2, x1: 2.3, y0: -0.4, y1: 8.2 }, step: 1 },
+  invx: { label: '1/x  (1→4)',      f: x => 1 / x, a: 1, b: 4, exact: Math.log(4),
+          view: { x0: 0.6, x1: 4.4, y0: -0.2, y1: 1.35 }, step: 1 },
+  lnx:  { label: 'ln x  (1→4)',     f: x => Math.log(x), a: 1, b: 4, exact: 4 * Math.log(4) - 3,
+          view: { x0: 0.6, x1: 4.4, y0: -0.4, y1: 1.6 }, step: 1 },
+  cosx: { label: 'cos x  (0→π/2)', f: x => Math.cos(x), a: 0, b: Math.PI / 2, exact: 1,
+          view: { x0: -0.2, x1: Math.PI / 2 + 0.2, y0: -0.3, y1: 1.3 }, step: 1 },
+  sinneg: { label: 'sin x  (π→2π) —— 负面积', f: x => Math.sin(x), a: Math.PI, b: 2 * Math.PI, exact: -2,
+          view: { x0: Math.PI - 0.2, x1: 2 * Math.PI + 0.2, y0: -1.4, y1: 1.4 }, step: 1 }
+};
+let iKey = 'x2', iMethod = 'mid';
+function riemannSum(F, n, m){
+  const a = F.a, b = F.b, dx = (b - a) / n; let s = 0;
+  for (let k = 0; k < n; k++){
+    const l = a + k * dx, r = l + dx;
+    if (m === 'left') s += F.f(l) * dx;
+    else if (m === 'right') s += F.f(r) * dx;
+    else if (m === 'mid') s += F.f((l + r) / 2) * dx;
+    else if (m === 'trap') s += (F.f(l) + F.f(r)) / 2 * dx;
+    else if (m === 'simpson') s += (F.f(l) + 4 * F.f((l + r) / 2) + F.f(r)) / 6 * dx;
+  }
+  return s;
+}
+function drawInt(){
+  const cv = $('cvInt'), { ctx, w, h } = setup(cv);
+  const F = IFUNCS[iKey], m = iMethod, n = +$('iN').value;
+  const vp = makeVP(w, h, F.view);
+  axes(ctx, vp, { step: 1 });
+  /* 真值阴影 */
+  ctx.save();
+  ctx.beginPath(); ctx.rect(vp.pad.l, vp.pad.t, vp.w - vp.pad.l - vp.pad.r, vp.h - vp.pad.t - vp.pad.b); ctx.clip();
+  ctx.beginPath(); ctx.moveTo(vp.X(F.a), vp.Y(0));
+  const NS = 500;
+  for (let i = 0; i <= NS; i++){ const x = F.a + (F.b - F.a) * i / NS; ctx.lineTo(vp.X(x), vp.Y(F.f(x))); }
+  ctx.lineTo(vp.X(F.b), vp.Y(0)); ctx.closePath();
+  ctx.fillStyle = C('--c-soft'); ctx.fill(); ctx.strokeStyle = C('--c-fn'); ctx.lineWidth = 2.2; ctx.stroke();
+  ctx.restore();
+  /* 矩形 */
+  const dx = (F.b - F.a) / n;
+  const thin = (vp.w - vp.pad.l - vp.pad.r) / n < 4;
+  ctx.save();
+  for (let k = 0; k < n; k++){
+    const l = F.a + k * dx, r = l + dx;
+    let yv, col;
+    if (m === 'left') yv = F.f(l);
+    else if (m === 'right') yv = F.f(r);
+    else if (m === 'mid') yv = F.f((l + r) / 2);
+    else if (m === 'trap') yv = (F.f(l) + F.f(r)) / 2;
+    else yv = (F.f(l) + 4 * F.f((l + r) / 2) + F.f(r)) / 6;
+    if (m === 'trap' || m === 'simpson'){
+      /* 梯形 / 辛普森：画成梯形块 */
+      ctx.beginPath();
+      ctx.moveTo(vp.X(l), vp.Y(0)); ctx.lineTo(vp.X(l), vp.Y(F.f(l)));
+      ctx.lineTo(vp.X(r), vp.Y(F.f(r))); ctx.lineTo(vp.X(r), vp.Y(0)); ctx.closePath();
+    } else {
+      ctx.beginPath();
+      ctx.rect(vp.X(l), vp.Y(Math.max(yv, 0)), Math.max(1, vp.X(r) - vp.X(l) - 0.6), Math.abs(vp.Y(yv) - vp.Y(0)));
+      ctx.moveTo(vp.X(l), vp.Y(0)); ctx.lineTo(vp.X(l), vp.Y(yv));
+      ctx.lineTo(vp.X(r), vp.Y(yv)); ctx.lineTo(vp.X(r), vp.Y(0)); ctx.closePath();
+    }
+    ctx.fillStyle = yv >= 0 ? C('--c-sec') : C('--c-fn2');
+    ctx.globalAlpha = thin ? 0.35 : 0.30; ctx.fill(); ctx.globalAlpha = 1;
+    ctx.strokeStyle = yv >= 0 ? C('--c-sec') : C('--c-fn2');
+    ctx.lineWidth = thin ? 0.5 : 1.1; ctx.stroke();
+  }
+  ctx.restore();
+  const S = riemannSum(F, n, m);
+  const err = Math.abs(S - F.exact);
+  txt(ctx, F.label + '　真值 = ' + fmt(F.exact, 6), vp.pad.l + 6, vp.pad.t + 13, { color: C('--c-fn'), font: '600 12px Consolas,monospace' });
+  $('iNv').textContent = n;
+  $('iOut').innerHTML =
+    'n = <b>' + n + '</b>　Δx = (b−a)/n = <b>' + fmt(dx, 6) + '</b>　采样方式 <b>' +
+    ({ left: '左端点', right: '右端点', mid: '中点', trap: '梯形', simpson: '辛普森' })[m] + '</b>\n' +
+    '近似和 S<sub>n</sub> = <b>' + fmt(S, 8) + '</b>　　真值 = <b>' + fmt(F.exact, 8) + '</b>　　绝对误差 = <b>' + fmt(err, 8) + '</b>\n' +
+    (n <= 1 ? '⚠️ n=1 时看不出精度，先把 n 拉大。' :
+      err < 1e-4 ? '✅ 已经非常接近真值了。' : '把 n 继续加大，看误差怎么被"勒死"。');
+  /* 表格 */
+  const tb = $('iTable'); tb.innerHTML = '';
+  [1, 2, 4, 8, 16, 32, 64, 128, 256, 512].filter(x => x <= Math.max(600, n)).forEach(nn => {
+    const s = riemannSum(F, nn, m), e = Math.abs(s - F.exact);
+    const tr = document.createElement('tr');
+    if (nn === n) tr.style.background = C('--c-soft');
+    tr.innerHTML = '<td>' + (nn === n ? '<b>' + nn + '</b>' : nn) + '</td><td><b>' + fmt(s, 8) + '</b></td><td>' +
+      fmt(F.exact, 6) + '</td><td>' + fmt(e, 8) + '</td><td>' + (F.exact !== 0 ? fmt(e / Math.abs(F.exact) * 100, 5) + ' %' : '—') + '</td>';
+    tb.appendChild(tr);
+  });
+}
+function fillInt(){
+  const s = $('iFn');
+  Object.keys(IFUNCS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = IFUNCS[k].label; s.appendChild(o); });
+  s.value = iKey;
+  s.addEventListener('change', () => { iKey = s.value; drawInt(); });
+  $('iMethod').addEventListener('change', () => { iMethod = $('iMethod').value; drawInt(); });
+  $('iN').addEventListener('input', drawInt);
+  $('iDouble').addEventListener('click', () => { $('iN').value = Math.min(600, +$('iN').value * 2); drawInt(); });
+  $('iPlay').addEventListener('click', e => {
+    if (loops.int && loops.int.on){ stopLoop('int'); e.target.textContent = '▶ 加密动画'; return; }
+    e.target.textContent = '⏸ 暂停';
+    loop('int', t => { const cyc = t % 3; $('iN').value = Math.max(1, Math.round(Math.pow(2, cyc * 8))); drawInt(); });
+  });
+  register(drawInt); drawInt();
+}
+
+/* ============ ⑥ 基本定理模块 ============ */
+const FTF = {
+  sin: { label: 'sin t  —— 呼吸式注水', f: x => Math.sin(x), a: 0, b: 2 * Math.PI,
+         exact: x => 1 - Math.cos(x), df: x => Math.sin(x), view: { y0: -1.6, y1: 1.8 }, step: 1 },
+  exp: { label: '2ᵗ  —— 越来越快', f: x => Math.pow(2, x), a: 0, b: 4,
+         exact: x => (Math.pow(2, x) - 1) / Math.log(2), df: x => Math.pow(2, x) * Math.log(2), view: { y0: -0.5, y1: 8 }, step: 1 },
+  const: { label: '常数 0.5 —— 匀速注水', f: x => 0.5, a: 0, b: 6,
+         exact: x => 0.5 * x, df: x => 0.5, view: { y0: -0.4, y1: 1.2 }, step: 1 },
+  wave: { label: 'sin t − 0.4 —— 会漏水的波动', f: x => Math.sin(x) - 0.4, a: 0, b: 2 * Math.PI,
+         exact: x => 1 - Math.cos(x) - 0.4 * x, df: x => Math.sin(x) - 0.4, view: { y0: -1.6, y1: 1.8 }, step: 1 },
+  decay: { label: 'e⁻ᵗ —— 漏水越来越慢', f: x => Math.exp(-x), a: 0, b: 5,
+         exact: x => 1 - Math.exp(-x), df: x => -Math.exp(-x), view: { y0: -1.4, y1: 1.4 }, step: 1 }
+};
+let ftcKey = 'sin';
+function drawFTC(){
+  const cv = $('cvFTC'), { ctx, w, h } = setup(cv);
+  const F = FTF[ftcKey], x = +$('ftcX').value / 100;
+  const mid = Math.round(h * 0.5), gap = 16;
+  const topH = mid, botH = h - mid - gap;
+  /* 上：速率 */
+  const vTop = { x0: -0.2, x1: F.b + 0.2, y0: F.view.y0, y1: F.view.y1 };
+  const vp1 = makeVP(w, topH, vTop, { l: 52, r: 16, t: 26, b: 24 });
+  axes(ctx, vp1, { step: F.step });
+  /* 阴影面积 = F(x) */
+  ctx.save();
+  ctx.beginPath(); ctx.rect(vp1.pad.l, vp1.pad.t, vp1.w - vp1.pad.l - vp1.pad.r, vp1.h - vp1.pad.t - vp1.pad.b); ctx.clip();
+  ctx.beginPath(); ctx.moveTo(vp1.X(F.a), vp1.Y(0));
+  for (let i = 0; i <= 400; i++){ const xx = F.a + (F.b - F.a) * i / 400; ctx.lineTo(vp1.X(xx), vp1.Y(F.f(xx))); }
+  ctx.lineTo(vp1.X(x), vp1.Y(0)); ctx.closePath();
+  ctx.fillStyle = C('--c-soft'); ctx.fill(); ctx.restore();
+  curve(ctx, vp1, F.f, { color: C('--c-fn'), width: 2.4 });
+  seg(ctx, vp1.X(x), vp1.pad.t, vp1.X(x), vp1.h - vp1.pad.b, C('--bad'), 2);
+  dot(ctx, vp1.X(x), vp1.Y(F.f(x)), 5.5, C('--c-fn'), '#fff');
+  txt(ctx, 'f(t) = 此刻的进水速度', vp1.pad.l + 4, 15, { color: C('--c-fn'), font: '600 12px sans-serif' });
+  txt(ctx, 'v(' + fmt(x, 2) + ') = ' + fmt(F.f(x), 4), vp1.X(x) + 8, vp1.pad.t + 14, { color: C('--c-fn'), font: '600 12px Consolas,monospace' });
+  /* 下：累积 */
+  const Fv = F.exact(x);
+  const spanY = Math.max(1e-6, Math.abs(Fv)) * 1.5 + 0.6;
+  const vBot = { x0: -0.2, x1: F.b + 0.2, y0: Math.min(-spanY, -0.05), y1: spanY };
+  const vp2 = makeVP(w, botH, vBot, { l: 52, r: 16, t: 26, b: 22 });
+  const offY = topH + gap;
+  ctx.save(); ctx.translate(0, offY);
+  axes(ctx, vp2, { step: F.step });
+  curve(ctx, vp2, F.exact, { color: C('--c-sec'), width: 2.6 });
+  seg(ctx, vp2.X(x), vp2.pad.t, vp2.X(x), vp2.h - vp2.pad.b, C('--bad'), 2);
+  /* 切线，斜率 = f(x) */
+  const m = F.f(x);
+  const y1 = Fv + m * (vp2.x0 - x), y2 = Fv + m * (vp2.x1 - x);
+  seg(ctx, vp2.X(vp2.x0), vp2.Y(y1), vp2.X(vp2.x1), vp2.Y(y2), C('--c-tan'), 2.2, [7, 5]);
+  dot(ctx, vp2.X(x), vp2.Y(Fv), 6, C('--c-sec'), '#fff');
+  txt(ctx, 'F(x) = ∫₀ˣ f(t)dt = 此刻的水位', vp2.pad.l + 4, 15, { color: C('--c-sec'), font: '600 12px sans-serif' });
+  txt(ctx, 'F(' + fmt(x, 2) + ') = ' + fmt(Fv, 4), vp2.X(x) + 8, vp2.Y(Fv) - 12, { color: C('--c-sec'), font: '600 12px Consolas,monospace' });
+  txt(ctx, '切线斜率 = F′(x) = ' + fmt(m, 4) + '　＝　上面那个速度 ' + fmt(F.f(x), 4) + '　✅', vp2.pad.l + 4, vp2.h - 4, { color: C('--c-tan'), font: '600 11.5px sans-serif' });
+  ctx.restore();
+  $('ftcXv').textContent = fmt(x, 2);
+  $('ftcOut').innerHTML = '时刻 x = <b>' + fmt(x, 2) + '</b>　　速率 f(x) = <b>' + fmt(F.f(x), 5) + '</b>\n' +
+    '累积量 F(x) = <b>∫₀ˣ f(t)dt</b> = <b>' + fmt(Fv, 5) + '</b>　　水位此刻的上升速度 F′(x) = <b>' + fmt(F.f(x), 5) + '</b>\n' +
+    '<b style="color:var(--ok)">两行数字完全相同 → F′(x) = f(x)，这就是微积分基本定理。</b>';
+}
+function fillFTC(){
+  const s = $('ftcFn');
+  Object.keys(FTF).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = FTF[k].label; s.appendChild(o); });
+  s.value = ftcKey;
+  const syncRange = () => { const b = FTF[ftcKey].b; $('ftcX').max = Math.round(b * 100); };
+  syncRange();
+  s.addEventListener('change', () => { ftcKey = s.value; syncRange(); $('ftcX').value = Math.round(FTF[ftcKey].b * 100 * 0.3); drawFTC(); });
+  $('ftcX').addEventListener('input', drawFTC);
+  $('ftcPlay').addEventListener('click', e => {
+    if (loops.ftc && loops.ftc.on){ stopLoop('ftc'); e.target.textContent = '▶ 注水演示'; return; }
+    e.target.textContent = '⏸ 暂停';
+    loop('ftc', t => { const b = FTF[ftcKey].b; $('ftcX').value = Math.round(((t % 6) / 6) * b * 100); drawFTC(); });
+  });
+  register(drawFTC); drawFTC();
+}
+
+/* ============ ⑦ 链式法则模块 ============ */
+const OUTERS = {
+  sin: { label: 'f(u) = sin u',   f: x => Math.sin(x), df: x => Math.cos(x) },
+  sq:  { label: 'f(u) = u²', f: x => x * x, df: x => 2 * x },
+  exp: { label: 'f(u) = eᵘ',      f: x => Math.exp(x), df: x => Math.exp(x) },
+  ln:  { label: 'f(u) = ln u',    f: x => x > 0 ? Math.log(x) : NaN, df: x => x > 0 ? 1 / x : NaN },
+  cos: { label: 'f(u) = cos u',   f: x => Math.cos(x), df: x => -Math.sin(x) }
+};
+const INNERS = {
+  sq:   { label: 'g(x) = x²',  f: x => x * x, df: x => 2 * x, xr: [-1.6, 1.6] },
+  sin:  { label: 'g(x) = sin x', f: x => Math.sin(x), df: x => Math.cos(x), xr: [-2.4, 2.4] },
+  exp:  { label: 'g(x) = eˣ',  f: x => Math.exp(x), df: x => Math.exp(x), xr: [-0.8, 1.2] },
+  lnx:  { label: 'g(x) = ln x', f: x => x > 0 ? Math.log(x) : NaN, df: x => x > 0 ? 1 / x : NaN, xr: [0.3, 3] },
+  sqrt: { label: 'g(x) = √x', f: x => Math.sqrt(x), df: x => 0.5 / Math.sqrt(x), xr: [0.05, 4] }
+};
+let cO = 'sin', cI = 'sq';
+function drawChain(){
+  const cv = $('cvChain'), { ctx, w, h } = setup(cv);
+  const O = OUTERS[cO], I = INNERS[cI];
+  const x = +$('cX').value / 100;
+  const u = I.f(x), y = O.f(u);
+  const g2 = I.df(x), f2 = O.df(u);
+  const total = g2 * f2;
+  const cy = h * 0.52;
+  /* 三个节点 */
+  const nodes = [
+    { t: '输入 x', v: x, c: C('--c-fn') },
+    { t: '中间 u = g(x)', v: u, c: C('--c-sec') },
+    { t: '输出 y = f(u)', v: y, c: C('--c-tan') }
+  ];
+  const r = Math.min(40, h * 0.3), gapX = Math.min(200, (w - 40) / 2.6);
+  const xs = [w / 2 - gapX, w / 2, w / 2 + gapX];
+  nodes.forEach((nd, i) => {
+    dot(ctx, xs[i], cy, r, C('--panel'), nd.c);
+    txt(ctx, nd.t, xs[i], cy - r - 20, { align: 'center', font: '600 12.5px sans-serif', color: nd.c });
+    txt(ctx, isFin(nd.v) ? fmt(nd.v, 4) : '未定义', xs[i], cy + 5, { align: 'center', base: 'middle', font: '700 17px Consolas,monospace', color: C('--ink') });
+  });
+  /* 箭头 */
+  const arrow = (x1, x2, label, sub, col) => {
+    const yA = cy, xm = (x1 + x2) / 2;
+    seg(ctx, x1 + r + 3, yA, x2 - r - 9, yA, col, 2.6);
+    ctx.save(); ctx.fillStyle = col;
+    ctx.beginPath(); ctx.moveTo(x2 - r - 3, yA); ctx.lineTo(x2 - r - 12, yA - 5); ctx.lineTo(x2 - r - 12, yA + 5);
+    ctx.closePath(); ctx.fill(); ctx.restore();
+    txt(ctx, '× ' + label, xm, yA - 12, { align: 'center', font: '700 13px Consolas,monospace', color: col });
+    if (sub) txt(ctx, sub, xm, yA + 26, { align: 'center', font: '11px Consolas,monospace', color: C('--ink-3') });
+  };
+  arrow(xs[0], xs[1], isFin(g2) ? fmt(g2, 4) : '—', 'g′(x) 内层速度', C('--c-fn'));
+  arrow(xs[1], xs[2], isFin(f2) ? fmt(f2, 4) : '—', 'f′(u) 外层速度', C('--c-tan'));
+  /* 数值验证 */
+  const dx = 1e-6;
+  const num = (O.f(I.f(x + dx)) - O.f(I.f(x - dx))) / (2 * dx);
+  ctx.save(); ctx.strokeStyle = C('--c-soft'); ctx.lineWidth = 1; ctx.strokeRect(8, 8, w - 16, h - 16); ctx.restore();
+  txt(ctx, '结果 ' + fmt(total, 6), w / 2, h - 12, { align: 'center', font: '700 14px Consolas,monospace', color: C('--ink') });
+  txt(ctx, '（用中心差分数值验算：' + fmt(num, 6) + '，两者应当一致）', w / 2, h - 30, { align: 'center', font: '11px Consolas,monospace', color: C('--ink-3') });
+
+  $('cXv').textContent = fmt(x, 2);
+  $('cOut').innerHTML = '代入 x = <b>' + fmt(x, 3) + '</b>：\n' +
+    '外层 ' + O.label + '，内层 ' + I.label + '\n' +
+    '① 外层对内层求导：f′(u) = <b>' + fmt(f2, 5) + '</b>　（把 u = ' + fmt(u, 4) + ' 代进去）\n' +
+    '② 内层对 x 求导：g′(x) = <b>' + fmt(g2, 5) + '</b>\n' +
+    '③ 相乘：(f∘g)′(x) = <b>' + fmt(g2, 5) + ' × ' + fmt(f2, 5) + ' = ' + fmt(total, 5) + '</b>\n' +
+    '数值验算 (y(x+dx) − y(x−dx)) / 2dx ≈ <b>' + fmt(num, 5) + '</b> ' +
+    (isFin(total) && isFin(num) && Math.abs(total - num) < 1e-3 ? '<b style="color:var(--ok)">✅ 一致</b>' : '') +
+    '\n💡 当 g′(x) = <b>0</b> 时整条链速度为 <b>0</b>（内层卡住，外层再快也没用）；当 f′(u) = <b>0</b> 时同理。';
+}
+function fillChain(){
+  const so = $('cOuter'), si = $('cInner');
+  Object.keys(OUTERS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = OUTERS[k].label; so.appendChild(o); });
+  Object.keys(INNERS).forEach(k => { const o = document.createElement('option'); o.value = k; o.textContent = INNERS[k].label; si.appendChild(o); });
+  so.value = cO; si.value = cI;
+  const sync = () => { const [a, b] = INNERS[cI].xr; $('cX').min = Math.round(a * 100); $('cX').max = Math.round(b * 100);
+    if (+$('cX').value < +$('cX').min || +$('cX').value > +$('cX').max) $('cX').value = Math.round((a + b) / 2 * 100); };
+  sync();
+  so.addEventListener('change', () => { cO = so.value; drawChain(); });
+  si.addEventListener('change', () => { cI = si.value; sync(); drawChain(); });
+  $('cX').addEventListener('input', drawChain);
+  register(drawChain); drawChain();
+}
+
+/* ============ ⑨ 自测 ============ */
+const QUIZ = [
+  { q: '函数 f(x) = x² 在 x = 1 处的导数是多少？',
+    o: ['1', '2', '3', '4'], a: 1,
+    w: '差商 = [(1+h)² − 1]/h = (2h + h²)/h = 2 + h。令 h→0 得 2。回到第 ② 站把 h 一路调小就能看到这个数字锁定在 2。' },
+  { q: '<span class="m">∫₀¹ 2x dx</span> 等于？',
+    o: ['1', '2', '3', '4'], a: 0,
+    w: '几何法：y=2x 在 0→1 之间是一个<b>三角形</b>，底 1、高 2，面积 = ½×1×2 = <b>1</b>。<br>代数法：原函数是 x²，代入得 1² − 0² = 1。<br>第 ⑤ 站选 x²、n 调到 50 以上，S<sub>n</sub> 会收敛到 1。' },
+  { q: 'f(x) = |x| 在 x = 0 处的情况是？',
+    o: ['可导且导数为 0', '可导但导数不存在规律', '不可导（但连续）', '不连续'], a: 2,
+    w: '左边 h→0⁻ 割线斜率 = −1，右边 h→0⁺ = +1，两个极限不一致 → 导数不存在；但 |x| 在 0 处连续。第 ② 站选 |x| 并把 a 拖到 0 就能亲眼看到两条切线分家。' },
+  { q: '已知 F(x) = <span class="m">∫₀ˣ f(t)dt</span>，则 F′(x) 等于？',
+    o: ['f(x)', '<span class="m">∫₀ˣ f(t)dt</span> 本身', 'x·f(x)', 'F(x)·f(x)'], a: 0,
+    w: '这就是微积分基本定理：累积量的变化率 = 当前的速率。第 ⑥ 站上下两个数字完全一样，就是这一定理的直观演示。' },
+  { q: '<span class="m">∫₀^π sin x dx</span> 等于？',
+    o: ['0', '1', '2', 'π'], a: 2,
+    w: '<span class="m">[−cos x]₀^π = −cos π − (−cos 0) = 1 + 1 = 2</span>。几何上就是 0→π 那一整个正弦拱形的面积，≈2。第 ⑤ 站把 n 拉到 200 以上会看到这个数。' },
+  { q: '<span class="m">d/dx · e³ˣ</span> 等于？',
+    o: ['e³ˣ', '3e³ˣ', '3x·e²ˣ', 'e³ˣ/3'], a: 1,
+    w: '链式法则：外层 eᵘ 求导得 eᵘ，内层 3x 求导得 3，相乘 → 3e³ˣ。"指数变系数、内层求导乘上去"，见第 ⑦ 站。' },
+  { q: '<span class="m">lim<sub>x→0</sub> sin x / x</span> 等于？',
+    o: ['0', '1', '不存在', '+∞'], a: 1,
+    w: '经典结论：<b>不是 0</b>！sin x → 0 且 x → 0，但比值的极限是 1（等价于 sin x ~ x 在 0 处成立）。这是第 ① 站的第一个例子，专门用来打破"分子分母都趋 0 所以商趋 0"的错觉。' },
+  { q: '定积分 ∫f(x)dx 的几何意义最准确的说法是？',
+    o: ['曲线在某点的斜率', '曲线与 x 轴之间的有向面积', '曲线的弧长', '曲线的最大值'], a: 1,
+    w: '是"有向面积"：曲线在 x 轴上方算正、下方算负。所以 <span class="m">∫_π^{2π} sin x dx = −2</span>（第 ⑤ 站的最后一个选项可以亲自验证）。' },
+  { q: '泰勒级数最主要的用途是？',
+    o: ['精确解出任意方程的根', '在某点附近做局部逼近，供数值计算用', '求曲线下的面积', '判断函数是否连续'], a: 1,
+    w: '有限项泰勒只在展开点附近有效（所以叫局部逼近）。它的历史贡献是让人用加减乘除算出 e、sin 1、π、ln 2；今天用于误差估计、数值微分积分、微分方程数值解。' },
+  { q: '<span class="m">d/dx · ln(1 + x²)</span> 等于？',
+    o: ['1/(1+x²)', '2x/(1+x²)', '2x', 'ln(1+x²)/x'], a: 1,
+    w: '链式法则：外层 ln 求导 = 1/(1+x²)，内层 (1+x²) 求导 = 2x，相乘 → 2x/(1+x²)。注意分母上的 1+x² 一定是整个括号。第 ③ 站"求导规则实验室"里选中它可以直接看到切线。' },
+  { q: '如果 f′(x) = g′(x) 对区间上所有 x 成立，那么 f(x) − g(x) 是？',
+    o: ['常数', '一定为 0', 'x 的二次函数', '没有结论'], a: 0,
+    w: '对 (f−g) 求导得 0，而导数恒为 0 的函数只能是常数（可以是任意常数，不一定是 0）。这条在解题中用来"消掉一个不定积分的常数差"。' },
+  { q: '黎曼和里"把 n 趋于无穷"这一步为什么必须做？',
+    o: ['为了让矩形更漂亮', '矩形数量有限时，面积依赖取样点，结果不是唯一确定的；只有趋于无穷，不同取样方式才收敛到同一个数，这个数才客观等于"面积"', '为了凑一个漂亮的符号 ∞', '因为 n 太小计算机算不动'], a: 1,
+    w: '这正是定积分定义的严谨之处：n 有限时左端点、右端点给出不同的和（一个偏小一个偏大），它们夹着真值；只有 n→∞ 时二者才收敛到同一个极限，这个极限才是与"取样方式"无关的客观面积。' }
+];
+function buildQuiz(){
+  const box = $('quizBox'); box.innerHTML = '';
+  QUIZ.forEach((item, i) => {
+    const d = document.createElement('div');
+    d.className = 'q';
+    let opts = '';
+    item.o.forEach((t, j) => { opts += '<div class="opt" data-j="' + j + '">' + t + '</div>'; });
+    d.innerHTML = '<div class="qt"><b>Q' + (i + 1) + '.</b> ' + item.q + '<span class="done"></span></div><div class="opts">' + opts + '</div><div class="why">💡 ' + item.w + '</div>';
+    box.appendChild(d);
+    const whys = d.querySelector('.why'), done = d.querySelector('.done');
+    let answered = false;
+    d.querySelectorAll('.opt').forEach(el => {
+      el.addEventListener('click', () => {
+        if (answered) return;
+        answered = true;
+        const j = +el.dataset.j;
+        d.querySelectorAll('.opt').forEach((o2, k) => { if (k === item.a) o2.classList.add('right'); else if (k === j) o2.classList.add('wrong'); });
+        const ok = (j === item.a);
+        d.classList.add(ok ? 'is-ok' : 'is-no');
+        whys.classList.add('show');
+        done.textContent = ok ? '✅ 答对了' : '❌ 正确答案是 ' + String.fromCharCode(65 + item.a);
+        updateScore();
+      });
+    });
+  });
+}
+function updateScore(){
+  const ok = $('quizBox').querySelectorAll('.q.is-ok').length;
+  const no = $('quizBox').querySelectorAll('.q.is-no').length;
+  const ans = ok + no;
+  $('quizScore').innerHTML = '已答 <b>' + ans + '</b> / 12　答对 <b>' + ok + '</b>　答错 <b>' + no + '</b>' +
+    (ans === 12 ? (ok === 12 ? '　🎉 <b style="color:var(--ok)">全对！概念已经内化了。</b>'
+      : ok >= 9 ? '　👍 基本掌握，回去把错题的站点再玩一遍。'
+      : '　💪 建议先回第 ②⑤⑥ 站重新玩实验，再来一次。') : '');
+}
+
+/* ============ 启动 ============ */
+fillLimitSelect();
+fillDerivSelect();
+fillRules();
+fillTaylor();
+fillInt();
+fillFTC();
+fillChain();
+buildQuiz();
+$('quizReset').addEventListener('click', () => { buildQuiz(); updateScore(); });
+updateScore();
+/* 首屏只画可见区域附近，减少抖动 */
+setTimeout(redrawAll, 60);
+</script>
+</body>
+</html>

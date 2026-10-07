@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>地球46亿年 · 交互式地质图鉴</title>
+<meta name="description" content="从星尘到人类：把46亿年压缩成一天的口袋地质图鉴。滚动推进、点击深挖、明暗双主题。">
+<style>
+/* ============================================================
+   地球46亿年 · 交互式地质图鉴
+   设计：复古地质图鉴（羊皮纸 / 地层色带 / 博物注记）
+   单文件 · 零依赖 · 明暗双主题
+   ============================================================ */
+:root{
+  --paper:#f2e7cf; --paper2:#ece0c4; --panel:#f9f2df; --panel2:#f2e7cd;
+  --ink:#33291a; --ink2:#6d5c42; --ink3:#96846b;
+  --line:#c8b48b; --line2:#dfd0af;
+  --gold:#a67c2e; --gold2:#c9a457;
+  --shadow:0 12px 28px -20px rgba(70,48,14,.55);
+  --tb-h:58px;
+  --era:#8a6a3a; --era-d:#d3ac5b;
+}
+html[data-theme="dark"]{
+  --paper:#17130d; --paper2:#1a150f; --panel:#221b12; --panel2:#261e14;
+  --ink:#e9dcbf; --ink2:#b7a686; --ink3:#8a7a5f;
+  --line:#57472f; --line2:#3b3020;
+  --gold:#d3ac5b; --gold2:#e7c882;
+  --shadow:0 14px 30px -20px rgba(0,0,0,.9);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html.nosmooth{scroll-behavior:auto}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  font-family:"Songti SC","STSong","SimSun","宋体",serif;
+  font-size:17px;line-height:1.9;color:var(--ink);
+  background:
+    radial-gradient(1100px 500px at 50% -180px, rgba(255,255,255,.45), transparent 70%),
+    var(--paper);
+  overflow-x:hidden; padding-top:var(--tb-h);
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(1100px 500px at 50% -180px, rgba(90,70,40,.18), transparent 70%),
+    var(--paper);
+}
+body::before{ /* 纸张纤维纹理 */
+  content:""; position:fixed; inset:0; z-index:0; pointer-events:none; opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.37 0 0 0 0 0.22 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+html[data-theme="dark"] body::before{opacity:.35;filter:brightness(.8)}
+::selection{background:var(--gold2);color:#2b2113}
+a{color:var(--gold);text-decoration:none}
+a:hover{text-decoration:underline}
+img,svg{display:block}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---------- 顶部常驻仪表 ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;height:var(--tb-h);z-index:50;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line2);
+}
+.tb-inner{max-width:1060px;height:100%;margin:0 auto;padding:0 14px;display:flex;align-items:center;gap:14px}
+.tb-clock{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.tb-dial{width:34px;height:34px}
+.tb-clock-txt{line-height:1.15}
+.tb-clock-txt .lab{display:block;font-size:10px;letter-spacing:.18em;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.tb-clock-txt .val{display:block;font-size:16px;font-weight:700;color:var(--gold);font-family:Georgia,"Times New Roman",serif;letter-spacing:.04em}
+.tb-scale{flex:1 1 auto;position:relative;height:34px;min-width:120px}
+.tb-segs{display:flex;gap:2px;height:12px;margin-top:11px;border-radius:3px;overflow:hidden;border:1px solid var(--line2);background:var(--panel2)}
+.tb-segs .seg{flex:1 1 0;background:var(--era);opacity:.55;border:none;padding:0;transition:opacity .25s;cursor:pointer;min-width:0}
+.tb-segs .seg:hover{opacity:.95}
+.tb-segs .seg.on{opacity:1}
+.tb-needle{position:absolute;top:4px;bottom:2px;width:2px;background:var(--ink);left:0%;transition:left .15s linear;box-shadow:0 0 0 2px color-mix(in srgb, var(--paper) 70%, transparent)}
+.tb-needle::after{content:"";position:absolute;top:-3px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.tb-chapter{flex:0 1 auto;max-width:280px;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif}
+.tb-theme{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink2);transition:.25s}
+.tb-theme:hover{color:var(--gold);border-color:var(--gold)}
+.tb-theme svg{width:16px;height:16px}
+@media (max-width:700px){
+  .tb-inner{flex-wrap:wrap;gap:4px 10px;padding:6px 10px;height:auto}
+  .topbar{height:auto}
+  body{padding-top:84px}
+  .tb-scale{flex:1 1 100%;order:3;height:26px}
+  .tb-segs{height:10px;margin-top:7px}
+  .tb-chapter{max-width:150px}
+}
+
+/* ---------- 通用 ---------- */
+.wrap{max-width:920px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.no-anim .reveal{opacity:1!important;transform:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
+section[data-sec]{scroll-margin-top:calc(var(--tb-h) + 14px)}
+
+/* ---------- 序幕 ---------- */
+.hero{padding:64px 0 40px;text-align:center}
+.hero .eyebrow{font-family:"FangSong","STFangsong","仿宋",serif;font-size:14px;letter-spacing:.35em;color:var(--ink3)}
+.hero h1{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(40px,7vw,64px);letter-spacing:.08em;margin:14px 0 6px;font-weight:700}
+.hero .sub{color:var(--ink2);font-size:15px;max-width:620px;margin:0 auto;font-family:"FangSong","STFangsong","仿宋",serif}
+.hero .orn{color:var(--gold);letter-spacing:.6em;font-size:12px;margin:18px 0 34px}
+.dial-panel{display:flex;gap:40px;align-items:center;justify-content:center;flex-wrap:wrap;text-align:left}
+.dial{width:270px;height:270px;flex:0 0 auto}
+.dial .dial-ring{fill:none;stroke:var(--line);stroke-width:1.5}
+.dial .dial-tick{stroke:var(--ink3);stroke-width:1}
+.dial .dial-tick.big{stroke:var(--ink2);stroke-width:1.6}
+.dial .dial-lab{font-size:11px;fill:var(--ink3);font-family:Georgia,serif}
+.dial .dial-hand{stroke:var(--gold);stroke-width:2.5;stroke-linecap:round}
+.dial .dial-cap{fill:var(--gold)}
+.dial .dial-dot{fill:var(--gold)}
+.dial .dial-mark{font-size:10.5px;fill:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.dial .dial-num{font-size:9.5px;fill:#fffbf0;font-weight:700;font-family:Georgia,"Times New Roman",serif}
+.dial-legend{max-width:360px}
+.dial-legend h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:19px;margin-bottom:10px}
+.dial-legend p.lead{font-size:14.5px;color:var(--ink2);margin-bottom:14px;line-height:1.85}
+.mk-list{list-style:none;font-size:13.5px}
+.mk-list li{display:flex;gap:9px;align-items:center;padding:6px 0;border-bottom:1px dashed var(--line2)}
+.mk-num{width:17px;height:17px;border-radius:50%;background:var(--gold);color:#fffbf0;font-size:10.5px;display:inline-grid;place-items:center;font-family:Georgia,"Times New Roman",serif;flex:0 0 auto}
+.mk-list .mk-t{font-family:Georgia,serif;color:var(--gold);font-weight:700;min-width:64px;text-align:right}
+.mk-list .mk-s{color:var(--ink3);font-size:12px;margin-left:auto;font-family:"FangSong","STFangsong","仿宋",serif}
+.hints{display:flex;gap:22px;justify-content:center;flex-wrap:wrap;margin-top:40px;font-size:13px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.hints span b{color:var(--gold);font-weight:400}
+.scroll-cue{margin:34px auto 0;width:22px;color:var(--ink3);animation:cue 2.2s ease-in-out infinite}
+@keyframes cue{0%,100%{transform:translateY(0);opacity:.7}50%{transform:translateY(8px);opacity:1}}
+@media (prefers-reduced-motion: reduce){.scroll-cue{animation:none}}
+
+/* ---------- 地图 ---------- */
+.map{padding:60px 0 30px}
+.sec-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(26px,3.6vw,34px);text-align:center;letter-spacing:.06em}
+.sec-title::before{content:"◆ ";color:var(--gold);font-size:.6em;vertical-align:.18em}
+.sec-sub{text-align:center;color:var(--ink3);font-size:14px;margin:8px auto 30px;max-width:640px;font-family:"FangSong","STFangsong","仿宋",serif}
+.super-eon{display:flex;gap:6px;margin:0 0 22px;border-radius:6px;overflow:hidden;border:1px solid var(--line2)}
+.super-eon div{flex:1;text-align:center;font-size:12px;padding:7px 4px;color:var(--ink2);background:var(--panel2);font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.08em}
+.super-eon div b{display:block;font-size:13px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-weight:700;color:inherit}
+.map-group{background:var(--panel);border:1px solid var(--line2);border-radius:8px;margin-bottom:14px;box-shadow:var(--shadow);overflow:hidden}
+.map-group>h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17px;padding:12px 18px;border-bottom:1px solid var(--line2);display:flex;align-items:baseline;gap:10px}
+.map-group>h3 .yrs{font-size:12px;color:var(--ink3);font-weight:400;font-family:"FangSong","STFangsong","仿宋",serif;margin-left:auto}
+.map-item{display:flex;align-items:center;gap:12px;width:100%;text-align:left;padding:10px 18px;border-bottom:1px dashed var(--line2);transition:background .2s}
+.map-item:last-child{border-bottom:none}
+.map-item:hover{background:color-mix(in srgb, var(--era) 10%, transparent)}
+.map-item .swatch{width:14px;height:14px;border-radius:3px;background:var(--era);flex:0 0 auto}
+.map-item .nm{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16px}
+.map-item .yr{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.map-item .go{margin-left:auto;font-size:12px;color:var(--gold);opacity:0;transition:opacity .2s;font-family:"FangSong","STFangsong","仿宋",serif}
+.map-item:hover .go{opacity:1}
+
+/* ---------- 章节 ---------- */
+.chapter{padding:34px 0 10px}
+.ch-head{
+  border-radius:10px;padding:26px 28px 24px;color:#fffdf5;position:relative;overflow:hidden;
+  background:
+    linear-gradient(180deg, rgba(255,255,255,.10), rgba(0,0,0,.10)),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.05) 0 3px, transparent 3px 7px),
+    var(--era);
+  box-shadow:var(--shadow);
+}
+html[data-theme="dark"] .ch-head{background:
+    linear-gradient(180deg, rgba(0,0,0,.30), rgba(0,0,0,.46)),
+    repeating-linear-gradient(180deg, rgba(255,255,255,.04) 0 3px, transparent 3px 7px),
+    var(--era-d);}
+.ch-line1{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-family:"FangSong","STFangsong","仿宋",serif;font-size:13px;opacity:.92;letter-spacing:.06em}
+.ch-num{border:1px solid rgba(255,253,245,.75);border-radius:999px;padding:1px 12px;font-size:12.5px}
+.ch-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(26px,4.5vw,36px);letter-spacing:.08em;margin-top:12px;font-weight:700;text-shadow:0 2px 10px rgba(0,0,0,.18)}
+.ch-tag{margin-top:8px;font-size:14.5px;opacity:.94;font-family:"FangSong","STFangsong","仿宋",serif}
+.ch-head::after{content:"";position:absolute;left:0;right:0;bottom:0;height:5px;
+  background:repeating-linear-gradient(90deg, rgba(255,255,255,.35) 0 26px, transparent 26px 40px);opacity:.5}
+.nar{margin:26px 2px 22px;font-size:17px}
+.nar p{margin-bottom:16px;text-indent:2em}
+.nar p.drop-cap::first-letter{font-size:2.1em;line-height:1;color:var(--gold);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;margin-right:2px}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px;margin:8px 0 18px}
+.card{background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:15px 16px 13px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:9px;transition:transform .25s ease,border-color .25s ease}
+.card:hover{transform:translateY(-3px);border-color:color-mix(in srgb, var(--era) 55%, var(--line2))}
+.card-top{display:flex;gap:12px;align-items:flex-start}
+.seal{
+  width:44px;height:44px;flex:0 0 auto;border:1.5px solid var(--era);border-radius:50%;
+  display:grid;place-items:center;color:var(--era);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;
+  font-size:19px;font-weight:700;transform:rotate(-4deg);
+  box-shadow:inset 0 0 0 2px var(--panel), inset 0 0 0 3px color-mix(in srgb, var(--era) 40%, transparent);
+}
+html[data-theme="dark"] .seal{color:var(--era-d);border-color:var(--era-d);box-shadow:inset 0 0 0 2px var(--panel), inset 0 0 0 3px color-mix(in srgb, var(--era-d) 40%, transparent)}
+.card-hd h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17.5px;line-height:1.4;letter-spacing:.03em}
+.card-hd .when{font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:2px}
+.ctext{font-size:14px;color:var(--ink2);line-height:1.8}
+.ck{margin-top:auto;font-size:12px;color:var(--gold);display:flex;align-items:center;gap:6px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.02em}
+.ck svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:1.6;stroke-linecap:round}
+.drawer{background:var(--panel2);border:1px solid var(--line2);border-radius:8px;margin:6px 0 16px;overflow:hidden}
+.drawer summary{cursor:pointer;list-style:none;display:flex;align-items:center;gap:10px;padding:13px 18px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:15.5px;color:var(--ink2);transition:color .2s}
+.drawer summary::-webkit-details-marker{display:none}
+.drawer summary:hover{color:var(--gold)}
+.drawer summary .dmark{width:22px;height:22px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;font-size:13px;color:var(--gold);flex:0 0 auto;transition:transform .25s}
+.drawer[open] summary .dmark{transform:rotate(45deg)}
+.drawer summary .dhint{margin-left:auto;font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.dbody{padding:2px 20px 16px;font-size:14.5px;color:var(--ink2)}
+.dpoint{padding:9px 0;border-top:1px dashed var(--line2);line-height:1.85}
+.dpoint b{color:var(--ink);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;margin-right:6px}
+.nugget{font-family:"FangSong","STFangsong","仿宋",serif;font-size:14px;color:var(--ink2);border-left:3px solid var(--gold);padding:6px 0 6px 14px;margin:2px 0 8px;line-height:1.9}
+.nugget .nglabel{color:var(--gold);letter-spacing:.14em;margin-right:8px}
+
+/* ---------- 终幕 ---------- */
+.finale{padding:70px 0 30px}
+.future-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin:26px 0}
+.future-card{background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:18px;box-shadow:var(--shadow)}
+.future-card .fc-t{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16.5px;color:var(--ink);margin-bottom:6px}
+.future-card .fc-w{font-size:12px;color:var(--gold);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:8px;letter-spacing:.05em}
+.future-card p{font-size:14px;color:var(--ink2)}
+.oneline-panel{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:22px 18px 12px;margin:30px 0;box-shadow:var(--shadow)}
+.oneline-panel h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:20px;text-align:center;margin-bottom:4px}
+.oneline-panel .ol-sub{text-align:center;font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:14px}
+#oneline svg{width:100%;height:auto}
+#oneline text{font-family:"FangSong","STFangsong","仿宋",serif}
+.closing{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(19px,3vw,24px);text-align:center;line-height:2.1;margin:44px auto;max-width:700px;letter-spacing:.05em}
+.closing em{color:var(--gold);font-style:normal}
+
+/* ---------- 页脚 ---------- */
+footer{border-top:1px solid var(--line2);margin-top:50px;padding:30px 0 60px;font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+footer .wrap{max-width:920px}
+footer p{margin-bottom:8px}
+footer .fk{color:var(--ink2)}
+.sources{margin-top:10px;line-height:1.9}
+.sources a{color:var(--ink2);text-decoration:underline dotted}
+.sources a:hover{color:var(--gold)}
+
+/* ---------- 悬浮按钮 ---------- */
+.fab{position:fixed;right:18px;bottom:22px;display:flex;flex-direction:column;gap:8px;z-index:40}
+.fab button{width:42px;height:42px;border-radius:50%;background:var(--panel);border:1px solid var(--line);box-shadow:var(--shadow);color:var(--ink2);display:grid;place-items:center;transition:.25s}
+.fab button:hover{color:var(--gold);border-color:var(--gold);transform:translateY(-2px)}
+.fab svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+
+/* ---------- 动态图版 ---------- */
+.plate{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:16px 18px 14px;margin:8px 0 16px;box-shadow:var(--shadow)}
+.plate-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:3px}
+.plate-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:17px;letter-spacing:.04em}
+.plate-tag{font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:1px 9px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.08em}
+.plate-sub{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:10px}
+.plate-stage{position:relative;background:var(--paper2);border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.plate-stage canvas{display:block;width:100%;height:auto}
+.plate-stage .stage-msg{position:absolute;inset:0;display:grid;place-items:center;font-size:13px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.plate-foot{display:flex;align-items:center;gap:14px;margin-top:10px;flex-wrap:wrap;min-height:24px}
+.plate-note{font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:8px}
+.pbtn{font-size:12.5px;font-family:"FangSong","STFangsong","仿宋",serif;border:1px solid var(--line);border-radius:999px;padding:4px 15px;color:var(--ink2);transition:.2s;cursor:pointer}
+.pbtn:hover{color:var(--gold);border-color:var(--gold)}
+.pbtn:active{transform:translateY(1px)}
+.prange{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.prange input[type=range]{width:170px;accent-color:var(--gold)}
+.pval{font-size:12.5px;color:var(--gold);font-family:Georgia,"Times New Roman",serif;min-width:72px}
+
+/* ---------- 层级链与地图说明 ---------- */
+.ch-age{font-size:12px;opacity:.85}
+.howto{background:var(--panel2);border:1px dashed var(--line);border-radius:8px;padding:12px 16px;font-size:13px;color:var(--ink2);line-height:2;margin-bottom:16px;font-family:"FangSong","STFangsong","仿宋",serif}
+.howto b{color:var(--gold);font-weight:400}
+.howto .chain{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;color:var(--ink);letter-spacing:.03em}
+.map-sub{display:flex;align-items:baseline;gap:10px;padding:9px 18px 4px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:14.5px;border-top:1px dashed var(--line2);color:var(--ink2)}
+.map-sub .yrs{margin-left:auto;font-size:11.5px;color:var(--ink3);font-weight:400;font-family:"FangSong","STFangsong","仿宋",serif}
+.eon-tag{font-size:10.5px;border:1px solid var(--gold);color:var(--gold);border-radius:4px;padding:1px 6px;margin-right:8px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;letter-spacing:.1em}
+.map-item .sub{font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+
+/* ---------- 打印 ---------- */
+@media print{
+  .topbar,.fab,body::before{display:none!important}
+  body{padding-top:0;background:#fff}
+  .chapter,.map-group,.card,.drawer,.oneline-panel{break-inside:avoid}
+  .reveal{opacity:1!important;transform:none!important}
+  a{color:inherit}
+}
+</style>
+</head>
+<body>
+
+<!-- ======== 顶部常驻仪表 ======== -->
+<header class="topbar" id="topbar">
+  <div class="tb-inner">
+    <div class="tb-clock" title="地球时钟：把46亿年压缩成一天">
+      <svg class="tb-dial" viewBox="0 0 80 80" aria-hidden="true">
+        <circle cx="40" cy="40" r="36" fill="none" stroke="var(--line)" stroke-width="2"/>
+        <g id="tbDialTicks"></g>
+        <line id="tbClockHand" x1="40" y1="40" x2="40" y2="10" stroke="var(--gold)" stroke-width="2.6" stroke-linecap="round"/>
+        <circle cx="40" cy="40" r="3.2" fill="var(--gold)"/>
+      </svg>
+      <div class="tb-clock-txt">
+        <span class="lab">地球时钟</span>
+        <span class="val" id="tbClockTime">00:00</span>
+      </div>
+    </div>
+    <div class="tb-scale" id="tbScale">
+      <div class="tb-segs" id="tbSegs"></div>
+      <div class="tb-needle" id="tbNeedle"></div>
+    </div>
+    <div class="tb-chapter" id="tbChapter">序幕 · 从星尘到人类</div>
+    <button class="tb-theme" id="tbTheme" title="切换夜读模式" aria-label="切换明暗主题"></button>
+  </div>
+</header>
+
+<main id="main">
+
+<!-- ======== 序幕 ======== -->
+<section class="hero" id="hero" data-sec="hero">
+  <div class="wrap">
+    <p class="eyebrow">一本会自己讲故事的地质图鉴</p>
+    <h1>地球 46 亿年</h1>
+    <p class="sub">从一撮星尘到你手机屏幕前的这一刻——一场没有回程票的旅行。<br>往下滚，时间会从你指尖流过。</p>
+    <p class="orn">❖ ❖ ❖</p>
+
+    <div class="dial-panel">
+      <svg class="dial" id="heroDial" viewBox="0 0 300 300" role="img" aria-label="把46亿年压缩成一天的表盘"></svg>
+      <div class="dial-legend">
+        <h3>先看懂一个换算：46亿年 = 一天</h3>
+        <p class="lead">如果把46亿年压缩进24小时：地球在 00:00 诞生，单细胞生命大约凌晨 4 点出现，寒武纪大爆发在晚上九点之后，恐龙在 23:39 集体谢幕——而你我，赶在午夜前的最后十几秒才登场。</p>
+        <ul class="mk-list" id="heroMarks"></ul>
+      </div>
+    </div>
+
+    <div class="hints">
+      <span>往下滚 <b>▸</b> 时间前进</span>
+      <span>滚到「动态图版」<b>▸</b> 自动播放演示</span>
+      <span>点开「深挖抽屉」<b>▸</b> 看进阶细节</span>
+      <span>点右上角 <b>☾</b> 切换夜读模式</span>
+    </div>
+
+    <svg class="scroll-cue" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 3v16M5 13l7 7 7-7"/></svg>
+  </div>
+</section>
+
+<!-- ======== 出发地图 ======== -->
+<section class="map" id="map" data-sec="map">
+  <div class="wrap">
+    <h2 class="sec-title">出发前，先看一眼地图</h2>
+    <p class="sec-sub">地质年代表 · 点击任意名称直达对应章节。（分段为示意，非等比例）</p>
+    <div class="super-eon" id="superEon"></div>
+    <div id="mapGroups"></div>
+  </div>
+</section>
+
+<!-- ======== 滚动长卷 · 章节 ======== -->
+<div class="wrap"><main id="chapters"></main></div>
+
+<!-- ======== 终幕 ======== -->
+<section class="finale" id="finale" data-sec="finale">
+  <div class="wrap">
+    <h2 class="sec-title">终幕 · 你正处在第 24 小时里</h2>
+    <p class="sec-sub">故事没有结束——它只是刚快进到你的这一秒。</p>
+    <div class="future-cards" id="futureCards"></div>
+    <div class="oneline-panel">
+      <h3>一图流 · 把 46 亿年折成一张纸</h3>
+      <p class="ol-sub">每一个色块是一个章节；上方长钉是五个关键瞬间。悬停查看详情。</p>
+      <div id="oneline"></div>
+    </div>
+    <p class="closing">46亿年里，生命被冻僵过、被烤熟过、被撞得七零八落过，<br>但它一次次回来——<br>最后长出了会问「我从哪里来」的眼睛。<br><em>接下来的章节，笔在正在读这句话的物种手里。</em></p>
+  </div>
+</section>
+
+</main>
+
+<!-- ======== 页脚 ======== -->
+<footer>
+  <div class="wrap">
+    <p class="fk">《地球46亿年 · 交互式地质图鉴》 · 单文件 HTML · 零外部依赖 · 双击即开</p>
+    <p>时钟换算：46亿年 = 24小时；1小时 ≈ 1.917亿年；1分钟 ≈ 319万年；1秒 ≈ 5.3万年。年代数据以国际年代地层表（ICS）与主流文献为口径；存争议处已在「深挖抽屉」与「注脚」中标注。</p>
+    <p class="sources" id="sources">主要来源：<a href="https://stratigraphy.org/chart/" target="_blank" rel="noopener">国际年代地层表 ICS（v2026-06）</a> · <a href="https://astrobiology.nasa.gov/" target="_blank" rel="noopener">NASA Astrobiology</a> · <a href="https://www.usgs.gov/" target="_blank" rel="noopener">USGS</a> · <a href="https://www.smithsonianmag.com/" target="_blank" rel="noopener">Smithsonian</a> 及 Nature / Science / PNAS 等公开文献。全量事实核对清单（含逐条出处）：《地球46亿年_事实核对清单.md》（同目录）。「人类世」于 2024 年被否决为正式年代单位，页面已按最新口径标注。</p>
+    <p>生成于 2026-10-06 · 配色与版式致敬复古地质图鉴</p>
+  </div>
+</footer>
+
+<!-- ======== 悬浮按钮 ======== -->
+<div class="fab">
+  <button id="fabMap" title="回到地图"><svg viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2zM9 4v14M15 6v14"/></svg></button>
+  <button id="fabTop" title="回到顶部"><svg viewBox="0 0 24 24"><path d="M12 21V5M5 11l7-7 7 7"/></svg></button>
+</div>
+
+<script>
+/* ============================================================
+   DATA —— 全部内容在此。章节按时间从早到晚排列。
+   ma = 距今年龄（单位：百万年，科学记数不精确无妨）
+   c/cd = 该章主题色（日读 / 夜读）
+   ============================================================ */
+const DATA = {
+  meta:{
+    totalMa: 4600,
+    title: "地球46亿年 · 交互式地质图鉴"
+  },
+  chapters: [
+  /* ============ 前寒武 · 40亿年的铺垫 ============ */
+  {
+    id:"ch-01", era:"冥古宙", name:"地狱开局", range:"约 46 – 40 亿年前",
+    startMa:4600, endMa:4000, c:"#a3405f", cd:"#d9738f",
+    tag:"没有天空，没有海洋，只有一场持续上千万年的流星雨。",
+    nar:[
+      "46亿年前，这里是一团刚刚醒来的星云。尘埃撞尘埃，石头撞石头，无数碎片在引力手里被捏成一颗通红的行星——地球。它还没有名字，也还没有一寸皮肤是凉的。然后，一颗火星大小的天体迎面撞了上来。这一天，地球丢了一大块自己，也得到了一颗月亮。",
+      "撞击之后的场面很“冥古”：地面是熔岩的海洋，天上是滚烫的岩石雨。但转折来得比想象中快——仅仅几千万年后，冷却的水蒸气就汇成大雨，落出了地球上的第一片海。",
+      "冥古宙几乎没留下什么岩石做证人：地球最古老的完整岩石只有约 40 亿岁。但它留下了一种极硬的矿物——锆石。砂粒大小的锆石晶体里，锁着 44 亿年前接触过液态水的痕迹。地狱，其实很早就有了第一片温柔的角落。"
+    ],
+    cards:[
+      {seal:"形", when:"约 46 亿年前", ma:4600, t:"地球成形", d:"尘埃与碎石在引力下聚合成行星，太阳系从一片星云里诞生。此时的它，只是一颗炽热的胚胎。"},
+      {seal:"月", when:"约 45 亿年前", ma:4500, t:"月球大碰撞", d:"一颗火星大小的天体撞上地球，溅出的碎片在轨道上重新聚成月球。从此地球有了一颗稳重的“舞伴”，地轴也安定了下来。"},
+      {seal:"海", when:"约 44 – 43 亿年前", ma:4350, t:"最早的海洋", d:"杰克山锆石（最古老约 44 亿年）里的氧同位素，指向 43 亿年前已有液态水与海洋。第一场雨，可能断断续续下了几百万年。"},
+      {seal:"疑", when:"约 41 亿年前？", ma:4100, t:"晚期重轰击？（争议）", d:"月球密密麻麻的陨石坑，曾让人以为地球也挨过一轮“死亡弹幕”。最新研究却说：也许并没有那么惨烈——这是一桩仍在审理的悬案。"}
+    ],
+    deep:{title:"锆石、月亮与那场大碰撞", hint:"点开看进阶细节", points:[
+      {t:"锆石是地球的黑匣子", d:"锆石极耐高温高压，能挺过岩浆的反复揉搓。杰克山锆石晶体的年龄最高达 44 亿年，其中锁定的氧同位素，指向“必须有液态水”的环境——这就是冥古宙存在海洋的核心证据。"},
+      {t:"月球怎么来的", d:"主流答案是“大碰撞假说”：一颗名叫“忒伊亚”的火星大小天体以斜角撞上地球，碎片盘在轨道上迅速凝成月球。证据：月球岩石的同位素指纹与地球高度相似，如同同一位母亲的孩子。"},
+      {t:"重轰击到底有没有", d:"阿波罗带回的月球岩石曾指向约 39 亿年前的一次撞击高峰。但后来科学家发现，这些样本可能都来自同一次撞击的溅射物——“弹幕”也许只是采样偏差，争论至今未决。"},
+      {t:"为什么叫“冥古宙”", d:"名字来自希腊神话的冥王哈迪斯（Hades）——“像地狱一样的时代”。这个名字诞生于人们对它一无所知的时候，没想到后来发现，它真的不太宜居。"}
+    ]},
+    nugget:"月球正在慢慢离开我们：每年约 3.8 厘米。你现在看到的月亮，比恐龙看到的那一轮稍微远一点点。"
+  },
+  {
+    id:"ch-02", era:"太古宙", name:"生命的第一次心跳", range:"约 40 – 25 亿年前",
+    startMa:4000, endMa:2500, c:"#b2568a", cd:"#dd8fb7",
+    tag:"一颗橙色的行星，在海水中悄悄点着了第一盏灯。",
+    nar:[
+      "太古宙的地球是一颗“橙色行星”：大气里几乎没有氧气，充斥着甲烷和二氧化碳，天空是浑浊的橙黄色。撞击渐渐平息，海洋铺满全球，海底热泉咕嘟咕嘟冒着富含矿物的热水——这里，很可能就是生命的第一间“产房”。",
+      "生命登场时非常低调：一些看不见的单细胞，点着了新陈代谢的火苗。最早的确凿证据藏在约 35 亿年前的叠层石里——那是微生物一层一层“盖”出来的石头建筑，曾像地毯一样铺满浅海。",
+      "更关键的事情也在悄悄发生：一些细菌学会了光合作用，用阳光、水和二氧化碳做饭，顺便把氧气当“废气”排出来。对当时的大气来说，这是毒气；对 20 亿年后的我们来说，这是整个故事的伏笔。"
+    ],
+    cards:[
+      {seal:"洋", when:"约 40 亿年前", ma:4000, t:"沸腾的世界冷却下来", d:"撞击平息、海洋成型。海底热泉持续输出能量与矿物，成为“生命摇篮”的头号候选地。"},
+      {seal:"命", when:"约 35 亿年前", ma:3500, t:"叠层石与会造石的微生物", d:"微生物群落层层堆积，留下最早的生命“建筑”。也有更早的候选证据（如 37 亿年前的化学痕迹），但证据等级仍在争论。"},
+      {seal:"光", when:"约 30 亿年前", ma:3000, t:"光合作用上线", d:"蓝细菌学会用阳光做饭，开始向环境排放氧气。起初，氧气几乎全被海水和岩石“吃掉”，一滴都没留下来。"},
+      {seal:"氧", when:"约 27 亿年前", ma:2700, t:"氧气开始悄悄攒钱", d:"几次微弱的“氧气脉冲”出现又回落。大气的第一次化学革命，正在无声中酝酿本金。"}
+    ],
+    deep:{title:"生命从哪里来，氧气从哪来", hint:"点开看进阶细节", points:[
+      {t:"生命起源三假说", d:"①原始汤：闪电与紫外线在海洋里“熬”出有机分子；②海底热泉：碱性热液与海水交界处的能量梯度，被认为最适合第一个代谢系统的诞生；③黏土矿物：矿物表面充当“模板”催化分子复制。目前热泉假说人气最高。"},
+      {t:"怎么证明“有生命”", d:"35 亿年前的微生物没法做化石切片，但生命偏爱轻碳——岩石中的碳同位素“轻得异常”，就是生物活动的化学签名。叠层石的层状结构则是形态学证据。双证交汇，才够硬。"},
+      {t:"叠层石是怎么盖房子的", d:"微生物膜分泌黏液，捕获水中的沉积颗粒；一层盖一层，菌群不断向上“搬迁”。今天的澳大利亚鲨鱼湾，仍有活体叠层石在用同样方式施工。"},
+      {t:"为什么先有生命、后有氧气", d:"产氧光合作用大约在 30 亿年前上线，但氧气的“储蓄账户”要到很晚才转正——因为海水中的溶解铁、火山气体都是抢氧气的“大户”。先攒钱、后爆发，是理解大氧化事件的钥匙。"}
+    ]},
+    nugget:"最早的天空不是蓝色的，是南瓜色。甲烷雾霾把太古宙的天空染成橙黄——如果开时光机去看一眼，你会以为自己到了火星。"
+  },
+  {
+    id:"ch-03", era:"古元古代", name:"大氧化革命", range:"约 25 – 16 亿年前",
+    startMa:2500, endMa:1600, c:"#c2663f", cd:"#e0936c",
+    tag:"一场由细菌发动的化学政变，把整个星球换了血。",
+    nar:[
+      "25亿年前，蓝细菌已经默默工作了十几亿年。氧气从海水里冒出来、冒出来、冒出来——直到海里的“抢氧大户”（溶解铁、火山气体）被彻底喂饱。于是氧气冲进大气，地球的化学系统被按下重启键。",
+      "对厌氧生物来说这是灾难：氧气是有毒的，它们迎来了历史上第一次“大撤退”。但对地球来说这是革命：铁在海洋里氧化、沉底，堆出壮观的条带状铁矿山——今天人类炼钢用的铁，很多就来自这一事件。",
+      "大气与海洋的剧变，还可能推倒了第一块冰多米诺：温室气体甲烷被氧气削掉，地球第一次几乎冻成一个雪球——休伦冰期，断断续续持续了两亿多年。革命是要付代价的。"
+    ],
+    cards:[
+      {seal:"氧", when:"约 24.5 – 23.2 亿年前", ma:2380, t:"大氧化事件", d:"氧气第一次大规模充满大气。对厌氧生物是毒气灾难，对复杂生命的未来是必要前提。"},
+      {seal:"雪", when:"约 24.5 – 22.2 亿年前", ma:2350, t:"休伦冰期", d:"甲烷温室被氧气“拆台”，地球滑入第一次全球性大冰期——虽然后续研究提示未必彻底冻透，但冷得非常认真。"},
+      {seal:"尺", when:"约 21 亿年前", ma:2100, t:"加蓬“厘米级怪客”", d:"黑页岩里藏着厘米级的卷曲结构，也许是最早的“大细胞”尝试。真伪争论了几十年，近年天平有所倾斜——但仍未一锤定音。"},
+      {seal:"核", when:"约 18 – 16 亿年前", ma:1700, t:"真核细胞登场", d:"一个细胞吞下了另一个细胞（但没消化），二者从此搭伙过日子——线粒体就这样诞生。复杂生命的核心硬件，完成组装。"}
+    ],
+    deep:{title:"氧气、铁锈与内共生", hint:"点开看进阶细节", points:[
+      {t:"氧气是怎么“攒”起来的", d:"把大气想象成一座水库：蓝细菌负责进水，海水铁、火山气体负责放水。当放水阀门全部饱和失效，水位才第一次肉眼可见地上涨——这就是大氧化事件，发生在约 24.5 – 23.2 亿年前。"},
+      {t:"条带状铁建造（BIF）：地球的铁矿从哪来", d:"氧气遇到溶解铁，立刻“生锈”沉底；周期性的氧化波动让铁层层沉积，形成红黑相间的条带。今天澳大利亚、巴西的大型铁矿，多数都是那一时代的“锈迹化石”。"},
+      {t:"内共生：一个被嘲笑的伟大理论", d:"生物学家林恩·马古利斯提出“真核细胞来自细胞间的合作”时，论文被十几次拒稿。如今，线粒体的双层膜、独立 DNA 已成教科书常识——她赢了。"},
+      {t:"冰期与氧气的连锁反应", d:"氧气上升 → 甲烷（强温室气体）被氧化消耗 → 温室效应减弱 → 冰川扩张 → 冰面反射阳光更冷……一个正反馈的“冷循环”。这是休伦冰期的标准剧本。"}
+    ]},
+    nugget:"你每次深呼吸，吸进去的其实都是 20 多亿年前一场“化学事故”的余波——而那场事故的始作俑者，是一群看不见的小细菌。"
+  },
+  {
+    id:"ch-04", era:"中元古代", name:"无聊的十亿年", range:"约 16 – 10 亿年前",
+    startMa:1600, endMa:1000, c:"#a9853b", cd:"#d9b060",
+    tag:"地球按下了暂停键——十亿年，慢得连演化都打了个哈欠。",
+    nar:[
+      "从 16 亿到 10 亿年前，地球进入了一段神奇的稳定期：氧气低平、气候温和、海洋安静，生物的进化也慢得反常。科学家给这段日子起了个外号——「无聊的十亿年」。",
+      "但「无聊」只是主角还没有登场。这段时期里，细胞悄悄学会了越来越复杂的操作，最重大的转折是：有性生殖出现了。在此之前，细胞大多靠「复制自己」繁殖；从那以后，生命的说明书可以两两重排，组合出无穷变化。",
+      "也是这十亿年里，陆块们慢慢聚拢成一个超级大陆——罗迪尼亚（Rodinia）。它的拼合与分裂，将在后面改写整个星球的命运。有时候，最安静的时代，正在为最喧闹的时代铺路。"
+    ],
+    cards:[
+      {seal:"稳", when:"约 16 – 10 亿年前", ma:1300, t:"无聊的十亿年", d:"环境稳定、氧气低平、演化缓慢。不过所谓「无聊」到底有多无聊，近年正被重新评估——稳定，也是一种活法。"},
+      {seal:"性", when:"约 10.5 亿年前", ma:1050, t:"性与基因洗牌", d:"有性生殖的最早证据登场（红藻化石记录）。从此基因可以两两重组——演化的速度阀门，被悄悄拧大。"},
+      {seal:"陆", when:"约 11 亿年前", ma:1100, t:"罗迪尼亚超大陆", d:"几乎所有陆块拼成一块巨型大陆。腹地干旱荒凉，边缘却散落着温暖浅海——生命在边缘安静发育。"},
+      {seal:"胞", when:"约 10.5 亿年前", ma:1050, t:"第一次「多细胞」试探", d:"红藻开始出现多细胞形态——最早的多细胞尝试之一。大场面的序幕，已经开始排练。"}
+    ],
+    deep:{title:"无聊、性与超级大陆", hint:"点开看进阶细节", points:[
+      {t:"「无聊」其实是相对的", d:"「无聊的十亿年」（Boring Billion）指的是地质与气候的长期稳定、氧气含量的低平。但近年研究提示：真核生物在这个窗口里并没有完全摸鱼，基因与生态的准备工作一直在进行。"},
+      {t:"有性生殖为什么是革命", d:"无性繁殖像不断复印同一份文件——错字会一代代累积。有性生殖让两份文件互换段落：既稀释坏基因，又能快速拼出新组合。演化从「缓慢修补」切换成了「快速试验」。"},
+      {t:"罗迪尼亚与雪球伏笔", d:"聚合后的超大陆大多窝在低纬度。湿热气候下，岩石风化会大量消耗二氧化碳——大气的保温能力被慢慢削弱。这被认为是后来「雪球地球」的远程伏笔之一。"},
+      {t:"氧气为什么躺平", d:"氧气不是消失了，而是长期维持低水平：来源（光合作用）与消耗（火山气体、岩石氧化）大体打平，形成一种持续近十亿年的化学「紧平衡」。"}
+    ]},
+    nugget:"这十亿年里最宏大的事情都发生在显微镜下：生命学会了「两两合作」——甚至包括把对方整个吞进自己体内。"
+  },
+  {
+    id:"ch-05", era:"新元古代", name:"雪球地球与怪咖时代", range:"约 10 – 5.4 亿年前",
+    startMa:1000, endMa:538.8, c:"#7d9243", cd:"#a8bb6c",
+    tag:"全世界一起冻僵，又一起解冻——醒来后，生命开始「不讲武德」。",
+    nar:[
+      "大约 7 亿年前，地球经历了一场你难以想象的旅行：冰川从两极一路推进到赤道，整个星球被冻成一颗巨大的雪球。海洋在厚厚的冰层下暗暗流动，生命蜷缩在冰缝与热泉口，屏住呼吸。",
+      "这还不是一次。雪球至少来了两回，最冷的时候持续了上千万年。而它的结束同样戏剧性：火山持续喷出的二氧化碳在冰封的大气里攒了几千万年，最终掀翻温室开关——冰盖崩解，地球瞬间「发高烧」。",
+      "剧烈的气候过山车之后，生命变大了。5.75 亿年前，埃迪卡拉生物群登场：叶子、圆盘、羽毛……一堆不像动物、不像植物、甚至不像任何已知东西的生物，在海床上躺平了几千万年——直到下一个时代几乎把它们全部淘汰。"
+    ],
+    cards:[
+      {seal:"雪", when:"约 7.2 – 6.6 亿年前", ma:720, t:"斯图特雪球", d:"第一次全球冰封。赤道附近的岩石里留下冰川的痕迹——这是「雪球假说」最硬的证据之一。"},
+      {seal:"冰", when:"约 6.5 – 6.35 亿年前", ma:645, t:"马里诺雪球", d:"第二幕，同样冻到赤道。解冻后的大洪水与「温室爆表」，在岩层里留下成层碳酸盐的纪念章。"},
+      {seal:"怪", when:"约 5.75 亿年前", ma:575, t:"埃迪卡拉生物群", d:"谜一样的软体生物铺满海床：狄更逊水母、查恩盘虫……地球史上第一批「大个子」。"},
+      {seal:"向", when:"约 5.55 亿年前", ma:555, t:"最早的「方向感」", d:"一条叫金伯拉虫的小家伙：有头有尾、有左有右——两侧对称的身体蓝图上线，动物从此知道该「往哪走」。"}
+    ],
+    deep:{title:"雪球、怪咖与解冻按钮", hint:"点开看进阶细节", points:[
+      {t:"雪球是怎么解开的", d:"火山每时每刻都在往大气里灌二氧化碳。冰封的星球没有雨水、也无法风化岩石——二氧化碳只进不出，攒够几千万年，温室效应终于翻盘：冰盖崩溃，平均气温可能瞬间飙升几十度。"},
+      {t:"怎么知道赤道冻过", d:"两条证据：① 赤道地区发现了典型的冰碛岩（冰川搬运的碎石沉积）；② 解冻后全球海水里沉淀出「盖帽碳酸盐」。二者合起来，指向一次真正的全球性冻结。"},
+      {t:"埃迪卡拉生物到底是谁", d:"它们大多软乎乎、没有硬壳与骨骼，分类至今是难题：一部分可能属于动物（甚至现代门类的先驱），一部分可能是已灭绝的独立门类。那个时代，活像一场风格放飞的设计展。"},
+      {t:"缺氧与新面手", d:"雪球时代前后，氧气含量在波动中缓慢回升。氧气支持更活跃、更耗能的生活方式——先长大，才有资格谈「运动」和「捕食」。"}
+    ]},
+    nugget:"如果当时有外星人路过，他们大概会报告：这颗星球没有生命迹象。但冰层下面，什么都还活着。"
+  },
+  {
+    id:"ch-06", era:"寒武纪", name:"眼睛与铠甲", range:"约 5.4 – 4.9 亿年前",
+    startMa:538.8, endMa:486.85, c:"#5e7f46", cd:"#8fb56c",
+    tag:"一只眼睛睁开，整个海洋从此腥风血雨。",
+    nar:[
+      "5.4 亿年前，海洋里的生命突然「卷」了起来。在此之前，动物大多是软软的、安静的、贴着海底过日子的。而在寒武纪开始后的两千万年里——放在 46 亿年的尺度上，也就是一个周末——几乎所有现代动物门类的祖先集体登场：节肢、软体、腕足、脊索……「寒武纪大爆发」因此得名。",
+      "爆发的背后是一场竞赛。有的动物发明了「看见」——三叶虫长出复眼，把世界看得清清楚楚；有的动物发明了「铠甲」——骨骼、外壳、棘刺，都是为了不被咬；还有的动物发明了「咬」——奇虾，一米长的海中恶霸，前肢带刺、口部像一只菠萝圈。",
+      "从此，海洋不再温柔。捕食者与猎物互相追逐，把生命推上快速演化的跑道。而在这片混乱里，一条不到三厘米的小鱼——昆明鱼，悄悄拥有了「脊椎」，为所有脊椎动物写下了第一行代码。"
+    ],
+    cards:[
+      {seal:"爆", when:"约 5.39 亿年前", ma:539, t:"大爆发", d:"动物门类集体登场。「爆发」其实持续了约 2000 万年，但这在 46 亿年里已经算「瞬间」。"},
+      {seal:"眼", when:"约 5.3 亿年前", ma:530, t:"眼睛与铠甲", d:"三叶虫的复眼、各种外壳与尖刺——捕食压力下，攻防装备集中上线。看得见，才躲得开。"},
+      {seal:"虾", when:"约 5.2 亿年前", ma:520, t:"奇虾出场", d:"当时海洋的顶级掠食者：体长可达一米，前肢带刺，口部呈环形齿。第一批「大反派」亮相。"},
+      {seal:"鱼", when:"约 5.18 亿年前", ma:518, t:"昆明鱼：我们的起点", d:"已知最早的脊椎动物之一，体长不到 3 厘米——你我的脊柱，就从这儿开始。"}
+    ],
+    deep:{title:"爆发、眼睛与化石宝库", hint:"点开看进阶细节", points:[
+      {t:"为什么叫「爆发」", d:"「爆发」说的是演化速率：寒武纪头两千万年里，新增的动物形态数量比之前 30 多亿年的总和还多。它并非一夜完成——只是相对而言，快得离谱。"},
+      {t:"眼睛改变了战争形态", d:"视觉让捕食从「撞运气」升级为「精准狩猎」，也让猎物必须学会躲藏、伪装、逃窜。有科学家认为，视觉的诞生是寒武纪军备竞赛的第一推动力。"},
+      {t:"澄江与布尔吉斯：软体化石宝库", d:"中国澄江（约 5.18 亿年）与加拿大布尔吉斯页岩（约 5.08 亿年）保存了肌肉、肠道甚至眼睛等软体细节——靠的是风暴把生物瞬间埋进缺氧泥层。没有它们，我们对寒武纪几乎是睁眼瞎。"},
+      {t:"Hox 基因：所有动物共用一本说明书", d:"从苍蝇到人类，身体前后轴的「设计图」都由同一套 Hox 基因把控。寒武纪就像一场「同一套积木、拼出所有动物」的开卷考试。"}
+    ]},
+    nugget:"三叶虫是最早「戴眼镜」的动物之一：它复眼里的小透镜最多可达上万枚，看世界的方式与你我完全不同。"
+  },
+  {
+    id:"ch-07", era:"奥陶纪", name:"海洋王朝与第一次浩劫", range:"约 4.9 – 4.4 亿年前",
+    startMa:486.85, endMa:443.1, c:"#2f8f74", cd:"#55b898",
+    tag:"海洋迎来黄金时代，然后领教了「大灭绝」的滋味。",
+    nar:[
+      "寒武纪的混乱之后，奥陶纪的海洋达到第一个繁盛高峰：珊瑚礁第一次成规模地「盖楼」，鹦鹉螺拖着长壳在海底巡航，笔石像小羽毛一样漂浮在洋面，腕足、苔藓虫、海百合各占一角……这场「奥陶纪大辐射」，是生命第一次把生态位填得满满当当。",
+      "但好日子在 4.45 亿年前戛然而止。冈瓦纳大陆的冰川扩张，锁住了大量海水，海平面骤降，浅海生物的栖息地被一点点「抽干」；水温、洋流与氧气循环全被打乱。海洋物种大量消失——地球历史上五次大灭绝的第一次，来了。",
+      "让科学家着迷的是：这次灭绝的「行刑方式」至今有争议。主流认为是冰期与缺氧的连锁反应；也有人提出更科幻的假设——一场来自深空的伽马射线暴，恰好扫过地球。无论真相如何，奥陶纪的教训都很清楚：繁荣，从来不是理所当然。"
+    ],
+    cards:[
+      {seal:"繁", when:"约 4.7 亿年前", ma:470, t:"奥陶大辐射", d:"珊瑚礁、鹦鹉螺、笔石、海百合集体上位——海洋生态系统第一次被「填满」。"},
+      {seal:"螺", when:"约 4.6 亿年前", ma:460, t:"鹦鹉螺巡航", d:"直角石类鹦鹉螺的壳可达数米长，像一支支潜艇舰队。今天的鹦鹉螺，是它们侥幸留下的远亲。"},
+      {seal:"灭", when:"约 4.45 亿年前", ma:445, t:"第一次大灭绝", d:"约 85% 的海洋物种消失。冰期、海平面下降与缺氧轮番出手；还有学者把矛头指向一场遥远的伽马射线暴。"},
+      {seal:"存", when:"约 4.44 亿年前后", ma:444, t:"幸存者名单", d:"笔石、腕足、鹦鹉螺的部分支系挺了过来——生命的班底还在，等待下一次爆发。"}
+    ],
+    deep:{title:"伽马暴、栖息地与「第一次」", hint:"点开看进阶细节", points:[
+      {t:"伽马暴假说是什么", d:"2005 年有研究提出：4.45 亿年前，银河系内一次伽马射线暴（可能源自超新星或中子星合并）扫过地球，破坏臭氧层、让紫外线直射海面。这个假说很迷人，但尚未定论——它没有 K-Pg 撞击那样的「实锤」。"},
+      {t:"冰期怎么杀海洋生物", d:"冰川锁住大量海水，海平面下降，浅海大陆架大面积暴露；同时水温骤降、洋流与氧循环紊乱。对住在浅海的绝大多数生命，这是一次系统性「拆迁」。"},
+      {t:"笔石：会写字的浮游者", d:"笔石是群居的半索动物，化石像铅笔在石头上划过的痕迹。它们演化快、分布广，是地质学家最爱的「标准化石」——用它们可以给岩层「看表」。"},
+      {t:"为什么说这是「第一次」", d:"大灭绝要同时满足三个条件：广度（全球范围）、深度（摧毁生态结构）、速度。奥陶纪末事件是第一个三项全中的案例——从此，「大灭绝」成了一个反复登场的节目类型。"}
+    ]},
+    nugget:"生命第一次尝到「大灭绝」的味道，而导演这场灾难的，可能只是一块改变洋流的冰——或者一场来自星空的闪耀。"
+  },
+  {
+    id:"ch-08", era:"志留纪", name:"披绿时代", range:"约 4.4 – 4.2 亿年前",
+    startMa:443.1, endMa:419.62, c:"#86a05a", cd:"#b0c886",
+    tag:"陆地等了 40 亿年，终于等来第一抹绿。",
+    nar:[
+      "大灭绝之后，海洋用几百万年恢复了元气。鱼类的「有颌革命」也在这时加速：下巴让鱼从「吸尘器」变成了「捕猎者」，脊椎动物的军备竞赛正式鸣枪。",
+      "但志留纪真正的大事件发生在岸上。在紫外线不再那么致命的海岸泥滩里，最早的陆生植物登场——它们小得可怜，没有叶子、没有根，只是贴着湿地匍匐的一小截绿。可就是这截绿，第一次把阳光「种」进了大陆。",
+      "植物扎根的同时，节肢动物也试探着爬上岸：最早的蝎子与多足类的祖先，在潮湿的植物丛里讨生活。陆地的舞台搭好了，幕布才刚刚拉开。"
+    ],
+    cards:[
+      {seal:"孢", when:"约 4.4 亿年前", ma:440, t:"大陆收到第一批孢子", d:"志留纪岩层里出现三缝孢子——它只可能来自陆地植物。大陆的绿色殖民，从微小的孢子开始。"},
+      {seal:"蕨", when:"约 4.25 亿年前", ma:425, t:"库克逊蕨：几厘米的里程碑", d:"已知最早的陆生维管植物之一：几厘米高、一根光杆顶着小囊。渺小，却改写了大陆的颜色与化学。"},
+      {seal:"颌", when:"约 4.39 亿年前", ma:439, t:"有颌类崛起", d:"下巴是一段被「回收利用」的鳃弓。2022 年，中国重庆、贵州一带的化石把有颌类的确凿记录推到约 4.39 亿年前——脊椎动物的进攻时代开始。"},
+      {seal:"蝎", when:"约 4.3 亿年前", ma:430, t:"海蝎子与第一批陆行者", d:"板足鲎在近海横行（最大者出现在泥盆纪，可达 2.5 米，是史上最大的节肢动物）；与此同时，早期蝎子与多足类正试探着登上陆地。"}
+    ],
+    deep:{title:"上岸有多难", hint:"点开看进阶细节", points:[
+      {t:"为什么绿色等了 40 亿年", d:"陆地缺水、紫外线强、几乎没有土壤。是氧气先帮了大忙：臭氧层增厚，为大陆「拉上了遮阳帘」，植物随后才敢离开水面。"},
+      {t:"植物的三件救生装备", d:"角质层防水、维管束输水、孢子借风传播。三件装备凑齐，几厘米的小草才可能在干燥的岸上活下来——它们就是后来所有森林的祖先。"},
+      {t:"下巴为什么是大事件", d:"鱼的嘴巴最初只是一圈吸吮的软骨。鳃弓改造成上下颌后，捕食从「过滤」变成「咬合」——鲨鱼、恐龙与人类的下巴，都源自志留纪的一次「零件回收」。"},
+      {t:"板足鲎：比恐龙更久的霸主", d:"板足鲎（海蝎子）在近海称霸近两亿年，比恐龙统治陆地的时间更长。它们的远亲——鲎，今天仍然在海滩上产卵，被称作活化石。"}
+    ]},
+    nugget:"你今天在公园里踩到的每一寸绿色，都站在这株 4 亿年前、几厘米高的小草打下的江山上。"
+  },
+  {
+    id:"ch-09", era:"泥盆纪", name:"鱼的时代", range:"约 4.2 – 3.59 亿年前",
+    startMa:419.62, endMa:358.86, c:"#b0832f", cd:"#d4a957",
+    tag:"森林第一次铺满大陆，鱼学会了「走路」。",
+    nar:[
+      "志留纪点下的绿色火种，在泥盆纪烧成了森林。3.9 亿年前，最早的森林已经在湿地上生长——树木第一次有了像样的根系，把岩层撬开、把大气含氧量推高。大陆变绿的速度，比此前 40 亿年里的任何时候都快。",
+      "海洋这边是「鱼的时代」：珊瑚礁盛大复苏，盾皮鱼、肉鳍鱼、早期鲨鱼各据一方。其中一类肉鳍鱼，把胸鳍里的骨头练得越来越结实——它们开始用鳍在浅水里撑着自己前进。3.75 亿年前，提塔利克鱼活成了这件事的证据：一条有脖子、能转头的鱼。",
+      "但泥盆纪的结尾不太平：海洋缺氧、气候剧变接连发作，两次灭绝脉冲收走了大部分海洋生物。森林也有副作用——植物根系疯狂风化岩石、抽走大气里的二氧化碳；养料冲进海洋又引发缺氧。地球又一次被生命自己的手改变。"
+    ],
+    cards:[
+      {seal:"林", when:"约 3.9 亿年前", ma:390, t:"最早森林", d:"英国 Hangman 砂岩（2024 年确认）保存了世界最古老的森林：小树纤瘦成行、根系交错——陆地第一次有了「层」。"
+      },
+      {seal:"臂", when:"约 3.75 亿年前", ma:375, t:"提塔利克鱼", d:"胸腔里有肺、鳍里有上臂与前臂的雏形——这条来自北极圈的鱼，是「从水到陆」最著名的证据。"},
+      {seal:"盾", when:"约 3.8 亿年前", ma:380, t:"盾皮鱼称霸", d:"邓氏鱼家族的颌骨像两把自锐的铡刀，从鱼到小鲨都在它的菜单上——它是最早的「超级捕食者」之一。"},
+      {seal:"灭", when:"约 3.72 – 3.59 亿年前", ma:365, t:"泥盆末灭绝", d:"至少两次脉冲（Kellwasser 与 Hangenberg）：珊瑚礁崩溃、海洋缺氧。合计约 70% – 80% 的动物物种告别了舞台。"}
+    ],
+    deep:{title:"森林、步伐与两次补刀", hint:"点开看进阶细节", points:[
+      {t:"最早的森林长什么样", d:"2024 年确认的英国 Hangman 砂岩森林约 3.9 亿年：小树高不过几米、纤瘦成行，根系纵横交错——被一场风暴连根定格。它证明森林生态系统比人们此前认为的更早成型。"},
+      {t:"鱼怎么学会走路", d:"提塔利克的「手」不是凭空长出来的：肉鳍鱼先在水里用鳍撑着身体「划水走路」，这套动作被后来真正登陆的两栖类继承。演化不常发明新零件，它擅长改装旧零件。"},
+      {t:"森林的副作用", d:"根系风化岩石、把二氧化碳锁进碳酸盐，让地球慢慢变冷；同时森林把养料冲进海洋，助推藻华与缺氧。假说认为，泥盆末的灭绝里，森林「有份」——这是生命改造地球的最早大型案例之一。"},
+      {t:"两次补刀", d:"Kellwasser 事件（约 3.72 亿年前）先来袭，Hangenberg 事件（约 3.59 亿年前）补刀。海洋缺氧是共同主线——氧气的账本又一次把生命推向悬崖。"}
+    ]},
+    nugget:"你手腕里那两根灵活的骨头（尺骨与桡骨），最初的工作是帮一条鱼在泥里撑住自己——今天它帮你刷卡、签字、比心。"
+  },
+  {
+    id:"ch-10", era:"石炭纪", name:"巨虫森林与煤炭", range:"约 3.59 – 2.99 亿年前",
+    startMa:358.86, endMa:298.9, c:"#4f8d85", cd:"#7fb5ad",
+    tag:"地球盖上了最厚的绿色毯子——虫子和树都疯了。",
+    nar:[
+      "石炭纪的大陆上，森林是第一主角：树蕨、木贼、石松类植物疯长到二三十米，湿热的沼泽连成一片。植物倒下、被水淹没、经年累月地堆积——两亿多年后，它们成了人类烧掉的煤。石炭纪的英文名 Carboniferous，本意就是「产煤的」。",
+      "疯狂的森林还改写了空气：光合作用产氧，沼泽又把碳埋进地下不还给大气——大气含氧量冲向历史高点（传统模型约 30% – 35%，新研究对此有异议）。富裕的氧气顺着气管灌进昆虫体内，巨型节肢动物于是成为时代主角：翼展可达 70 厘米的巨脉蜻蜓，在树冠之间巡航。",
+      "另一件大事藏在蛋里：脊椎动物发明了「羊膜卵」——蛋壳能锁住水分，胚胎可以在干燥的陆地上发育。从此，脊椎动物彻底摆脱对水塘的依赖——爬行动物的时代，已在后台候场。"
+    ],
+    cards:[
+      {seal:"煤", when:"约 3.2 亿年前", ma:320, t:"煤森林大堆积", d:"全球大片沼泽森林反复生长、掩埋、碳化。今天烧的每一吨石炭纪煤，都是那个时代存下的「阳光存单」。"},
+      {seal:"氧", when:"约 3.1 亿年前", ma:310, t:"大气氧冲顶", d:"传统模型认为氧含量一度冲上 30% – 35%（这个峰值有多高，至今仍在争论）。氧气过剩，给了巨型昆虫呼吸的底气。"},
+      {seal:"虫", when:"约 3 亿年前", ma:300, t:"巨脉蜻蜓", d:"翼展 65 – 75 厘米的蜻蜓远亲，在湿热森林上空滑翔。昆虫能长这么大，氧气帮了大忙——但体型与氧气的关系，学界也仍在讨论。"},
+      {seal:"蛋", when:"约 3.2 亿年前", ma:315, t:"羊膜卵的发明", d:"「蛋壳里的私人水池」：硅质或钙质外壳锁住水分。最早羊膜动物（如林蜥）约 3.18 亿年前登场，繁殖从此不再需要水塘。"}
+    ],
+    deep:{title:"煤炭、巨虫与那张「出生证」", hint:"点开看进阶细节", points:[
+      {t:"煤炭是怎么形成的", d:"植物残体在积水沼泽里缺氧、无法完全腐烂，一层层积成泥炭；地壳下沉、加热加压，泥炭最终变成褐煤、烟煤。石炭纪「特能产煤」，是因为大规模沼泽恰逢盆地持续沉降——天时地利。"},
+      {t:"巨虫为什么消失了", d:"氧气高峰回落，靠气管被动扩散呼吸的昆虫首先被「限高」；气候转干、栖息地碎裂再补一刀。巨虫就成了地质记录里的绝响。"},
+      {t:"羊膜卵改变了什么", d:"两栖类的卵必须泡在水里；羊膜卵自带羊膜腔（私人水池）与外壳保护。有了它，脊椎动物才可能向大陆腹地进军——爬行动物、恐龙、鸟、哺乳动物，全在这张「出生证」上签了字。"},
+      {t:"石炭纪的雨林也会崩溃", d:"石炭纪末期气候转干，第一代雨林大面积解体（「石炭纪雨林崩溃」事件）。它像一场预演：此后每一次气候剧变，雨林都会被推上风口浪尖。"}
+    ]},
+    nugget:"你手机里充的电、暖气里的热，有一部分来自 3 亿年前的石炭纪森林——阳光存了 3 亿年，人类只用了 200 年就取走了大半。"
+  },
+  {
+    id:"ch-11", era:"二叠纪", name:"盘古终局", range:"约 2.99 – 2.52 亿年前",
+    startMa:298.9, endMa:251.9, c:"#c04a32", cd:"#e07a5c",
+    tag:"所有大陆撞成一块，生命收到了史上最惨烈的一张账单。",
+    nar:[
+      "二叠纪的主角是「拼图游戏」的终局：地球上的陆块挤成一块巨无霸——盘古大陆（Pangea）。它的腹地远离海洋，是望不到头的沙漠；海岸线漫长而单调。动物只能在为数不多的绿洲之间长途跋涉。",
+      "陆地上的主角是「似哺乳爬行动物」：长着背帆的异齿龙、像矮胖水豚的二齿兽类，还有我们的远房近亲——兽孔类。它们在大陆上开枝散叶，看起来，未来的剧本该由它们书写。",
+      "然后，地狱开门了。约 2.52 亿年前，西伯利亚地下的岩浆以「洪水玄武岩」的方式喷涌了几十万年：二氧化碳飙升、全球升温、酸雨、臭氧崩坏、海洋缺氧……地球历史上最惨烈的灭绝事件，带走了约 81% 的海洋物种与大量陆地生物。少数幸存者，将见证恐龙时代的到来。"
+    ],
+    cards:[
+      {seal:"拼", when:"约 2.9 亿年前", ma:290, t:"盘古大陆成形", d:"几乎所有陆块撞成一整块。大陆内部干旱化，全球海岸线「单调化」——多样性的舞台先被拆了一半。"},
+      {seal:"兽", when:"约 2.7 亿年前", ma:270, t:"我们的远亲当道", d:"异齿龙、二齿兽、兽孔类……似哺乳爬行动物是此时陆地的常客。它们中的一支，将是所有哺乳动物的祖先。"},
+      {seal:"火", when:"约 2.52 亿年前", ma:252, t:"西伯利亚暗色岩", d:"史上最大规模的火山活动之一：熔岩覆盖数百万平方公里，气体把地球推入「温室 + 缺氧 + 酸化」的三重绞杀。"},
+      {seal:"劫", when:"约 2.52 亿年前", ma:251.9, t:"二叠纪末大灭绝", d:"约 81% 的海洋物种消失（最新修订口径；旧说 90% 以上）。陆地生态系统同样崩塌——这是地球离「剧终」最近的一次。"}
+    ],
+    deep:{title:"死亡的链条与最后的幸存者", hint:"点开看进阶细节", points:[
+      {t:"灭绝的死亡链条", d:"第一步：火山二氧化碳 → 全球升温；第二步：海洋变暖、含氧量暴跌 → 大量生物窒息；第三步：缺氧海水释放硫化氢等毒气 → 陆地和海洋一起中毒。三连击，比单次撞击更“慢性而彻底”。"},
+      {t:"为什么说它比恐龙灭绝更惨", d:"与 K-Pg 灭绝相比，二叠末不仅物种损失更大，生态系统的「骨架」也被拆掉了：礁石系统消失、森林崩溃，恢复用了数百万年。惨烈度看的是生态结构，不只是物种数量。"},
+      {t:"幸存者：水龙兽", d:"灭绝之后，一种叫水龙兽的兽孔类（猪一般大小）几乎遍布全球——研究估算，它一度占据陆地脊椎动物的大多数。霸主退场后，总有人捡到王冠。"},
+      {t:"盘古大陆的遗产", d:"后来，盘古沿着裂缝一点点撕开，养育出新的海洋与海岸线——今天的大西洋，就是它裂开的证据。聚合是二叠纪的开幕词，裂解是中生代的主题曲。"}
+    ]},
+    nugget:"如果给地球史排「最接近剧终」的时刻，二叠纪末排第一——但生命还是从残局里，把故事继续讲了下去。"
+  },
+  {
+    id:"ch-12", era:"三叠纪", name:"劫后乱世", range:"约 2.52 – 2.01 亿年前",
+    startMa:251.9, endMa:201.4, c:"#8a4b93", cd:"#b078bb",
+    tag:"王座空了几百万年——先坐上去的，居然不是恐龙。",
+    nar:[
+      "大灭绝之后的海洋和陆地都空空荡荡，谁先回来，谁就定规则。陆地上，鳄鱼的远亲——伪鳄类一度称王：有的体型如狼，有的跑起来像猎豹。而真正的恐龙，此刻还只是生态里随处可见的「小角色」。",
+      "恐龙从三叠纪中期登场（约 2.3 亿年前），最初它们中等体型、没什么存在感。与此同时，小型毛茸茸的「哺乳形类」也在夜色里活动——它们大多昼伏夜出，靠敏捷与杂食，在夹缝里苟住了一个生态位。",
+      "三叠纪的结尾又是一场大灭绝（约 2.01 亿年前）：大西洋裂解的前奏点燃了 CAMP 火山，气候剧烈反转。伪鳄类遭到重创，恐龙却挺了过来——随后的 1.4 亿年，属于它们。"
+    ],
+    cards:[
+      {seal:"鳄", when:"约 2.4 亿年前", ma:240, t:"伪鳄类统治", d:"三叠纪的陆地霸主是鳄鱼的远亲（如波斯特鳄）。恐龙这时还没资格上主桌——先来的，反而先出局。"},
+      {seal:"龙", when:"约 2.3 亿年前", ma:230, t:"最早的恐龙", d:"阿根廷、巴西的岩层里出现最早的确凿恐龙（如始盗龙类）。小小的开局，谁会想到后面是 1.4 亿年的王朝。"},
+      {seal:"兽", when:"约 2.2 亿年前", ma:220, t:"夜行者：最早的哺乳形类", d:"体型如鼩鼱、大多夜间活动——我们的祖先此时是「恐龙阴影里的小透明」。低调，但活着。"},
+      {seal:"灭", when:"约 2.01 亿年前", ma:201.4, t:"三叠末大灭绝", d:"CAMP 大火成岩省喷发，气候先冷后热剧烈反转：约 76% 的物种消失——伪鳄类退场，恐龙登基。"}
+    ],
+    deep:{title:"谁在真正统治三叠纪", hint:"点开看进阶细节", points:[
+      {t:"教科书没告诉你的真相", d:"「恐龙的时代」常被说成从三叠纪开始——其实不对。三叠纪的舞台主角是伪鳄类与似哺乳爬行动物；恐龙只是「接盘侠」：对手的倒下，才是它起飞的风口。"},
+      {t:"CAMP 是什么", d:"中大西洋岩浆省（CAMP）：盘古大陆开始裂开时，裂缝处喷发的大规模岩浆活动，横跨今天的北美东部、西非、南美北部。它的火山气体脉冲，与三叠末灭绝的节奏几乎同步。"},
+      {t:"哺乳形类凭什么活下来", d:"体型小（耗能少、易躲藏）、杂食（不挑食）、可能夜行（避开白天的主子）——三条「平庸」的生存策略，恰好是乱世最优解。"},
+      {t:"恐龙为什么能崛起", d:"机会窗口 + 自身条件：直立行走省力、高效的气囊式呼吸系统、可能已是「中温」代谢。风口来临时，恐龙恰好是准备最充分的那个——运气和实力，很难分家。"}
+    ]},
+    nugget:"最早的一批恐龙只有大狗那么大，还可能满身是毛——想象一支「毛茸茸的霸王龙预备队」。"
+  },
+  {
+    id:"ch-13", era:"侏罗纪", name:"巨兽盛世", range:"约 2.01 – 1.43 亿年前",
+    startMa:201.4, endMa:143.1, c:"#3d9db8", cd:"#6fc3da",
+    tag:"巨兽的时代：植物长成了森林，恐龙长成了山脉。",
+    nar:[
+      "侏罗纪的开局，是恐龙终于「长开了」：蜥脚类把脖子越伸越长、身体越滚越大——梁龙、腕龙们的体长可达二三十米，它们用食量把植物世界的天花板重新推高。",
+      "天上也不再只有昆虫：翼龙展开双翼巡航海岸；而在丛林里，第一撮羽毛正在改变命运——1.5 亿年前，始祖鸟用羽毛滑翔在树冠之间，鸟类与恐龙的故事线在这里打了个结。",
+      "海里有鱼龙与蛇颈龙；陆地上，裸子植物森林无人能挡——松、柏、苏铁、银杏的祖先连成绿海。盘古大陆还在裂缝中漂移，海道的开合重塑着气候。一个温润而巨大的世界，正处在它的黄金年代。"
+    ],
+    cards:[
+      {seal:"巨", when:"约 1.6 亿年前", ma:160, t:"蜥脚类极盛", d:"梁龙、腕龙、马门溪龙……二三十米长、几十吨重。捕食者对它们，也只能「挑小号的打」。"},
+      {seal:"翅", when:"约 1.5 亿年前", ma:150, t:"始祖鸟：羽毛的答卷", d:"有羽毛、有翅膀，也有牙齿与长尾骨。它站在「恐龙→鸟」的门槛上——鸟类，正是恐龙家族存续至今的那一支。"},
+      {seal:"飞", when:"约 1.6 亿年前", ma:155, t:"翼龙巡航", d:"翼龙不是恐龙，而是飞行爬行类的独立分支：翼膜由一根超长的无名指撑起。制空权，被它们比鸟更早拿下。"},
+      {seal:"裸", when:"约 1.8 亿年前", ma:180, t:"裸子植物的森林", d:"松柏、苏铁、银杏称霸陆地——没有花，也没有果；种子裸露在球果里，是那个时代最时髦的繁殖策略。"}
+    ],
+    deep:{title:"羽毛、温度与一只叫「鸟」的恐龙", hint:"点开看进阶细节", points:[
+      {t:"恐龙到底是不是冷血动物", d:"现代共识倾向「中温」：恐龙生长快、活动量大，代谢可能介于冷血爬行类与温血鸟类之间（不同类群差异很大）。这场争论从 19 世纪吵到今天，仍未完全收场。"},
+      {t:"羽毛最初是干什么的", d:"取暖、炫耀、遮阳，甚至「滑翔伞」——飞行的功能是后来才被征用的。演化常常把旧零件派上新用途。"},
+      {t:"鸟=恐龙，花了 150 年才被接受", d:"1861 年始祖鸟现身后，赫胥黎就提出「鸟类源自恐龙」；直到 1990 年代，中国辽西的带羽毛恐龙化石大规模出土，这个结论才彻底「翻案」成共识。"},
+      {t:"侏罗纪的尽头", d:"侏罗纪以一次小规模的灭绝收尾（约 1.45 亿年前的海相事件），珊瑚与部分海洋生物受损——它更像一个逗号，为白垩纪的「花开时代」让出了路。"}
+    ]},
+    nugget:"你在动物园看到的长颈鹿、在餐桌上啃的鸡翅，和梁龙、霸王龙共享同一套「颈椎与指骨设计图」——恐龙没有消失，它们只是缩小、长毛、学会了飞。"
+  },
+  {
+    id:"ch-14", era:"白垩纪", name:"花开与末日", range:"约 1.43 – 0.66 亿年前",
+    startMa:143.1, endMa:66.0, c:"#79a83f", cd:"#9cc26e",
+    tag:"花开了，蜜蜂来了——然后，天塌了。",
+    nar:[
+      "白垩纪是一场「新世界」的装修：开花植物强势登场，用花朵、果实和花粉与昆虫结成同盟，迅速铺满大陆；恐龙进入最后的繁盛——霸王龙、三角龙、鸭嘴龙各占一方，鸟类已能飞翔，哺乳动物在灌木丛里安静地过着自己的小日子。",
+      "海洋同样热闹：菊石与箭石成群，沧龙统治浅海，翼龙的身影掠过洋面。生态系统复杂到了前所未有的程度——一切都指向一个更精彩的未来。",
+      "然后，一颗直径约 10 公里的小行星撞上了今天的墨西哥尤卡坦半岛。尘埃遮天蔽日，光合作用停摆，食物链从底部崩塌——约 6604 万年前，非鸟恐龙与约 75% 的物种一起退场。但故事没有结束：幸存者名单里，有鸟类、哺乳动物，以及无数「不起眼」的小生命。"
+    ],
+    cards:[
+      {seal:"花", when:"约 1.25 亿年前", ma:125, t:"花开世界", d:"被子植物快速多样化：花、果实、与昆虫的共生，把陆地生态系统的效率提升了一个档次。"},
+      {seal:"王", when:"约 6800 – 6600 万年前", ma:67, t:"霸王龙登场", d:"体长约 12 米、咬合力惊人的顶级掠食者——它生活在小行星撞击之前的最后一百多万年里。"},
+      {seal:"陨", when:"约 6604 万年前", ma:66.043, t:"小行星撞地球", d:"希克苏鲁伯撞击：10 公里级小行星撞出约 180 公里宽的陨石坑，全球尘埃让「夏天」停摆了好几年。"},
+      {seal:"亡", when:"约 6600 万年前", ma:66, t:"非鸟恐龙落幕", d:"撞击是主犯，火山是帮凶（德干暗色岩同期喷发）。约 75% 的物种消失——恐龙家族只剩下一支：鸟。"}
+    ],
+    deep:{title:"证据链、速度与幸存者", hint:"点开看进阶细节", points:[
+      {t:"撞击的证据链", d:"全球 K-Pg 地层里那层薄薄的黏土：铱含量异常（地外元素特征）、冲击石英、微玻璃球，以及墨西哥的巨型陨石坑——四重证据，把「小行星」从假说钉成了结论。"},
+      {t:"灭绝到底有多快", d:"撞击与灭绝的时间差不超过约 3 万年——恐龙不是「慢慢衰亡」，而是巅峰期被一记闷棍打断，快到没有任何物种来得及演化出适应。"},
+      {t:"为什么是鸟和哺乳动物活下来", d:"体型小（耗能少、易躲藏）、食性杂（种子、昆虫、腐肉都能吃）、能藏能跑。灾难面前，「大」是缺点，「杂」是保险——飞翔还让鸟可以跨越废墟寻找残存的食物。"},
+      {t:"德干暗色岩扮演什么角色", d:"小行星撞击的同期，印度德干高原正在大规模喷发。主流观点：撞击是主犯，火山是从犯——它的气体可能先削弱了生态系统，让最后一击更致命。"}
+    ]},
+    nugget:"恐龙没有全部灭绝——有羽毛的那一支，今天还在窗外唱歌。（顺便：鸡，确实是一种恐龙。）"
+  },
+  {
+    id:"ch-15", era:"古近纪", name:"劫后重启", range:"约 6600 – 2300 万年前",
+    startMa:66.0, endMa:23.03, c:"#cf8a4c", cd:"#e8ab74",
+    tag:"恐龙腾出来的舞台，哺乳动物只用了几百万年就挤满了。",
+    nar:[
+      "小行星清场之后，哺乳动物迎来属于它们的「开服红利」：体型从小变大、生态位从缝隙走向旷野。马、鲸、蝙蝠、灵长类的祖先，都在这段时间登台——最初它们大多还是小动物，但几百万年里，一切都变了。",
+      "最戏剧性的转折属于鲸：约 5000 万年前，一种叫巴基斯坦古鲸的动物还在浅水里捕鱼、在岸上休息——它四肢健全，会游泳，也会走路。接下来几百万年里，它的后代彻底「下线」陆地，把大海重新变成了主场。",
+      "古近纪的气候也上过热搜榜首：约 5600 万年前的 PETM 事件，全球短时间内升温 5 – 8°C，两极无冰、热带扩张——它像一场「自然版」全球变暖预演。地球扛过去了，代价是生物大迁徙与部分灭绝。"
+    ],
+    cards:[
+      {seal:"起", when:"约 6500 万年前", ma:65, t:"哺乳动物接管", d:"K-Pg 之后，胎盘类快速辐射：体型变大、生态位铺开。最早灵长类的化石证据，也出现在撞击后不久（约 6590 万年前）。"},
+      {seal:"鲸", when:"约 5000 万年前", ma:50, t:"鲸：走回大海的旅程", d:"巴基斯坦古鲸：四肢健全，会游泳也会走路。几百万年后，它的后代甩掉腿、换上尾鳍——海洋史上最不可思议的「返场」。"},
+      {seal:"烧", when:"约 5600 万年前", ma:56, t:"PETM：地球发高烧", d:"全球升温 5 – 8°C，持续十几万年；碳释放总量与今天人类排放同量级。地球扛住了，代价是生物大迁徙。"},
+      {seal:"猿", when:"约 2500 – 3000 万年前", ma:27, t:"猿类支系登场", d:"猿类从猴类里分化出来——我们与旧大陆猴类的「最近共祖」，大约就生活在这些渐新世的森林里。"}
+    ],
+    deep:{title:"返场、发烧与两条腿的伏笔", hint:"点开看进阶细节", points:[
+      {t:"哺乳动物其实等了 1.6 亿年", d:"哺乳形类与恐龙长期共存，大多是夜行小兽。恐龙离场后它们迅速变大变多——「机会」只解释一半；另一半是它们早就备好了牌：温血、牙齿分化、育儿行为。"},
+      {t:"鲸的演化速度", d:"从「会走路的鲸」到完全水生，只用了不到 1000 万年：四肢变鳍、鼻孔后移成喷气孔、体型暴涨（蓝鲸是史上最大的动物）。演化的「快」，取决于选择压力有多急。"},
+      {t:"PETM 是今天的镜子吗", d:"PETM 的碳释放速率远低于今天的人类排放（它多以万年计，我们以百年计）。它是镜子，但不是同一面——速率不同，生态系统能腾挪的余地也不同。"},
+      {t:"古近纪的天空", d:"鸟类继续繁荣：不会飞的巨型鸟类一度称霸陆地（如骇鸟），蝙蝠学会回声定位。没有恐龙的世界里，天空照样拥挤。"}
+    ]},
+    nugget:"鲸的鼻孔花了几百万年，从鼻尖「搬」到了头顶，变成喷气孔——演化施工从不请假，只是慢工出细活。"
+  },
+  {
+    id:"ch-16", era:"新近纪", name:"草原与伏笔", range:"约 2300 – 260 万年前",
+    startMa:23.03, endMa:2.58, c:"#b58f2f", cd:"#dcc65a",
+    tag:"森林退后，草原上前——两条腿的伏笔，埋在一片草浪里。",
+    nar:[
+      "新近纪的地球越来越干、越来越冷：大片森林退后，草原则一路扩张。更耐旱耐热的 C4 植物在约 1000 万年前开始攻城略地，800 – 600 万年间急剧铺开——陆地第一次被「草」这种低调的植物改写。",
+      "森林退、草原上，灵长类的牌桌被彻底重洗。约 700 – 850 万年前，人类的支系与黑猩猩的支系分道扬镳；随后几位「早期人科」先后登场：沙赫人、原初人、地猿……它们的共同点是什么？——开始试着用两条腿站起来。",
+      "站起来，意味着解放双手、看得更远、更省能量；也意味着走进烈日下的草原，去面对猛兽与干旱。约 318 万年前，一位后来被叫作「露西」的南方古猿，把这一切的证据留在了她的骨架里。"
+    ],
+    cards:[
+      {seal:"草", when:"约 1000 – 600 万年前", ma:8, t:"草原时代", d:"C4 植物扩张、草原铺开：食草动物牙齿变高冠、腿变长，捕食者也换了装备——生态系统的规则书被重写。"},
+      {seal:"枝", when:"约 700 – 850 万年前", ma:7.5, t:"人猿分野", d:"分子钟指向：人类与黑猩猩的最近共祖生活在约 700 – 850 万年前。注意——不是「人从黑猩猩变来」，而是一个共同祖先分出了两条路。"},
+      {seal:"立", when:"约 600 万年前", ma:6, t:"站起来！", d:"原初人（约 600 – 570 万年前）的腿骨透露出直立行走的迹象——这是人科历史上关键的一步，比大脑变大早了数百万年。"},
+      {seal:"露", when:"约 318 万年前", ma:3.18, t:"露西", d:"一位成年女性南方古猿的骨架，完整度约 40%。名字来自披头士的歌——发现她的那个晚上，营地正好在放《Lucy in the Sky with Diamonds》。"}
+    ],
+    deep:{title:"草原、分子钟与露西", hint:"点开看进阶细节", points:[
+      {t:"为什么是草原逼出了两条腿", d:"假说一：看得远（警惕猛兽）；假说二：省能量（暴晒下直立受热面小）；假说三：腾出手来携带食物与婴儿。它们可能都对——演化不要求单一理由，够用就行。"},
+      {t:"分子钟是什么", d:"基因以大致恒定的速率积累差异，像一台「分子计时器」。比对人与黑猩猩的基因差异量，就能倒推分家时间——这就是「人猿分野」总是区间的里子。"},
+      {t:"C4 与 C3 的暗号", d:"植物光合作用有两条路线（C3 / C4），产生的碳同位素比例不同。食草动物牙齿珐琅里的碳同位素，就是它们「吃了什么」的日记——用化学给古食谱解密。"},
+      {t:"露西之后", d:"露西之后，人科还有阿法南猿、非洲南猿、能人等一连串「候选主角」；直到约 260 万年前后，石器与肉食把故事推向下一个章节。伏笔已写完，正文即将开始。"}
+    ]},
+    nugget:"露西的名字，来自一首披头士的歌：《Lucy in the Sky with Diamonds》。那晚营地正好在放这首歌——有时候，科学史也有一点浪漫。"
+  },
+  {
+    id:"ch-17", era:"第四纪", name:"人类的黎明与人类世", range:"约 260 万年前 – 今天",
+    startMa:2.58, endMa:0, c:"#a99a43", cd:"#d8d49a",
+    tag:"冰期一轮又一轮——最后站上舞台中央的，是会做工具、会讲故事的物种。",
+    nar:[
+      "第四纪的开场白是「气候的节拍器」：地球轨道的小幅摆动（米兰科维奇循环），让冰期与间冰期交替上演——早更新世约 4.1 万年一轮，后来切换成约 10 万年一轮。冰川像潮水一样来去，逼着所有生物学会「搬家」或「适应」。",
+      "人类这边，剧情开始加速：约 260 万年前，我们这一属开始制作石器；约 190 万年前，直立人走出非洲，把足迹印到亚洲；再往后，用火、狩猎大型动物、牙尖嘴利的尼安德特人……直到约 30 万年前，智人在非洲登场。",
+      "约 7 万年前，一支智人走出非洲，把脚印铺满全球；约 5 万年前，他们在洞穴岩壁上画下自己的世界；约 1.2 万年前，农业出现——人类开始大规模改造地表。2024 年，科学界否决了「人类世」作为正式年代单位，但这层薄薄的「人类印记」，已经被写进岩层。"
+    ],
+    cards:[
+      {seal:"冰", when:"约 260 万年前", ma:2.58, t:"冰期旋回开启", d:"第四纪以周期性冰川为标志：海平面随冰盖涨落上百米，物种迁徙走廊时开时合——气候成了演化最凶的考官。"},
+      {seal:"石", when:"约 260 – 190 万年前", ma:2.2, t:"石器与直立人", d:"奥杜韦石器（约 260 万年前）与更早的临时工具（约 290 万年前）先后登场；直立人在约 190 万年前走出非洲，是最早的「世界公民」。"},
+      {seal:"智", when:"约 30 万年前", ma:0.3, t:"智人登场", d:"摩洛哥 Jebel Irhoud 的化石把智人历史推到约 31.5 万年前（主流口径：约 30 万年前）。此后，是与尼安德特人相遇、混血与全球拓荒的故事。"},
+      {seal:"画", when:"约 5.1 万年前", ma:0.051, t:"洞穴壁画", d:"印尼苏拉威西的洞穴壁画（约 5.12 万年前）是目前最早的「故事场景」——人类不仅活着，还开始记录、想象与讲述。"}
+    ],
+    deep:{title:"表亲、节拍与人类世的裁决", hint:"点开看进阶细节", points:[
+      {t:"尼安德特人：消失的表亲", d:"他们强壮、聪明、会照顾伤者、有葬礼，与智人共存数万年且发生过混血。今天非洲以外的人群里，许多人还带着约 1% – 2% 的尼安德特人基因——他们没有被「取代」，而是部分融进了我们。"},
+      {t:"米兰科维奇节拍", d:"地球轨道的偏心率、地轴倾角、岁差三项周期性摆动，改变着高纬度夏季的日照量：夏天不够热，冬天的雪就化不完；一年年攒下去，冰盖就会长成大陆级规模。"},
+      {t:"人类世为什么被否决", d:"2024 年，国际地层委员会否决了把「人类世」设为正式年代单位的提案（候选起点为 1950 年代核试验留下的钚痕迹）。但「人类世」作为概念，仍在科学与公共讨论中广泛使用。"},
+      {t:"农业：改写地球的一铲", d:"约 1.17 – 1.2 万年前，西亚新月沃地率先驯化小麦、大麦与绵羊。人口聚集、村庄变城市、城市变帝国——人类对地球的系统性改造，从几粒种子的筛选开始。"}
+    ]},
+    nugget:"你身上可能带着约 1% – 2% 的尼安德特人基因——那是一场 5 万年前的「跨物种合作」，规模不大，但足够让他们的影子活到今天。"
+  },
+  /*__CH_MORE__*/
+  ]
+};
+
+/* ---------- 层级归属链（宙 › 代 › 纪） ---------- */
+const HIER = {
+  "ch-01":"冥古宙",
+  "ch-02":"太古宙",
+  "ch-03":"元古宙 › 古元古代",
+  "ch-04":"元古宙 › 中元古代",
+  "ch-05":"元古宙 › 新元古代",
+  "ch-06":"显生宙 › 古生代 › 寒武纪",
+  "ch-07":"显生宙 › 古生代 › 奥陶纪",
+  "ch-08":"显生宙 › 古生代 › 志留纪",
+  "ch-09":"显生宙 › 古生代 › 泥盆纪",
+  "ch-10":"显生宙 › 古生代 › 石炭纪",
+  "ch-11":"显生宙 › 古生代 › 二叠纪",
+  "ch-12":"显生宙 › 中生代 › 三叠纪",
+  "ch-13":"显生宙 › 中生代 › 侏罗纪",
+  "ch-14":"显生宙 › 中生代 › 白垩纪",
+  "ch-15":"显生宙 › 新生代 › 古近纪",
+  "ch-16":"显生宙 › 新生代 › 新近纪",
+  "ch-17":"显生宙 › 新生代 › 第四纪"
+};
+
+/* ---------- 动态图版登记表 ---------- */
+const DEMOS = {
+  "ch-01":{d:"moon",      title:"月球是怎样诞生的", sub:"大碰撞三幕剧：忒伊亚来袭 → 撞击 → 碎片聚成月亮", note:"优先加载 3D 演示（需联网）；断网或加载失败时自动切换到平面版。"},
+  "ch-03":{d:"oxygen",    title:"氧气是怎么攒起来的", sub:"46 亿年大气氧含量 · 动画曲线", note:"曲线为示意：基于主流重建结果的艺术化表达。"},
+  "ch-05":{d:"snowball",  title:"雪球地球：冻结与解冻", sub:"拖动「温室效应」滑块，看冰盖能走多远", note:"示意模型，含「反照率正反馈」：冻透之后，需要更强的温室才能解冻。"},
+  "ch-06":{d:"cambrian",  title:"寒武纪大爆发", sub:"两千万年里，动物门类排队登场", note:"门类与出现次序为示意简化；时间轴 5.43 – 4.85 亿年前。"},
+  "ch-10":{d:"giantbug",  title:"氧气与巨虫", sub:"拖动氧气浓度，看蜻蜓翼展实时变化", note:"石炭纪氧峰值存在争议（传统模型 30–35%）；体型与氧气的关系也仍在讨论。"},
+  "ch-11":{d:"pangea",    title:"大陆漂流记", sub:"从散块到盘古，再裂回今天（可拖动时间轴）", note:"几何为示意简化，非精确古地理重建。"},
+  "ch-14":{d:"impact",    title:"那一天发生了什么", sub:"小行星撞地球 · 四幕分镜", note:"基于主流撞击-灭绝情景的艺术化演示。"},
+  "ch-17":{d:"outafrica", title:"走出非洲", sub:"一支智人如何铺满全球（路径示意）", note:"迁移路线为简化示意；年代取主流区间。"}
+};
+
+/* ============================================================
+   渲染与交互
+   ============================================================ */
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+const ROOT = document.documentElement;
+const Q = new URLSearchParams(location.search);
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const CN = ["零","一","二","三","四","五","六","七","八","九","十","十一","十二","十三","十四","十五","十六","十七","十八","十九","二十"];
+const TOTAL = DATA.meta.totalMa;
+
+/* ---------- 主题 ---------- */
+(function initTheme(){
+  const q = Q.get("theme");
+  const saved = (()=>{try{return localStorage.getItem("earth46.theme")}catch(e){return null}})();
+  const sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  const t = (q==="dark"||q==="light") ? q : (saved || (sysDark?"dark":"light"));
+  ROOT.dataset.theme = t;
+})();
+function drawThemeIcon(){
+  const dark = ROOT.dataset.theme==="dark";
+  $("#tbTheme").innerHTML = dark
+    ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.5v2.4M12 19.1v2.4M2.5 12h2.4M19.1 12h2.4M4.9 4.9l1.7 1.7M17.4 17.4l1.7 1.7M19.1 4.9l-1.7 1.7M6.6 17.4l-1.7 1.7"/></svg>'
+    : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 14.2A8.5 8.5 0 1 1 9.8 3.5a7 7 0 0 0 10.7 10.7z"/></svg>';
+}
+drawThemeIcon();
+$("#tbTheme").addEventListener("click",()=>{
+  ROOT.dataset.theme = ROOT.dataset.theme==="dark"?"light":"dark";
+  try{localStorage.setItem("earth46.theme", ROOT.dataset.theme)}catch(e){}
+  drawThemeIcon();
+  try{window.dispatchEvent(new CustomEvent("earth46:theme"))}catch(e){}
+});
+
+/* ---------- 时钟换算 ---------- */
+function clockFromMa(ma){
+  ma = Math.max(0, ma);
+  const t = 24*(1-ma/TOTAL); // 小时
+  let h=Math.floor(t), m=Math.floor((t-h)*60), s=Math.round(((t-h)*60-m)*60);
+  if(s===60){s=0;m++;} if(m===60){m=0;h++;}
+  const p = n=>String(n).padStart(2,"0");
+  if(h>=24) return {full:"24:00", short:"24:00"};
+  if(ma < 100) return {full:p(h)+":"+p(m)+":"+p(s), short:p(h)+":"+p(m)+":"+p(s)};
+  return {full:p(h)+":"+p(m), short:p(h)+":"+p(m)};
+}
+const clockSvg = '<svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.2 2"/></svg>';
+
+/* ---------- 序幕表盘 ---------- */
+(function renderDial(){
+  const svg = $("#heroDial");
+  const cx=150, cy=150, R=124;
+  const NS="http://www.w3.org/2000/svg";
+  const polar=(frac,r)=>[cx+r*Math.cos(frac*2*Math.PI-Math.PI/2), cy+r*Math.sin(frac*2*Math.PI-Math.PI/2)];
+  let out = '<circle class="dial-ring" cx="150" cy="150" r="124"/>';
+  out += '<circle class="dial-ring" cx="150" cy="150" r="88" opacity=".5"/>';
+  for(let h=0;h<24;h++){
+    const f=h/24, big=h%6===0;
+    const [x1,y1]=polar(f,R), [x2,y2]=polar(f,big?R-14:R-8);
+    out += '<line class="dial-tick'+(big?' big':'')+'" x1="'+x1.toFixed(1)+'" y1="'+y1.toFixed(1)+'" x2="'+x2.toFixed(1)+'" y2="'+y2.toFixed(1)+'"/>';
+  }
+  [[0,"00:00"],[6,"06:00"],[12,"12:00"],[18,"18:00"]].forEach(([h,lab])=>{
+    const [x,y]=polar(h/24, R-26);
+    out += '<text class="dial-lab" x="'+x.toFixed(1)+'" y="'+(y+4).toFixed(1)+'" text-anchor="middle">'+lab+'</text>';
+  });
+  const marks = [
+    {ma:3800, name:"生命第一次心跳", note:"约38亿年前"},
+    {ma:2400, name:"大氧化事件", note:"约24亿年前"},
+    {ma:539,  name:"寒武纪大爆发", note:"约5.4亿年前"},
+    {ma:66,   name:"恐龙落幕", note:"6600万年前"},
+    {ma:0.3,  name:"智人登场", note:"约30万年前"}
+  ];
+  const list = $("#heroMarks");
+  marks.forEach((mk,i)=>{
+    const f = 1-mk.ma/TOTAL;
+    const [x,y]=polar(f, R);
+    out += '<circle class="dial-dot" cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="8.5"/>';
+    out += '<text class="dial-num" x="'+x.toFixed(1)+'" y="'+(y+3.3).toFixed(1)+'" text-anchor="middle">'+(i+1)+'</text>';
+    const clock = clockFromMa(mk.ma);
+    const li = document.createElement("li");
+    li.innerHTML = '<span class="mk-num">'+(i+1)+'</span><span class="mk-t">'+clock.short+'</span><span>'+mk.name+'</span><span class="mk-s">'+mk.note+'</span>';
+    list.appendChild(li);
+  });
+  out += '<line class="dial-hand" x1="150" y1="150" x2="150" y2="46"/>';
+  out += '<circle class="dial-cap" cx="150" cy="150" r="5"/>';
+  svg.innerHTML = out;
+})();
+
+/* ---------- 顶部刻度（章节导航） ---------- */
+const segs = [];
+(function renderSegs(){
+  const box = $("#tbSegs");
+  DATA.chapters.forEach((ch,i)=>{
+    const b = document.createElement("button");
+    b.className="seg";
+    b.style.setProperty("--era", ch.c);
+    b.title = "第"+CN[i+1]+"章 · "+ch.era+" · "+ch.name;
+    b.setAttribute("aria-label", b.title);
+    b.addEventListener("click", ()=>goTo(ch.id));
+    box.appendChild(b); segs.push(b);
+  });
+  // 刻度盘小表针刻度
+  const g = $("#tbDialTicks");
+  for(let h=0;h<24;h++){
+    const f=h/24, a=f*2*Math.PI-Math.PI/2, big=h%6===0;
+    const r1=36, r2=big?30:33;
+    g.innerHTML += '<line x1="'+(40+r1*Math.cos(a)).toFixed(1)+'" y1="'+(40+r1*Math.sin(a)).toFixed(1)+'" x2="'+(40+r2*Math.cos(a)).toFixed(1)+'" y2="'+(40+r2*Math.sin(a)).toFixed(1)+'" stroke="var(--ink3)" stroke-width="'+(big?1.6:1)+'"/>';
+  }
+})();
+
+/* ---------- 出发地图（宙 › 代 › 纪 层级树） ---------- */
+(function renderMap(){
+  const byId = id => DATA.chapters.find(c=>c.id===id);
+  const TREE = [
+    {tier:"宙", name:"冥古宙", yrs:"约 46 – 40.3 亿年前", items:[
+      {id:"ch-01", label:"冥古宙", sub:"无正式代/纪细分"}
+    ]},
+    {tier:"宙", name:"太古宙", yrs:"约 40.3 – 25 亿年前", items:[
+      {id:"ch-02", label:"太古宙", sub:"非正式细分：始太古代 › 古太古代 › 中太古代 › 新太古代"}
+    ]},
+    {tier:"宙", name:"元古宙", yrs:"约 25 – 5.4 亿年前", items:[
+      {id:"ch-03", label:"古元古代", sub:"代"},
+      {id:"ch-04", label:"中元古代", sub:"代"},
+      {id:"ch-05", label:"新元古代", sub:"代 · 内含 拉伸纪 › 成冰纪 › 埃迪卡拉纪"}
+    ]},
+    {tier:"宙", name:"显生宙", yrs:"约 5.4 亿年前 – 今天", eras:[
+      {name:"古生代", yrs:"5.4 – 2.5 亿年前", ids:["ch-06","ch-07","ch-08","ch-09","ch-10","ch-11"]},
+      {name:"中生代", yrs:"2.5 – 0.66 亿年前", ids:["ch-12","ch-13","ch-14"]},
+      {name:"新生代", yrs:"6600 万年前 – 今天", ids:["ch-15","ch-16","ch-17"]}
+    ]}
+  ];
+  const box = $("#mapGroups");
+  const mkItem = (ch, label, sub)=>{
+    const btn = document.createElement("button");
+    btn.className="map-item";
+    btn.style.setProperty("--era", ch.c);
+    btn.innerHTML = '<span class="swatch"></span><span class="nm">'+label+'</span>'
+      + (sub?'<span class="sub">'+sub+'</span>':'')
+      + '<span class="yr">'+ch.range+' · '+ch.name+'</span><span class="go">直达 ▸</span>';
+    btn.addEventListener("click", ()=>goTo(ch.id));
+    return btn;
+  };
+  TREE.forEach(g=>{
+    const el = document.createElement("div");
+    el.className="map-group";
+    el.innerHTML = '<h3><span class="eon-tag">'+g.tier+'</span>'+g.name+'<span class="yrs">'+g.yrs+'</span></h3>';
+    if(g.eras){
+      g.eras.forEach(er=>{
+        const sub = document.createElement("div");
+        sub.className="map-sub";
+        sub.innerHTML = '<span>'+er.name+'</span><span class="yrs">'+er.yrs+'</span>';
+        el.appendChild(sub);
+        er.ids.forEach(id=>{ const ch=byId(id); if(ch) el.appendChild(mkItem(ch, ch.era, "纪")); });
+      });
+    } else {
+      g.items.forEach(it=>{ const ch=byId(it.id); if(ch) el.appendChild(mkItem(ch, it.label, it.sub)); });
+    }
+    box.appendChild(el);
+  });
+  const se = $("#superEon");
+  [["冥古宙","46 – 40.3 亿年前"],["太古宙","40.3 – 25 亿年"],["元古宙","25 – 5.4 亿年"],["显生宙","5.4 亿年 – 今天"]].forEach(([n,y])=>{
+    const d=document.createElement("div");
+    d.innerHTML = '<b>'+n+'</b>'+y;
+    se.appendChild(d);
+  });
+  const note = document.createElement("div");
+  note.className="howto";
+  note.innerHTML = '怎么读这张图：地质年代表一层套一层，由大到小是 <span class="chain">宙 › 代 › 纪 › 世</span>。'
+    + '例如：<span class="chain">显生宙 › 古生代 › 寒武纪</span>、<span class="chain">元古宙 › 新元古代 › 埃迪卡拉纪</span>；最小的「世」例如：第四纪的更新世与全新世。'
+    + '注意：<b>寒武纪属于显生宙</b>——它既不属于太古宙、也不属于元古宙；而「雪球地球」「埃迪卡拉生物群」都发生在元古宙的最后一段。点击任意名称直达对应章节。';
+  box.parentElement.insertBefore(note, box);
+})();
+
+/* ---------- 章节渲染 ---------- */
+(function renderChapters(){
+  const wrap = $("#chapters");
+  DATA.chapters.forEach((ch,i)=>{
+    const num = CN[i+1];
+    const sec = document.createElement("section");
+    sec.className="chapter"; sec.id=ch.id; sec.dataset.sec=ch.id;
+    sec.style.setProperty("--era", ch.c);
+    sec.style.setProperty("--era-d", ch.cd);
+    const dm = DEMOS[ch.id];
+    const hier = HIER[ch.id] || ch.era;
+    let h = '<header class="ch-head reveal">'
+      + '<div class="ch-line1"><span class="ch-num">第'+num+'章</span><span class="ch-era">'+hier+'</span><span class="ch-age">距今 '+ch.range.replace(/^约\s*/,"").replace(/\s*年前$/,"")+' 年</span></div>'
+      + '<h2 class="ch-title">'+ch.name+'</h2>'
+      + '<p class="ch-tag">'+ch.tag+'</p></header>';
+    h += '<div class="nar">'+ch.nar.map((p,pi)=>'<p class="reveal'+(pi===0?' drop-cap':'')+'">'+p+'</p>').join("")+'</div>';
+    h += '<div class="cards">'+ch.cards.map(card=>{
+      const ck = clockFromMa(card.ma);
+      return '<article class="card reveal">'
+        + '<div class="card-top"><span class="seal">'+card.seal+'</span>'
+        + '<div class="card-hd"><h3>'+card.t+'</h3><p class="when">'+card.when+'</p></div></div>'
+        + '<p class="ctext">'+card.d+'</p>'
+        + '<p class="ck">'+clockSvg+' 地球时钟 · '+ck.full+'</p></article>';
+    }).join("")+'</div>';
+    if(dm){
+      h += '<div class="plate reveal" data-demo="'+dm.d+'" style="--era:'+ch.c+'">'
+        + '<div class="plate-head"><span class="plate-title">'+dm.title+'</span><span class="plate-tag">动态图版</span></div>'
+        + '<p class="plate-sub">'+dm.sub+'</p>'
+        + '<div class="plate-stage"><canvas role="img" aria-label="'+dm.title+'"></canvas></div>'
+        + '<div class="plate-foot"></div>'
+        + '<p class="plate-note">'+dm.note+'</p></div>';
+    }
+    h += '<details class="drawer reveal"><summary><span class="dmark">+</span><span>'+"深挖抽屉 · "+ch.deep.title+'</span><span class="dhint">'+ch.deep.hint+'</span></summary><div class="dbody">'
+      + ch.deep.points.map(p=>'<div class="dpoint"><b>'+p.t+'</b>'+p.d+'</div>').join("")
+      + '</div></details>';
+    h += '<p class="nugget reveal"><span class="nglabel">图鉴注脚</span>'+ch.nugget+'</p>';
+    sec.innerHTML = h;
+    wrap.appendChild(sec);
+  });
+})();
+
+/* ---------- 终幕 ---------- */
+(function renderFinale(){
+  const fut = [
+    {w:"未来数万年 ±", t:"冰期还会回来", d:"地球轨道的摇摆节拍并没有停。下一个冰期也许在数万年后敲门——前提是，我们不先把牌桌掀了。"},
+    {w:"约 10 亿年后", t:"太阳开始“发福”", d:"太阳的亮度每亿年缓慢上升。约 10 亿年后，地球平均温度将越过蒸发的临界线——海洋沸腾，复杂生命谢幕。"},
+    {w:"约 50 亿年后", t:"太阳的终章", d:"太阳燃尽核心的氢，膨胀成红巨星。地球的命运尚无定论：被吞没，还是被烤成焦炭后继续绕行——无论哪种，都不适合发朋友圈。"}
+  ];
+  const box = $("#futureCards");
+  fut.forEach(f=>{
+    const el=document.createElement("div");
+    el.className="future-card reveal";
+    el.innerHTML='<p class="fc-t">'+f.t+'</p><p class="fc-w">'+f.w+'</p><p>'+f.d+'</p>';
+    box.appendChild(el);
+  });
+
+  // 一图流 SVG
+  const chapters = DATA.chapters;
+  if(!chapters.length) return;
+  const W=1180, H=250, pad=30, top=118, segH=38;
+  const n=chapters.length, segW=(W-pad*2-n*3)/n;
+  let s='<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="46亿年一图流">';
+  chapters.forEach((ch,i)=>{
+    const x=pad+i*(segW+3);
+    s+='<rect x="'+x.toFixed(1)+'" y="'+top+'" width="'+segW.toFixed(1)+'" height="'+segH+'" rx="3" fill="'+ch.c+'" opacity=".88"><title>第'+CN[i+1]+'章 '+ch.era+' · '+ch.name+'（'+ch.range+'）</title></rect>';
+    s+='<text x="'+(x+segW/2).toFixed(1)+'" y="'+(top+segH/2+4).toFixed(1)+'" text-anchor="middle" font-size="12" fill="#fffdf5" opacity=".95">'+(i+1)+'</text>';
+  });
+  // 关键长钉
+  const pins=[
+    {ma:3800,lab:"04:10 生命",lr:1},
+    {ma:2400,lab:"11:29 大氧化",lr:-1},
+    {ma:539,lab:"21:11 寒武",lr:1},
+    {ma:66,lab:"23:39 恐龙落幕",lr:-1},
+    {ma:0.3,lab:"23:59:54 智人",lr:1}
+  ];
+  function posOf(ma){
+    for(let i=0;i<chapters.length;i++){
+      const ch=chapters[i];
+      if(ma<=ch.startMa && ma>=ch.endMa){
+        const L=(v)=>Math.log(Math.max(v,0.004));
+        const f=(L(ch.startMa)-L(Math.max(ma,0.004)))/((L(ch.startMa)-L(Math.max(ch.endMa,0.004)))||1);
+        const x=pad+i*(segW+3);
+        return x+f*segW;
+      }
+    }
+    return pad;
+  }
+  pins.forEach(p=>{
+    const x=posOf(p.ma), up=p.lr<0;
+    const y1=up?top-8:top+segH+8, y2=up?top-46:top+segH+46;
+    const ty=up?top-56:top+segH+62;
+    s+='<line x1="'+x.toFixed(1)+'" y1="'+y1+'" x2="'+x.toFixed(1)+'" y2="'+y2+'" stroke="var(--gold)" stroke-width="1.4" stroke-dasharray="3 3"/>';
+    s+='<circle cx="'+x.toFixed(1)+'" cy="'+y1+'" r="3.4" fill="var(--gold)"/>';
+    s+='<text x="'+x.toFixed(1)+'" y="'+ty+'" text-anchor="middle" font-size="12.5" fill="var(--gold)">'+p.lab+'</text>';
+  });
+  s+='<text x="'+pad+'" y="26" font-size="12" fill="var(--ink3)">00:00 · 地球诞生</text>';
+  s+='<text x="'+(W-pad)+'" y="26" text-anchor="end" font-size="12" fill="var(--ink3)">24:00 · 此刻</text>';
+  s+='</svg>';
+  $("#oneline").innerHTML = s;
+})();
+
+/* ---------- 深挖抽屉：默认收起；打印时展开 ---------- */
+if(window.matchMedia("print").matches){ $$(".drawer").forEach(d=>d.open=true); }
+
+/* ---------- 滚动联动：刻度针 / 地球时钟 / 章节名 ---------- */
+let offsets = [];
+function measure(){
+  offsets = DATA.chapters.map(ch=>{
+    const el = document.getElementById(ch.id);
+    return {el, top: el.getBoundingClientRect().top + window.scrollY, h: el.offsetHeight, ch};
+  });
+}
+const tbClockTime=$("#tbClockTime"), tbNeedle=$("#tbNeedle"), tbChapter=$("#tbChapter"), tbHand=$("#tbClockHand");
+let lastState = "";
+function onScroll(){
+  if(!offsets.length){ measure(); }
+  if(!offsets.length) return;
+  const refY = window.scrollY + window.innerHeight*0.33;
+  let idx = 0, frac = 0, age = TOTAL;
+  for(let i=0;i<offsets.length;i++){
+    const o=offsets[i];
+    if(refY >= o.top){
+      idx=i;
+      frac = o.h>0 ? Math.min(1, Math.max(0,(refY-o.top)/o.h)) : 0;
+      const a0=Math.log(Math.max(o.ch.startMa,0.004)), a1=Math.log(Math.max(o.ch.endMa,0.004));
+      age = Math.exp(a0+(a1-a0)*frac);
+    }
+  }
+  const beforeAll = refY < offsets[0].top;
+  if(beforeAll){ age = TOTAL; idx=-1; frac=0; }
+  const afterAll = refY > offsets[offsets.length-1].top + offsets[offsets.length-1].h;
+  if(afterAll){ age = 0.0005; idx=offsets.length-1; frac=1; }
+  const clock = clockFromMa(age);
+  const pos = ((idx<0?0:idx)+frac)/offsets.length;
+  const state = clock.short+"/"+Math.round(pos*1000);
+  if(state!==lastState){
+    lastState=state;
+    tbClockTime.textContent = clock.short;
+    tbNeedle.style.left = (pos*100).toFixed(2)+"%";
+    const t = 24*(1-Math.max(age,0)/TOTAL);
+    tbHand.setAttribute("transform","rotate("+((t/24*360)-90).toFixed(1)+" 40 40)");
+    if(idx<0) tbChapter.textContent = "序幕 · 从星尘到人类";
+    else tbChapter.textContent = "第"+CN[idx+1]+"章 · "+DATA.chapters[idx].name;
+    segs.forEach((s2,i)=>s2.classList.toggle("on", i===idx));
+  }
+}
+window.addEventListener("scroll", onScroll, {passive:true});
+window.addEventListener("resize", ()=>{measure(); onScroll();});
+document.addEventListener("visibilitychange", ()=>{measure(); onScroll();});
+window.addEventListener("load", ()=>{measure(); onScroll();});
+/* 保险丝：有些环境会吞掉滚动事件（后台标签、预览面板节流）——定期对表兜底 */
+setInterval(()=>{ if(!document.hidden){ onScroll(); } }, 700);
+/* 脚本执行完毕后立刻测一次，避免等待 load */
+measure(); onScroll();
+
+/* ---------- 平滑跳转 ---------- */
+const NOSMOOTH = Q.has("nosmooth") || REDUCED;
+function goTo(id){
+  const el = document.getElementById(id);
+  if(!el) return;
+  const y = el.getBoundingClientRect().top + window.scrollY - (document.documentElement.clientWidth>700?72:96);
+  window.scrollTo({top:y, behavior: NOSMOOTH?"auto":"smooth"});
+}
+$("#fabMap").addEventListener("click", ()=>goTo("map"));
+$("#fabTop").addEventListener("click", ()=>window.scrollTo({top:0, behavior: NOSMOOTH?"auto":"smooth"}));
+
+/* ---------- 渐显 ---------- */
+(function reveal(){
+  const els = $$(".reveal");
+  if(REDUCED || Q.has("noanim")){ els.forEach(e=>e.classList.add("in")); return; }
+  if(!("IntersectionObserver" in window)){ els.forEach(e=>e.classList.add("in")); return; }
+  const io = new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+  }, {threshold:0.1, rootMargin:"0px 0px -6% 0px"});
+  els.forEach(e=>io.observe(e));
+  // 保险丝：无论如何，2.5秒后把视口附近的元素显示出来（防后台标签冷冻）
+  setTimeout(()=>{
+    const sweep = ()=>{
+      els.forEach(e=>{
+        if(e.classList.contains("in")) return;
+        const r = e.getBoundingClientRect();
+        if(r.top < window.innerHeight*1.2) e.classList.add("in");
+      });
+    };
+    sweep();
+    window.addEventListener("scroll", ()=>{ /* 兜底扫描 */ }, {passive:true});
+  }, 2500);
+})();
+
+/* ---------- QA 模式（?shot=章节id 只显示一个区块，供截图） ---------- */
+(function shotMode(){
+  const shot = Q.get("shot");
+  const focus = Q.get("focus");
+  if(!shot && !focus) return;
+  ROOT.classList.add("no-anim");
+  document.body.classList.add("shot");
+  if(!Q.has("tb")){ $("#topbar").style.display="none"; }
+  document.querySelector(".fab").style.display="none";
+  if(shot){
+    $$("main > section, #chapters, #chapters > section").forEach(el=>{ el.style.display="none"; });
+    const el = document.getElementById(shot);
+    if(el){
+      el.style.display="block";
+      if(el.parentElement && el.parentElement.id==="chapters"){ el.parentElement.style.display="block"; }
+    }
+  }
+  measure(); onScroll();
+  if(focus){
+    const el2 = document.getElementById(focus);
+    if(el2){
+      const yy = el2.getBoundingClientRect().top + window.scrollY + (parseFloat(Q.get("f"))||0.3)*el2.offsetHeight - window.innerHeight*0.35;
+      window.scrollTo(0, Math.max(0, yy));
+    }
+  } else if(Q.has("y")){
+    window.scrollTo(0, parseFloat(Q.get("y"))||0);
+  }
+  onScroll();
+  if(shot && Q.has("tb")){
+    // QA：隐藏章节会让偏移计算失真，这里把顶部仪表复位到「序幕」状态，仅供截图
+    tbClockTime.textContent = "00:00";
+    tbNeedle.style.left = "0%";
+    tbChapter.textContent = "序幕 · 从星尘到人类";
+    tbHand.removeAttribute("transform");
+    segs.forEach(s2=>s2.classList.remove("on"));
+  }
+})();
+
+})();
+</script>
+<script>
+/* ============================================================
+   动态图版引擎：零依赖 Canvas 2D；月球大碰撞优先 three.js（断网降级 2D）
+   ============================================================ */
+(function(){
+"use strict";
+const Q = new URLSearchParams(location.search);
+const REDUCED = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NOANIM = REDUCED || Q.has("noanim") || document.documentElement.classList.contains("no-anim");
+const FORCE2D = Q.has("nod3");
+
+document.head.insertAdjacentHTML("beforeend",
+  "<style>.plate-stage .cap{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:13px \"FangSong\",\"STFangsong\",\"仿宋\",serif;color:rgba(255,248,230,.94);text-shadow:0 1px 6px rgba(0,0,0,.55);pointer-events:none;letter-spacing:.06em;line-height:1.7;padding:0 14px}"
+ +".plate-stage .cap.dark{color:var(--ink2);text-shadow:none}</style>");
+
+function cssv(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function pal(){
+  return { paper:cssv("--paper")||"#f2e7cf", paper2:cssv("--panel2")||"#f2e7cd", ink:cssv("--ink")||"#33291a",
+    ink2:cssv("--ink2")||"#6d5c42", ink3:cssv("--ink3")||"#96846b", line:cssv("--line")||"#c8b48b",
+    gold:cssv("--gold")||"#a67c2e", dark:document.documentElement.dataset.theme==="dark" };
+}
+const FANG='"FangSong","STFangsong","仿宋",serif';
+const KAI='"Kaiti SC","STKaiti","KaiTi","楷体",serif';
+function ease(t){ return t<0?0:t>1?1:t*t*(3-2*t); }
+function clamp(v,a,b){ return v<a?a:v>b?b:v; }
+function lerp(a,b,t){ return a+(b-a)*t; }
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function rrect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function chip(ctx,x,y,text,align){
+  ctx.font="12px "+FANG; ctx.textAlign="left"; const tw=ctx.measureText(text).width+16, th=22;
+  let bx = align==="c" ? x-tw/2 : x;
+  rrect(ctx,bx,y-th/2,tw,th,11);
+  const p=pal(); ctx.fillStyle = p.dark?"rgba(30,24,16,.86)":"rgba(250,242,222,.92)";
+  ctx.fill(); ctx.strokeStyle=p.line; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle=p.ink; ctx.fillText(text,bx+8,y+4);
+}
+
+function setupCanvas(cv, aspect){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const env={w:600,h:600,ctx:null,dpr};
+  function fit(){
+    const w=Math.max(260, cv.parentElement.clientWidth-2);
+    const h=Math.round(w/aspect);
+    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    cv.style.width="100%"; cv.style.height="auto";
+    env.w=w; env.h=h; env.ctx=cv.getContext("2d"); env.ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fit();
+  if(window.ResizeObserver){
+    let first=true;
+    new ResizeObserver(()=>{ if(first){ first=false; return; } fit(); if(env.onresize) env.onresize(); }).observe(cv.parentElement);
+  }
+  return env;
+}
+function ctlBtn(foot,label,fn){ const b=document.createElement("button"); b.type="button"; b.className="pbtn"; b.textContent=label; b.addEventListener("click",fn); foot.appendChild(b); return b; }
+function ctlRange(foot,label,min,max,step,val,oninput){
+  const wrap=document.createElement("label"); wrap.className="prange";
+  wrap.appendChild(document.createTextNode(label));
+  const inp=document.createElement("input"); inp.type="range"; inp.min=min; inp.max=max; inp.step=step; inp.value=val;
+  wrap.appendChild(inp);
+  const v=document.createElement("span"); v.className="pval";
+  wrap.appendChild(v); foot.appendChild(wrap);
+  const handler=()=>oninput(parseFloat(inp.value),v,true);
+  inp.addEventListener("input",handler);
+  oninput(parseFloat(inp.value),v,false);
+  return {inp,v,set(x){ inp.value=x; oninput(x,v,false); }};
+}
+function mkCap(stage,dark){ const c=document.createElement("div"); c.className="cap"+(dark?" dark":""); stage.appendChild(c); return c; }
+
+/* ---------- 播放器 ---------- */
+class Player{
+  constructor(plate){
+    this.plate=plate; this.stage=plate.querySelector(".plate-stage");
+    this.cv=plate.querySelector("canvas"); this.foot=plate.querySelector(".plate-foot");
+    this.key=plate.dataset.demo; this.demo=null; this.mounted=false; this.playing=false;
+    this.t=0; this.last=0;
+  }
+  addReplay(){
+    if(!this.demo || this.demo.controls===false || this.foot.dataset.built) return;
+    this.foot.dataset.built="1";
+    const self=this;
+    ctlBtn(this.foot,"↺ 重播",()=>self.play());
+  }
+  play(){ if(!this.demo) return; this.addReplay(); this.playing=true; this.t=0; this.last=performance.now(); kick(); }
+  resume(){ if(!this.demo) return; this.playing=true; this.last=performance.now(); kick(); }
+  stop(){ this.playing=false; }
+  async mount(){
+    if(this.mounted) return; this.mounted=true;
+    const f=FACTORY[this.key]; if(!f) return;
+    try{ this.demo=await Promise.resolve(f(this)); }catch(e){ console.warn("[demo]",this.key,e); }
+    if(!this.demo) return;
+    if(NOANIM){ this.t=this.demo.END||0; this.demo.draw(this.t, 1.0); this.addReplay(); }
+    else { this.demo.draw(0, 0.016); if(this.demo.autoplay!==false) this.play(); }
+  }
+  step(ts){
+    if(!this.playing||!this.demo) return false;
+    const dt=Math.min(0.05,(ts-this.last)/1000||0.016); this.last=ts;
+    this.t=Math.min((this.demo.END||10), this.t+dt);
+    this.demo.draw(this.t, dt);
+    if(this.t>=(this.demo.END||10)) this.playing=false;
+    return this.playing;
+  }
+}
+const FACTORY={};
+
+/* ===== 1 · 月球大碰撞（3D 优先 / 2D 降级） ===== */
+function loadThree(){
+  return new Promise(res=>{
+    if(window.THREE) return res(true);
+    if(FORCE2D) return res(false);
+    const s=document.createElement("script");
+    const to=setTimeout(()=>done(false),6500);
+    function done(v){ clearTimeout(to); res(v); }
+    s.src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js";
+    s.onload=()=>done(!!window.THREE);
+    s.onerror=()=>done(false);
+    document.head.appendChild(s);
+  });
+}
+function webglOK(){
+  try{ const c=document.createElement("canvas"); return !!(c.getContext("webgl2")||c.getContext("webgl")||c.getContext("experimental-webgl")); }catch(e){ return false; }
+}
+function freshCanvas(stage){
+  const old=stage.querySelector("canvas");
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img");
+  try{ const t=stage.closest(".plate").querySelector(".plate-title"); cv.setAttribute("aria-label", t?t.textContent+"（动态演示）":"动态演示"); }catch(e){}
+  if(old) old.replaceWith(cv); else stage.appendChild(cv);
+  return cv;
+}
+FACTORY.moon=function(player){
+  const stage=player.stage;
+  const msg=document.createElement("div"); msg.className="stage-msg"; msg.textContent="正在准备演示……"; stage.appendChild(msg);
+  return loadThree().then(ok=>{
+    if(ok && webglOK()){ try{ const d=moon3D(stage, player); msg.remove(); return d; }catch(e){ /* 降级 */ } }
+    msg.remove();
+    return moon2D(stage, player);
+  });
+};
+function moon3D(stage, player){
+  const THREE=window.THREE;
+  const cv=freshCanvas(stage);
+  const renderer=new THREE.WebGLRenderer({canvas:cv,antialias:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2));
+  renderer.setClearColor(0x0c0e18,1);
+  const scene=new THREE.Scene();
+  const cam=new THREE.PerspectiveCamera(38,16/9,0.1,400); cam.position.set(1.4,2.2,9.6);
+  scene.add(new THREE.AmbientLight(0x46506a,1.0));
+  const dl=new THREE.DirectionalLight(0xfff1d8,2.1); dl.position.set(6,4,5); scene.add(dl);
+  const rnd=mulberry32(7);
+  const N=700; const sp=new Float32Array(N*3);
+  for(let i=0;i<N;i++){ sp[i*3]=(rnd()-0.5)*120; sp[i*3+1]=(rnd()-0.5)*70; sp[i*3+2]=(rnd()-0.5)*120-20; }
+  const sg=new THREE.BufferGeometry(); sg.setAttribute("position",new THREE.BufferAttribute(sp,3));
+  scene.add(new THREE.Points(sg,new THREE.PointsMaterial({color:0xcfd8ff,size:0.32,transparent:true,opacity:.85})));
+  function earthTex(){
+    const c=document.createElement("canvas"); c.width=512; c.height=256; const g=c.getContext("2d");
+    const grd=g.createLinearGradient(0,0,0,256);
+    grd.addColorStop(0,"#2f6db8"); grd.addColorStop(.5,"#2a63a8"); grd.addColorStop(1,"#245a9c");
+    g.fillStyle=grd; g.fillRect(0,0,512,256);
+    const r2=mulberry32(42);
+    for(let i=0;i<26;i++){
+      const x=r2()*512, y=40+r2()*176, rr=14+r2()*36;
+      g.fillStyle=r2()>.35?"#3f7a3f":"#6f8f45";
+      g.beginPath(); g.ellipse(x,y,rr,rr*(0.5+r2()*0.6),r2()*3,0,6.3); g.fill();
+    }
+    g.fillStyle="rgba(255,255,255,.14)";
+    for(let i=0;i<16;i++){ const y=r2()*256; g.fillRect(0,y,512,2+r2()*5); }
+    return new THREE.CanvasTexture(c);
+  }
+  const earth=new THREE.Mesh(new THREE.SphereGeometry(1,48,32),new THREE.MeshPhongMaterial({map:earthTex(),shininess:6}));
+  scene.add(earth);
+  const theia=new THREE.Mesh(new THREE.SphereGeometry(0.34,32,20),new THREE.MeshPhongMaterial({color:0x9d938a,shininess:3}));
+  scene.add(theia);
+  const moon=new THREE.Mesh(new THREE.SphereGeometry(0.27,32,20),new THREE.MeshPhongMaterial({color:0xb9b2a8,shininess:2}));
+  moon.scale.setScalar(0.001); scene.add(moon);
+  function glowTex(){
+    const c=document.createElement("canvas"); c.width=c.height=128; const g=c.getContext("2d");
+    const grd=g.createRadialGradient(64,64,4,64,64,62);
+    grd.addColorStop(0,"rgba(255,250,230,1)"); grd.addColorStop(.35,"rgba(255,216,150,.55)"); grd.addColorStop(1,"rgba(255,200,120,0)");
+    g.fillStyle=grd; g.fillRect(0,0,128,128); return new THREE.CanvasTexture(c);
+  }
+  const flash=new THREE.Sprite(new THREE.SpriteMaterial({map:glowTex(),transparent:true,depthWrite:false,blending:THREE.AdditiveBlending}));
+  flash.scale.setScalar(0.001); scene.add(flash);
+  const PN=900; const ppos=new Float32Array(PN*3); const parts=[]; const r3=mulberry32(99);
+  for(let i=0;i<PN;i++){ parts.push({vx:(r3()-0.5)*3.4, vy:(r3()-0.5)*2.6, vz:(r3()-0.5)*3.4, jx:(r3()-0.5)*0.6, jy:(r3()-0.5)*0.5, jz:(r3()-0.5)*0.6}); }
+  const pg=new THREE.BufferGeometry(); pg.setAttribute("position",new THREE.BufferAttribute(ppos,3));
+  const pm=new THREE.PointsMaterial({color:0xffd9a0,size:0.06,transparent:true,opacity:0.95,blending:THREE.AdditiveBlending,depthWrite:false});
+  const points=new THREE.Points(pg,pm); points.visible=false; scene.add(points);
+  const IMP=new THREE.Vector3(0.96,0.28,0.34).normalize().multiplyScalar(1.04);
+  const START=new THREE.Vector3(8.5,2.2,-2.5);
+  const MOONP=new THREE.Vector3(3.1,0.9,-0.5);
+  const cap=mkCap(stage,false);
+  const END=16;
+  let lt=0;
+  function draw(t){
+    lt=t;
+    cam.position.x=1.4+Math.sin(t*0.12)*0.5; cam.position.y=2.2+Math.sin(t*0.07)*0.25; cam.lookAt(0.5,0.15,0);
+    earth.rotation.y=t*0.22;
+    if(t<4.2){ theia.visible=true; theia.position.lerpVectors(START,IMP,ease(t/4.2)); }
+    else theia.visible=false;
+    if(t>=4.2&&t<5.0){ const k=(t-4.2)/0.8; flash.scale.setScalar(0.4+k*7.5); flash.material.opacity=1-k; }
+    else { flash.scale.setScalar(0.001); }
+    if(t>=4.2){
+      points.visible=true; const tt=t-4.2;
+      const gather=ease(clamp((tt-2.6)/3.4,0,1));
+      const fly=Math.min(tt,3.0);
+      for(let i=0;i<PN;i++){
+        const q=parts[i];
+        let x=IMP.x+q.vx*fly, y=IMP.y+q.vy*fly*0.85, z=IMP.z+q.vz*fly;
+        x+=Math.sin(tt*0.9+i)*0.05; y+=Math.cos(tt*0.8+i)*0.04;
+        ppos[i*3]   = x+(MOONP.x+q.jx*1.3-x)*gather;
+        ppos[i*3+1] = y+(MOONP.y+q.jy*0.9-y)*gather;
+        ppos[i*3+2] = z+(MOONP.z+q.jz*1.3-z)*gather;
+      }
+      pg.attributes.position.needsUpdate=true;
+      pm.opacity=0.95*(1-ease(clamp((t-10.6)/1.6,0,1)));
+    } else points.visible=false;
+    if(t>=10.2){
+      moon.scale.setScalar(0.001+0.999*ease(clamp((t-10.2)/1.4,0,1)));
+      if(t<11.4){ moon.position.copy(MOONP); }
+      else{
+        const g2=ease(clamp((t-11.4)/1.6,0,1));
+        const a=-0.6+(t-11.4)*0.26;
+        moon.position.set(
+          lerp(MOONP.x, Math.cos(a)*3.0, g2),
+          lerp(MOONP.y, 0.55+Math.sin(a)*0.85, g2),
+          lerp(MOONP.z, -0.5+Math.sin(a)*1.4, g2));
+      }
+    }
+    cap.textContent =
+      t<4.2 ? "约 45 亿年前 · 一颗火星大小的天体「忒伊亚」正在接近" :
+      t<7.2 ? "大碰撞发生：碎片被抛入轨道" :
+      t<10.2 ? "碎片在引力中慢慢聚拢……" :
+      t<13.6 ? "月球诞生了——它开始绕着地球运行" :
+      "从这一刻起，地球的夜晚多了一盏灯（可点「重播」再看一遍）";
+    renderer.render(scene,cam);
+  }
+  function resize(){
+    const w=stage.clientWidth||700, h=Math.round(w*9/16);
+    renderer.setSize(w,h,false); cv.style.width="100%"; cv.style.height="auto";
+    cam.aspect=w/h; cam.updateProjectionMatrix();
+    try{ draw(lt); }catch(e){}
+  }
+  resize();
+  if(window.ResizeObserver){ new ResizeObserver(resize).observe(stage); }
+  return {draw, END, resize, recolor(){}};
+}
+function moon2D(stage, player){
+  const cv=freshCanvas(stage);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage,false);
+  const rnd=mulberry32(7);
+  const stars=[]; for(let i=0;i<110;i++) stars.push([rnd(),rnd(),0.5+rnd()*1.2]);
+  const PN=170; const parts=[]; const r2=mulberry32(99);
+  for(let i=0;i<PN;i++) parts.push({a:r2()*6.283, s:0.3+r2()*1.0, jr:1.5+r2()*3});
+  const END=15;
+  function draw(t){
+    const w=env.w,h=env.h,p=pal();
+    ctx.fillStyle="#0c0e18"; ctx.fillRect(0,0,w,h);
+    for(const s of stars){ ctx.globalAlpha=0.35+0.4*Math.sin(t*1.8*s[2]); ctx.fillStyle="#dfe6ff"; ctx.fillRect(s[0]*w,s[1]*h,1.6,1.6); }
+    ctx.globalAlpha=1;
+    const cx=w*0.33, cy=h*0.60, eR=h*0.27;
+    const g=ctx.createRadialGradient(cx-eR*0.35,cy-eR*0.4,eR*0.2,cx,cy,eR);
+    g.addColorStop(0,"#5b9bd8"); g.addColorStop(0.55,"#2f6db8"); g.addColorStop(1,"#17365e");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(cx,cy,eR,0,6.283); ctx.fill();
+    ctx.strokeStyle="rgba(120,180,255,.35)"; ctx.lineWidth=2; ctx.beginPath(); ctx.arc(cx,cy,eR+2,0,6.283); ctx.stroke();
+    ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,eR*0.98,0,6.283); ctx.clip();
+    for(let i=0;i<3;i++){
+      const a=t*0.35+i*2.1;
+      ctx.fillStyle="rgba(74,130,64,.9)";
+      ctx.beginPath(); ctx.ellipse(cx+Math.cos(a)*eR*0.5, cy+Math.sin(a)*eR*0.35, eR*0.34, eR*0.2, a, 0,6.283); ctx.fill();
+    }
+    ctx.restore();
+    const ix=cx+eR*0.9, iy=cy-eR*0.32;
+    if(t<4.2){
+      const k=ease(t/4.2);
+      const sx=w*1.06, sy=h*0.06;
+      const tx=sx+(ix-sx)*k, ty=sy+(iy-sy)*k;
+      const tg=ctx.createRadialGradient(tx-eR*0.06,ty-eR*0.06,eR*0.02,tx,ty,eR*0.17);
+      tg.addColorStop(0,"#c9c1b6"); tg.addColorStop(1,"#6e675e");
+      ctx.fillStyle=tg; ctx.beginPath(); ctx.arc(tx,ty,eR*0.17,0,6.283); ctx.fill();
+    }
+    if(t>=4.2&&t<5.1){
+      const k=(t-4.2)/0.9;
+      ctx.fillStyle="rgba(255,246,214,"+(1-k)*0.95+")";
+      ctx.beginPath(); ctx.arc(ix,iy,20+k*eR*2.4,0,6.283); ctx.fill();
+    }
+    if(t>=4.2){
+      const tt=t-4.2, fly=Math.min(tt,3.2);
+      const gather=ease(clamp((tt-2.6)/3.4,0,1));
+      const mx=w*0.66, my=h*0.26;
+      ctx.globalAlpha=0.95*(1-ease(clamp((tt-4.2)/2,0,1)));
+      for(const q of parts){
+        let x=ix+Math.cos(q.a)*q.s*fly*eR*1.25, y=iy+Math.sin(q.a)*q.s*fly*eR*0.95;
+        x+=Math.sin(tt*0.9+q.a*7)*4; y+=Math.cos(tt*0.8+q.a*5)*3;
+        const xx=x+(mx+Math.cos(q.a)*q.jr-x)*gather;
+        const yy=y+(my+Math.sin(q.a)*q.jr*0.7-y)*gather;
+        ctx.fillStyle="#ffd9a0"; ctx.fillRect(xx,yy,2,2);
+      }
+      ctx.globalAlpha=1;
+    }
+    if(t>=10.2){
+      const k=ease(clamp((t-10.2)/1.4,0,1));
+      let mx=w*0.66, my=h*0.26;
+      if(t>=11.4){
+        const g2=ease(clamp((t-11.4)/1.6,0,1));
+        const a=-0.7+(t-11.4)*0.3;
+        mx=lerp(w*0.66, cx+Math.cos(a)*eR*2.5, g2);
+        my=lerp(h*0.26, cy+Math.sin(a)*eR*1.15, g2);
+      }
+      const mr=eR*0.34*k;
+      const mg=ctx.createRadialGradient(mx-mr*0.3,my-mr*0.3,mr*0.15,mx,my,mr);
+      mg.addColorStop(0,"#d8d2c8"); mg.addColorStop(1,"#8f887d");
+      ctx.fillStyle=mg; ctx.beginPath(); ctx.arc(mx,my,mr,0,6.283); ctx.fill();
+      ctx.fillStyle="rgba(90,84,76,.5)"; ctx.beginPath(); ctx.arc(mx+mr*0.3,my-mr*0.15,mr*0.14,0,6.283); ctx.fill();
+    }
+    cap.textContent =
+      t<4.2 ? "约 45 亿年前 · 一颗火星大小的天体「忒伊亚」正在接近" :
+      t<7.2 ? "大碰撞发生：碎片被抛入轨道" :
+      t<10.2 ? "碎片在引力中慢慢聚拢……" :
+      t<13.6 ? "月球诞生了——它开始绕着地球运行" :
+      "从这一刻起，地球的夜晚多了一盏灯（可点「重播」再看一遍）";
+  }
+  env.onresize=()=>draw(player.t||0);
+  return {draw, END, recolor(){ draw(0); }};
+}
+
+/* ===== 2 · 大氧化（氧气曲线） ===== */
+FACTORY.oxygen=function(player){
+  const env=setupCanvas(player.cv,16/8.2); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  const END=11;
+  const PTS=[[4600,0.04],[3500,0.08],[2500,0.3],[2450,1.0],[2320,2.3],[2000,2.1],[1500,2.7],[1000,3.4],[800,4.2],[635,7.5],[541,11],[445,14],[359,18],[320,29],[260,23],[201,21],[145,20.5],[66,22],[23,21.5],[0,21]];
+  function oAt(age){
+    for(let i=0;i<PTS.length-1;i++){
+      const a=PTS[i], b=PTS[i+1];
+      if(age<=a[0]&&age>=b[0]){ const k=(a[0]-age)/((a[0]-b[0])||1); return lerp(a[1],b[1],k); }
+    }
+    return PTS[PTS.length-1][1];
+  }
+  function draw(t){
+    const p=pal(), w=env.w, h=env.h;
+    const m={l:52,r:80,t:30,b:34};
+    const x0=m.l, y0=h-m.b, x1=w-m.r, y1=m.t;
+    const X=a=>x0+(1-a/4600)*(x1-x0);
+    const Y=v=>y0-clamp(v,0,35)/35*(y0-y1);
+    ctx.clearRect(0,0,w,h);
+    // 休伦冰期带
+    ctx.fillStyle=p.dark?"rgba(120,160,210,.14)":"rgba(90,130,190,.12)";
+    ctx.fillRect(X(2450),y1,X(2220)-X(2450),y0-y1);
+    ctx.font="11px "+FANG; ctx.fillStyle=p.ink3; ctx.textAlign="center";
+    ctx.fillText("休伦冰期",(X(2450)+X(2220))/2,y1+14);
+    // 网格
+    ctx.strokeStyle=p.dark?"rgba(230,217,189,.15)":"rgba(60,45,25,.14)"; ctx.lineWidth=1;
+    [10,20,30].forEach(v=>{ ctx.beginPath(); ctx.moveTo(x0,Y(v)); ctx.lineTo(x1,Y(v)); ctx.stroke();
+      ctx.fillStyle=p.ink3; ctx.textAlign="right"; ctx.fillText(v+"%",x0-6,Y(v)+4); });
+    [4000,3000,2000,1000,0].forEach(a=>{ ctx.beginPath(); ctx.moveTo(X(a),y0); ctx.lineTo(X(a),y0+4); ctx.stroke();
+      ctx.fillStyle=p.ink3; ctx.textAlign="center"; ctx.fillText(a===0?"今天":(a/1000)+"亿",X(a),y0+18); });
+    ctx.strokeStyle=p.line; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+    // 曲线（渐进）
+    const prog=ease(clamp(t/8,0,1));
+    const curAge=4600*(1-prog);
+    ctx.beginPath(); let started=false;
+    for(const pt of PTS){ if(pt[0]<curAge-0.5) continue; const xx=X(pt[0]), yy=Y(pt[1]);
+      if(!started){ ctx.moveTo(xx,yy); started=true; } else ctx.lineTo(xx,yy); }
+    if(started){ ctx.lineTo(X(Math.max(curAge,0)),Y(oAt(curAge))); }
+    ctx.strokeStyle=p.gold; ctx.lineWidth=2.6; ctx.stroke();
+    // 游标
+    const mv=oAt(curAge);
+    ctx.fillStyle=p.gold; ctx.beginPath(); ctx.arc(X(curAge),Y(mv),4.5,0,6.283); ctx.fill();
+    ctx.font="bold 15px Georgia,serif"; ctx.textAlign="left"; ctx.fillStyle=p.gold;
+    ctx.fillText(mv.toFixed(1)+"%",Math.min(X(curAge)+10,x1-24),Y(mv)-8);
+    // 注释（按时间弹出）
+    const notes=[[2450,"大氧化事件：氧气第一次跃升",14], [635,"第二次大氧化：再上台阶",-18], [320,"石炭纪峰值（争议）",-18], [0,"今天：约 21%",-18]];
+    notes.forEach(n=>{
+      const passAt=8*(1-n[0]/4600);
+      const al=ease(clamp((t-passAt)/0.5,0,1));
+      if(al>0){ ctx.globalAlpha=al; chip(ctx,clamp(X(n[0]),x0+40,x1-20),Y(oAt(n[0]))+n[2],"◈ "+n[1],"c"); ctx.globalAlpha=1; }
+    });
+    cap.textContent = prog<1 ? "氧气正在缓慢累积……（蓝带 = 休伦冰期）" : "46 亿年的大气氧账本——两次跃升，改变了世界";
+  }
+  env.onresize=()=>draw(player.t||0);
+  return {draw, END, recolor(){ draw(0); }};
+};
+
+/* ===== 3 · 雪球地球（温度滑块） ===== */
+FACTORY.snowball=function(player){
+  const env=setupCanvas(player.cv,16/8.6); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  let T=14, p=0.06, locked=false, auto=true, tt=0;
+  const END=18;
+  const ctl=ctlRange(player.foot,"🌡 综合温度",-25,30,0.5,T,(v,el,fromUser)=>{
+    if(fromUser) auto=false;
+    T=v; el.textContent=(v>0?"+":"")+v.toFixed(0)+"℃";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  const btn=ctlBtn(player.foot,"自动演示",()=>{ auto=true; tt=0; player.play(); });
+  function phys(dt){
+    if(!locked){
+      if(T<0) p+=dt*(0.12+Math.abs(T)/25*0.5);
+      else if(T>6) p-=dt*(0.10+T/25*0.5);
+      if(p>=0.985){ p=1; locked=true; }
+    } else {
+      if(T>12){ locked=false; }
+    }
+    p=clamp(p,0,1);
+  }
+  function draw(t,dt){
+    if(auto){
+      tt+=dt; const k=tt/END;
+      if(k<0.34) T=lerp(14,-26,ease(k/0.34));
+      else if(k<0.56) T=-26;
+      else if(k<0.9) T=lerp(-26,30,ease((k-0.56)/0.34));
+      else T=30;
+      if(k>=1){ auto=false; }
+      ctl.set(T);
+    }
+    phys(dt);
+    const P=pal(), w=env.w, h=env.h;
+    ctx.clearRect(0,0,w,h);
+    const cx=w*0.36, cy=h*0.52, R=h*0.38;
+    // 海洋
+    const og=ctx.createRadialGradient(cx-R*0.3,cy-R*0.3,R*0.2,cx,cy,R);
+    og.addColorStop(0,P.dark?"#2a4a66":"#7fb2d9"); og.addColorStop(1,P.dark?"#14293c":"#3d6f9e");
+    ctx.fillStyle=og; ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.fill();
+    // 大陆
+    const lands=[[-0.35,-0.15,0.34,0.22,0.4],[0.18,0.28,0.3,0.2,-0.3],[0.05,-0.45,0.26,0.16,0.2]];
+    for(const L of lands){
+      ctx.fillStyle=P.dark?"rgba(120,110,70,.85)":"rgba(126,146,84,.92)";
+      ctx.beginPath(); ctx.ellipse(cx+L[0]*R,cy+L[1]*R,L[2]*R,L[3]*R,L[4],0,6.283); ctx.fill();
+    }
+    // 冰盖
+    if(p>0.01){
+      ctx.save(); ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.clip();
+      const col=locked?"#eef4fa":"#f8f4ea";
+      ctx.fillStyle=col;
+      const hh=R*2*p;
+      ctx.fillRect(cx-R,cy-R,R*2,hh);
+      ctx.fillRect(cx-R,cy+R-hh,R*2,hh);
+      // 雪线碎块
+      const rnd2=mulberry32(5);
+      for(let i=0;i<10;i++){ const side=i%2?1:-1; const yy=cy+side*R+ -side*hh;
+        ctx.beginPath(); ctx.arc(cx-R+ rnd2()*R*2, yy+(rnd2()-0.5)*14, 5+rnd2()*9,0,6.283); ctx.fill(); }
+      ctx.restore();
+      // 边缘
+      ctx.strokeStyle=P.dark?"rgba(238,244,250,.8)":"rgba(240,244,248,.9)"; ctx.lineWidth=1.4;
+      ctx.beginPath(); ctx.arc(cx,cy,R,0,6.283); ctx.stroke();
+    }
+    // 温度计
+    const gx=w*0.78, gy0=h*0.16, gy1=h*0.84;
+    ctx.strokeStyle=P.line; ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(gx,gy0); ctx.lineTo(gx,gy1); ctx.stroke();
+    const ty=gy1-(clamp(T,-25,30)+25)/55*(gy1-gy0);
+    ctx.fillStyle=P.gold; ctx.beginPath(); ctx.arc(gx,ty,6,0,6.283); ctx.fill();
+    ctx.font="12px "+FANG; ctx.fillStyle=P.ink2; ctx.textAlign="left";
+    ctx.fillText("+30℃",gx+12,gy0+4); ctx.fillText("0℃",gx+12,(gy0+gy1)/2); ctx.fillText("-25℃",gx+12,gy1+4);
+    // 状态
+    let s1="温暖的世界——两极无冰", s2="";
+    if(p>=0.985||locked){ s1="❄ 雪球锁定：反照率锁死了温度"; s2="需要更强的温室气体才能解冻（试试把温度拉到 +12℃ 以上）"; }
+    else if(p>0.6){ s1="冰川逼近赤道！"; s2="白色的冰面把阳光反射回太空——越冻越冷"; }
+    else if(p>0.05){ s1="冰盖从两极向外扩张"; s2="冰面反射阳光 → 气温进一步下降（正反馈）"; }
+    ctx.font="16px "+KAI; ctx.fillStyle=P.ink; ctx.textAlign="center";
+    ctx.fillText(s1,w*0.5+20*(cx/w-0.36),h*0.90);
+    if(s2){ ctx.font="12px "+FANG; ctx.fillStyle=P.ink3; ctx.fillText(s2,w*0.5+20*(cx/w-0.36),h*0.90+20); }
+    cap.textContent = locked ? "地球整个冻僵了——但冰层下面，生命还在等待" :
+      (auto&&T<-20 ? "温室效应持续减弱：冰川一路铺向赤道……" :
+      (auto&&T>20&&p>0.1 ? "温室气体终于攒够了：冰盖开始崩解" : "拖动滑块，试试把地球冻住，再把它救回来"));
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  player.stage.addEventListener("pointerdown",()=>{ /* 交互时暂停自动 */ });
+  return {draw, END, autoplay:true, recolor(){ draw(0,0.001); }};
+};
+
+/* ===== 4 · 寒武纪大爆发 ===== */
+FACTORY.cambrian=function(player){
+  const env=setupCanvas(player.cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  const END=12;
+  const ITEMS=[["海绵",538.5],["刺胞",536],["栉水母",535],["扁虫",532.5],["环节",530.5],["软体",528],["腕足",526],["节肢",524],["叶足",522.5],["棘皮",521],["脊索",519],["古虫",517.5]];
+  const COLORS=["#a3405f","#b2568a","#c2663f","#a9853b","#7d9243","#5e7f46","#2f8f74","#86a05a","#4f8d85","#8a4b93","#3d9db8","#b0832f"];
+  const state=ITEMS.map(()=>({on:false,an:0}));
+  function draw(t,dt){
+    const P=pal(), w=env.w, h=env.h;
+    ctx.clearRect(0,0,w,h);
+    const prog=ease(clamp(t/(END-0.6),0,1));
+    const age=543-(543-485)*prog;
+    // 曲线区域
+    const m={l:48,r:26,t:30,b:h*0.44};
+    const x0=m.l,x1=w-m.r,y0=h-m.b,y1=m.t;
+    const X=a=>x0+(543-a)/58*(x1-x0);
+    const Y=n=>y0-(n/12)*(y0-y1);
+    ctx.strokeStyle=P.line; ctx.beginPath(); ctx.moveTo(x0,y0); ctx.lineTo(x1,y0); ctx.stroke();
+    ctx.font="11px "+FANG; ctx.fillStyle=P.ink3; ctx.textAlign="center";
+    [543,530,520,510,500,485].forEach(a=>{ ctx.fillText(a+"Ma",X(a),y0+18); });
+    ctx.textAlign="left";
+    ctx.fillText("累计动物门类（示意）",x0,y1-8);
+    // 阶梯曲线
+    let count=0; let cx0=X(543), cy0=Y(0);
+    ctx.beginPath(); ctx.moveTo(cx0,cy0);
+    ITEMS.forEach((it,i)=>{ if(age<=it[1]){ const xx=X(it[1]); ctx.lineTo(xx,cy0); cy0=Y(i+1); ctx.lineTo(xx,cy0); } });
+    ctx.lineTo(X(Math.max(age,485)),cy0);
+    ctx.strokeStyle=P.gold; ctx.lineWidth=2.4; ctx.stroke();
+    // 游标
+    ctx.strokeStyle=P.gold; ctx.setLineDash([4,4]); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(X(age),y1-6); ctx.lineTo(X(age),y0); ctx.stroke(); ctx.setLineDash([]);
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=P.gold; ctx.textAlign="left";
+    const cnt=ITEMS.filter(it=>age<=it[1]).length;
+    ctx.fillText("≈ "+(age/100).toFixed(2)+" 亿年前 · 已登场 "+cnt+" / 12",X(age)+8,y1-8);
+    // 门类徽章（两行六列）
+    const cols=6, rows=2, bandTop=h*0.60, cellW=(w-60)/cols, cellH=h*0.17;
+    ITEMS.forEach((it,i)=>{
+      const st=state[i];
+      if(!st.on && age<=it[1]){ st.on=true; st.an=0; }
+      if(st.on) st.an+=dt;
+      const col=i%cols, row=(i/cols)|0;
+      const bx=30+cellW*col+cellW/2, by=bandTop+cellH*row+cellH/2;
+      const sc=ease(clamp(st.an/0.45,0,1));
+      const dim=st.on?1:0.16;
+      ctx.globalAlpha=dim*(st.on?1:1);
+      // 徽章圆
+      const R=Math.min(cellW,cellH)*0.30*sc;
+      ctx.beginPath(); ctx.arc(bx,by,R,0,6.283);
+      ctx.strokeStyle=COLORS[i]; ctx.lineWidth=1.8; ctx.stroke();
+      if(st.on){ ctx.fillStyle=COLORS[i]; ctx.globalAlpha=0.10*(1)+0; }
+      ctx.globalAlpha=dim;
+      ctx.font=(it[0].length>2?12:14)+"px "+KAI; ctx.textAlign="center"; ctx.fillStyle=st.on?P.ink:P.ink3;
+      ctx.fillText(it[0],bx,by+ (R>10?5:-2));
+      // 时间小字
+      if(st.on){ ctx.font="10.5px "+FANG; ctx.fillStyle=P.ink3; ctx.fillText(it[1].toFixed(0)+"Ma",bx,by+R+13); }
+      ctx.globalAlpha=1;
+    });
+    cap.textContent = prog<0.35 ? "5.39 亿年前起：动物门类开始「排队登场」" :
+      prog<0.8 ? "两千万年 —— 几乎现代所有动物门类的祖先集体亮相" : "「爆发」落幕：身体的蓝图工具箱，到此配齐";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){ state.forEach(s=>{ if(s.an===0) s.an=0; }); draw(0,0.001); }};
+};
+
+/* ===== 5 · 氧气与巨虫（滑块） ===== */
+FACTORY.giantbug=function(player){
+  const env=setupCanvas(player.cv,16/7.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  let O2=21, auto=true, tt=0;
+  const END=14;
+  const ctl=ctlRange(player.foot,"氧气浓度",15,40,0.5,O2,(v,el,fromUser)=>{
+    if(fromUser) auto=false;
+    O2=v; el.textContent=v.toFixed(0)+"%";
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"自动演示",()=>{ auto=true; tt=0; player.play(); });
+  function drawDragonfly(x,y,span,P){
+    ctx.save(); ctx.translate(x,y);
+    ctx.strokeStyle=P.ink2; ctx.lineWidth=1.6;
+    ctx.beginPath(); ctx.ellipse(0,0,6,Math.max(8,span*0.13),0,0,6.283); ctx.stroke();
+    ctx.beginPath(); ctx.arc(0,-Math.max(8,span*0.13),7,0,6.283); ctx.stroke();
+    ctx.fillStyle=P.ink2; ctx.beginPath(); ctx.arc(-4,-Math.max(8,span*0.13)-1,3,0,6.283); ctx.arc(4,-Math.max(8,span*0.13)-1,3,0,6.283); ctx.fill();
+    ctx.fillStyle="rgba(166,124,46,.16)"; ctx.strokeStyle=P.gold; ctx.lineWidth=1.1;
+    const wingL=span*0.5;
+    for(const s of [-1,1]){
+      for(const k of [0.34,0.72]){
+        ctx.beginPath();
+        ctx.ellipse(s*wingL*0.52, -span*0.06+k*span*0.17, wingL*0.5, Math.max(4,span*0.052), s*(0.22-k*0.38), 0, 6.283);
+        ctx.fill(); ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+  function draw(t,dt){
+    if(auto){
+      tt+=dt; const k=tt/END;
+      if(k<0.28) O2=lerp(21,35,ease(k/0.28));
+      else if(k<0.62) O2=35;
+      else if(k<0.90) O2=lerp(35,21,ease((k-0.62)/0.28));
+      else O2=21;
+      if(k>=1) auto=false;
+      ctl.set(O2);
+    }
+    const P=pal(), w=env.w, h=env.h;
+    ctx.clearRect(0,0,w,h);
+    // 仪表
+    const gx=w*0.24;
+    ctx.textAlign="center";
+    ctx.font="14px "+KAI; ctx.fillStyle=P.ink; ctx.fillText("大气含氧量",gx,h*0.15);
+    ctx.font="bold 30px Georgia,serif"; ctx.fillStyle=P.gold; ctx.fillText(O2.toFixed(1)+"%",gx,h*0.30);
+    const bx0=gx-w*0.14, bx1=gx+w*0.14, by=h*0.58;
+    const B=v=>bx0+(clamp(v,15,40)-15)/25*(bx1-bx0);
+    ctx.fillStyle="rgba(160,60,50,.25)"; ctx.fillRect(B(15),by-9,B(18)-B(15),18);
+    ctx.fillStyle="rgba(110,140,70,.22)"; ctx.fillRect(B(20),by-9,B(25)-B(20),18);
+    ctx.fillStyle="rgba(200,150,60,.25)"; ctx.fillRect(B(27),by-9,B(40)-B(27),18);
+    ctx.strokeStyle=P.line; ctx.lineWidth=1.5; ctx.strokeRect(bx0,by-9,bx1-bx0,18);
+    const nx=B(O2);
+    ctx.strokeStyle=P.gold; ctx.lineWidth=2.5; ctx.beginPath(); ctx.moveTo(nx,by-10); ctx.lineTo(nx,by+10); ctx.stroke();
+    ctx.fillStyle=P.gold; ctx.beginPath(); ctx.moveTo(nx,by-14); ctx.lineTo(nx-5,by-23); ctx.lineTo(nx+5,by-23); ctx.closePath(); ctx.fill();
+    ctx.font="10.5px "+FANG; ctx.fillStyle=P.ink3;
+    [15,20,25,30,35,40].forEach(v=>ctx.fillText(v+"%",B(v),by+26));
+    ctx.fillText("窒息 · 可呼吸 · 火灾频发",(bx0+bx1)/2,by+45);
+    // 蜻蜓
+    const cm=10+(O2-21)*4.286;
+    const pxPerCm=Math.min(w*0.52,480)/75;
+    const span=cm*pxPerCm;
+    drawDragonfly(w*0.68,h*0.50,span,P);
+    ctx.strokeStyle=P.ink2; ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.moveTo(w*0.68-span/2,h*0.84); ctx.lineTo(w*0.68+span/2,h*0.84); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(w*0.68-span/2,h*0.84-5); ctx.lineTo(w*0.68-span/2,h*0.84+5);
+    ctx.moveTo(w*0.68+span/2,h*0.84-5); ctx.lineTo(w*0.68+span/2,h*0.84+5); ctx.stroke();
+    ctx.font="13px "+KAI; ctx.fillStyle=P.ink; ctx.fillText("翼展 ≈ "+cm.toFixed(0)+" 厘米",w*0.68,h*0.84+22);
+    // 现代蜻蜓对照
+    drawDragonfly(w*0.10,h*0.82,10*pxPerCm,P);
+    ctx.font="11px "+FANG; ctx.fillStyle=P.ink3; ctx.fillText("现代蜻蜓 · 约 10 厘米",w*0.10,h*0.82+24);
+    cap.textContent = O2>28 ? "这时的空气「过于营养」——节肢动物吹气球一样长大" :
+      (O2<19 ? "氧气不够用：靠气管呼吸的昆虫率先被「限高」" : "拖动滑块，比较不同氧气浓度下的蜻蜓翼展");
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(t){ draw(t||0,0.001); }};
+};
+
+/* ===== 6 · 大陆漂流记（盘古大陆） ===== */
+const BLOCKS=[
+  {n:"北美", base:[1,1.06,1.02,0.96,0.9,0.86,0.92,1.04],
+   f:[[.20,.34,.065,.075,-.25],[.34,.30,.075,.085,-.15],[.16,.32,.075,.085,-.20],[.13,.28,.075,.09,-.20]]},
+  {n:"南美", base:[1,1.08,1,0.92,0.94,1.02,1.08,1.02],
+   f:[[.36,.62,.055,.08,.4],[.40,.55,.06,.085,.3],[.28,.60,.06,.085,.35],[.30,.60,.055,.09,.3]]},
+  {n:"非洲", base:[1,1.04,1.06,1,0.94,0.92,0.98,1.04],
+   f:[[.52,.60,.075,.09,.1],[.52,.52,.085,.095,.05],[.50,.52,.08,.095,.05],[.52,.50,.08,.10,.02]]},
+  {n:"欧亚", base:[1.06,1,0.94,0.9,0.94,1.02,1.08,1.06],
+   f:[[.62,.28,.095,.075,-.1],[.62,.32,.10,.08,-.05],[.66,.26,.10,.08,-.05],[.70,.26,.11,.085,-.05]]},
+  {n:"印度", base:[1,1.05,1,0.95,1,1.05,1,0.95],
+   f:[[.68,.56,.045,.055,.2],[.62,.48,.045,.055,.1],[.58,.44,.045,.05,.05],[.62,.44,.045,.045,.05]]},
+  {n:"澳洲", base:[1,1.06,1.04,0.96,0.94,0.98,1.04,1.02],
+   f:[[.76,.66,.055,.05,.15],[.66,.62,.055,.05,.1],[.74,.64,.055,.05,.1],[.80,.62,.055,.05,.1]]},
+  {n:"南极", base:[1,1.04,1,0.96,1,1.04,1,0.96],
+   f:[[.58,.78,.07,.05,0],[.54,.74,.07,.05,0],[.60,.80,.07,.05,0],[.48,.90,.08,.045,0]]}
+];
+const YEARS=[540,300,180,0];
+function blockPath(ctx,w,h,b,fr){
+  const f0=Math.floor(clamp(fr,0,3)), f1=Math.min(3,f0+1), k=clamp(fr,0,3)-f0;
+  const A=b.f[f0], B=b.f[f1];
+  const cx=lerp(A[0],B[0],k), cy=lerp(A[1],B[1],k), rx=lerp(A[2],B[2],k), ry=lerp(A[3],B[3],k), rot=lerp(A[4],B[4],k);
+  ctx.beginPath();
+  const n=b.base.length;
+  for(let i=0;i<n;i++){
+    const th=i/n*6.283-1.2, rr=b.base[i];
+    const x=Math.cos(th)*rx*rr*w, y=Math.sin(th)*ry*rr*h;
+    const px=cx*w+(x*Math.cos(rot)-y*Math.sin(rot));
+    const py=cy*h+(x*Math.sin(rot)+y*Math.cos(rot));
+    if(i===0) ctx.moveTo(px,py); else ctx.lineTo(px,py);
+  }
+  ctx.closePath();
+}
+FACTORY.pangea=function(player){
+  const env=setupCanvas(player.cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  let fr=0, auto=true, tt=0;
+  const END=16;
+  const scrub=ctlRange(player.foot,"时间轴（5.4 亿年前 → 今天）",0,3,0.01,0,(v,el,fromUser)=>{
+    if(fromUser){ auto=false; }
+    fr=v;
+    if(fromUser){ try{ draw(player.t||0,0.001); }catch(e){} }
+  });
+  ctlBtn(player.foot,"播放漂移",()=>{ auto=true; tt=0; player.play(); });
+  const TEXT=[
+    "约 5.4 亿年前：陆块大多散在低纬度，海面宽广",
+    "约 3 亿年前：陆块互相撞合——「盘古大陆」成形",
+    "约 1.8 亿年前：盘古开始撕裂，大西洋正在张开",
+    "今天：熟悉的世界地图（示意）"
+  ];
+  function draw(t,dt){
+    if(auto){
+      tt+=dt; const k=tt/END;
+      if(k<0.30) fr=lerp(0,1,ease(k/0.30));
+      else if(k<0.38) fr=1;
+      else if(k<0.68) fr=lerp(1,2,ease((k-0.38)/0.30));
+      else if(k<0.76) fr=2;
+      else if(k<0.98) fr=lerp(2,3,ease((k-0.76)/0.22));
+      else fr=3;
+      if(k>=1) auto=false;
+      scrub.set(fr);
+    }
+    const P=pal(), w=env.w, h=env.h;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=P.dark?"rgba(70,110,150,.15)":"rgba(120,160,200,.16)";
+    ctx.fillRect(0,0,w,h);
+    ctx.strokeStyle=P.dark?"rgba(230,217,189,.12)":"rgba(60,45,25,.10)";
+    ctx.setLineDash([3,5]);
+    for(let i=1;i<4;i++){ const y=h*i/4; ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(w,y); ctx.stroke(); }
+    ctx.setLineDash([]);
+    ctx.font="10.5px "+FANG; ctx.fillStyle=P.ink3; ctx.textAlign="left";
+    ctx.fillText("（示意，非精确古地理重建）",10,h-10);
+    for(const b of BLOCKS){
+      blockPath(ctx,w,h,b,fr);
+      ctx.fillStyle=P.dark?"rgba(211,172,91,.28)":"rgba(166,124,46,.20)";
+      ctx.fill();
+      ctx.strokeStyle=P.dark?"rgba(231,200,130,.75)":"rgba(120,88,32,.75)";
+      ctx.lineWidth=1.4; ctx.stroke();
+    }
+    const f0=Math.floor(clamp(fr,0,3)), yr=lerp(YEARS[f0],YEARS[Math.min(3,f0+1)],clamp(fr,0,3)-f0);
+    ctx.font="bold 15px Georgia,serif"; ctx.fillStyle=P.gold; ctx.textAlign="left";
+    ctx.fillText(yr>2?("约 "+(yr/100).toFixed(1)+" 亿年前"):"今天",12,24);
+    cap.textContent = TEXT[Math.round(clamp(fr,0,3))];
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(t){ draw(t||0,0.001); }};
+};
+
+/* ===== 7 · 走出非洲 ===== */
+FACTORY.outafrica=function(player){
+  const env=setupCanvas(player.cv,16/8.6); const ctx=env.ctx;
+  const cap=mkCap(player.stage,true);
+  const END=14;
+  const PATHS=[
+    {pts:[[.555,.60],[.575,.51],[.585,.44],[.64,.42],[.71,.47],[.77,.52],[.81,.60]], t0:0.6, t1:4.8, label:"约 5 万年前 · 抵达澳洲", lp:16},
+    {pts:[[.585,.44],[.575,.34],[.56,.30],[.55,.265]], t0:5.0, t1:6.6, label:"约 4.5 万年前 · 欧洲", lp:-10},
+    {pts:[[.585,.44],[.645,.38],[.70,.32],[.735,.265]], t0:5.0, t1:7.2, label:"约 4 万年前 · 西伯利亚", lp:-10},
+    {pts:[[.735,.265],[.40,.175],[.13,.155],[.075,.19]], t0:7.4, t1:9.6, label:"约 2 万年前 · 白令陆桥", lp:-12},
+    {pts:[[.075,.19],[.145,.27],[.22,.33],[.275,.42],[.30,.52],[.32,.62]], t0:9.8, t1:12.4, label:"约 1.5 万年前 · 美洲", lp:16}
+  ];
+  const START={x:.555,y:.60};
+  function subPath(pts,frac){
+    const segs=pts.length-1, total=frac*segs, full=Math.floor(total), part=total-full;
+    const out=pts.slice(0, full+1);
+    if(full<segs){ const a=pts[full], b=pts[full+1]; out.push([a[0]+(b[0]-a[0])*part, a[1]+(b[1]-a[1])*part]); }
+    return out;
+  }
+  function draw(t,dt){
+    const P=pal(), w=env.w, h=env.h;
+    ctx.clearRect(0,0,w,h);
+    ctx.fillStyle=P.dark?"rgba(70,110,150,.15)":"rgba(120,160,200,.16)";
+    ctx.fillRect(0,0,w,h);
+    for(const b of BLOCKS){
+      blockPath(ctx,w,h,b,3);
+      ctx.fillStyle=P.dark?"rgba(211,172,91,.20)":"rgba(166,124,46,.15)";
+      ctx.fill();
+      ctx.strokeStyle=P.dark?"rgba(231,200,130,.5)":"rgba(120,88,32,.5)";
+      ctx.lineWidth=1.2; ctx.stroke();
+    }
+    // 起点
+    ctx.fillStyle=P.gold; ctx.beginPath(); ctx.arc(START.x*w,START.y*h,5,0,6.283); ctx.fill();
+    ctx.strokeStyle=P.gold; ctx.globalAlpha=0.45;
+    ctx.beginPath(); ctx.arc(START.x*w,START.y*h,10+6*((t%1)),0,6.283); ctx.stroke(); ctx.globalAlpha=1;
+    // 路径
+    ctx.lineWidth=2.4; ctx.lineCap="round"; ctx.lineJoin="round";
+    for(const pt of PATHS){
+      const f=clamp((t-pt.t0)/(pt.t1-pt.t0),0,1);
+      if(f<=0) continue;
+      const sp2=subPath(pt.pts,ease(f));
+      ctx.strokeStyle=P.gold; ctx.globalAlpha=0.9;
+      ctx.beginPath();
+      sp2.forEach((q,i)=>{ if(i===0) ctx.moveTo(q[0]*w,q[1]*h); else ctx.lineTo(q[0]*w,q[1]*h); });
+      ctx.stroke(); ctx.globalAlpha=1;
+      const hd=sp2[sp2.length-1];
+      ctx.fillStyle=P.gold; ctx.beginPath(); ctx.arc(hd[0]*w,hd[1]*h,4.5,0,6.283); ctx.fill();
+      ctx.globalAlpha=0.3; ctx.beginPath(); ctx.arc(hd[0]*w,hd[1]*h,9,0,6.283); ctx.fill(); ctx.globalAlpha=1;
+      if(f>=1){
+        const al=ease(clamp((t-pt.t1)/0.6,0,1));
+        if(al>0){ ctx.globalAlpha=al;
+          const end=pt.pts[pt.pts.length-1];
+          chip(ctx, clamp(end[0]*w,80,w-95), end[1]*h+pt.lp, pt.label, "c");
+          ctx.globalAlpha=1; }
+      }
+    }
+    if(t<4.9){ chip(ctx, clamp(START.x*w+86,80,w-95), START.y*h+30, "约 7 万年前 · 走出非洲", "c"); }
+    cap.textContent = t<4.8 ? "第一波：沿阿拉伯半岛与海岸线向东" :
+      t<9 ? "继续北上：欧洲、西伯利亚……冰河期的世界是连通的" :
+      t<13 ? "穿过白令陆桥：美洲——最后一块大陆" :
+      "人类的脚印连成了一张网——文明的序章即将开始";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(t){ draw(t||0,0.001); }};
+};
+
+/* ===== 8 · 小行星撞地球 ===== */
+FACTORY.impact=function(player){
+  const env=setupCanvas(player.cv,16/7.5); const ctx=env.ctx;
+  const cap=mkCap(player.stage,false);
+  const END=15;
+  const rnd=mulberry32(11);
+  const stars=[]; for(let i=0;i<130;i++) stars.push([rnd(),rnd(),0.5+rnd()*1.3]);
+  const spark=[]; for(let i=0;i<90;i++) spark.push({a:rnd()*6.283, s:0.4+rnd()*1.2, r:1+rnd()*2.4});
+  function draw(t,dt){
+    const w=env.w, h=env.h;
+    ctx.fillStyle="#0b0d16"; ctx.fillRect(0,0,w,h);
+    for(const s of stars){ ctx.globalAlpha=0.3+0.4*Math.sin(t*1.7*s[2]); ctx.fillStyle="#dfe6ff"; ctx.fillRect(s[0]*w,s[1]*h,1.5,1.5); }
+    ctx.globalAlpha=1;
+    const ex=w*0.86, ey=h*1.62, eR=h*1.25;
+    const g=ctx.createRadialGradient(ex-eR*0.2,ey-eR*0.25,eR*0.35,ex,ey,eR*1.02);
+    g.addColorStop(0,"#4f8bc9"); g.addColorStop(0.5,"#2c5f9e"); g.addColorStop(1,"#122c4a");
+    ctx.fillStyle=g; ctx.beginPath(); ctx.arc(ex,ey,eR,0,6.283); ctx.fill();
+    ctx.strokeStyle="rgba(140,190,255,.4)"; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.arc(ex,ey,eR+3,Math.PI*1.12,Math.PI*1.88); ctx.stroke();
+    const ix=ex-eR*0.62, iy=ey-eR*0.72;
+    if(t<3.6){
+      const k=ease(t/3.6);
+      const sx=w*0.04, sy=h*0.06;
+      const tx=sx+(ix-sx)*k, ty=sy+(iy-sy)*k;
+      const tg=ctx.createLinearGradient(Math.max(tx-160,0),Math.max(ty-90,0),tx,ty);
+      tg.addColorStop(0,"rgba(255,220,150,0)"); tg.addColorStop(1,"rgba(255,230,170,.85)");
+      ctx.strokeStyle=tg; ctx.lineWidth=4;
+      ctx.beginPath(); ctx.moveTo(Math.max(tx-160,0),Math.max(ty-90,0)); ctx.lineTo(tx,ty); ctx.stroke();
+      ctx.fillStyle="#fff2cf"; ctx.beginPath(); ctx.arc(tx,ty,5,0,6.283); ctx.fill();
+      cap.textContent="6600 万年前 · 一颗约 10 公里的小行星正在靠近";
+    }
+    if(t>=3.6&&t<6){
+      const k=(t-3.6)/2.4;
+      ctx.fillStyle="rgba(255,246,214,"+(Math.max(0,1-k*1.6))*0.95+")";
+      ctx.fillRect(0,0,w,h);
+      ctx.strokeStyle="rgba(255,214,150,"+(1-k)+")"; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.arc(ix,iy,(0.2+k*2.2)*eR*0.5,0,6.283); ctx.stroke();
+      for(const q of spark){
+        const rr=k*q.s*eR*0.5;
+        ctx.fillStyle="rgba(255,220,160,"+(1-k*0.8)+")";
+        ctx.fillRect(ix+Math.cos(q.a)*rr, iy+Math.sin(q.a)*rr, 2,2);
+      }
+      cap.textContent = k<0.6 ? "撞击瞬间：希克苏鲁伯陨石坑就此诞生" : "碎片与尘埃被抛向平流层";
+    }
+    if(t>=6){
+      const k3=clamp((t-6)/5,0,1);
+      ctx.fillStyle="rgba(150,120,90,"+(0.5*k3)+")";
+      ctx.beginPath(); ctx.ellipse(ex,ey-eR*0.30,eR*1.1,eR*0.40+k3*eR*0.22,0,0,6.283); ctx.fill();
+      ctx.fillStyle="rgba(90,74,58,"+(0.32*k3)+")";
+      ctx.beginPath(); ctx.ellipse(ex-eR*0.1,ey-eR*0.2,eR*1.3,eR*0.5*k3+eR*0.1,0,0,6.283); ctx.fill();
+      ctx.fillStyle="rgba(6,8,14,"+(0.5*k3)+")"; ctx.fillRect(0,0,w,h);
+      const sunA=1-k3*0.75;
+      ctx.fillStyle="rgba(255,"+Math.round(200-120*k3)+","+Math.round(120-80*k3)+","+sunA+")";
+      ctx.beginPath(); ctx.arc(w*0.12,h*0.18,9+4*(1-k3),0,6.283); ctx.fill();
+      ctx.strokeStyle="rgba(200,190,170,"+(0.25*k3)+")"; ctx.lineWidth=1;
+      for(const q of spark.slice(0,50)){
+        const xx=q.a/6.283*w, yy=((t*30+q.s*200)%h);
+        ctx.beginPath(); ctx.moveTo(xx,yy); ctx.lineTo(xx+2,yy+8); ctx.stroke();
+      }
+      cap.textContent = k3<0.5 ? "尘埃遮天蔽日：阳光被挡在门外，全球进入「撞击冬天」"
+        : "光合作用停摆，食物链从底部崩塌——非鸟恐龙的时代落幕了";
+    }
+    if(t>=13.5){ cap.textContent="但幸存者名单已经写下：鸟类、哺乳动物、种子……故事的下一页，由它们翻开"; }
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw, END, recolor(){}};
+};
+
+/* ---------- 挂载与调度 ---------- */
+const players=[];
+let rafOn=false;
+function loop(ts){
+  let any=false;
+  for(const p of players){ if(p.playing && p.step(ts)) any=true; }
+  if(any && !document.hidden){ requestAnimationFrame(loop); } else { rafOn=false; }
+}
+function kick(){ if(!rafOn && !document.hidden){ rafOn=true; requestAnimationFrame(loop); } }
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden){ players.forEach(p=>{ if(p.playing) p.last=performance.now(); }); kick(); }
+});
+if("IntersectionObserver" in window){
+  const io=new IntersectionObserver(es=>{
+    es.forEach(en=>{
+      const p=en.target.__p; if(!p) return;
+      en.target.__visible=en.isIntersecting;
+      if(en.isIntersecting){
+        if(!p.mounted) p.mount();
+        else if(!NOANIM && p.demo && p.t<(p.demo.END||10)) p.resume();
+      } else p.stop();
+    });
+  },{threshold:0.22});
+  document.querySelectorAll(".plate").forEach(plate=>{
+    const p=new Player(plate); plate.__p=p; players.push(p); io.observe(plate);
+  });
+}else{
+  document.querySelectorAll(".plate").forEach(plate=>{
+    const p=new Player(plate); plate.__p=p; players.push(p); plate.__visible=true; p.mount();
+  });
+}
+let rzT=0;
+window.addEventListener("resize",()=>{
+  clearTimeout(rzT);
+  rzT=setTimeout(()=>{ players.forEach(p=>{ if(p.demo){ try{ p.demo.draw(p.t||0,0.001); }catch(e){} } }); },200);
+});
+window.addEventListener("earth46:theme",()=>{
+  players.forEach(p=>{ if(p.demo){ try{ p.demo.draw(p.t||0,0.001); }catch(e){} } });
+});
+window.__demos=players; /* QA 钩子 */
+})();
+</script>
+</body>
+</html>

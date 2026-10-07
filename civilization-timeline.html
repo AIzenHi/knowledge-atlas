@@ -1,0 +1,2318 @@
+<!DOCTYPE html>
+<html lang="zh-CN" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>人类文明一万年 · 交互式文明长卷</title>
+<meta name="description" content="东西双线交互式文明长卷：从农业革命到大模型，12000年文明史铺成一条可滚动、可点开、可对照的长卷。12章 + 12个动态图版，离线单文件。">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%93%9C%3C/text%3E%3C/svg%3E">
+<style>
+/* ============================================================
+   人类文明一万年 · 交互式文明长卷
+   设计：古典卷轴（羊皮纸 / 朱砂藏蓝双线 / 博物注记）
+   单文件 · 零依赖 · 明暗双主题 · 12章 · 12动态图版
+   ============================================================ */
+:root{
+  --paper:#f3e8d0; --paper2:#ecdfc0; --panel:#faf4e3; --panel2:#f1e6cb;
+  --ink:#33291a; --ink2:#6d5c42; --ink3:#97846a;
+  --line:#c9b58c; --line2:#e0d1b0;
+  --gold:#a67c2e; --gold2:#c9a457; --seal:#9c3b2c;
+  --lanE:#a63b2a; --lanW:#2f4d7d; --lanI:#a8731c; --lanM:#2e7d6b; --lanS:#6d549b; --lanA:#5d7a2a;
+  --th-tech:#8a5a20; --th-trade:#2e6b8a; --th-thought:#7a4b8a; --th-inst:#4a6b3a;
+  --shadow:0 12px 28px -20px rgba(70,48,14,.55);
+  --tb-h:58px;
+}
+html[data-theme="dark"]{
+  --paper:#17130d; --paper2:#1a150f; --panel:#221b12; --panel2:#261e14;
+  --ink:#e9dcbf; --ink2:#b7a686; --ink3:#8a7a5f;
+  --line:#57472f; --line2:#3b3020;
+  --gold:#d3ac5b; --gold2:#e7c882; --seal:#c96a52;
+  --lanE:#d07058; --lanW:#6f92c8; --lanI:#d0a050; --lanM:#58b09a; --lanS:#a58ad0; --lanA:#96b05a;
+  --th-tech:#cfa060; --th-trade:#6aa8c8; --th-thought:#b08ac8; --th-inst:#8ab070;
+  --shadow:0 14px 30px -20px rgba(0,0,0,.9);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+html.no-anim{scroll-behavior:auto}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{
+  font-family:"Songti SC","STSong","SimSun","宋体",serif;
+  font-size:17px;line-height:1.9;color:var(--ink);
+  background:radial-gradient(1100px 500px at 50% -180px, rgba(255,255,255,.45), transparent 70%), var(--paper);
+  overflow-x:hidden; padding-top:var(--tb-h);
+}
+html[data-theme="dark"] body{background:radial-gradient(1100px 500px at 50% -180px, rgba(90,70,40,.18), transparent 70%), var(--paper)}
+body::before{content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3CfeColorMatrix values='0 0 0 0 0.45 0 0 0 0 0.37 0 0 0 0 0.22 0 0 0 .05 0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");}
+html[data-theme="dark"] body::before{opacity:.35;filter:brightness(.8)}
+::selection{background:var(--gold2);color:#2b2113}
+a{color:var(--gold);text-decoration:none}
+img,svg{display:block}
+button{font:inherit;color:inherit;background:none;border:none;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px;border-radius:4px}
+
+/* ---------- 顶部常驻仪表 ---------- */
+.topbar{position:fixed;top:0;left:0;right:0;height:var(--tb-h);z-index:60;
+  background:color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);border-bottom:1px solid var(--line2)}
+.tb-inner{max-width:1120px;height:100%;margin:0 auto;padding:0 14px;display:flex;align-items:center;gap:12px}
+.tb-clock{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.tb-dial{width:34px;height:34px}
+.dial-ring{fill:none;stroke:var(--line);stroke-width:2}
+.dial-hand{stroke:var(--gold);stroke-width:2.4;stroke-linecap:round;transform-origin:20px 20px}
+.dial-cap{fill:var(--gold)}
+.tb-clock-txt{line-height:1.15}
+.tb-clock-txt .lab{display:block;font-size:10px;letter-spacing:.16em;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.tb-clock-txt .val{display:block;font-size:16px;font-weight:700;color:var(--gold);font-family:Georgia,"Times New Roman",serif;letter-spacing:.04em}
+.tb-scale{flex:1 1 auto;position:relative;height:34px;min-width:120px}
+.tb-segs{display:flex;gap:2px;height:12px;margin-top:11px;border-radius:3px;overflow:hidden;border:1px solid var(--line2);background:var(--panel2)}
+.tb-segs .seg{flex:1 1 0;background:var(--gold);opacity:.4;border:none;padding:0;transition:opacity .25s;cursor:pointer;min-width:0}
+.tb-segs .seg:hover{opacity:.85}
+.tb-segs .seg.on{opacity:.95}
+.tb-needle{position:absolute;top:4px;bottom:2px;width:2px;background:var(--ink);left:0%;transition:left .15s linear;box-shadow:0 0 0 2px color-mix(in srgb, var(--paper) 70%, transparent)}
+.tb-needle::after{content:"";position:absolute;top:-3px;left:-3px;width:8px;height:8px;border-radius:50%;background:var(--ink)}
+.tb-chapter{flex:0 1 auto;max-width:300px;font-size:13px;color:var(--ink2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif}
+.tb-btn{flex:0 0 auto;width:34px;height:34px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink2);transition:.25s;font-size:15px}
+.tb-btn:hover{color:var(--gold);border-color:var(--gold)}
+.tb-btn svg{width:16px;height:16px}
+@media (max-width:760px){
+  .tb-inner{flex-wrap:wrap;gap:4px 10px;padding:6px 10px;height:auto}
+  .topbar{height:auto}
+  body{padding-top:86px}
+  .tb-scale{flex:1 1 100%;order:3;height:26px}
+  .tb-segs{height:10px;margin-top:7px}
+  .tb-chapter{max-width:170px;font-size:12px}
+  .tb-btn{width:30px;height:30px}
+  .tb-dial{width:28px;height:28px}
+}
+
+/* ---------- 通用 ---------- */
+.wrap{max-width:960px;margin:0 auto;padding:0 20px;position:relative;z-index:1}
+.reveal{opacity:0;transform:translateY(16px);transition:opacity .7s ease,transform .7s ease}
+.reveal.in{opacity:1;transform:none}
+.no-anim .reveal{opacity:1!important;transform:none!important;transition:none!important}
+@media (prefers-reduced-motion: reduce){.reveal{opacity:1;transform:none;transition:none}}
+section[data-sec]{scroll-margin-top:calc(var(--tb-h) + 16px)}
+.chap{scroll-margin-top:calc(var(--tb-h) + 16px)}
+.pill{font-size:12.5px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.06em;border:1px solid var(--line);border-radius:999px;padding:4px 14px;color:var(--ink2);transition:.25s;background:var(--panel)}
+.pill:hover{color:var(--gold);border-color:var(--gold)}
+.pill.on{color:#fffbf0;background:var(--gold);border-color:var(--gold)}
+
+/* ---------- 序幕 ---------- */
+.hero{padding:58px 0 30px;text-align:center}
+.hero .eyebrow{font-family:"FangSong","STFangsong","仿宋",serif;font-size:13.5px;letter-spacing:.34em;color:var(--ink3)}
+.hero h1{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(40px,7vw,68px);letter-spacing:.08em;margin:16px 0 8px;font-weight:700}
+.hero .sub{color:var(--ink2);font-size:15px;max-width:660px;margin:0 auto;font-family:"FangSong","STFangsong","仿宋",serif;line-height:2}
+.hero .orn{color:var(--gold);letter-spacing:.6em;font-size:12px;margin:16px 0 22px}
+.hints{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;font-size:13px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.hints span b{color:var(--gold);font-weight:400}
+.legend{display:flex;gap:10px 16px;justify-content:center;flex-wrap:wrap;margin-top:26px;font-size:12.5px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.legend .lg{display:inline-flex;align-items:center;gap:6px}
+.legend .lg i{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block}
+.thchip{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-family:"FangSong","STFangsong","仿宋",serif;border:1px solid var(--tc);color:var(--tc);border-radius:999px;padding:1px 10px;letter-spacing:.04em}
+.thchip.t-tech{--tc:var(--th-tech)} .thchip.t-trade{--tc:var(--th-trade)} .thchip.t-thought{--tc:var(--th-thought)} .thchip.t-inst{--tc:var(--th-inst)}
+
+/* ---------- 全局时间河 ---------- */
+.river{padding:34px 0 8px}
+.river-head{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;justify-content:center}
+.river-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(22px,3vw,28px);letter-spacing:.06em}
+.river-title::before{content:"◆ ";color:var(--gold);font-size:.6em;vertical-align:.18em}
+.river-ctl{display:flex;gap:10px;flex-wrap:wrap}
+.river-sub{text-align:center;color:var(--ink3);font-size:13px;margin:8px auto 20px;max-width:660px;font-family:"FangSong","STFangsong","仿宋",serif}
+.river-segs{display:flex;gap:3px;border:1px solid var(--line2);border-radius:8px;overflow:hidden;background:var(--panel2);padding:3px}
+.rseg{flex:1 1 0;min-width:0;display:flex;flex-direction:column;gap:1px;align-items:center;justify-content:center;padding:9px 4px 7px;background:var(--panel);border-radius:5px;transition:flex-grow .6s ease,background .25s;position:relative;overflow:hidden}
+.rseg b{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:13.5px;letter-spacing:.04em;white-space:nowrap;overflow:hidden;max-width:100%;text-overflow:ellipsis}
+.rseg span{font-size:10.5px;color:var(--ink3);font-family:Georgia,serif;letter-spacing:.02em;white-space:nowrap;overflow:hidden;max-width:100%}
+.rseg::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:var(--c,var(--gold));opacity:.65}
+.rseg:hover{background:var(--paper2)}
+.rseg.on{background:color-mix(in srgb, var(--gold) 16%, var(--panel))}
+.river-segs.real .rseg{flex-grow:var(--yrs,1)}
+.river-ruler{position:relative;height:22px;margin-top:6px}
+.river-ruler .tick{position:absolute;top:0;transform:translateX(-50%);font-size:10.5px;color:var(--ink3);font-family:Georgia,serif;white-space:nowrap;transition:left .6s ease}
+.river-ruler .tick::before{content:"";position:absolute;top:-5px;left:50%;height:4px;border-left:1px solid var(--line)}
+.river-note{text-align:center;font-size:11.5px;color:var(--ink3);margin-top:8px;font-family:"FangSong","STFangsong","仿宋",serif}
+
+/* ---------- 章节 ---------- */
+#chapters{padding-top:26px}
+.chap{padding:34px 0 10px;border-top:1px dashed var(--line2);margin-top:26px}
+.chap:first-child{border-top:none;margin-top:0}
+.ch-head{position:relative;padding-bottom:14px;border-bottom:1px solid var(--line2);margin-bottom:16px}
+.ch-line1{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;font-family:"FangSong","STFangsong","仿宋",serif;font-size:12.5px;color:var(--ink2);letter-spacing:.06em}
+.ch-num{border:1px solid var(--gold);color:var(--gold);border-radius:999px;padding:0 12px;font-size:12px}
+.ch-clk{margin-left:auto;color:var(--ink3);font-family:Georgia,serif}
+.ch-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(25px,4vw,34px);letter-spacing:.06em;margin-top:10px;font-weight:700}
+.ch-lead{margin-top:10px;font-size:14.5px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.driver{display:flex;gap:14px;align-items:flex-start;background:var(--panel);border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:8px;padding:13px 16px;margin:0 0 18px;box-shadow:var(--shadow)}
+.drv-ic{font-size:24px;line-height:1.2;flex:0 0 auto;margin-top:2px}
+.drv-t{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16px;letter-spacing:.03em}
+.drv-bd p{font-size:13.5px;color:var(--ink2);margin-top:4px;font-family:"FangSong","STFangsong","仿宋",serif}
+.drv-th{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+
+/* ---------- 双轨时间带 ---------- */
+.track{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:12px 14px 12px;margin:0 0 20px;box-shadow:var(--shadow)}
+.track-axis{display:flex;justify-content:space-between;font-size:11.5px;color:var(--ink3);border-bottom:1px dashed var(--line2);padding-bottom:6px;margin-bottom:8px;font-family:Georgia,serif}
+.lanes{position:relative}
+.lane{display:flex;gap:10px;align-items:stretch;padding:5px 0}
+.lane + .lane{margin-top:6px}
+.lane-name{flex:0 0 62px;display:flex;align-items:center;justify-content:center;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:13px;color:var(--lc);border:1px solid color-mix(in srgb, var(--lc) 34%, transparent);background:color-mix(in srgb, var(--lc) 9%, transparent);border-radius:6px;letter-spacing:.06em}
+.lane-band{position:relative;flex:1 1 auto;height:84px;border:1px solid var(--line2);border-radius:6px;background:color-mix(in srgb, var(--lc) 4%, var(--panel2))}
+.ev{position:absolute;left:var(--x);top:50%;transform:translate(-50%,-50%);width:16px;height:16px;display:block;padding:0}
+.ev .dot{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:9px;height:9px;border-radius:50%;background:var(--lc);box-shadow:0 0 0 3px color-mix(in srgb, var(--lc) 18%, transparent);transition:.2s}
+.ev:hover .dot{transform:translate(-50%,-50%) scale(1.5)}
+.ev .ev-t{position:absolute;left:50%;transform:translateX(-50%);white-space:nowrap;font-size:11.5px;color:var(--ink);font-family:"FangSong","STFangsong","仿宋",serif;padding:1px 6px;border-radius:4px;background:color-mix(in srgb, var(--paper) 92%, transparent);max-width:160px;overflow:hidden;text-overflow:ellipsis}
+.ev.up .ev-t{bottom:calc(100% + 6px)}
+.ev.down .ev-t{top:calc(100% + 6px)}
+.ev.edge-l .ev-t{left:-6px;transform:none}
+.ev.edge-r .ev-t{left:auto;right:-6px;transform:none}
+.ev:hover .ev-t{color:var(--gold);background:var(--paper)}
+.ev:focus-visible .ev-t{color:var(--gold)}
+.ev{transition:opacity .3s}
+html[data-hl="tech"] .ev{opacity:.14} html[data-hl="tech"] .ev.t-tech{opacity:1}
+html[data-hl="trade"] .ev{opacity:.14} html[data-hl="trade"] .ev.t-trade{opacity:1}
+html[data-hl="thought"] .ev{opacity:.14} html[data-hl="thought"] .ev.t-thought{opacity:1}
+html[data-hl="inst"] .ev{opacity:.14} html[data-hl="inst"] .ev.t-inst{opacity:1}
+.xlay{position:absolute;left:72px;right:0;top:0;bottom:0;pointer-events:none}
+.evx{pointer-events:auto;position:absolute;left:var(--x);top:97px;transform:translate(-50%,-50%);display:flex;align-items:center;gap:6px;padding:1px 9px 1px 7px;border:1px dashed var(--seal);border-radius:999px;background:color-mix(in srgb, var(--paper) 94%, transparent);z-index:3;transition:.2s}
+.evx i{width:7px;height:7px;background:var(--seal);transform:rotate(45deg);display:inline-block}
+.evx span{font-size:11px;color:var(--seal);font-family:"FangSong","STFangsong","仿宋",serif;white-space:nowrap;max-width:150px;overflow:hidden;text-overflow:ellipsis}
+.evx:hover{background:var(--paper);transform:translate(-50%,-50%) scale(1.04)}
+@media (max-width:640px){
+  .lane-name{flex-basis:46px;font-size:12px}
+  .xlay{left:56px}
+  .ev{width:22px;height:22px}
+  .ev .ev-t{display:none}
+  .ev .dot{width:12px;height:12px}
+  .river-segs{flex-wrap:wrap}
+  .rseg{flex:1 1 30%;min-width:84px}
+  .river-head{flex-direction:column;align-items:center;gap:8px}
+  .hero .eyebrow{letter-spacing:.22em;font-size:12.5px}
+  .ch-clk{margin-left:0}
+  .evx span{max-width:120px}
+}
+body.shot .hero,body.shot .river,body.shot .finale,body.shot .foot{display:none}
+body.shot .hero.shot-show,body.shot .river.shot-show,body.shot .finale.shot-show,body.shot .foot.shot-show{display:block}
+
+/* ---------- 详情抽屉 ---------- */
+.drawer{position:fixed;top:0;right:0;bottom:0;width:min(430px,94vw);z-index:80;background:var(--panel);border-left:1px solid var(--line);box-shadow:-18px 0 40px -30px rgba(40,26,6,.6);transform:translateX(102%);transition:transform .35s ease;overflow-y:auto;padding:22px 22px 30px}
+.drawer.open{transform:none}
+.dr-close{position:absolute;top:14px;right:16px;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink2);font-size:13px}
+.dr-close:hover{color:var(--gold);border-color:var(--gold)}
+.dr-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-right:36px}
+.dr-lane{font-size:12px;font-family:"FangSong","STFangsong","仿宋",serif;color:var(--lc);border:1px solid var(--lc);border-radius:999px;padding:1px 10px;letter-spacing:.06em}
+.dr-year{font-family:Georgia,serif;color:var(--ink3);font-size:13px}
+.drawer h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:23px;letter-spacing:.04em;margin:12px 0 8px;line-height:1.4}
+.dr-what{font-size:14.5px;color:var(--ink)}
+.dr-why{margin-top:12px;background:var(--panel2);border:1px solid var(--line2);border-radius:8px;padding:10px 13px}
+.dr-why b{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;color:var(--gold);font-size:13.5px;letter-spacing:.08em}
+.dr-why p{font-size:13px;color:var(--ink2);margin-top:3px;font-family:"FangSong","STFangsong","仿宋",serif}
+.dr-th{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.dr-clk{margin-top:12px;font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.dr-x{margin-top:10px;font-size:12.5px;color:var(--seal);font-family:"FangSong","STFangsong","仿宋",serif;border-left:3px solid var(--seal);padding-left:10px}
+.dr-myth{margin-top:14px;border:1.5px dashed var(--seal);border-radius:8px;padding:12px 14px 12px;position:relative;background:color-mix(in srgb, var(--seal) 5%, transparent)}
+.stamp{position:absolute;top:-11px;right:12px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;color:var(--seal);border:1.5px solid var(--seal);border-radius:4px;font-size:11.5px;padding:0 8px;letter-spacing:.3em;background:var(--panel);transform:rotate(2deg)}
+.dr-myth .mc{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.dr-myth .mf{font-size:13px;color:var(--ink);margin-top:6px}
+.dr-foot{margin-top:20px;padding-top:10px;border-top:1px dashed var(--line2);font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+
+/* ---------- 同期对照表 ---------- */
+.modal{position:fixed;inset:0;z-index:90;background:rgba(30,20,6,.45);display:none;align-items:center;justify-content:center;padding:18px}
+.modal.open{display:flex}
+.cmp-box{background:var(--panel);border:1px solid var(--line);border-radius:12px;max-width:880px;width:100%;max-height:88vh;overflow-y:auto;padding:20px 24px 26px;box-shadow:0 24px 60px -30px rgba(0,0,0,.5);position:relative}
+.cmp-box h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:21px;letter-spacing:.05em;margin-bottom:2px}
+.cmp-close{position:absolute;top:14px;right:16px;width:30px;height:30px;border:1px solid var(--line);border-radius:50%;display:grid;place-items:center;color:var(--ink2)}
+.cmp-close:hover{color:var(--gold);border-color:var(--gold)}
+.cmp-sub{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:14px}
+.cmp-year{font-family:Georgia,serif;font-size:30px;font-weight:700;color:var(--gold);text-align:center;letter-spacing:.04em;margin:6px 0 2px}
+.cmp-clk{text-align:center;font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.cmp-range{width:100%;margin:14px 0 6px;accent-color:var(--gold)}
+.cmp-quick{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;margin:8px 0 16px}
+.cmp-quick button{font-size:11.5px;font-family:Georgia,serif;border:1px solid var(--line);border-radius:999px;padding:2px 10px;color:var(--ink2)}
+.cmp-quick button:hover{color:var(--gold);border-color:var(--gold)}
+.cmp-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.cm-row{border:1px solid var(--line2);border-left:3px solid var(--lc);border-radius:8px;padding:9px 12px;background:var(--panel2)}
+.cm-row h4{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:13.5px;color:var(--lc);letter-spacing:.06em;margin-bottom:5px}
+.cm-row li{list-style:none;font-size:12.5px;padding:4px 0;border-bottom:1px dashed var(--line2);display:flex;gap:8px;align-items:baseline}
+.cm-row li:last-child{border-bottom:none}
+.cm-row li button{text-align:left;font-size:12.5px;color:var(--ink);flex:1}
+.cm-row li button:hover{color:var(--gold)}
+.cm-y{font-family:Georgia,serif;color:var(--ink3);flex:0 0 auto;font-size:11.5px}
+.cm-none{font-size:12px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+@media (max-width:760px){.cmp-grid{grid-template-columns:1fr}}
+
+/* ---------- 图层控制台 ---------- */
+.ctl{position:fixed;left:16px;bottom:16px;z-index:70;background:var(--panel);border:1px solid var(--line);border-radius:10px;box-shadow:var(--shadow);font-size:12.5px;max-width:250px}
+.ctl-head{padding:8px 14px;font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;letter-spacing:.1em;cursor:pointer;display:flex;align-items:center;gap:8px;color:var(--ink2)}
+.ctl-head:hover{color:var(--gold)}
+.ctl-body{padding:2px 14px 12px;display:block}
+.ctl.collapsed .ctl-body{display:none}
+.ctl-sec{margin-top:8px}
+.ctl-sec>b{font-family:"FangSong","STFangsong","仿宋",serif;font-size:11.5px;color:var(--ink3);letter-spacing:.14em;display:block;margin-bottom:6px}
+.tgls{display:flex;flex-wrap:wrap;gap:6px}
+.tgl{display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:2px 10px;cursor:pointer;font-family:"FangSong","STFangsong","仿宋",serif;color:var(--ink2);transition:.2s;user-select:none}
+.tgl i{width:8px;height:8px;border-radius:50%;background:var(--lc);opacity:.35;transition:.2s}
+.tgl input{display:none}
+.tgl.on{border-color:var(--lc);color:var(--ink);background:color-mix(in srgb, var(--lc) 10%, transparent)}
+.tgl.on i{opacity:1}
+.thbtns{display:flex;flex-wrap:wrap;gap:6px}
+.thbtn{border:1px solid var(--line);border-radius:999px;padding:2px 10px;font-family:"FangSong","STFangsong","仿宋",serif;color:var(--ink2);transition:.2s}
+.thbtn:hover{color:var(--tc);border-color:var(--tc)}
+.thbtn.on{color:#fffbf0;background:var(--tc);border-color:var(--tc)}
+.thbtn.t-tech{--tc:var(--th-tech)} .thbtn.t-trade{--tc:var(--th-trade)} .thbtn.t-thought{--tc:var(--th-thought)} .thbtn.t-inst{--tc:var(--th-inst)}
+.ctl-tip{font-size:10.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:8px;line-height:1.7}
+
+/* ---------- 章节轨道（右侧） ---------- */
+.rail{position:fixed;right:14px;top:50%;transform:translateY(-50%);z-index:60;display:flex;flex-direction:column;gap:7px}
+.rdot{width:9px;height:9px;border-radius:50%;background:var(--line);transition:.25s;position:relative}
+.rdot:hover{background:var(--gold);transform:scale(1.35)}
+.rdot.on{background:var(--gold);box-shadow:0 0 0 3px color-mix(in srgb,var(--gold) 25%,transparent)}
+.rd-lab{position:absolute;right:18px;top:50%;transform:translateY(-50%);white-space:nowrap;font-size:11px;font-family:"FangSong","STFangsong","仿宋",serif;background:var(--panel);border:1px solid var(--line2);border-radius:4px;padding:1px 8px;color:var(--ink2);opacity:0;pointer-events:none;transition:.2s}
+.rdot:hover .rd-lab{opacity:1}
+@media (max-width:1080px){.rail{display:none}}
+
+/* ---------- 图版 ---------- */
+.plate{background:var(--panel);border:1px solid var(--line2);border-radius:10px;padding:14px 16px 12px;margin:4px 0 26px;box-shadow:var(--shadow)}
+.plate-head{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:2px}
+.plate-title{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16.5px;letter-spacing:.04em}
+.plate-tag{font-size:11px;color:var(--gold);border:1px solid var(--gold);border-radius:999px;padding:0 9px;font-family:"FangSong","STFangsong","仿宋",serif;letter-spacing:.1em}
+.plate-sub{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-bottom:10px}
+.plate-stage{position:relative;background:var(--paper2);border:1px solid var(--line2);border-radius:8px;overflow:hidden}
+.plate-stage canvas{display:block;width:100%;height:auto}
+.plate-foot{display:flex;align-items:center;gap:12px;margin-top:10px;flex-wrap:wrap;min-height:26px}
+.pbtn{font-size:12px;font-family:"FangSong","STFangsong","仿宋",serif;border:1px solid var(--line);border-radius:999px;padding:3px 14px;color:var(--ink2);transition:.2s}
+.pbtn:hover{color:var(--gold);border-color:var(--gold)}
+.plate-note{font-size:11.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:8px;line-height:1.8}
+
+/* ---------- 终幕 ---------- */
+.finale{padding:40px 0 20px;border-top:1px dashed var(--line2);margin-top:30px}
+.finale h2{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:clamp(26px,3.6vw,34px);text-align:center;letter-spacing:.06em}
+.finale h2::before{content:"◆ ";color:var(--gold);font-size:.6em;vertical-align:.18em}
+.finale .fin-sub{text-align:center;color:var(--ink2);font-size:14px;margin:10px auto 26px;max-width:660px;font-family:"FangSong","STFangsong","仿宋",serif}
+.fin-callout{background:var(--panel);border:1px solid var(--line2);border-left:4px solid var(--gold);border-radius:8px;padding:14px 18px;font-size:14px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif;box-shadow:var(--shadow)}
+.fin-callout b{color:var(--gold);font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif}
+.fin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:22px}
+@media (max-width:700px){.fin-grid{grid-template-columns:1fr}}
+.fin-card{background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:12px 16px;box-shadow:var(--shadow)}
+.fin-card h4{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:15px;letter-spacing:.05em;color:var(--tc);margin-bottom:4px}
+.fin-card p{font-size:13px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif}
+.myth-wall{margin-top:26px}
+.myth-wall h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:19px;text-align:center;letter-spacing:.08em;margin-bottom:14px;color:var(--seal)}
+.myth-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:700px){.myth-grid{grid-template-columns:1fr}}
+.myth-card{border:1.5px dashed color-mix(in srgb,var(--seal) 60%, transparent);border-radius:8px;padding:10px 14px;background:color-mix(in srgb,var(--seal) 4%, transparent)}
+.myth-card .mc{font-size:12.5px;color:var(--ink3);font-family:"FangSong","STFangsong","仿宋",serif}
+.myth-card .mf{font-size:13px;color:var(--ink);margin-top:5px}
+.myth-card button{font-size:11.5px;color:var(--seal);font-family:"FangSong","STFangsong","仿宋",serif;margin-top:6px;border-bottom:1px dashed var(--seal)}
+.fin-books{margin-top:26px;background:var(--panel);border:1px solid var(--line2);border-radius:8px;padding:14px 18px;box-shadow:var(--shadow)}
+.fin-books h3{font-family:"Kaiti SC","STKaiti","KaiTi","楷体",serif;font-size:16px;margin-bottom:8px;letter-spacing:.06em}
+.fin-books li{list-style:none;font-size:13px;color:var(--ink2);font-family:"FangSong","STFangsong","仿宋",serif;padding:4px 0;border-bottom:1px dashed var(--line2)}
+.fin-books li:last-child{border-bottom:none}
+.fin-books li b{color:var(--ink);font-weight:400}
+
+/* ---------- 页脚 ---------- */
+.foot{padding:26px 0 40px;color:var(--ink3);font-size:11.5px;font-family:"FangSong","STFangsong","仿宋",serif;text-align:center;line-height:2}
+.foot .orn{color:var(--gold);letter-spacing:.6em;font-size:11px;margin-top:8px}
+
+/* ---------- shot / noanim（截图与无障碍） ---------- */
+body.shot .chap{display:none}
+body.shot .chap.shot-show{display:block}
+</style>
+</head>
+<body>
+
+<header class="topbar" id="topbar">
+  <div class="tb-inner">
+    <div class="tb-clock" title="文明史 = 一天：前10000年=0:00，今天=24:00">
+      <svg class="tb-dial" viewBox="0 0 40 40" aria-hidden="true">
+        <circle cx="20" cy="20" r="16.5" class="dial-ring"/>
+        <line id="tbHand" x1="20" y1="20" x2="20" y2="8" class="dial-hand"/>
+        <circle cx="20" cy="20" r="2.2" class="dial-cap"/>
+      </svg>
+      <div class="tb-clock-txt"><span class="lab">文明史 · 一天</span><span class="val" id="tbTime">00:00</span></div>
+    </div>
+    <div class="tb-scale"><div class="tb-segs" id="tbSegs"></div><div class="tb-needle" id="tbNeedle"></div></div>
+    <div class="tb-chapter" id="tbChapter">序曲 · 准备出发</div>
+    <button class="tb-btn" id="btnCmp" title="同期对照表" aria-label="打开同期对照表">⧉</button>
+    <button class="tb-btn" id="btnTheme" title="夜读 / 晨读" aria-label="切换明暗主题">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+    </button>
+  </div>
+</header>
+
+<main>
+  <section class="hero" data-sec="hero" id="hero">
+    <div class="wrap">
+      <div class="eyebrow">东 西 双 线 · 交 互 式 文 明 长 卷</div>
+      <h1>人类文明一万年</h1>
+      <p class="sub">从农业革命到大模型：把 12000 年文明史铺成一条可滚动的长卷——东方与西方两条线并行推进，看好东西如何分岔、交汇、反转，驱动力如何把历史推向今天。</p>
+      <div class="orn">◆ ◆ ◆</div>
+      <div class="hints">
+        <span><b>滚</b> 时间前进</span>
+        <span><b>点</b> 事件详情</span>
+        <span><b>下左控制台</b> 开泳道 · 点脉络</span>
+        <span><b>真实比例</b> 时间的真相</span>
+      </div>
+      <div class="legend" id="legend"></div>
+    </div>
+  </section>
+
+  <section class="river" data-sec="river" id="river">
+    <div class="wrap">
+      <div class="river-head">
+        <h2 class="river-title">全局时间河</h2>
+        <div class="river-ctl">
+          <button class="pill" id="btnReal">真实比例 · 关</button>
+          <button class="pill" id="btnCmp2">⧉ 同期对照表</button>
+        </div>
+      </div>
+      <p class="river-sub">全卷 12 章一览：点击任意章节直达；顶栏指针随阅读位置移动。拨开「真实比例」，看看 5000 年空白到底有多长。</p>
+      <div class="river-segs" id="riverSegs"></div>
+      <div class="river-ruler" id="riverRuler"></div>
+      <p class="river-note">类比时钟基数：公元前 10000 年 = 00:00，今天 = 24:00（1 小时 ≈ 501 年）。跨度数字均为约数。</p>
+    </div>
+  </section>
+
+  <div class="wrap"><div id="chapters"></div></div>
+
+  <section class="finale" data-sec="finale" id="finale">
+    <div class="wrap" id="finWrap"></div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap">
+    分期是叙事的工具，边界从来是渐变的；「东西方」是叙事便利，不是两个互不相干的实体——草原通道、印度洋航线与伊斯兰世界长期是两条线的连接器。<br>
+    年代与争议口径以配套《事实核对清单》为准。
+    《人类文明一万年》· 单文件离线长卷 · 十二枚动态图版 · 制作于 2026-10
+    <div class="orn">◆ ◆ ◆</div>
+  </div>
+</footer>
+
+<nav class="rail" id="rail" aria-label="章节跳转"></nav>
+
+<aside class="ctl" id="ctl" aria-label="图层控制台">
+  <div class="ctl-head" id="ctlHead">⚙ 图层控制台 ▾</div>
+  <div class="ctl-body">
+    <div class="ctl-sec"><b>泳 道</b><div class="tgls" id="ctlLanes"></div></div>
+    <div class="ctl-sec"><b>脉络高亮</b><div class="thbtns" id="ctlThreads"></div></div>
+    <div class="ctl-tip">默认只开「东方 / 西方」两轨；打开印度、伊斯兰、草原、美洲，看交汇处的故事。</div>
+  </div>
+</aside>
+
+<aside class="drawer" id="drawer" aria-hidden="true"></aside>
+<div class="modal" id="cmp" role="dialog" aria-label="同期对照表"></div>
+
+<script>
+/* ============================================================
+   内容数据层 · 改文案只需改这里
+   ============================================================ */
+const META = {
+  title: "人类文明一万年",
+  clock: { y0: -10000, y1: 2026 },
+  lanes: [
+    { id:"east",     K:"E", name:"东方 · 东亚",        short:"东方",   on:true  },
+    { id:"west",     K:"W", name:"西方 · 地中海与欧洲", short:"西方",   on:true  },
+    { id:"india",    K:"I", name:"印度",               short:"印度",   on:false },
+    { id:"islam",    K:"M", name:"伊斯兰世界",          short:"伊斯兰", on:false },
+    { id:"steppe",   K:"S", name:"草原游牧",            short:"草原",   on:false },
+    { id:"americas", K:"A", name:"美洲",               short:"美洲",   on:false }
+  ],
+  threads: [
+    { id:"tech",    name:"技术", icon:"⚙" },
+    { id:"trade",   name:"贸易", icon:"⛵" },
+    { id:"thought", name:"思想", icon:"✦" },
+    { id:"inst",    name:"制度", icon:"⚖" }
+  ],
+  recap: [
+    { th:"tech",    title:"技术 · 放大可能", text:"每一步技术革命都放大下一代的能量上限：驯化→冶金→蒸汽→电力→芯片。技术不决定一切，但决定了可能性边界。" },
+    { th:"trade",   title:"贸易 · 网络即加速", text:"没有孤立的文明：谁接入更大的交换网络，谁就获得更快的积累速度——从丝路到白银环流，再到全球供应链。" },
+    { th:"thought", title:"思想 · 给秩序立法", text:"轴心时代提出的问题（如何共处、何为公正），成为此后一切文明的底层代码；观念塑造制度，制度筛选技术。" },
+    { th:"inst",    title:"制度 · 规模的艺术", text:"把许多人组织成一个共同体的能力，决定谁能把人口变成力量：文字与官僚、法律与宗教、公司与国家。" }
+  ],
+  books: [
+    { t:"《全球通史》", d:"斯塔夫里阿诺斯的整体史教科书，最好的全景图起点。" },
+    { t:"《枪炮、病菌与钢铁》", d:"地理驱动的经典论证，配合本卷「驱动力」读。" },
+    { t:"《极简人类史》", d:"克里斯蒂安的大尺度框架，理解分期与脉络。" },
+    { t:"《贸易打造的世界》", d:"从交换网络看近代世界体系的形成。" }
+  ]
+};
+
+const CHAPTERS = [
+{ id:"ch01", num:"01", name:"起源 · 农业革命与定居", short:"起源", spanText:"约前10000 – 前3500", span:[-10000,-3500],
+  lead:"人类第一次学会「把明天存起来」：把野草育成谷物、把野兽育成家畜、把营地变成村庄。农业不是一次发明，而是横跨数千年、在多个地方各自发生的漫长实验——文明的舞台由此搭起。",
+  driver:{ icon:"🌾", title:"驯化：文明的第一块多米诺",
+    text:"定居在粮食上 → 出现剩余 → 人口增长与分工 → 村落变城市、部落变国家。链条的第一环一响，后面全都跟着响。",
+    threads:["tech","inst"] },
+  demo:{ key:"ch01", title:"图版 01 · 文明的摇篮依次点亮", sub:"新月沃地、长江、黄河、中美洲……几处「实验田」在数千年间各自亮起。" },
+  events:[
+    { id:"ch01e1", lane:"west", y:-9500, t:"新月沃地：驯化小麦与大麦", what:"在今叙利亚—以色列—伊拉克一带，人类开始栽培小麦、大麦与豆类，并驯养绵羊、山羊。", why:"全球最早的农业中心之一：可储存的谷物让「定居」第一次变得有利可图。", th:["tech"],
+      myth:{ c:"农业是某位天才一拍脑袋发明的。", f:"它是数千年的反复试错：不同地区各自独立驯化了不同的作物，时间跨度以千年计。" } },
+    { id:"ch01e2", lane:"west", y:-8000, t:"杰里科：最早的石墙与塔", what:"约旦河谷的杰里科出现石墙、塔楼，聚落规模达到数千人。", why:"「村庄」升级为「被保护的共同体」——集体工程需要组织，组织就是国家的雏形。", th:["inst"] },
+    { id:"ch01e3", lane:"west", y:-7000, t:"恰塔霍裕克：屋顶上的大镇", what:"安纳托利亚的恰塔霍裕克数千人聚居，房屋从屋顶进入、彼此相连，没有街道。", why:"证明定居不一定依赖宫殿与广场：平等的大聚落是农业社会的另一种可能。", th:["inst"] },
+    { id:"ch01e4", lane:"east", y:-8000, t:"中国北方：粟与黍的驯化", what:"黄河流域的先民驯化粟、黍两种耐旱谷物，形成华北旱作农业体系。", why:"世界农业的东方支点：旱作谷物支撑了此后中原数千年的人口与文明。", th:["tech"] },
+    { id:"ch01e5", lane:"east", y:-7500, t:"长江流域：水稻与贾湖骨笛", what:"长江流域出现早期稻作（上山文化可早至约前8000年）；河南贾湖留下骨笛与刻符——最早的音乐与符号实验之一。", why:"稻作是南方文明的基石；骨笛与刻符提醒我们：精神生活与农业同步登场。", th:["tech","thought"] },
+    { id:"ch01e6", lane:"west", y:-5000, t:"灌溉、犁与最早的铜", what:"美索不达米亚出现灌溉农业；安纳托利亚与巴尔干出现铜器冶炼。", why:"灌溉需要集体协作与水利管理，是「国家机器」的预演；金属开启工具新纪元。", th:["tech","inst"] },
+    { id:"ch01e7", lane:"east", y:-5000, t:"仰韶文化：彩陶与村落网络", what:"黄河流域进入仰韶时代：彩陶、粟作聚落遍布，形成广域的村落网络。", why:"同风格陶器说明区域间已在交换与通婚——「文化圈」的雏形。", th:["trade"] },
+    { id:"ch01e8", lane:"east", y:-3500, t:"红山玉器：礼制的先声", what:"辽河流域红山文化以玉龙、玉璧构建祭祀体系。", why:"用稀有物品表达权力与信仰——「礼」的雏形，为等级社会奠基。", th:["thought","inst"] },
+    { id:"ch01e9", lane:"steppe", y:-3500, t:"欧亚草原：马被驯化", what:"今哈萨克斯坦一带出现最早的家马与挤马奶的证据。", why:"马是史前的「高铁」：此后数千年，草原骑兵反复改写东西方的命运。（打开「草原」泳道可见）", th:["tech"] },
+    { id:"ch01e10", lane:"west", y:-3800, t:"乌鲁克：城市革命前夜", what:"苏美尔出现乌鲁克等大规模聚落，神庙与库房把乡村剩余集中起来。", why:"剩余集中 → 祭司与官僚 → 文字与城邦：文明的阀门即将拧开，下一章正戏开场。", th:["inst"] },
+    { id:"ch01x1", lane:"west", cross:true, y:-6000, t:"驯化物种开始远播", what:"小麦、大麦自西亚向外扩散，粟、黍、稻也从中国向周边传播——史前第一批「全球化」物资上路了。", why:"技术传播让各地食谱趋同，也把依赖、疾病与竞争一并带走；彼此隔绝的世界开始互相「看见」。", th:["trade","tech"] }
+  ] },
+
+{ id:"ch02", num:"02", name:"文明诞生 · 城市、文字与国家", short:"文字", spanText:"约前3500 – 前2000", span:[-3500,-2000],
+  lead:"村庄堆成城市，记账催生文字，神庙长出国家——五千多年前，文明在几条大河边同时「开机」。苏美尔、埃及、印度河与良渚各自搭起复杂社会，速度不同、剧本相似。",
+  driver:{ icon:"🏛️", title:"剩余集中：从村庄到国家",
+    text:"灌溉与贸易把剩余汇入神庙与宫殿 → 需要记账（文字）、需要管理（官僚）、需要工程与防御（国家）。文明，就是把剩余变成组织能力的机器。",
+    threads:["inst","trade"] },
+  demo:{ key:"ch02", title:"图版 02 · 一座城市如何长出来", sub:"从村落 → 神庙 → 城墙与市场：看苏美尔城邦的生长逻辑（示意）。" },
+  events:[
+    { id:"ch02e1", lane:"west", y:-3500, t:"苏美尔城邦：神庙就是国库", what:"乌鲁克等城市以神庙为中心集中土地产出、手工业与贸易，祭司集团管理一切。", why:"神庙—宫殿—书吏组成最早的「国家机器」：这是城市的政治形态。", th:["inst"] },
+    { id:"ch02e2", lane:"west", y:-3300, t:"楔形文字：为记账而生", what:"苏美尔人从计数泥筹演变出楔形文字，最早的泥板记录的是谷物、牲畜与劳动。", why:"文字首先服务经济与行政，几百年后才承载诗歌与神话。", th:["tech","inst"],
+      myth:{ c:"文字一开始就是用来写史诗和诗歌的。", f:"最早的文字是账本：数量、牲畜、谷物。文学要晚好几百年才登场。" } },
+    { id:"ch02e3", lane:"west", y:-3100, t:"埃及统一：尼罗河的秩序", what:"纳尔迈（美尼斯）统一上下埃及，象形文字与王权符号同时登场。", why:"尼罗河可预测的泛滥 + 大一统王权，造就最稳定的早期文明。", th:["inst"] },
+    { id:"ch02e4", lane:"west", y:-2600, t:"大金字塔：国家的肌肉", what:"胡夫大金字塔建成，约2.3百万块石料，背后是数万人的组织、配给与后勤。", why:"这是前工业时代国家动员能力的极限展示——组织本身即是奇迹。", th:["inst","tech"],
+      myth:{ c:"金字塔是奴隶建造的。", f:"考古发现的工人村、面包房与医疗痕迹显示：建造者是有组织、有配给的劳工队（含轮换民工），并非刻板印象中的奴隶大军。" } },
+    { id:"ch02e5", lane:"west", y:-2300, t:"阿卡德：第一个帝国", what:"萨尔贡一世征服各苏美尔城邦，建立横跨两河的阿卡德帝国。", why:"「帝国」这种超级组织形态首次登场：多民族、多城邦被一人统治。", th:["inst"] },
+    { id:"ch02e6", lane:"west", y:-2100, t:"乌尔第三王朝：法典的黎明", what:"苏美尔复兴，《乌尔纳姆法典》问世——现存最早的成文法典之一。", why:"法律成文意味着制度固化：规则从「王的意志」变成「可以引用的条文」。", th:["inst","thought"] },
+    { id:"ch02e7", lane:"india", y:-2600, t:"印度河谷：网格城市", what:"哈拉帕与摩亨佐-达罗出现棋盘式街道、下水道系统与标准化砖块。", why:"与两河、埃及并列的第三台文明发动机；其文字至今未破译。", th:["tech","inst"] },
+    { id:"ch02e8", lane:"east", y:-3300, t:"良渚：水利与玉礼", what:"长江下游的良渚古城筑起大型水利系统，玉琮、玉钺构成等级礼制。", why:"东亚早期国家形态的强证据；「中华文明5000多年」规范表述的核心依据之一。", th:["inst","thought"] },
+    { id:"ch02e9", lane:"east", y:-2300, t:"陶寺：观象与王权", what:"山西陶寺出现城址、观象祭祀建筑与等级分明的大墓。", why:"黄河流域社会复杂化的关键证据链，指向关于「最早中国」的讨论。", th:["inst","thought"] },
+    { id:"ch02e10", lane:"east", y:-2100, t:"龙山晚期：万邦林立", what:"中原与周边城址林立、竞争加剧，进入文献中「万邦」时代的尾声。", why:"酋邦竞争白热化，为第一个王朝的出现铺好了路。", th:["inst"] },
+    { id:"ch02x1", lane:"west", cross:true, y:-2500, t:"青金石与海运：最早的贸易体系", what:"青金石从阿富汗、锡从中亚、铜从塞浦路斯流向两河与埃及；印度河的砝码出现在波斯湾。", why:"文明从来不是孤岛：最早的「国际贸易体系」沿河与海铺开，也埋下相互依赖的伏笔。", th:["trade"] }
+  ] },
+
+{ id:"ch03", num:"03", name:"青铜世界 · 第一张网络与它的崩塌", short:"青铜", spanText:"约前2000 – 前1000", span:[-2000,-1000],
+  lead:"青铜是「国际合金」：铜在山里、锡在远方，谁掌握供应链谁就强大。赫梯、埃及、商与迈锡尼隔空互动——直到前1200年前后，这张网络在几十年内连环崩塌。第一批全球化的甜头与教训。",
+  driver:{ icon:"⚒️", title:"供应链文明：远距离依赖的代价",
+    text:"青铜＝铜＋锡，锡矿稀缺 → 必须远距离贸易 → 外交、条约与礼物交换制度化 → 系统耦合度上升 → 一旦断链（战争/旱灾/迁徙），全盘共振。",
+    threads:["tech","trade"] },
+  demo:{ key:"ch03", title:"图版 03 · 青铜供应链：一张跨大陆的网", sub:"铜、锡、青金石从矿山到王宫——青铜时代最贵的「快递」。", note:"演示为示意：线路与产地按学界主流认识简化绘制。" },
+  events:[
+    { id:"ch03e1", lane:"west", y:-1750, t:"汉谟拉比法典：把规则刻在石头上", what:"巴比伦国王汉谟拉比颁布282条成文法律，「以眼还眼」同态复仇闻名。", why:"法律公开化是国家治理的里程碑；条文也暴露了鲜明的阶级差异。", th:["inst","thought"],
+      myth:{ c:"汉谟拉比法典是人类最早的成文法。", f:"更早的《乌尔纳姆法典》等已存在；汉谟拉比法典是现存最完整、影响最大的早期法典之一。" } },
+    { id:"ch03e2", lane:"west", y:-1450, t:"迈锡尼：欧洲最早的宫殿", what:"迈锡尼人入主克里特并称霸爱琴海，留下城堡、狮子门与线形文字B泥板。", why:"欧洲最早的文字与宫殿经济；荷马史诗的模糊记忆源头。", th:["inst"] },
+    { id:"ch03e3", lane:"west", y:-1350, t:"阿马尔奈文书：青铜时代的外交电邮", what:"埃及与巴比伦、亚述、赫梯、米坦尼之间的外交通信泥板档案留存至今。", why:"大国俱乐部用礼物、联姻与密信维持平衡——青铜时代的「联合国」。", th:["inst","trade"] },
+    { id:"ch03e4", lane:"west", y:-1274, t:"卡迭石：最早的和平条约", what:"埃及与赫梯在卡迭石大战（约前1274）未分胜负，约前1259年缔结和平条约并联姻。", why:"两个超级大国发现打不死对方，于是制度化和平——现代条约外交的远祖。", th:["inst"] },
+    { id:"ch03e5", lane:"west", y:-1200, t:"青铜时代晚期崩溃", what:"赫梯灭亡、迈锡尼毁灭、埃及退守：数十年间，东地中海体系连环崩塌。", why:"高度耦合的贸易网络一旦断裂，宫殿经济全线撑不住——系统风险的第一次大演示。", th:["inst","trade"],
+      myth:{ c:"青铜时代的崩溃是「海上民族」入侵造成的。", f:"主流认为多因叠加：气候干旱、地震、内部起义、贸易中断与迁徙冲击共同作用；「海上民族」只是其中一环。" } },
+    { id:"ch03e6", lane:"east", y:-1600, t:"商朝：青铜礼器与王朝", what:"商汤灭夏建商；郑州商城、偃师商城与青铜礼器体系成型。", why:"中国青铜文明另辟路线：青铜主要铸礼器与兵器，是权力与祭祀的语言。", th:["tech","inst"] },
+    { id:"ch03e7", lane:"east", y:-1250, t:"甲骨文：问天的文字", what:"殷墟留下大量占卜甲骨刻辞，汉字体系成熟。", why:"「国之大事，在祀与戎」的原始档案；汉字由此延续三千年至今。", th:["thought","inst"] },
+    { id:"ch03e8", lane:"east", y:-1046, t:"牧野之战与「天命」", what:"周武王伐纣，商亡周兴；周人提出「天命靡常，惟德是辅」。", why:"「天命」观成为中国政治合法性的底层逻辑：失德者失天下。", th:["thought","inst"] },
+    { id:"ch03e9", lane:"india", y:-1500, t:"吠陀时代：赞歌与秩序", what:"雅利安人进入印度，吠陀文献形成，瓦尔那（种姓）秩序雏形出现。", why:"印度文明的第二波奠基：宗教、语言与社会结构深度绑定。", th:["thought","inst"] },
+    { id:"ch03e10", lane:"steppe", y:-1500, t:"战车扩散：速度革命", what:"战车与复合弓从欧亚草原向各文明扩散，成为贵族武力的标配。", why:"军事技术第一次「全球同步」：草原是技术的路由器。", th:["tech"] },
+    { id:"ch03x1", lane:"west", cross:true, y:-1400, t:"青铜供应链：锡与青金石之路", what:"锡从阿富汗与中亚、青金石从巴达赫尚、铜从塞浦路斯——青铜原料网络横跨欧亚。", why:"文明必需品依赖远距离供应＝最早的全球供应链，也是最早的系统性脆弱。", th:["trade","tech"] }
+  ] },
+
+{ id:"ch04", num:"04", name:"轴心时代 · 铁器与思想大爆发", short:"轴心", spanText:"约前1000 – 前200", span:[-1000,-200],
+  lead:"铁器让武器与农具变得便宜，旧贵族秩序松动；从希腊到中国，一群「追问者」几乎同时出现——孔子、佛陀、苏格拉底都在问同一个问题：人应该如何共处？这是文明的「哲学开机」时刻。",
+  driver:{ icon:"✦", title:"铁与问号：平民时代的思想爆炸",
+    text:"铁器普及 → 军事与生产平民化 → 青铜贵族秩序瓦解 → 竞争性邦国（春秋战国/希腊城邦/列国）→ 思想市场竞争 → 诸子百家与希腊哲学。",
+    threads:["thought","tech"] },
+  demo:{ key:"ch04", title:"图版 04 · 思想的星空：同时亮起的追问者", sub:"前800–前200年间，东亚、南亚、地中海几乎同时出现思想突破——雅斯贝尔斯称之为「轴心时代」。" },
+  events:[
+    { id:"ch04e1", lane:"east", y:-771, t:"西周东迁：春秋开局", what:"犬戎攻破镐京，周平王东迁洛邑，王权衰落，诸侯争霸开始。", why:"旧秩序松动才有思想松绑——大乱世是大思想的产房。", th:["inst"] },
+    { id:"ch04e2", lane:"east", y:-551, t:"孔子：仁与礼的处方", what:"孔子诞生，周游列国，整理典籍，提出以「仁」「礼」重建秩序。", why:"儒家成为东亚两千年社会秩序的底层代码。", th:["thought"] },
+    { id:"ch04e3", lane:"east", y:-500, t:"老子：道法自然的另一种答案", what:"《道德经》思想成型（成书年代与作者有争议），主张无为而治、道法自然。", why:"与儒家形成互补与张力：入世的礼与出世的道，共同塑造东方心智。", th:["thought"] },
+    { id:"ch04e4", lane:"east", y:-350, t:"商鞅变法：国家能力工程", what:"秦国推行军功爵、县制、废井田、重农抑商。", why:"法家式「组织革命」把秦国变成战争机器——统一的地基。", th:["inst"] },
+    { id:"ch04e5", lane:"east", y:-221, t:"秦统一：书同文，车同轨", what:"秦始皇灭六国，推行郡县制、统一文字、度量衡与道路。", why:"东亚「大一统」模板诞生，此后两千年反复回归。", th:["inst","tech"] },
+    { id:"ch04e6", lane:"west", y:-508, t:"雅典民主：公民的试验", what:"克里斯提尼改革确立公民大会与抽签制，雅典民主成形。", why:"「民主」首次制度化：政治想象从此多了一个选项。", th:["inst"],
+      myth:{ c:"雅典民主＝人人平等，人人参政。", f:"女性、奴隶、外邦人被排除在外，有参政权者不到人口的两成——它是少数人的民主实验。" } },
+    { id:"ch04e7", lane:"west", y:-480, t:"希波战争：东西大碰撞", what:"波斯三次入侵希腊，马拉松、温泉关、萨拉米斯海战接连上演。", why:"东西方第一次大规模碰撞；希腊认同与「自由叙事」由此成型。", th:["inst"] },
+    { id:"ch04e8", lane:"west", y:-399, t:"苏格拉底之死", what:"苏格拉底受审饮鸩，柏拉图与亚里士多德接棒。", why:"「未经省察的人生不值得过」——西方哲学开始为自己立法。", th:["thought"] },
+    { id:"ch04e9", lane:"west", y:-336, t:"亚历山大东征", what:"马其顿的亚历山大开始东征，十余年打到印度河，开启希腊化时代。", why:"希腊与东方文明第一次深度交融：科学、艺术与宗教在混血中生长。", th:["inst","thought"] },
+    { id:"ch04e10", lane:"india", y:-500, t:"佛陀：苦与解脱", what:"释迦牟尼悟道传法，佛教在恒河流域兴起。", why:"印度给世界提供的「苦与解脱」答案，日后重塑整个东亚。", th:["thought"] },
+    { id:"ch04e11", lane:"steppe", y:-400, t:"骑射时代：草原的军事优势", what:"骑马作战与骑射战术在欧亚草原普及。", why:"此后两千年，草原骑兵是农耕帝国永恒的变量。", th:["tech"] },
+    { id:"ch04x1", lane:"west", cross:true, y:-500, t:"轴心时代：思想的平行爆发", what:"希腊、印度、中国、以色列几乎同时出现思想突破，雅斯贝尔斯称之为「轴心时代」。", why:"是巧合还是铁器时代的共同产物？学界仍在争论——这正是「规律」问题最有魅力的地方。", th:["thought"] }
+  ] },
+
+{ id:"ch05", num:"05", name:"古典帝国 · 秦汉、罗马、孔雀", short:"帝国", spanText:"约前300 – 公元300", span:[-300,300],
+  lead:"当秦砖汉瓦垒起东方的郡县，罗马军团正把地中海变成内湖。道路、法律与常备军，让「帝国」第一次成为超大号的政治容器——它的尺度，要用脚与马蹄来丈量。",
+  driver:{ icon:"🛣️", title:"道路即统治：帝国的尺度",
+    text:"统一文字与货币 → 修驰道与罗马大道 → 军队与商队快速移动 → 边疆可控、税收可达 → 帝国把「远方」变成「内政」。",
+    threads:["inst","trade"] },
+  demo:{ key:"ch05", title:"图版 05 · 帝国的尺度：驰道与罗马大道", sub:"两大帝国用道路丈量世界——从咸阳到罗马，基建就是统治力。" },
+  events:[
+    { id:"ch05e1", lane:"east", y:-202, t:"秦亡汉兴：帝国改姓", what:"秦二世而亡，楚汉相争后刘邦建汉；汉承秦制，郡县与官僚体系延续下来。", why:"「秦制」在汉朝被证明可以长期运行：东亚大一统从实验变成了传统。", th:["inst"] },
+    { id:"ch05e2", lane:"east", y:-119, t:"漠北决战：汉击匈奴", what:"卫青、霍去病率军深入漠北，大破匈奴主力；汉朝控制河西走廊，通往西域的门户洞开。", why:"农耕帝国首次大规模击败草原骑兵，丝绸之路的军事前提由此奠定。", th:["inst"],
+      myth:{ c:"长城是太空中唯一肉眼可见的人工建筑。", f:"从月球不可能看见；近地轨道肉眼也极难辨认（颜色与地表相近、平均宽仅数米）。2003 年杨利伟明确表示未看到。" } },
+    { id:"ch05e3", lane:"east", y:65, t:"佛教传入中国", what:"汉明帝遣使求法，天竺僧人到洛阳译经，白马寺建立，佛教正式进入中原。", why:"此后两千年，来自印度的思想持续重塑中国与东亚的精神世界。", th:["thought"] },
+    { id:"ch05e4", lane:"east", y:90, t:"班超：西域三十年", what:"班超以三十六人起家，经营西域三十年，重新打通并稳固丝绸之路。", why:"帝国边疆不只靠征服，更靠经营：一个人可以撑起一条商路。", th:["inst","trade"] },
+    { id:"ch05e5", lane:"east", y:105, t:"蔡伦造纸", what:"蔡伦总结改进造纸工艺，用树皮、麻头与破布造纸，奏报朝廷后逐步推广。", why:"书写材料从竹简缣帛中解放，知识复制成本大降，为纸张西传埋下伏笔。", th:["tech"] },
+    { id:"ch05e6", lane:"west", y:-280, t:"希腊化王国林立", what:"亚历山大帝国分裂，托勒密、塞琉古等希腊化王国并立，希腊语成为共通语。", why:"希腊与东方在语言、城市与科学上深度融合，留下丰厚遗产。", th:["inst","thought"] },
+    { id:"ch05e7", lane:"west", y:-53, t:"帕提亚：对手与中间商", what:"卡莱战役帕提亚歼灭罗马军团；此后它卡在丝路要冲，转手东西方的货物。", why:"罗马与汉从未直接通商，两大帝国隔着安息间接「握手」——中间商塑造格局。", th:["trade","inst"],
+      myth:{ c:"汉朝和罗马打过仗，克拉苏的军团战败后流落甘肃成了「骊靬人」。", f:"两大帝国从未交战；所谓罗马军团后裔缺乏史料与基因证据支持，是流传很广的传说。" } },
+    { id:"ch05e8", lane:"west", y:-44, t:"罗马：从共和到帝制", what:"凯撒遇刺，共和回天乏术；前27年屋大维受尊号「奥古斯都」，元首制建立。", why:"共和外壳之下权力集中，「罗马模式」成为后世帝国的通用模板。", th:["inst"] },
+    { id:"ch05e9", lane:"west", y:100, t:"条条大路通罗马", what:"罗马大道网总长约八万公里，军队、商旅与政令以罗马为原点昼夜流动。", why:"道路是帝国的血管：把地中海世界变成一个可以快速动员的整体。", th:["tech","inst"] },
+    { id:"ch05e10", lane:"india", y:-260, t:"阿育王：从征服到弘法", what:"孔雀王朝阿育王征服羯陵伽后忏悔，立石柱敕令，遣使向四方传播佛教。", why:"宗教第一次被当作帝国的黏合剂，佛教由地方教派走向世界宗教。", th:["thought","inst"] },
+    { id:"ch05e11", lane:"steppe", y:91, t:"北匈奴西迁", what:"汉军大破北匈奴，北单于率部西迁中亚；南匈奴内附，草原格局重新洗牌。", why:"西迁的匈奴被认为与数百年后冲击欧洲的匈人有关，草原骨牌开始倒下。", th:["inst"] },
+    { id:"ch05x1", lane:"west", cross:true, y:-130, t:"张骞凿空西域", what:"张骞两度出使西域带回各国情报；汉朝经营河西，丝绸之路正式开通。", why:"欧亚大陆的主动脉接通：丝绸、良马、作物与思想开始双向流动。", th:["trade","tech"],
+      myth:{ c:"丝绸之路是一条具体的「路」。", f:"它是横跨欧亚的商路网络：干线随绿洲与政局变迁，海路与草原路长期并行。" } }
+  ] },
+{ id:"ch06", num:"06", name:"信仰的时代 · 三大宗教与新秩序", short:"信仰", spanText:"公元300 – 800", span:[300,800],
+  lead:"旧帝国退场，新信仰登台。佛教、基督教、伊斯兰教在几百年间相继出发，重新划定各自文明圈的精神版图——人间秩序的答案，从此写在了天上。",
+  driver:{ icon:"🕊️", title:"信仰上路：三大宗教的扩散",
+    text:"帝国动荡 → 人心寻找新秩序 → 宗教组织填补真空 → 传教网络沿商路延伸 → 信仰重塑文明圈。",
+    threads:["thought","trade"] },
+  demo:{ key:"ch06", title:"图版 06 · 信仰的扩散：三大宗教的旅程", sub:"佛教、基督教、伊斯兰教相继出发，重塑三大文明圈的精神版图。" },
+  events:[
+    { id:"ch06e1", lane:"east", y:550, t:"佛教东传朝鲜日本", what:"佛教经中国传入朝鲜半岛，又经半岛传入日本，东亚各地大兴寺院。", why:"信仰搭着文字与文化的船：汉字文化圈在佛教网络中同步成型。", th:["thought"] },
+    { id:"ch06e2", lane:"east", y:589, t:"隋唐大一统", what:"589年隋灭陈重归一统，618年唐接棒；长安成长为世界级都会。", why:"分裂近三百年后，东亚再次以大一统姿态登场，向外辐射制度与文化。", th:["inst"] },
+    { id:"ch06e3", lane:"east", y:605, t:"科举制：考试选官", what:"隋设进士科，以考试取士；唐代完善为分级考试，寒门可凭才学入仕。", why:"考试面前，门阀不再垄断——东亚文官政治的地基由此奠定。", th:["inst","thought"] },
+    { id:"ch06e4", lane:"east", y:629, t:"玄奘西行取经", what:"玄奘从长安出发，经西域到天竺求学十七年，携经卷返回长安译经。", why:"一场知识朝圣：他把印度佛学系统搬进中国，也留下珍贵旅行记录。", th:["thought"] },
+    { id:"ch06e5", lane:"west", y:313, t:"基督教：从迫害到国教", what:"313年米兰敕令停止迫害；380年狄奥多西立基督教为罗马国教。", why:"从边缘教派到帝国宗教，它接管了罗马退场后的欧洲精神世界。", th:["thought","inst"] },
+    { id:"ch06e6", lane:"west", y:376, t:"民族大迁徙与西罗马灭亡", what:"376年哥特人渡过多瑙河，蛮族浪潮涌入；476年西罗马末代皇帝被废。", why:"西部帝国退场，但罗马式法律与教会延续，新时代从继承开始。", th:["inst"],
+      myth:{ c:"西罗马灭亡＝文明一夜崩塌。", f:"476年只是标志性节点：罗马制度与教会延续数百年，东罗马更又存续近千年。" } },
+    { id:"ch06e7", lane:"west", y:537, t:"查士丁尼与圣索菲亚", what:"拜占庭皇帝查士丁尼收复意大利与北非，537年建成圣索菲亚大教堂。", why:"拜占庭是罗马的东方延续：法律、正教与建筑支撑起千年帝国。", th:["inst","thought"] },
+    { id:"ch06e8", lane:"islam", y:622, t:"伊斯兰诞生：希吉拉", what:"穆罕默德率信众从麦加迁往麦地那，伊斯兰共同体在阿拉伯半岛崛起。", why:"一个新信仰从商路城市出发，即将重塑从波斯到西班牙的世界。", th:["thought","inst"] },
+    { id:"ch06e9", lane:"islam", y:636, t:"阿拉伯大扩张", what:"636年雅穆克战役大败拜占庭；此后百年，阿拉伯军西抵西班牙、东达中亚。", why:"旧帝国夹缝里长出的新力量，把地中海与印度洋连成伊斯兰世界。", th:["inst","trade"],
+      myth:{ c:"阿拉伯扩张靠强迫改宗来推行伊斯兰。", f:"早期征服并未强制改宗，税制反而长期抑制改宗意愿；伊斯兰化是数百年的渐进过程。" } },
+    { id:"ch06e10", lane:"islam", y:651, t:"萨珊波斯灭亡", what:"651年萨珊末代君主被杀，波斯并入阿拉伯帝国，祆教国教地位终结。", why:"古老帝国的谢幕与伊斯兰化的开端——波斯将以新身份重返历史。", th:["inst","thought"] },
+    { id:"ch06e11", lane:"americas", y:600, t:"玛雅古典期鼎盛", what:"玛雅城邦林立，蒂卡尔、帕伦克等兴建金字塔与石碑，天文学高度发达。", why:"在没有铁器与车轮的世界里，另一支文明独立长成了复杂社会。", th:["thought","inst"],
+      myth:{ c:"玛雅文明神秘消失，族群不知所踪。", f:"崩溃的是约 800–900 年南部低地城邦体系（干旱、战争等多因叠加）；北部尤卡坦延续更久，玛雅人及其语言至今仍有数百万人。" } },
+    { id:"ch06x1", lane:"west", cross:true, y:751, t:"造纸术西传撒马尔罕", what:"怛罗斯之战后，造纸术从中原传入撒马尔罕，伊斯兰世界建起纸坊。", why:"纸沿商路继续西行——数百年后，它将点燃欧洲的知识革命之火。", th:["tech","trade"] }
+  ] },
+{ id:"ch07", num:"07", name:"中古世界 · 三大文明圈", short:"中古", spanText:"公元800 – 1100", span:[800,1100],
+  lead:"世界裂成三块，又连成一张网：东亚的宋朝、伊斯兰世界的阿拔斯、欧洲的基督教诸国各自成圈，却在贸易与学术上互相偷师。造纸、数字与希腊典籍，正沿着商路悄悄西行。",
+  driver:{ icon:"📜", title:"知识西行：纸、数字与典籍",
+    text:"稳定帝国资助学术 → 典籍与算法沿商路流动 → 翻译与注释层层加码 → 欧洲接过接力棒 → 知识中心的钟摆向西移动。",
+    threads:["thought","trade"] },
+  demo:{ key:"ch07", title:"图版 07 · 知识的传递：从长安到科尔多瓦", sub:"造纸、数字、典籍：知识沿着贸易网络从东向西流动。" },
+  events:[
+    { id:"ch07e1", lane:"east", y:1000, t:"唐宋变革：印刷前夜", what:"宋代城市与商业繁荣，科举社会成型；雕版印刷普及，活字印刷呼之欲出。", why:"经济与知识的双重加速：东亚进入平民化、商业化、技术化的新阶段。", th:["trade","tech"] },
+    { id:"ch07e2", lane:"east", y:1100, t:"吴哥窟兴建", what:"高棉帝国动员举国之力兴建吴哥窟，供奉毗湿奴，规模冠绝古代宗教建筑。", why:"东南亚「印度化」文明的巅峰：信仰、王权与工程合力写下石头史诗。", th:["thought","inst"] },
+    { id:"ch07e3", lane:"west", y:793, t:"维京时代开启", what:"793年维京人劫掠林迪斯法恩修道院，此后他们劫掠、贸易并殖民北海与大西洋。", why:"他们不只是劫掠者：都柏林与基辅的早期贸易网络都有维京商人身影。", th:["trade","tech"],
+      myth:{ c:"维京人只是一群只会抢劫的野蛮人。", f:"他们同时是商人、殖民者与航海家：北欧商路连接了波罗的海与拜占庭、阿拉伯世界。" },
+      myth2:{ c:"维京战士戴着带角头盔作战。", f:"无考古证据——现存较完整的维京头盔（Gjermundbu）没有角；角盔形象源自 19 世纪瓦格纳歌剧的服装设计。" } },
+    { id:"ch07e4", lane:"west", y:800, t:"查理曼加冕", what:"教皇为法兰克国王查理曼加冕「罗马人的皇帝」，西欧尝试重建帝国秩序。", why:"教权与王权合流的模板：欧洲政治从此在两种权力之间反复拉扯。", th:["inst","thought"],
+      myth:{ c:"中世纪的人普遍以为地球是平的。", f:"中世纪学者大多知道大地是球体；「教会宣扬平地说」是后世建构的误传。" } },
+    { id:"ch07e5", lane:"west", y:988, t:"基辅罗斯受洗", what:"弗拉基米尔大公受洗，以东正教为国教，罗斯诸部接入拜占庭文明圈。", why:"一条「从瓦良格到希腊」的商路上的国家，选择了东方基督教。", th:["thought","trade"] },
+    { id:"ch07e6", lane:"west", y:1054, t:"东西教会大分裂", what:"罗马与君士坦丁堡互相绝罚，天主教与东正教正式分道扬镳。", why:"宗教分裂把欧洲固定成东西两条文明路线，这道裂痕至今仍在回响。", th:["thought","inst"] },
+    { id:"ch07e7", lane:"west", y:1066, t:"诺曼征服英格兰", what:"诺曼底公爵威廉登陆英格兰，黑斯廷斯战役获胜，随后加冕为英王。", why:"一次征服重塑英语与英国制度：封建体系与中央王权被强力嫁接。", th:["inst"] },
+    { id:"ch07e8", lane:"islam", y:830, t:"智慧宫：翻译大工程", what:"阿拔斯哈里发扩建巴格达智慧宫，系统翻译希腊、波斯与印度典籍。", why:"百年翻译运动把巴格达变成世界知识中心，为科学黄金时代奠基。", th:["thought","tech"] },
+    { id:"ch07e9", lane:"islam", y:900, t:"希腊学术的阿拉伯保存", what:"亚里士多德、欧几里得、托勒密的著作被译为阿拉伯文，并获注释与发展。", why:"希腊科学靠「阿拉伯副本」存续——数百年后它们又回传欧洲。", th:["thought"] },
+    { id:"ch07e10", lane:"islam", y:1040, t:"塞尔柱兴起", what:"塞尔柱突厥人兴起，1040年击败伽色尼王朝，掌控波斯，成为伊斯兰守护者。", why:"游牧出身的王朝接管伊斯兰核心区，为几百年后的奥斯曼埋下伏笔。", th:["inst"] },
+    { id:"ch07e11", lane:"americas", y:1000, t:"托尔特克与维京登陆", what:"托尔特克人在墨西哥中部崛起建都图拉；维京人越过大西洋抵达纽芬兰。", why:"旧大陆航海者摸到新大陆门槛，却未建立持久联系——美洲仍是平行世界。", th:["trade","inst"] },
+    { id:"ch07x1", lane:"west", cross:true, y:1050, t:"造纸术传入欧洲", what:"造纸术经伊斯兰世界传入伊比利亚半岛，欧洲出现最早的造纸作坊。", why:"书写材料成本骤降，为几百年后欧洲的知识爆发备好了硬件。", th:["tech","trade"] }
+  ] },
+{ id:"ch08", num:"08", name:"十字路口 · 十字军、蒙古与黑死病", short:"十字路口", spanText:"公元1100 – 1350", span:[1100,1350],
+  lead:"蒙古的马蹄把欧亚大陆踩成一条通道，商队与病菌同时加速；十字军、旅行家与瘟疫在同一个舞台上交错。东西方的距离，在这几百年里被硬生生拽到了一起。",
+  driver:{ icon:"🐎", title:"风暴过境：连接与代价",
+    text:"草原帝国打通驿站商路 → 人员与商品全速流动 → 技术与疾病同路传播 → 旧格局崩塌重组 → 世界被焊成一张网。",
+    threads:["inst","trade"] },
+  demo:{ key:"ch08", title:"图版 08 · 蒙古风暴：草原如何连接世界", sub:"从草原到海洋：史上最大陆上帝国把东西方焊在了一起。" },
+  events:[
+    { id:"ch08e1", lane:"east", y:1279, t:"南宋灭亡，元朝一统", what:"1279年崖山海战，南宋覆灭；元朝首次把草原与农耕区统于一个王朝。", why:"草原与农耕第一次长期同属一朝，东亚政治版图被彻底改写。", th:["inst"] },
+    { id:"ch08e2", lane:"east", y:1300, t:"泉州：东方第一大港", what:"元代泉州（刺桐）商船云集，瓷器与丝绸经海路销往印度洋沿岸和中东各地。", why:"陆上丝路之外，海上网络把中国、印度与伊斯兰世界连成一体。", th:["trade"] },
+    { id:"ch08e3", lane:"west", y:1096, t:"十字军东征", what:"1096年十字军出发，1099年攻陷耶路撒冷；此后近两百年多次东征。", why:"宗教旗帜下的扩张与交流：欧洲由此重新接触东方商品与知识。", th:["thought","trade"] },
+    { id:"ch08e4", lane:"west", y:1200, t:"巴黎大学与经院哲学", what:"巴黎大学获特许状，学者用理性方法调和信仰与亚里士多德哲学。", why:"大学是欧洲的独特发明：自治行会式的知识生产，为科学革命备好土壤。", th:["thought","inst"],
+      myth:{ c:"中世纪是停滞、愚昧的「黑暗时代」。", f:"术语出自后世贬称叙事，现代史学基本弃用：中世纪有大学、哥特教堂、机械钟与贸易复兴；早期确有收缩，但不能整体化为「黑暗」。" } },
+    { id:"ch08e5", lane:"west", y:1271, t:"马可·波罗东游", what:"威尼斯商人马可·波罗出发东行，抵达元朝，后来口述游记风靡欧洲。", why:"真伪虽有争议，它让欧洲第一次「想象」出富庶东方，点燃远航欲望。", th:["trade","thought"],
+      myth:{ c:"是马可·波罗把面条从中国带回意大利的。", f:"意大利面食此前已有记载，游记里也没写面条；这更像一则流传很广的发明故事。" } },
+    { id:"ch08e6", lane:"west", y:1324, t:"马里帝国黄金朝觐", what:"马里国王曼萨·穆萨携大量黄金赴麦加朝觐，途中慷慨施舍震动地中海世界。", why:"西非黄金经跨撒哈拉商路流向地中海，欧洲的富庶也靠非洲供血。", th:["trade"] },
+    { id:"ch08e7", lane:"west", y:1347, t:"黑死病大流行", what:"鼠疫经黑海与地中海商路传入欧洲，数年间夺走约三分之一人口。", why:"疾病沿着贸易网络同速传播——连通的世界，红利与代价一起结算。", th:["trade"] },
+    { id:"ch08e8", lane:"islam", y:1299, t:"奥斯曼崛起", what:"奥斯曼一世在小亚细亚建国，此后逐步蚕食拜占庭，终将取代千年帝国。", why:"新的力量在旧帝国废墟上生长，它将改写地中海东部数百年。", th:["inst"] },
+    { id:"ch08e9", lane:"islam", y:1325, t:"伊本·白图泰旅行", what:"摩洛哥学者伊本·白图泰出发远行，近三十年走过非洲、中东、印度与中国。", why:"史上旅行范围最广的人之一：他的记录是「世界有多大」的第一手回答。", th:["trade","thought"] },
+    { id:"ch08e10", lane:"steppe", y:1206, t:"蒙古风暴：草原连接世界", what:"1206年铁木真统一草原称成吉思汗；蒙古军西征，1220年灭花剌子模，1241年兵临中欧。", why:"史上最大陆上帝国打通驿站与商路，东西方技术与商品加速对流。", th:["inst","trade"],
+      myth:{ c:"蒙古帝国只留下废墟与屠杀。", f:"征服之外还有「蒙古和平」：驿路与统一秩序让欧亚贸易空前畅通，技术传播提速。" } },
+    { id:"ch08e11", lane:"americas", y:1325, t:"特诺奇蒂特兰建城", what:"阿兹特克人在湖中岛上建城特诺奇蒂特兰，日后发展为美洲最大城市之一。", why:"另一条时间线上的城市革命：美洲文明继续独立生长，直到被大洋打断。", th:["inst"] },
+    { id:"ch08x1", lane:"west", cross:true, y:1250, t:"火药西传", what:"蒙古时代，火药与火器技术经中亚传入伊斯兰世界，并继续传入欧洲。", why:"数百年后，正是这种东方配方轰塌了欧洲的城堡与骑士时代。", th:["tech"] }
+  ] },
+{ id:"ch09", num:"09", name:"海洋时代 · 火药帝国与大航海", short:"海洋", spanText:"公元1350 – 1600", span:[1350,1600],
+  lead:"火药轰开骑士的城堡，海船抹掉大陆的边界：旧的陆上秩序在坍塌，新的海洋网络在生长。郑和的宝船短暂照亮印度洋，哥伦布与达伽马的航线却把世界缠成一张网——欧洲从大陆边缘一跃成为全球化最早的操盘手。",
+  driver:{ icon:"⛵", title:"海洋网络：绕开中间商",
+    text:"奥斯曼坐大 → 商路被中间商层层加价 → 伊比利亚国家赌上船队寻找直达航线 → 火药与帆船技术加持 → 殖民帝国与全球贸易网成型。",
+    threads:["trade","tech"] },
+  demo:{ key:"ch09", title:"图版 09 · 大航海：航线画向未知", sub:"从里斯本到泉州：海路第一次把地球缠成一张网。" },
+  events:[
+    { id:"ch09e1", lane:"east", y:1405, t:"郑和下西洋：宝船出海", what:"1368年朱元璋建立明朝；1405年起郑和率庞大船队七下西洋，最远抵达东非。", why:"当时世界最大规模的远洋航行，却在大航海前夜戛然而止——东方海洋力量的高光时刻。", th:["trade","inst"],
+      myth:{ c:"郑和宝船有足球场那么大（44 丈，约 135 米）。", f:"「44 丈」出自晚出文献与《明史》，学界质疑其真实性；木船结构极限约 90 米级，多数研究者认为实际尺寸显著更小。" } },
+    { id:"ch09e2", lane:"west", y:1450, t:"古腾堡印刷：思想量产", what:"古腾堡在美因茨开创金属活字印刷；同期意大利文艺复兴走向繁荣，美第奇家族资助艺术。", why:"印刷让知识从修道院流入市场——宗教改革与科学革命都从这一步开始。", th:["tech","thought"] },
+    { id:"ch09e3", lane:"islam", y:1453, t:"君士坦丁堡陷落", what:"奥斯曼苏丹穆罕默德二世以火炮攻陷君士坦丁堡，千年拜占庭帝国灭亡。", why:"奥斯曼成为横跨三洲的强权；大批学者西迁，把古典文献带进意大利。", th:["inst","tech"],
+      myth:{ c:"奥斯曼攻陷君士坦丁堡后切断了欧亚商路，欧洲人被迫寻找新航路。", f:"商路并未被切断——香料与丝绸仍在流通，只是被奥斯曼、威尼斯等中间商层层加价；欧洲出海，更多是想绕开中间商直取货源。" } },
+    { id:"ch09e4", lane:"west", y:1492, t:"哥伦布抵达加勒比", what:"哥伦布率西班牙船队横渡大西洋，抵达加勒比海岛屿，至死以为自己到的是亚洲。", why:"新旧大陆首次持续接触：物种、白银与灾难同时上船——「哥伦布大交换」开始。", th:["trade"],
+      myth:{ c:"哥伦布的伟大在于证明了地球是圆的。", f:"自古代起，受过教育的人就知道地球是圆的；真正的争论是地球有多大——哥伦布还大大低估了周长，至死认为自己到的是亚洲。" } },
+    { id:"ch09e5", lane:"west", y:1498, t:"达伽马绕过好望角", what:"达伽马船队绕过好望角抵达印度卡利卡特，打通欧洲直达亚洲的海路。", why:"香料不用再经中间商：里斯本挑战威尼斯，印度洋贸易版图被重画。", th:["trade"] },
+    { id:"ch09e6", lane:"east", y:1508, t:"王阳明：心学悟道", what:"王阳明被贬贵州，在龙场悟出「心即理」，后提出「知行合一」与「致良知」。", why:"思想重心从「格物」转向「本心」——儒家的一次内在转向，影响东亚数百年。", th:["thought"] },
+    { id:"ch09e7", lane:"west", y:1517, t:"宗教改革：路德发难", what:"马丁·路德发表《九十五条论纲》，质疑赎罪券，挑战罗马教会的权威。", why:"印刷术把一场学术争论变成全欧运动——基督教世界分裂，个人信仰登场。", th:["thought","tech"] },
+    { id:"ch09e8", lane:"west", y:1519, t:"麦哲伦环球航行", what:"麦哲伦船队1519年出发，历时三年完成首次环球航行；他本人死于菲律宾，最终由埃尔卡诺率船返回。", why:"人类第一次用航线把地球走成一个圈——世界的尺度从此可被实测。", th:["trade","tech"] },
+    { id:"ch09e9", lane:"india", y:1526, t:"莫卧儿帝国建立", what:"巴布尔在帕尼帕特战役击败德里苏丹，建立莫卧儿帝国，统治印度次大陆。", why:"火药武器再次改写印度政治，一个王朝开启印度建筑与艺术的黄金时代。", th:["inst","tech"] },
+    { id:"ch09e10", lane:"americas", y:1532, t:"阿兹特克与印加的覆灭", what:"科尔特斯与皮萨罗先后以数百人颠覆阿兹特克与印加两大帝国。", why:"枪炮、病菌与本土盟友的合力：美洲帝国崩塌，殖民与白银时代正式开始。", th:["tech","trade"] },
+    { id:"ch09e11", lane:"east", y:1590, t:"日本战国统一", what:"丰臣秀吉完成日本统一，随后推行太阁检地与兵农分离。", why:"百年战国内耗终结，新的集权秩序为江户两百年和平铺路。", th:["inst"] },
+    { id:"ch09x1", lane:"west", cross:true, y:1570, t:"白银涌入明朝", what:"马尼拉大帆船把美洲白银运到中国，换取丝绸、瓷器与茶叶；白银大量流入明朝。", why:"中国的需求、美洲的矿、欧洲的船被一条环线串起——全球贸易体系的雏形出现。", th:["trade","inst"] }
+  ] },
+{ id:"ch10", num:"10", name:"早期全球化 · 科学革命与白银环流", short:"白银", spanText:"公元1600 – 1750", span:[1600,1750],
+  lead:"地球第一次有了「全球市场」：美洲的白银、欧洲的商船、亚洲的货物，被一条海上环线串成闭环。与此同时，伽利略与牛顿让宇宙变得可计算，启蒙思想家重新设计权力——旧帝国慢了下来，新秩序正在起草。",
+  driver:{ icon:"🪙", title:"白银环流：世界第一次闭环",
+    text:"美洲银矿 → 大帆船横渡太平洋 → 白银换走中国的丝绸瓷器 → 银流回欧洲再流向亚洲 → 价格革命与商业帝国 → 资助科学革命。",
+    threads:["trade","tech"] },
+  demo:{ key:"ch10", title:"图版 10 · 白银环流：第一张全球贸易网", sub:"美洲的银、欧洲的船、亚洲的货——地球第一次形成经济闭环。" },
+  events:[
+    { id:"ch10e1", lane:"east", y:1639, t:"日本锁国：只留长崎", what:"德川幕府禁止基督教并限制对外交往，只留长崎出岛与荷兰、中国通商。", why:"「锁」的是人与思想，不是货：日本在隔绝中维持两百年秩序，也错过部分全球化红利。", th:["inst","trade"] },
+    { id:"ch10e2", lane:"east", y:1644, t:"明清易代：王朝轮替", what:"李自成攻入北京、崇祯自缢，清军随即入关，中国进入清朝统治。", why:"人口与疆域在新王朝手里重组；东方大国的秩序重建，与欧洲的条约体系同期发生。", th:["inst"] },
+    { id:"ch10e3", lane:"west", y:1648, t:"威斯特伐利亚：主权诞生", what:"三十年战争结束，各国签订和约，互相承认主权与宗教选择权。", why:"「主权国家」成为国际关系的基本单位——这套规则至今仍在运转。", th:["inst","thought"],
+      myth:{ c:"三十年战争是一场纯粹的宗教战争。", f:"它因宗教冲突而起，却很快变成哈布斯堡霸权与法国、瑞典等国的权力博弈——法国甚至与新教诸侯联手，对抗天主教的哈布斯堡。" } },
+    { id:"ch10e4", lane:"east", y:1662, t:"郑成功收复台湾", what:"郑成功围攻热兰遮城，荷兰东印度公司投降，结束其在台湾的殖民统治。", why:"东亚本土力量对抗欧洲殖民的一次大胜；但此后清朝收紧海洋，东西方海权天平继续倾斜。", th:["inst","trade"] },
+    { id:"ch10e5", lane:"west", y:1682, t:"凡尔赛：太阳王的舞台", what:"路易十四把宫廷迁往凡尔赛，用礼仪、舞会与艺术驯服贵族。", why:"把贵族变成朝臣——绝对君主制的巅峰设计，欧洲宫廷文化被推向极致。", th:["inst","thought"] },
+    { id:"ch10e6", lane:"west", y:1687, t:"科学革命：从伽利略到牛顿", what:"伽利略1632年出版《对话》，次年遭教廷审判；1687年牛顿《自然哲学的数学原理》问世。", why:"从观察、实验到数学定律，自然第一次被写成公式——工业革命的认知前奏。", th:["tech","thought"],
+      myth:{ c:"伽利略因为坚持日心说被教会烧死。", f:"伽利略被判终身软禁，最终病逝家中；1600年被烧死在罗马鲜花广场的是布鲁诺——两人常被记混。" } },
+    { id:"ch10e7", lane:"west", y:1688, t:"光荣革命：王在法下", what:"1649年查理一世被处决；1688年光荣革命后，议会确立对王权的优势。", why:"「王在法下」从口号变成制度，君主立宪为英国的商业与工业扩张提供稳定框架。", th:["inst"] },
+    { id:"ch10e8", lane:"americas", y:1700, t:"三角贸易：血腥循环", what:"1700年前后，欧洲船只载着枪支与布匹到非洲换奴隶，运往美洲种植甘蔗与棉花，再把糖与银运回欧洲。", why:"大西洋经济的三条边：奴隶贸易的利润喂养了欧洲城市，代价是数百万非洲人的生命。", th:["trade","inst"] },
+    { id:"ch10e9", lane:"west", y:1700, t:"彼得大帝：强行西化", what:"彼得大帝推行军事、行政与生活方式的全面改革，把俄国拽向欧洲。", why:"非西欧国家自上而下追赶现代化——俄国模式的原型，也预示追赶型改革的难题。", th:["inst","tech"] },
+    { id:"ch10e10", lane:"islam", y:1700, t:"奥斯曼与莫卧儿：停滞的对照", what:"奥斯曼与莫卧儿都曾强盛，但到1700年前后，军事与财政改革步履维艰。", why:"同期的西欧在科学、财政与殖民上加速——「停滞」是相对的，落差来自对手提速。", th:["inst"] },
+    { id:"ch10e11", lane:"west", y:1748, t:"启蒙运动：理性之光", what:"孟德斯鸠《论法的精神》1748年出版，主张三权分立；百科全书派传播理性与批判精神。", why:"把「权力需要制衡」写进思想议程——法国大革命与美国宪法的弹药库。", th:["thought","inst"] },
+    { id:"ch10x1", lane:"west", cross:true, y:1650, t:"白银环流：全球贸易网", what:"马尼拉大帆船把美洲白银运往中国换丝绸瓷器；白银绕地球一圈，串起三大洲。", why:"第一个真正全球化的经济闭环：中国的银价、欧洲的船队、美洲的矿工被同一张网络绑定。", th:["trade"] }
+  ] },
+{ id:"ch11", num:"11", name:"工业革命 · 大分流与帝国时代", short:"工业", spanText:"公元1750 – 1914", span:[1750,1914],
+  lead:"十八世纪的英国，煤、蒸汽与市场撞到一起，人类第一次让机器替自己干活。此后一百多年，铁路铺满大陆、炮舰叩开国门、帝国瓜分地球——少数国家冲上工业快车道，多数被甩下车，「大分流」就此定格。",
+  driver:{ icon:"🚂", title:"煤与蒸汽：能量革命",
+    text:"煤炭 + 蒸汽机 → 工厂摆脱水力限制 → 铁路与轮船把市场连成一体 → 生产成本陡降 → 与未工业化地区「大分流」。",
+    threads:["tech","trade"] },
+  demo:{ key:"ch11", title:"图版 11 · 工业起飞：两条曲线的分岔", sub:"为什么是英国先起飞？一条曲线看懂「大分流」。" },
+  events:[
+    { id:"ch11e1", lane:"west", y:1769, t:"瓦特改良蒸汽机", what:"瓦特改良纽科门蒸汽机并获得专利，效率大幅提升，机器动力走向实用。", why:"蒸汽从矿井水泵变成通用动力——工厂、铁路与轮船都被它推着跑。", th:["tech"],
+      myth:{ c:"瓦特发明了蒸汽机。", f:"瓦特改良了前人的蒸汽机（纽科门机）并于1769年获得专利；蒸汽机在他之前就已存在，他让它真正高效、可用。" } },
+    { id:"ch11e2", lane:"americas", y:1776, t:"美国独立：新国家诞生", what:"北美十三州发表《独立宣言》，宣布脱离英国，此后赢得独立战争。", why:"第一个以「人人生而平等」立国的大国——也埋下奴隶制与平等的长期矛盾。", th:["inst","thought"] },
+    { id:"ch11e3", lane:"west", y:1789, t:"法国大革命：攻占巴士底", what:"巴黎民众攻占巴士底狱，革命爆发；《人权宣言》颁布，君主制最终被推翻。", why:"「自由、平等、博爱」冲出法国，重塑整个欧洲的政治想象。", th:["inst","thought"] },
+    { id:"ch11e4", lane:"west", y:1805, t:"拿破仑战争：欧洲震荡", what:"拿破仑在奥斯特里茨大败俄奥联军，法兰西第一帝国称霸欧洲大陆。", why:"《拿破仑法典》随军队传播——现代民法与民族主义的双重火种。", th:["inst"],
+      myth:{ c:"拿破仑是个小矮子，所以才被叫「小个子」。", f:"拿破仑身高约1.68米，属当时法国男性的中等偏上；「矮」主要来自英国漫画的夸张宣传与法英尺寸换算的误会。" } },
+    { id:"ch11e5", lane:"east", y:1840, t:"鸦片战争：国门被轰开", what:"英国发动战争打开中国门户，最终以《南京条约》割地赔款、开放通商收场。", why:"东亚传统秩序被工业力量击穿——中国近代史由此开端，大分流的代价落到亿万人头上。", th:["trade","inst"] },
+    { id:"ch11e6", lane:"west", y:1860, t:"铁路与电报：时空压缩", what:"铁路网在欧美迅速铺开，跨洋电报线陆续接通，人与信息的速度成倍提升。", why:"距离被重新定价：全国市场、标准时间与大众传媒都从铁路与电报里长出来。", th:["tech","trade"] },
+    { id:"ch11e7", lane:"east", y:1861, t:"洋务运动：自强求富", what:"清朝官员兴办兵工厂、船政局与新式学堂，试图「师夷长技」以自强。", why:"只学技术不改制度的第一次尝试，甲午之败宣告其局限——但中国近代工业由此起步。", th:["tech","inst"] },
+    { id:"ch11e8", lane:"americas", y:1861, t:"美国内战：废奴之战", what:"南北战争爆发，1865年北方获胜，奴隶制被废除，联邦得以维持。", why:"工业化的北方战胜种植园南方——美国此后成为统一大市场与工业强国。", th:["inst","trade"] },
+    { id:"ch11e9", lane:"east", y:1868, t:"明治维新：全面西化", what:"日本推翻幕府、开启明治维新，推行殖产兴业、富国强兵与文明开化。", why:"东亚第一个成功的自上而下现代化——日本由此跻身列强，也一步步走向扩张。", th:["inst","tech"] },
+    { id:"ch11e10", lane:"west", y:1885, t:"瓜分非洲：柏林会议", what:"欧洲列强在柏林开会，为瓜分非洲定下规则；随后二十年间非洲被基本瓜分殆尽。", why:"帝国主义的顶点：地图上笔直的国界背后是掠夺与灾难，殖民的账二十世纪才慢慢偿还。", th:["inst","trade"] },
+    { id:"ch11e11", lane:"east", y:1894, t:"甲午战争：东亚变局", what:"中日开战，北洋水师覆灭，清朝签订《马关条约》，割让台湾。", why:"明治日本击败大清：东亚秩序中心易位，列强瓜分中国的狂潮随之而来。", th:["inst"] },
+    { id:"ch11x1", lane:"west", cross:true, y:1800, t:"大分流：历史大辩论", what:"学者追问：18世纪前中国与西欧生活水平相近，为何工业革命偏偏先发生在英国？", why:"煤、殖民地、制度还是偶然？这场辩论至今没有定论，却重新定义了「现代」的由来。", th:["tech","trade"] }
+  ] },
+{ id:"ch12", num:"12", name:"加速 · 从热战到芯片", short:"加速", spanText:"公元1914 – 今", span:[1914,2026],
+  lead:"过去一百年，人类经历了两次世界大战、一场冷战与一场数字革命：热战、核威慑、芯片与AI层层叠加。历史的速度越来越快——这一章从萨拉热窝写到大模型，看「加速」如何成为现代世界的常态。",
+  driver:{ icon:"🚀", title:"加速：知识变成算力",
+    text:"电力与内燃机 → 战争动员催生雷达与计算机 → 芯片按摩尔定律迭代 → 互联网连接全球 → 数据与AI成为新的能源。",
+    threads:["tech","inst"] },
+  demo:{ key:"ch12", title:"图版 12 · 加速：从热战到芯片", sub:"过去一百年的变化，超过此前一万年的总和。" },
+  events:[
+    { id:"ch12e1", lane:"west", y:1914, t:"一战：旧世界的葬礼", what:"萨拉热窝刺杀引爆欧洲大战，四大帝国在四年绞杀中相继崩塌。", why:"工业化战争吞噬整整一代人——「进步」叙事第一次碎裂，帝国时代落幕。", th:["inst","tech"] },
+    { id:"ch12e2", lane:"west", y:1917, t:"俄国革命：红旗升起", what:"十月革命推翻临时政府，布尔什维克建立苏维埃政权，苏联诞生。", why:"第一个社会主义国家出现，20世纪的政治光谱从此被改写。", th:["inst","thought"] },
+    { id:"ch12e3", lane:"west", y:1929, t:"大萧条：全球断链", what:"华尔街股市崩盘引发全球性经济危机，失业与破产席卷各国。", why:"自由市场的第一次全球性失灵，催生新政与极端政治——通向二战的暗门。", th:["inst","trade"] },
+    { id:"ch12e4", lane:"west", y:1939, t:"二战：全球烽火", what:"德国入侵波兰引爆大战，战火遍及欧亚与太平洋；1945年战争结束，联合国成立。", why:"总体战把工业与科技全面卷入——战后秩序、核威慑与联合国都从这场战争里生长。", th:["inst","tech"],
+      myth:{ c:"爱因斯坦发明了原子弹。", f:"爱因斯坦提出质能方程，也联名致信罗斯福提醒核研究风险；但曼哈顿计划由奥本海默主持，他本人并未参与研制。" } },
+    { id:"ch12e5", lane:"west", y:1947, t:"冷战开始：铁幕落下", what:"杜鲁门主义与马歇尔计划相继出台，美苏两大阵营对峙，冷战格局成型。", why:"没有直接热战的大国博弈：核威慑下的「长和平」，也是科技竞赛的发动机。", th:["inst","tech"] },
+    { id:"ch12e6", lane:"east", y:1949, t:"新中国成立", what:"中华人民共和国成立，中国结束百年动荡，进入新的政治秩序。", why:"占世界人口近四分之一的东方大国重建统一——此后东亚格局都以此为变量。", th:["inst"] },
+    { id:"ch12e7", lane:"americas", y:1969, t:"阿波罗登月：人类一大步", what:"阿波罗11号登陆月球，阿姆斯特朗成为踏上地球之外的第一人。", why:"冷战的竞赛顶峰：国家动员与科技豪赌，把科幻变成全球直播。", th:["tech","inst"] },
+    { id:"ch12e8", lane:"east", y:1978, t:"改革开放：打开国门", what:"中国启动改革开放，联产承包、经济特区与市场化改革次第展开。", why:"世界上人口最多的国家转身拥抱市场——此后四十年的全球增长与减贫被它改写。", th:["inst","trade"] },
+    { id:"ch12e9", lane:"west", y:1991, t:"苏联解体：帝国退场", what:"八一九事变后苏联瓦解，冷战两极格局终结，美国成为唯一超级大国。", why:"超级大国未战而亡：旧的对峙结束，全球化与单极时刻同时到来。", th:["inst"] },
+    { id:"ch12e10", lane:"west", y:1991, t:"互联网走向商用", what:"万维网向公众开放，互联网从军用与科研网络走向商业化与全球化。", why:"信息第一次能低成本跨越国界：全球化有了技术底座，连接本身成为力量。", th:["tech","trade"],
+      myth:{ c:"互联网是1991年才被发明的。", f:"互联网的前身在1969年就已联网；1991年万维网向公众开放并走向商用——那是大众互联网的起点，不是诞生。" } },
+    { id:"ch12e11", lane:"west", y:2020, t:"疫情与AI：双重加速", what:"新冠疫情席卷全球；2022年生成式AI爆发，大模型走进大众生活。", why:"停摆与爆发同框：疫情按下暂停键，AI却按下快进键——不确定性成为常态。", th:["tech"] },
+    { id:"ch12x1", lane:"west", cross:true, y:2001, t:"入世与全球化", what:"中国加入世界贸易组织，商品、资本与信息的全球流动达到新高度。", why:"从白银环流到WTO：四百年的全球网络终于连成一体，东西方第一次在同一套规则里竞争。", th:["trade","inst"] }
+  ] },
+];
+</script>
+<script>
+/* ============================================================
+   应用逻辑层 · 渲染 / 交互 / 仪表同步
+   ============================================================ */
+(function(){
+"use strict";
+/* ---------- 基础工具 ---------- */
+const $=s=>document.querySelector(s);
+const $$=s=>Array.from(document.querySelectorAll(s));
+const Q=new URLSearchParams(location.search);
+const REDUCED=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const ROOT=document.documentElement;
+const NOSMOOTH=REDUCED||Q.has("noanim");
+if(Q.has("noanim")) ROOT.classList.add("no-anim");
+const CN=["一","二","三","四","五","六","七","八","九","十","十一","十二"];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const pad2=n=>String(n).padStart(2,"0");
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const fmtShort=y=> y<0 ? ("前"+(-y)) : (""+y);
+const fmtFull=y=> y<0 ? ("公元前 "+(-y)+" 年") : ("公元 "+y+" 年");
+const laneById=id=>META.lanes.find(l=>l.id===id);
+const thById=id=>META.threads.find(t=>t.id===id);
+const thChip=id=>{ const t=thById(id); return t?`<span class="thchip t-${t.id}">${t.icon} ${t.name}</span>`:""; };
+
+/* ---------- 状态 ---------- */
+const state={ lane:{}, thread:null, real:false, cur:0, frac:0 };
+META.lanes.forEach(l=>state.lane[l.id]=!!l.on);
+
+/* ---------- 类比时钟 ---------- */
+function clockVal(y){
+  const t=(y-META.clock.y0)/(META.clock.y1-META.clock.y0);
+  const mins=Math.round(t*1440);
+  const h=Math.min(24,Math.floor(mins/60)), m=mins%60;
+  return { h:Math.min(h,24), str: pad2(Math.min(h,24))+":"+pad2(m%60) };
+}
+const fmtClock=y=>clockVal(y).str;
+
+/* ---------- 主题 ---------- */
+try{ const th=localStorage.getItem("civ24-theme"); if(th) ROOT.dataset.theme=th; }catch(e){}
+$("#btnTheme").addEventListener("click",()=>{
+  ROOT.dataset.theme = ROOT.dataset.theme==="dark" ? "light" : "dark";
+  try{ localStorage.setItem("civ24-theme", ROOT.dataset.theme); }catch(e){}
+  window.dispatchEvent(new Event("civ:theme"));
+});
+
+/* ---------- 图例 ---------- */
+$("#legend").innerHTML =
+  META.lanes.map(l=>`<span class="lg"><i style="--c:var(--lan${l.K})"></i>${esc(l.short)}</span>`).join("")
+  + META.threads.map(t=>`<span class="lg thchip t-${t.id}" style="border:none;padding:0">${t.icon} ${t.name}</span>`).join("");
+
+/* ---------- 跳转 ---------- */
+function goTo(id){
+  const el=document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:NOSMOOTH?"auto":"smooth", block:"start"});
+}
+
+/* ---------- 顶栏章节格 ---------- */
+CHAPTERS.forEach(ch=>{
+  const b=document.createElement("button");
+  b.className="seg"; b.title=ch.name; b.dataset.ch=ch.id;
+  b.addEventListener("click",()=>goTo(ch.id));
+  $("#tbSegs").appendChild(b);
+});
+
+/* ---------- 全局时间河 ---------- */
+const riverSegs=$("#riverSegs"), riverRuler=$("#riverRuler");
+CHAPTERS.forEach((ch,i)=>{
+  const b=document.createElement("button");
+  b.className="rseg"; b.dataset.ch=ch.id; b.title=ch.name;
+  b.style.setProperty("--yrs", ch.span[1]-ch.span[0]);
+  b.innerHTML=`<b>${CN[i]} · ${esc(ch.short)}</b><span>${esc(ch.spanText)}</span>`;
+  riverSegs.appendChild(b);
+});
+const TICKS=[0,6,12,18,24];
+TICKS.forEach(h=>{
+  const s=document.createElement("span");
+  s.className="tick"; s.dataset.h=h;
+  s.textContent=(h===24?"24:00":pad2(h)+":00");
+  riverRuler.appendChild(s);
+});
+function chapIdxOfYear(y){
+  for(let i=0;i<CHAPTERS.length;i++){ if(y<=CHAPTERS[i].span[1]) return i; }
+  return Math.max(0,CHAPTERS.length-1);
+}
+function yearToXFrac(y){
+  const {y0,y1}=META.clock;
+  if(state.real) return clamp((y-y0)/(y1-y0),0,1);
+  const i=chapIdxOfYear(y); if(!CHAPTERS.length) return 0;
+  const [s,e]=CHAPTERS[i].span;
+  return clamp((i+clamp((y-s)/(e-s),0,1))/CHAPTERS.length,0,1);
+}
+function layoutRuler(){
+  const {y0,y1}=META.clock;
+  TICKS.forEach(h=>{
+    const y=y0+(h/24)*(y1-y0);
+    const s=riverRuler.querySelector(`.tick[data-h="${h}"]`);
+    if(s) s.style.left=clamp(yearToXFrac(y)*100,2.2,97.8)+"%";
+  });
+}
+$("#btnReal").addEventListener("click",()=>{
+  state.real=!state.real;
+  riverSegs.classList.toggle("real",state.real);
+  const b=$("#btnReal"); b.classList.toggle("on",state.real);
+  b.textContent= state.real ? "真实比例 · 开" : "真实比例 · 关";
+  layoutRuler(); onScroll();
+});
+riverSegs.addEventListener("click",e=>{ const b=e.target.closest(".rseg"); if(b) goTo(b.dataset.ch); });
+
+/* ---------- 章节渲染 ---------- */
+const chaptersEl=$("#chapters");
+function chapterHTML(ch){
+  return `<section class="chap" id="${ch.id}" data-sec="${ch.id}">
+   <header class="ch-head reveal">
+     <div class="ch-line1"><span class="ch-num">章 · ${ch.num}</span><span>${esc(ch.spanText)}</span><span class="ch-clk">文明史时钟 ${fmtClock(ch.span[0])} – ${fmtClock(ch.span[1])}</span></div>
+     <h2 class="ch-title">${esc(ch.name)}</h2>
+     <p class="ch-lead">${esc(ch.lead)}</p>
+   </header>
+   <div class="driver reveal">
+     <div class="drv-ic">${ch.driver.icon}</div>
+     <div class="drv-bd"><b class="drv-t">驱动力 · ${esc(ch.driver.title)}</b><p>${esc(ch.driver.text)}</p>
+       <div class="drv-th">${(ch.driver.threads||[]).map(thChip).join("")}</div></div>
+   </div>
+   <div class="track reveal" data-track="${ch.id}"></div>
+   <figure class="plate" data-demo="${ch.demo.key}" data-aspect="${ch.demo.aspect||"16/9"}">
+     <div class="plate-head"><span class="plate-title">${esc(ch.demo.title)}</span><span class="plate-tag">动态图版</span></div>
+     <div class="plate-sub">${esc(ch.demo.sub)}</div>
+     <div class="plate-stage"></div>
+     <div class="plate-foot"></div>
+     ${ch.demo.note?`<div class="plate-note">${esc(ch.demo.note)}</div>`:""}
+   </figure>
+  </section>`;
+}
+CHAPTERS.forEach(ch=>chaptersEl.insertAdjacentHTML("beforeend",chapterHTML(ch)));
+
+function renderTrack(ch){
+  const el=chaptersEl.querySelector(`[data-track="${ch.id}"]`); if(!el) return;
+  const [s,e]=ch.span, span=Math.max(1,e-s);
+  const px=y=>clamp(((y-s)/span)*100,2.5,97.5);
+  const vis=META.lanes.filter(l=>state.lane[l.id]);
+  let html=`<div class="track-axis"><span>${fmtShort(s)}</span><span>${fmtShort(Math.round((s+e)/2))}</span><span>${fmtShort(e)}</span></div><div class="lanes">`;
+  vis.forEach(l=>{
+    const evs=ch.events.filter(v=>v.lane===l.id && !v.cross).sort((a,b)=>a.y-b.y);
+    html+=`<div class="lane" style="--lc:var(--lan${l.K})"><span class="lane-name">${l.short}</span><div class="lane-band">`;
+    evs.forEach((v,i)=>{
+      const th=(v.th||[]).map(t=>"t-"+t).join(" ");
+      const x=px(v.y);
+      const edge=x<14?" edge-l":(x>86?" edge-r":"");
+      html+=`<button class="ev ${i%2?"down":"up"}${edge} ${th}" style="--x:${x.toFixed(2)}%" data-ev="${v.id}" title="${esc(v.t)}（${fmtShort(v.y)}）"><i class="dot"></i><span class="ev-t">${esc(v.t)}</span></button>`;
+    });
+    html+=`</div></div>`;
+  });
+  const xs=ch.events.filter(v=>v.cross);
+  if(xs.length){
+    html+=`<div class="xlay">`+xs.map(v=>`<button class="evx" style="--x:${px(v.y).toFixed(2)}%" data-ev="${v.id}" title="${esc(v.t)}（${fmtShort(v.y)}）"><i></i><span>⇄ ${esc(v.t)}</span></button>`).join("")+`</div>`;
+  }
+  html+=`</div>`;
+  el.innerHTML=html;
+}
+function layoutLaneLabels(root){
+  (root||chaptersEl).querySelectorAll(".lane-band").forEach(band=>{
+    const evs=Array.from(band.querySelectorAll(".ev")).sort((a,b)=>parseFloat(a.style.getPropertyValue("--x")||"0")-parseFloat(b.style.getPropertyValue("--x")||"0"));
+    const items=[];
+    evs.forEach(ev=>{
+      const lab=ev.querySelector(".ev-t"); if(!lab||!lab.offsetWidth) return;
+      const w=lab.offsetWidth;
+      const center=ev.offsetLeft+ev.offsetWidth/2;
+      let s0,s1;
+      if(ev.classList.contains("edge-l")){ s0=ev.offsetLeft-6; s1=s0+w; }
+      else if(ev.classList.contains("edge-r")){ s1=ev.offsetLeft+ev.offsetWidth+6; s0=s1-w; }
+      else { s0=center-w/2; s1=center+w/2; }
+      items.push({ ev, s0, s1 });
+    });
+    const n=items.length; if(!n) return;
+    const N=Math.min(n,12);
+    let best=0, bestPen=1e18;
+    for(let mask=0; mask<(1<<N); mask++){
+      const last=[-1e18,-1e18];
+      let pen=0, prev=-1;
+      for(let i=0;i<N;i++){
+        const r=(mask>>i)&1;
+        const it=items[i];
+        if(it.s0<last[r]) pen+=(last[r]-it.s0);
+        if(r===prev) pen+=0.6;
+        prev=r;
+        last[r]=Math.max(last[r],it.s1);
+        if(pen>bestPen) break;
+      }
+      if(pen<bestPen){ bestPen=pen; best=mask; }
+    }
+    items.forEach((it,i)=>{
+      const r=(best>>i)&1;
+      it.ev.classList.toggle("up",r===0);
+      it.ev.classList.toggle("down",r===1);
+    });
+  });
+}
+CHAPTERS.forEach(renderTrack);
+layoutLaneLabels();
+
+/* ---------- 事件索引 & 详情抽屉 ---------- */
+const EV={};
+CHAPTERS.forEach(ch=>ch.events.forEach(v=>EV[v.id]={ch,v}));
+const drawer=$("#drawer");
+function closeDrawer(){ drawer.classList.remove("open"); drawer.setAttribute("aria-hidden","true"); }
+function openEv(id){
+  const it=EV[id]; if(!it) return;
+  const {ch,v}=it; const l=laneById(v.lane)||{K:"E",name:"—"};
+  const xp = v.cross ? `<p class="dr-x">⇄ 交汇事件：跨越东西两条线的交流与影响。</p>` : "";
+  const mkMyth = mm => mm ? `<div class="dr-myth"><span class="stamp">翻案</span><p class="mc">常见说法：「${esc(mm.c)}」</p><p class="mf">${esc(mm.f)}</p></div>` : "";
+  const myth = mkMyth(v.myth) + mkMyth(v.myth2);
+  drawer.innerHTML = `
+   <button class="dr-close" id="drClose" aria-label="关闭">✕</button>
+   <div class="dr-top"><span class="dr-lane" style="--lc:var(--lan${l.K})">${l.name}</span><span class="dr-year">${fmtFull(v.y)}</span></div>
+   <h3>${esc(v.t)}</h3>
+   <p class="dr-what">${esc(v.what)}</p>
+   ${v.why?`<div class="dr-why"><b>为什么重要</b><p>${esc(v.why)}</p></div>`:""}
+   ${xp}
+   ${(v.th||[]).length?`<div class="dr-th">${v.th.map(thChip).join("")}</div>`:""}
+   <p class="dr-clk">若文明史是一天，这发生在 ≈ ${fmtClock(v.y)}</p>
+   ${myth}
+   <div class="dr-foot">第 ${ch.num} 章 · ${esc(ch.name)}</div>`;
+  drawer.classList.add("open"); drawer.setAttribute("aria-hidden","false");
+  drawer.querySelector("#drClose").addEventListener("click",closeDrawer);
+}
+chaptersEl.addEventListener("click",e=>{ const b=e.target.closest("[data-ev]"); if(b) openEv(b.dataset.ev); });
+document.addEventListener("click",e=>{
+  if(drawer.classList.contains("open") && !drawer.contains(e.target) && !e.target.closest("[data-ev]")) closeDrawer();
+});
+
+/* ---------- 图层控制台 ---------- */
+const ctlLanes=$("#ctlLanes");
+META.lanes.forEach(l=>{
+  const el=document.createElement("label");
+  el.className="tgl"+(state.lane[l.id]?" on":"");
+  el.style.setProperty("--lc",`var(--lan${l.K})`);
+  el.innerHTML=`<input type="checkbox" data-lane="${l.id}" ${state.lane[l.id]?"checked":""}><i></i>${l.short}`;
+  el.querySelector("input").addEventListener("change",ev=>{
+    state.lane[l.id]=ev.target.checked;
+    el.classList.toggle("on",ev.target.checked);
+    CHAPTERS.forEach(renderTrack);
+    layoutLaneLabels();
+  });
+  ctlLanes.appendChild(el);
+});
+const ctlThreads=$("#ctlThreads");
+META.threads.forEach(t=>{
+  const b=document.createElement("button");
+  b.className=`thbtn t-${t.id}`; b.textContent=`${t.icon} ${t.name}`;
+  b.addEventListener("click",()=>{
+    state.thread = state.thread===t.id ? null : t.id;
+    if(state.thread) ROOT.dataset.hl=state.thread; else delete ROOT.dataset.hl;
+    $$("#ctlThreads .thbtn").forEach(x=>x.classList.remove("on"));
+    if(state.thread) b.classList.add("on");
+  });
+  ctlThreads.appendChild(b);
+});
+$("#ctlHead").addEventListener("click",()=>$("#ctl").classList.toggle("collapsed"));
+if(window.matchMedia("(max-width:760px)").matches) $("#ctl").classList.add("collapsed");
+
+/* ---------- 右侧章节轨道 ---------- */
+const rail=$("#rail");
+CHAPTERS.forEach((ch,i)=>{
+  const b=document.createElement("button");
+  b.className="rdot"; b.dataset.ch=ch.id; b.setAttribute("aria-label",ch.name);
+  b.innerHTML=`<span class="rd-lab">${CN[i]} · ${esc(ch.short)}</span>`;
+  b.addEventListener("click",()=>goTo(ch.id));
+  rail.appendChild(b);
+});
+
+/* ---------- 同期对照表 ---------- */
+const cmp=$("#cmp");
+let cmpBuilt=false, cmpYear=-3000;
+function yearToPos(y){
+  const i=chapIdxOfYear(y), [s,e]=CHAPTERS[i].span;
+  return Math.round((i+clamp((y-s)/(e-s),0,1))/CHAPTERS.length*1000);
+}
+function renderCmp(){
+  const r=cmp.querySelector("#cmpRange"); if(!r) return;
+  const g=parseFloat(r.value)/1000*CHAPTERS.length;
+  const i=Math.min(Math.floor(g),CHAPTERS.length-1), f=g-i;
+  const ch=CHAPTERS[i]; if(!ch) return;
+  const year=Math.round(ch.span[0]+(ch.span[1]-ch.span[0])*f);
+  cmpYear=year;
+  cmp.querySelector("#cmpYear").textContent=fmtFull(year);
+  cmp.querySelector("#cmpClk").textContent="若文明史是一天 ≈ "+fmtClock(year);
+  const win=Math.max(30,Math.round((ch.span[1]-ch.span[0])*0.12));
+  const near=[];
+  CHAPTERS.forEach(c=>c.events.forEach(v=>{ if(Math.abs(v.y-year)<=win) near.push({v,c}); }));
+  near.sort((a,b)=>Math.abs(a.v.y-year)-Math.abs(b.v.y-year));
+  cmp.querySelector("#cmpGrid").innerHTML = META.lanes.map(l=>{
+    const list=near.filter(x=>x.v.lane===l.id || (x.v.cross&&(l.id==="east"||l.id==="west"))).slice(0,4);
+    return `<div class="cm-row" style="--lc:var(--lan${l.K})"><h4>${l.name}</h4>${list.length?`<ul>`+list.map(x=>`<li><span class="cm-y">${fmtShort(x.v.y)}</span><button data-ev="${x.v.id}">${x.v.cross?"⇄ ":""}${esc(x.v.t)}</button></li>`).join("")+`</ul>`:`<p class="cm-none">此区间暂无收录</p>`}</div>`;
+  }).join("");
+}
+function closeCmp(){ cmp.classList.remove("open"); }
+function openCmp(){
+  if(!cmpBuilt){
+    cmpBuilt=true;
+    cmp.innerHTML=`<div class="cmp-box">
+      <button class="cmp-close" id="cmpClose" aria-label="关闭">✕</button>
+      <h3>同期对照表</h3>
+      <p class="cmp-sub">拖动时间尺：看同一时刻，各条泳道上都在发生什么。收录粒度较粗，仅供参考。</p>
+      <div class="cmp-year" id="cmpYear">–</div><div class="cmp-clk" id="cmpClk"></div>
+      <input type="range" class="cmp-range" id="cmpRange" min="0" max="1000" value="290" step="1">
+      <div class="cmp-quick" id="cmpQuick"></div>
+      <div class="cmp-grid" id="cmpGrid"></div></div>`;
+    cmp.querySelector("#cmpClose").addEventListener("click",closeCmp);
+    cmp.querySelector("#cmpRange").addEventListener("input",renderCmp);
+    const qk=cmp.querySelector("#cmpQuick");
+    [[-8000,"前8000"],[-3000,"前3000"],[-500,"前500"],[600,"600"],[1000,"1000"],[1450,"1450"],[1800,"1800"],[1945,"1945"]].forEach(([y,lab])=>{
+      const b=document.createElement("button"); b.textContent=lab;
+      b.addEventListener("click",()=>{ cmp.querySelector("#cmpRange").value=yearToPos(y); renderCmp(); });
+      qk.appendChild(b);
+    });
+    cmp.addEventListener("click",e=>{ if(e.target===cmp) closeCmp(); });
+    cmp.querySelector("#cmpGrid").addEventListener("click",e=>{
+      const b=e.target.closest("[data-ev]"); if(b){ closeCmp(); openEv(b.dataset.ev); }
+    });
+  }
+  cmp.classList.add("open");
+  const r=cmp.querySelector("#cmpRange");
+  if(r) r.value=yearToPos(cmpYear);
+  renderCmp();
+}
+$("#btnCmp").addEventListener("click",openCmp);
+$("#btnCmp2").addEventListener("click",openCmp);
+
+/* ---------- 顶栏仪表同步 ---------- */
+let offsets=[];
+function measure(){
+  const sy=window.scrollY;
+  offsets=CHAPTERS.map(ch=>{
+    const el=document.getElementById(ch.id);
+    if(!el) return 0;
+    return el.getBoundingClientRect().top+sy;
+  });
+}
+function onScroll(){
+  if(!CHAPTERS.length) return;
+  const y=window.scrollY+window.innerHeight*0.38;
+  let idx=-1;
+  for(let i=0;i<offsets.length;i++){ if(y>=offsets[i]) idx=i; }
+  if(idx<0){
+    $("#tbChapter").textContent="序曲 · 准备出发";
+    $("#tbTime").textContent="00:00";
+    $("#tbHand").setAttribute("transform","rotate(0 20 20)");
+    $("#tbNeedle").style.left="0%";
+    $$("#tbSegs .seg").forEach(s=>s.classList.remove("on"));
+    $$(".rseg").forEach(s=>s.classList.remove("on"));
+    $$("#rail .rdot").forEach(s=>s.classList.remove("on"));
+    return;
+  }
+  const start=offsets[idx];
+  const end=(idx+1<offsets.length)?offsets[idx+1]:(document.body.scrollHeight);
+  const frac=clamp((y-start)/Math.max(1,end-start),0,1);
+  const ch=CHAPTERS[idx];
+  state.cur=idx; state.frac=frac;
+  const yRead=ch.span[0]+(ch.span[1]-ch.span[0])*frac;
+  $("#tbTime").textContent=fmtClock(yRead);
+  $("#tbHand").setAttribute("transform",`rotate(${(clockVal(yRead).h/24)*360} 20 20)`);
+  $("#tbChapter").textContent=`第${CN[idx]}章 · ${ch.short} · ${fmtShort(Math.round(yRead))}`;
+  $("#tbNeedle").style.left=clamp(yearToXFrac(yRead)*100,0,100)+"%";
+  $$("#tbSegs .seg").forEach((s,i)=>s.classList.toggle("on",i===idx));
+  $$(".rseg").forEach((s,i)=>s.classList.toggle("on",i===idx));
+  $$("#rail .rdot").forEach((s,i)=>s.classList.toggle("on",i===idx));
+}
+let pend=false;
+window.addEventListener("scroll",()=>{
+  if(pend) return; pend=true;
+  requestAnimationFrame(()=>{ pend=false; onScroll(); });
+},{passive:true});
+let lzT=0;
+window.addEventListener("resize",()=>{ measure(); onScroll(); clearTimeout(lzT); lzT=setTimeout(()=>layoutLaneLabels(),180); });
+window.addEventListener("civ:layout",()=>{ measure(); onScroll(); });
+window.addEventListener("load",()=>{ measure(); onScroll(); });
+
+/* ---------- 渐显 ---------- */
+(function reveal(){
+  const els=$$(".reveal");
+  if(REDUCED||Q.has("noanim")){ els.forEach(e=>e.classList.add("in")); return; }
+  if(!("IntersectionObserver" in window)){ els.forEach(e=>e.classList.add("in")); return; }
+  const io=new IntersectionObserver(es=>{
+    es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add("in"); io.unobserve(e.target); } });
+  },{threshold:0.1, rootMargin:"0px 0px -6% 0px"});
+  els.forEach(e=>io.observe(e));
+  setTimeout(()=>{
+    els.forEach(e=>{
+      if(e.classList.contains("in")) return;
+      const r=e.getBoundingClientRect();
+      if(r.top<window.innerHeight*1.2) e.classList.add("in");
+    });
+  },2500);
+})();
+
+/* ---------- 键盘 ---------- */
+document.addEventListener("keydown",e=>{
+  if(e.key==="Escape"){ closeDrawer(); closeCmp(); return; }
+  if(e.target.closest("input,textarea,select")) return;
+  if(e.key==="ArrowLeft"||e.key==="ArrowRight"){
+    const d=e.key==="ArrowRight"?1:-1;
+    const i=clamp(state.cur+d,0,CHAPTERS.length-1);
+    goTo(CHAPTERS[i].id);
+  }
+});
+
+/* ---------- 终幕 ---------- */
+(function finale(){
+  const myths=[];
+  CHAPTERS.forEach(ch=>ch.events.forEach(v=>{ if(v.myth) myths.push({ch,v,mm:v.myth}); if(v.myth2) myths.push({ch,v,mm:v.myth2}); }));
+  $("#finWrap").innerHTML=`
+   <h2>终幕 · 你正处在第 24 小时里</h2>
+   <p class="fin-sub">如果一万两千年文明史是一天：农业革命在 00:00，文字在清晨，古典帝国在正午前后，工业革命在夜里 20:00 以后，两次世界大战挤在最后两小时——而你现在读到的这行字，落在 24:00 前的最后几秒。</p>
+   <div class="fin-callout"><b>回看四条脉络：</b>整卷十二章里，每一次时代转折背后，几乎都能看到同样的四种力量在合流——技术、贸易、思想、制度。</div>
+   <div class="fin-grid">${META.recap.map(r=>`<div class="fin-card" style="--tc:var(--th-${r.th})"><h4>${thById(r.th).icon} ${esc(r.title)}</h4><p>${esc(r.text)}</p></div>`).join("")}</div>
+   <div class="myth-wall"><h3>翻案墙 · 那些年我们一起信过的历史传闻</h3>
+     <div class="myth-grid">${myths.length?myths.map(({ch,v,mm})=>`<div class="myth-card"><p class="mc">常见说法：「${esc(mm.c)}」</p><p class="mf">${esc(mm.f)}</p><button data-ev="${v.id}">→ 查看原卡（第${ch.num}章）</button></div>`).join(""):`<p class="cm-none">随内容陆续收录……</p>`}</div>
+   </div>
+   <div class="fin-books"><h3>想继续深入？四本书的路线图</h3>
+     <ul>${META.books.map(b=>`<li><b>${b.t}</b> — ${b.d}</li>`).join("")}</ul>
+   </div>`;
+  $("#finWrap").addEventListener("click",e=>{ const b=e.target.closest("[data-ev]"); if(b) openEv(b.dataset.ev); });
+})();
+
+/* ---------- QA 截图模式（?shot=ch03 只显示单章；?tb=1 保留顶栏） ---------- */
+(function shotMode(){
+  const shot=Q.get("shot"), focus=Q.get("focus");
+  if(!shot&&!focus) return;
+  ROOT.classList.add("no-anim"); if(shot) document.body.classList.add("shot");
+  if(!Q.has("tb")) $("#topbar").style.display="none";
+  $("#ctl").style.display="none"; $("#rail").style.display="none";
+  if(shot){
+    $$(".chap").forEach(el=>el.classList.toggle("shot-show", el.id===shot));
+    const sec=document.getElementById(shot);
+    if(sec && !sec.classList.contains("chap")) sec.classList.add("shot-show");
+  }
+  if(focus){
+    const el2=document.getElementById(focus);
+    if(el2){
+      const yy=el2.getBoundingClientRect().top+window.scrollY+(parseFloat(Q.get("f"))||0.3)*el2.offsetHeight-window.innerHeight*0.35;
+      window.scrollTo(0,Math.max(0,yy));
+    }
+  } else if(Q.has("y")){ window.scrollTo(0,parseFloat(Q.get("y"))||0); }
+  measure(); onScroll(); layoutLaneLabels();
+})();
+
+/* ---------- QA 参数钩子（?openev=ch01e1&cmp=1&lanes=steppe,india&hl=tech&real=1） ---------- */
+(function qaParams(){
+  if(Q.get("lanes")){
+    Q.get("lanes").split(",").forEach(lid=>{
+      if(state.lane[lid]!==undefined){
+        state.lane[lid]=true;
+        const inp=document.querySelector(`input[data-lane="${lid}"]`);
+        if(inp){ inp.checked=true; inp.closest(".tgl").classList.add("on"); }
+      }
+    });
+    CHAPTERS.forEach(renderTrack);
+    layoutLaneLabels();
+  }
+  if(Q.get("hl")){
+    state.thread=Q.get("hl"); ROOT.dataset.hl=state.thread;
+    const b=document.querySelector(`.thbtn.t-${state.thread}`); if(b) b.classList.add("on");
+  }
+  if(Q.get("theme")) ROOT.dataset.theme=Q.get("theme");
+  if(Q.get("real")) $("#btnReal").click();
+})();
+
+/* ---------- 初始化 ---------- */
+measure(); onScroll(); layoutRuler();
+if(Q.has("openev")) openEv(Q.get("openev"));
+if(Q.has("cmp")) openCmp();
+window.__qa={ state, META, CHAPTERS, EV, openEv, closeDrawer, openCmp, closeCmp, renderTrack, goTo, onScroll, measure, layoutRuler, yearToPos, yearToXFrac, fmtClock };
+document.dispatchEvent(new Event("civ:ready"));
+})();
+</script>
+<script>
+/* ============================================================
+   动态图版引擎 · 零依赖 Canvas 2D · 滚到即播 · 可重播
+   ============================================================ */
+(function(){
+"use strict";
+const Q=new URLSearchParams(location.search);
+const REDUCED=window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+const NOANIM=REDUCED||Q.has("noanim")||document.documentElement.classList.contains("no-anim");
+
+function cssv(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function pal(){
+  return {
+    paper:cssv("--paper")||"#f3e8d0", paper2:cssv("--panel2")||"#f1e6cb", panel:cssv("--panel")||"#faf4e3",
+    ink:cssv("--ink")||"#33291a", ink2:cssv("--ink2")||"#6d5c42", ink3:cssv("--ink3")||"#97846a",
+    line:cssv("--line")||"#c9b58c", line2:cssv("--line2")||"#e0d1b0",
+    gold:cssv("--gold")||"#a67c2e", seal:cssv("--seal")||"#9c3b2c",
+    lanE:cssv("--lanE"), lanW:cssv("--lanW"), lanI:cssv("--lanI"), lanM:cssv("--lanM"), lanS:cssv("--lanS"), lanA:cssv("--lanA"),
+    dark:document.documentElement.dataset.theme==="dark"
+  };
+}
+const FANG='"FangSong","STFangsong","仿宋",serif';
+const KAI='"Kaiti SC","STKaiti","KaiTi","楷体",serif';
+const ease=t=>t<0?0:t>1?1:t*t*(3-2*t);
+const clamp=(v,a,b)=>v<a?a:v>b?b:v;
+const lerp=(a,b,t)=>a+(b-a)*t;
+function mulberry32(a){ return function(){ a|=0; a=a+0x6D2B79F5|0; let t=Math.imul(a^a>>>15,1|a); t=t+Math.imul(t^t>>>7,61|t)^t; return ((t^t>>>14)>>>0)/4294967296; }; }
+function rrect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function chip(ctx,x,y,text,align){
+  ctx.font="12px "+FANG; ctx.textAlign="left";
+  const tw=ctx.measureText(text).width+16, th=22;
+  const bx= align==="c" ? x-tw/2 : x;
+  rrect(ctx,bx,y-th/2,tw,th,11);
+  const p=pal();
+  ctx.fillStyle=p.dark?"rgba(30,24,16,.86)":"rgba(250,242,222,.92)";
+  ctx.fill(); ctx.strokeStyle=p.line; ctx.lineWidth=1; ctx.stroke();
+  ctx.fillStyle=p.ink; ctx.fillText(text,bx+8,y+4);
+}
+function setupCanvas(cv, aspect){
+  const dpr=Math.min(window.devicePixelRatio||1,2);
+  const env={w:600,h:600,ctx:null,dpr,onresize:null};
+  function fit(){
+    const w=Math.max(260, cv.parentElement.clientWidth-2);
+    const h=Math.round(w/aspect);
+    cv.width=Math.round(w*dpr); cv.height=Math.round(h*dpr);
+    cv.style.width="100%"; cv.style.height="auto";
+    env.w=w; env.h=h; env.ctx=cv.getContext("2d"); env.ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  fit();
+  if(window.ResizeObserver){
+    let first=true;
+    new ResizeObserver(()=>{ if(first){ first=false; return; } fit(); if(env.onresize) env.onresize(); }).observe(cv.parentElement);
+  }
+  return env;
+}
+function mkCap(stage){ const c=document.createElement("div"); c.className="cap"; stage.appendChild(c); return c; }
+function ctlBtn(foot,label,fn){ const b=document.createElement("button"); b.type="button"; b.className="pbtn"; b.textContent=label; b.addEventListener("click",fn); foot.appendChild(b); return b; }
+
+document.head.insertAdjacentHTML("beforeend",
+ "<style>.plate-stage .cap{position:absolute;left:0;right:0;bottom:8px;text-align:center;font:12.5px "+FANG+";color:var(--ink2);pointer-events:none;letter-spacing:.05em;line-height:1.7;padding:0 14px;text-shadow:0 1px 0 rgba(255,252,240,.6)}html[data-theme=\"dark\"] .plate-stage .cap{text-shadow:0 1px 6px rgba(0,0,0,.5)}</style>");
+
+/* ---------- 播放器 ---------- */
+class Player{
+  constructor(plate){
+    this.plate=plate; this.stage=plate.querySelector(".plate-stage");
+    this.foot=plate.querySelector(".plate-foot");
+    this.key=plate.dataset.demo; this.demo=null; this.mounted=false; this.playing=false;
+    this.t=0; this.last=0;
+  }
+  addReplay(){
+    if(!this.demo || this.demo.controls===false || this.foot.dataset.built) return;
+    this.foot.dataset.built="1";
+    const self=this;
+    ctlBtn(this.foot,"↺ 重播",()=>self.play());
+  }
+  play(){ if(!this.demo) return; this.addReplay(); this.playing=true; this.t=0; this.last=performance.now(); kick(); }
+  resume(){ if(!this.demo) return; this.playing=true; this.last=performance.now(); kick(); }
+  stop(){ this.playing=false; }
+  async mount(){
+    if(this.mounted) return; this.mounted=true;
+    const f=FACTORY[this.key]; if(!f) return;
+    try{ this.demo=await Promise.resolve(f(this)); }catch(e){ console.warn("[demo]",this.key,e); }
+    if(!this.demo) return;
+    if(NOANIM){ this.t=this.demo.END||0; this.demo.draw(this.t,1.0); this.addReplay(); }
+    else { this.demo.draw(0,0.016); if(this.demo.autoplay!==false) this.play(); }
+    window.dispatchEvent(new Event("civ:layout"));
+  }
+  step(ts){
+    if(!this.playing||!this.demo) return false;
+    const dt=Math.min(0.05,(ts-this.last)/1000||0.016); this.last=ts;
+    this.t=Math.min((this.demo.END||10), this.t+dt);
+    this.demo.draw(this.t,dt);
+    if(this.t>=(this.demo.END||10)) this.playing=false;
+    return this.playing;
+  }
+}
+const FACTORY={};
+
+/* ---------- 图版共用绘制小工具 ---------- */
+function bg(env){
+  const p=pal(); const ctx=env.ctx;
+  ctx.fillStyle=p.paper2; ctx.fillRect(0,0,env.w,env.h);
+  ctx.strokeStyle=p.dark?"rgba(190,160,110,.07)":"rgba(120,96,60,.08)"; ctx.lineWidth=1;
+  for(let x=40;x<env.w;x+=40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,env.h); ctx.stroke(); }
+  for(let y=40;y<env.h;y+=40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(env.w,y); ctx.stroke(); }
+}
+function laneC(id){ const p=pal(); return ({east:p.lanE,west:p.lanW,india:p.lanI,islam:p.lanM,steppe:p.lanS,americas:p.lanA})[id]||p.gold; }
+function txt(ctx,x,y,s,o){
+  o=o||{}; const p=pal();
+  ctx.font=o.font||("13px "+FANG); ctx.fillStyle=o.color||p.ink;
+  ctx.textAlign=o.align||"left"; ctx.textBaseline=o.baseline||"middle";
+  ctx.fillText(s,x,y);
+}
+function dot(ctx,x,y,r,color,ring){ ctx.fillStyle=color; ctx.beginPath(); ctx.arc(x,y,r,0,6.283); ctx.fill();
+  if(ring){ ctx.strokeStyle=ring; ctx.lineWidth=1.2; ctx.stroke(); } }
+
+/* ===== 图版工厂（每章一个，零依赖手绘） ===== */
+/* 通用：hex 颜色 + 透明度 → rgba 字符串 */
+function hexA(hex,a){
+  if(!hex) return "rgba(0,0,0,0)";
+  hex=String(hex).trim();
+  if(hex[0]!=="#") return hex;
+  if(hex.length===4){ hex="#"+hex[1]+hex[1]+hex[2]+hex[2]+hex[3]+hex[3]; }
+  const n=parseInt(hex.slice(1),16);
+  return "rgba("+((n>>16)&255)+","+((n>>8)&255)+","+(n&255)+","+a+")";
+}
+
+FACTORY.ch01=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：文明的摇篮依次点亮");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const spots=[
+    { x:0.22, y:0.40, c:"west",     lab:"新月沃地", sub:"小麦 · 大麦 · 绵羊", yr:"前9500", f:0.07 },
+    { x:0.66, y:0.30, c:"east",     lab:"中国南北", sub:"粟 · 黍 · 水稻",     yr:"前8000", f:0.29 },
+    { x:0.84, y:0.62, c:"americas", lab:"中美洲",   sub:"玉米 · 豆 · 南瓜",   yr:"前7000", f:0.43 },
+    { x:0.56, y:0.74, c:"americas", lab:"安第斯",   sub:"马铃薯 · 藜麦",      yr:"前6000", f:0.57 }
+  ];
+  const rivers=[
+    { pts:[[0.14,0.46],[0.19,0.43],[0.23,0.45],[0.27,0.41],[0.31,0.44]], c:"west" },
+    { pts:[[0.60,0.22],[0.64,0.26],[0.68,0.23],[0.72,0.28],[0.76,0.26]], c:"east" },
+    { pts:[[0.60,0.68],[0.58,0.72],[0.61,0.76],[0.65,0.73]], c:"americas" }
+  ];
+  const END=13;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    ctx.lineWidth=2; ctx.lineCap="round";
+    rivers.forEach(r=>{
+      ctx.strokeStyle=p.dark?"rgba(160,190,210,.22)":"rgba(90,130,160,.28)";
+      ctx.beginPath();
+      r.pts.forEach((q,i)=>{ const X=q[0]*w,Y=q[1]*h; i?ctx.lineTo(X,Y):ctx.moveTo(X,Y); });
+      ctx.stroke();
+    });
+    const x0=64, x1=w-64, yb=(w<560?h-78:h-46);
+    ctx.strokeStyle=p.line; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x0,yb); ctx.lineTo(x1,yb); ctx.stroke();
+    [[0,"前10000"],[0.286,"前8000"],[0.571,"前6000"],[1,"前3000"]].forEach(q=>{
+      const X=x0+(x1-x0)*q[0];
+      ctx.beginPath(); ctx.moveTo(X,yb-4); ctx.lineTo(X,yb+4); ctx.stroke();
+      txt(ctx,X,yb+16,q[1],{font:"10.5px "+FANG,color:p.ink3,align:"center"});
+    });
+    txt(ctx,x0,yb-18,"时间尺 · 各处摇篮亮起的大致时刻",{font:"11px "+FANG,color:p.ink3});
+    let lit=0;
+    spots.forEach((s,i)=>{
+      const ti=0.8+i*1.15;
+      if(t<ti) return;
+      lit++;
+      const k=clamp((t-ti)/0.9,0,1);
+      const X=s.x*w, Y=s.y*h, col=laneC(s.c);
+      const g=ctx.createRadialGradient(X,Y,2,X,Y,62);
+      g.addColorStop(0,hexA(col,0.26*k)); g.addColorStop(1,hexA(col,0));
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(X,Y,62,0,6.283); ctx.fill();
+      ctx.strokeStyle=hexA(col,0.6*(1-k)); ctx.lineWidth=2;
+      ctx.beginPath(); ctx.arc(X,Y,6+k*26,0,6.283); ctx.stroke();
+      const pulse=1+0.16*Math.sin(t*3+i);
+      dot(ctx,X,Y,5.5*pulse,col,hexA(col,0.35));
+      const a=clamp((t-ti-0.35)/0.9,0,1);
+      ctx.globalAlpha=a;
+      txt(ctx,X,Y-30,s.lab,{font:"700 15px "+KAI,color:p.ink,align:"center"});
+      txt(ctx,X,Y+22,s.sub,{font:"11.5px "+FANG,color:p.ink2,align:"center"});
+      txt(ctx,X,Y+38,s.yr,{font:"11px "+FANG,color:col,align:"center"});
+      ctx.globalAlpha=1;
+      const Xt=x0+(x1-x0)*s.f;
+      dot(ctx,Xt,yb,3.5,col);
+    });
+    cap.textContent = t>11.6
+      ? "同一场革命，四个剧本：文明不是单点发明，而是多点开花、各自生长。"
+      : (lit ? ("已亮起 "+lit+" 处 · 它们彼此并不知情，却走上了相似的路") : "一万多年前，地球上好几处地方几乎同时开始了一场实验……");
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+FACTORY.ch02=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：一座城市如何长出来");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const rnd=mulberry32(20);
+  const huts=[]; for(let i=0;i<7;i++) huts.push({ x:0.13+i*0.05+rnd()*0.02, w:0.028+rnd()*0.012, h:0.05+rnd()*0.03 });
+  const houses=[]; for(let i=0;i<26;i++) houses.push({ x:0.28+rnd()*0.5, y:rnd()*0.15, s:0.010+rnd()*0.010 });
+  const END=11.5;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    const gy=h*0.78;
+    /* 河渠 */
+    ctx.strokeStyle=hexA(p.lanW,0.3); ctx.lineWidth=9; ctx.lineCap="round";
+    ctx.beginPath(); ctx.moveTo(w*0.05,gy+26); ctx.bezierCurveTo(w*0.32,gy+16,w*0.62,gy+34,w*0.95,gy+20); ctx.stroke();
+    /* 地面 */
+    ctx.strokeStyle=p.line; ctx.lineWidth=2;
+    ctx.beginPath(); ctx.moveTo(w*0.05,gy); ctx.lineTo(w*0.95,gy); ctx.stroke();
+    /* 阶段1：村落小屋 */
+    huts.forEach((hu,i)=>{
+      const a=clamp((t-i*0.16)/0.8,0,1); if(a<=0) return;
+      const x=hu.x*w, hh=hu.h*h*a, ww=hu.w*w;
+      ctx.fillStyle=hexA(p.ink2,0.75);
+      ctx.beginPath(); ctx.moveTo(x-ww/2,gy); ctx.lineTo(x,gy-hh); ctx.lineTo(x+ww/2,gy); ctx.closePath(); ctx.fill();
+    });
+    /* 阶段2：神庙阶梯生长 */
+    const zx=w*0.52, zw=w*0.15;
+    const k2=ease(clamp((t-2.4)/2.6,0,1));
+    if(k2>0){
+      const tiers=4, th=h*0.05;
+      for(let i=0;i<tiers;i++){
+        const tk=clamp(k2*tiers-i,0,1); if(tk<=0) break;
+        const tw=zw*(1-i*0.22), yy=gy-(i+1)*th;
+        ctx.fillStyle=(i===tiers-1)?hexA(p.gold,0.85):hexA(p.ink2,0.82);
+        ctx.fillRect(zx-tw/2, yy+th*(1-tk), tw, th*tk);
+      }
+      if(k2>=1) txt(ctx,zx,gy-th*4-14,"神庙 · 粮仓 · 账房",{font:"12px "+KAI,color:p.gold,align:"center"});
+    }
+    /* 阶段3：城墙合拢 */
+    const k3=ease(clamp((t-5.2)/2.0,0,1));
+    if(k3>0){
+      const x1=w*0.24, x2=w*0.80, yTop=gy-h*0.26;
+      ctx.strokeStyle=hexA(p.ink,0.8); ctx.lineWidth=3;
+      const perim=2*((x2-x1)+(gy-yTop));
+      ctx.setLineDash([perim,perim]);
+      ctx.lineDashOffset=perim*(1-k3);
+      rrect(ctx, x1, yTop, x2-x1, gy-yTop, 26);
+      ctx.stroke(); ctx.setLineDash([]);
+      if(k3>0.85){ ctx.fillStyle=hexA(p.seal,0.9); ctx.fillRect(zx-w*0.015,gy-h*0.04,w*0.03,h*0.04); }
+    }
+    /* 阶段4：城内房屋 */
+    const k4=clamp((t-6.4)/2.2,0,1);
+    houses.forEach((hs,i)=>{
+      const a=clamp(k4*1.7-i*0.05,0,1); if(a<=0) return;
+      ctx.fillStyle=hexA(p.ink2,0.5*a);
+      const x=hs.x*w, y=gy-hs.y*h-10, s=hs.s*w;
+      ctx.fillRect(x-s/2, y-s, s, s);
+    });
+    /* 阶段5：贸易与船 */
+    const k5=clamp((t-8.6)/1.8,0,1);
+    if(k5>0){
+      const bx=w*0.30+(t-8.6)*w*0.02;
+      ctx.fillStyle=hexA(p.lanW,0.85);
+      ctx.beginPath(); ctx.moveTo(bx, gy+30); ctx.lineTo(bx+16, gy+30); ctx.lineTo(bx+11, gy+22); ctx.lineTo(bx+4, gy+22); ctx.closePath(); ctx.fill();
+      const ax=w*0.83, ay=gy-h*0.18;
+      ctx.strokeStyle=hexA(p.lanW,0.75*k5); ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(ax,ay); ctx.lineTo(ax+34,ay-20); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(ax+34,ay-20); ctx.lineTo(ax+26,ay-18); ctx.lineTo(ax+30,ay-10); ctx.closePath();
+      ctx.fillStyle=hexA(p.lanW,0.75*k5); ctx.fill();
+      txt(ctx,ax+40,ay-24,"贸易与税收",{font:"11.5px "+FANG,color:p.lanW});
+    }
+    cap.textContent = t<2.4
+      ? "起初只是河边几个芦苇棚：村落时代。"
+      : t<5.2 ? "神庙平台越垒越高——神的居所，也是粮仓与账房。"
+      : t<8.6 ? "城墙合拢：村落升级为「城市」，人口以千计。"
+      : "运河上的船把货物与税收送进来——城邦的经济循环成形（示意）。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch03=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：青铜供应链");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const COPPER="#b06a2a", TIN="#6d6d78", LAPIS="#33518a";
+  const nodes=[
+    { id:"myc", x:0.14, y:0.40, n:"迈锡尼" },
+    { id:"cyp", x:0.24, y:0.54, n:"塞浦路斯 · 铜" },
+    { id:"egy", x:0.26, y:0.74, n:"埃及" },
+    { id:"hit", x:0.40, y:0.32, n:"赫梯" },
+    { id:"mes", x:0.46, y:0.52, n:"两河" },
+    { id:"afg", x:0.78, y:0.44, n:"巴达赫尚 · 青金石" },
+    { id:"tin", x:0.70, y:0.62, n:"中亚 · 锡" },
+    { id:"ind", x:0.84, y:0.72, n:"印度河谷" }
+  ];
+  const routes=[
+    { a:"cyp", b:"myc", c:COPPER, t0:0.8,  t1:2.6, lab:"铜" },
+    { a:"cyp", b:"egy", c:COPPER, t0:1.6,  t1:3.4, lab:"铜" },
+    { a:"tin", b:"mes", c:TIN,    t0:3.2,  t1:5.2, lab:"锡" },
+    { a:"afg", b:"mes", c:LAPIS,  t0:5.0,  t1:7.0, lab:"青金石" },
+    { a:"mes", b:"egy", c:LAPIS,  t0:6.8,  t1:8.6, lab:"青金石" },
+    { a:"afg", b:"ind", c:TIN,    t0:7.6,  t1:9.4, lab:"锡" }
+  ];
+  const byId=id=>nodes.find(n=>n.id===id);
+  function qp(a,c,b,s){ const u=1-s; return { x:u*u*a.x+2*u*s*c.x+s*s*b.x, y:u*u*a.y+2*u*s*c.y+s*s*b.y }; }
+  const END=12.5;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 断链阶段：末尾全图变暗 + 裂纹 */
+    const broken=clamp((t-10.6)/1.2,0,1);
+    /* 路线 */
+    routes.forEach(r=>{
+      const A=byId(r.a), B=byId(r.b);
+      const ax=A.x*w, ay=A.y*h, bx=B.x*w, by=B.y*h;
+      const mx=(ax+bx)/2, my=(ay+by)/2, dx=bx-ax, dy=by-ay;
+      const cx=mx-dy*0.18, cy=my+dx*0.18;
+      const k=clamp((t-r.t0)/(r.t1-r.t0),0,1);
+      if(k<=0) return;
+      const alpha=(1-broken*0.8);
+      ctx.strokeStyle=hexA(r.c,0.75*alpha); ctx.lineWidth=2.5;
+      ctx.beginPath();
+      const steps=Math.max(2,Math.round(k*40));
+      for(let i=0;i<=steps;i++){
+        const s=(i/steps)*k; const q=qp({x:ax,y:ay},{x:cx,y:cy},{x:bx,y:by},s);
+        i?ctx.lineTo(q.x,q.y):ctx.moveTo(q.x,q.y);
+      }
+      ctx.stroke();
+      /* 流动光点 */
+      if(k>=1 && t<10.6){
+        for(let j=0;j<2;j++){
+          const s=((t*0.22+j*0.5)%1);
+          const q=qp({x:ax,y:ay},{x:cx,y:cy},{x:bx,y:by},s);
+          dot(ctx,q.x,q.y,3.2,r.c);
+        }
+      }
+      /* 线路标签 */
+      if(k>0.5){
+        const q=qp({x:ax,y:ay},{x:cx,y:cy},{x:bx,y:by},0.5);
+        txt(ctx,q.x,q.y-10,r.lab,{font:"11px "+FANG,color:r.c,align:"center"});
+      }
+    });
+    /* 节点 */
+    nodes.forEach(nd=>{
+      const x=nd.x*w, y=nd.y*h;
+      const col = nd.id==="cyp"?COPPER : nd.id==="afg"?LAPIS : nd.id==="tin"?TIN : p.ink2;
+      dot(ctx,x,y,4.5,col,hexA(p.paper,0.8));
+      txt(ctx,x,y+16,nd.n,{font:"11.5px "+FANG,color:p.ink2,align:"center"});
+    });
+    /* 崩链示意 */
+    if(broken>0){
+      ctx.strokeStyle=hexA(p.seal,0.75*broken); ctx.lineWidth=2;
+      const cx2=w*0.5, cy2=h*0.5;
+      ctx.beginPath(); ctx.moveTo(cx2-18,cy2-26); ctx.lineTo(cx2-4,cy2-4); ctx.lineTo(cx2-16,cy2+14); ctx.lineTo(cx2+2,cy2+34); ctx.stroke();
+      txt(ctx,cx2+14,cy2-30,"前1200：网络断裂",{font:"12.5px "+KAI,color:p.seal});
+    }
+    cap.textContent = t<3.4 ? "铜：从塞浦路斯的海上航线出发。"
+      : t<5.2 ? "锡：从阿富汗与中亚翻山越岭——青铜里最稀缺的一味。"
+      : t<8.6 ? "青金石与锡继续流动：一张跨欧亚的供应链网络成形。"
+      : t<10.6 ? "王宫、神庙与工坊都挂在这张网上。"
+      : "当网络断裂，连锁崩塌随之而来——这就是青铜时代晚期的剧本。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch04=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：思想的星空");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const clusters=[
+    { c:"east",  cx:0.22, cy:0.38, lab:"中国", stars:[
+      { n:"孔子", y:-551, dx:-0.07, dy:-0.05 }, { n:"老子", y:-500, dx:0.07, dy:0.02 } ] },
+    { c:"india", cx:0.52, cy:0.64, lab:"印度", stars:[
+      { n:"佛陀", y:-500, dx:0.0, dy:-0.05 } ] },
+    { c:"west",  cx:0.78, cy:0.36, lab:"希腊", stars:[
+      { n:"苏格拉底", y:-470, dx:-0.08, dy:0.04 }, { n:"柏拉图", y:-428, dx:0.02, dy:-0.05 }, { n:"亚里士多德", y:-384, dx:0.10, dy:0.03 } ] },
+    { c:"gold",  cx:0.66, cy:0.18, lab:"以色列 · 先知", stars:[
+      { n:"先知运动", y:-700, dx:0.0, dy:-0.04 } ] }
+  ];
+  const END=12;
+  const Y0=-800, Y1=-200;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 星盘装饰环 */
+    const CX=w*0.5, CY=h*0.42, R=h*0.40;
+    ctx.strokeStyle=hexA(p.line,0.6); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(CX,CY,R,0,6.283); ctx.stroke();
+    ctx.strokeStyle=hexA(p.line,0.35);
+    for(let i=0;i<12;i++){
+      const a=i/12*6.283;
+      ctx.beginPath(); ctx.moveTo(CX+Math.cos(a)*R*0.94,CY+Math.sin(a)*R*0.94); ctx.lineTo(CX+Math.cos(a)*R,CY+Math.sin(a)*R); ctx.stroke();
+    }
+    /* 星群 */
+    let idx=0;
+    clusters.forEach(cl=>{
+      const col=cl.c==="gold"?p.gold:laneC(cl.c);
+      cl.stars.forEach(st=>{
+        idx++;
+        const ti=0.7+idx*1.05;
+        if(t<ti) return;
+        const k=clamp((t-ti)/0.7,0,1);
+        const x=(cl.cx+st.dx)*w, y=(cl.cy+st.dy)*h;
+        const tw=1+0.25*Math.sin(t*3+idx*1.7);
+        /* 光晕 + 星点（四角星） */
+        const g=ctx.createRadialGradient(x,y,1,x,y,26);
+        g.addColorStop(0,hexA(col,0.35*k)); g.addColorStop(1,hexA(col,0));
+        ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,26,0,6.283); ctx.fill();
+        ctx.strokeStyle=hexA(col,0.9*k); ctx.lineWidth=1.6;
+        ctx.beginPath();
+        ctx.moveTo(x-7*tw,y); ctx.lineTo(x,y-7*tw); ctx.lineTo(x+7*tw,y); ctx.lineTo(x,y+7*tw); ctx.closePath();
+        ctx.stroke();
+        ctx.fillStyle=hexA(col,0.85*k); ctx.fill();
+        const a=clamp((t-ti-0.3)/0.8,0,1);
+        ctx.globalAlpha=a;
+        txt(ctx,x,y+20,st.n,{font:"12.5px "+KAI,color:p.ink,align:"center"});
+        txt(ctx,x,y+34,("前"+(-st.y)),{font:"10.5px "+FANG,color:col,align:"center"});
+        ctx.globalAlpha=1;
+      });
+      /* 群标签 */
+      const ck=clamp((t-0.7)/1,0,1);
+      if(ck>0) txt(ctx,cl.cx*w,cl.cy*h+ (cl.c==="india"?-34:44),cl.lab,{font:"700 13px "+KAI,color:hexA(col,0.85*ck),align:"center"});
+    });
+    /* 底部时间带：同时性 */
+    const yb=(w<560?h-92:h-58), x0=w*0.1, x1=w*0.9;
+    ctx.strokeStyle=p.line; ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(x0,yb); ctx.lineTo(x1,yb); ctx.stroke();
+    [[-800,"前800"],[-500,"前500"],[-200,"前200"]].forEach(q=>{
+      const X=x0+(x1-x0)*((q[0]-Y0)/(Y1-Y0));
+      ctx.beginPath(); ctx.moveTo(X,yb-4); ctx.lineTo(X,yb+4); ctx.stroke();
+      txt(ctx,X,yb+16,q[1],{font:"10.5px "+FANG,color:p.ink3,align:"center"});
+    });
+    const kk=clamp((t-7)/2.5,0,1);
+    if(kk>0){
+      ctx.globalAlpha=kk;
+      clusters.forEach(cl=>{
+        cl.stars.forEach(st=>{
+          const X=x0+(x1-x0)*((st.y-Y0)/(Y1-Y0));
+          const col=cl.c==="gold"?p.gold:laneC(cl.c);
+          dot(ctx,X,yb,3.2,col);
+        });
+      });
+      ctx.globalAlpha=1;
+      txt(ctx,(x0+x1)/2,yb-16,"把四位追问者放回同一根时间尺：他们几乎同时在提问",{font:"11px "+FANG,color:p.ink3,align:"center"});
+    }
+    cap.textContent = t<4 ? "前800 – 前200：旧神话松动的地方，新问题冒了出来。"
+      : t<7 ? "中国问「如何共处」，印度问「如何解脱」，希腊问「什么是真」——答案不同，动作相同。"
+      : t<9.5 ? "他们互相不知道对方的存在，却挤在同一段时间里。"
+      : "为什么同时？铁器、竞争、城市化……争论至今——这正是「轴心时代」的魅力。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch05=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：帝国的尺度");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  function net(cx,cy,c,seed){
+    const nodes=[]; const N=9; const r=mulberry32(seed);
+    for(let i=0;i<N;i++){
+      const a=(i/N)*6.283+r()*0.5-0.25;
+      const rr=0.30+r()*0.15;
+      nodes.push({ x:cx+Math.cos(a)*rr, y:cy+Math.sin(a)*rr*0.60 });
+    }
+    return { cx,cy,c,nodes };
+  }
+  const left=net(0.24,0.46,"east",11), right=net(0.76,0.46,"west",22);
+  const END=12;
+  function drawNet(net, k, t){
+    const p=pal(); const w=env.w,h=env.h; const col=laneC(net.c);
+    const cx=net.cx*w, cy=net.cy*h;
+    net.nodes.forEach((nd,i)=>{
+      const kk=clamp(k*net.nodes.length-i,0,1); if(kk<=0) return;
+      const x=cx+(nd.x*w-cx)*kk, y=cy+(nd.y*h-cy)*kk;
+      ctx.strokeStyle=hexA(col,0.68); ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(x,y); ctx.stroke();
+      if(kk>=1){
+        dot(ctx,x,y,3.4,col,hexA(p.paper,0.8));
+        if(t>4.5){
+          for(let j=1;j<=3;j++){
+            if(((i+j)%3)===0){
+              const s=j/4;
+              dot(ctx,cx+(x-cx)*s,cy+(y-cy)*s,1.6,hexA(col,0.6));
+            }
+          }
+        }
+      }
+    });
+    dot(ctx,cx,cy,6,col,hexA(p.paper,0.9));
+  }
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    ctx.setLineDash([6,7]);
+    ctx.strokeStyle=hexA(p.line,0.8); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(w*0.5,h*0.12); ctx.lineTo(w*0.5,h*0.82); ctx.stroke();
+    ctx.setLineDash([]);
+    const k1=clamp(t/3.6,0,1), k2=clamp((t-1.2)/3.6,0,1);
+    drawNet(left,k1,t); drawNet(right,k2,t);
+    txt(ctx,w*0.24,h*0.10,"秦 · 驰道网",{font:"700 14px "+KAI,color:laneC("east"),align:"center"});
+    txt(ctx,w*0.24,h*0.10+18,"从咸阳出发，抵达每一个郡",{font:"11px "+FANG,color:p.ink3,align:"center"});
+    txt(ctx,w*0.76,h*0.10,"罗马 · 大道网",{font:"700 14px "+KAI,color:laneC("west"),align:"center"});
+    txt(ctx,w*0.76,h*0.10+18,"条条大路通罗马",{font:"11px "+FANG,color:p.ink3,align:"center"});
+    const kk=clamp((t-8)/2,0,1);
+    if(kk>0){
+      ctx.globalAlpha=kk;
+      const by=h*0.88;
+      txt(ctx,w*0.5,by-14,"帝国尺度（示意）：道路＝统治的神经系统",{font:"11.5px "+FANG,color:p.ink3,align:"center"});
+      ctx.fillStyle=hexA(laneC("east"),0.75); ctx.fillRect(w*0.18,by,w*0.13,8);
+      ctx.fillStyle=hexA(laneC("west"),0.75); ctx.fillRect(w*0.52,by,w*0.28,8);
+      txt(ctx,w*0.18-6,by+4,"汉驿道",{font:"10.5px "+FANG,color:p.ink3,align:"right"});
+      txt(ctx,w*0.52+w*0.28+6,by+4,"罗马道路 · 含支线",{font:"10.5px "+FANG,color:p.ink3});
+      ctx.globalAlpha=1;
+    }
+    cap.textContent = t<1.2 ? "两个帝国，各自从首都画出一张网。"
+      : t<4.8 ? "道路先到，统治随后：郡县与行省都被「接到」了首都。"
+      : t<8 ? "驿站、里程碑、驻军：基建就是帝国的神经系统。"
+      : "尺度对比为示意：罗马石铺干道约八万公里；汉代驿道以长安为中心延伸到边郡。两者都把「距离」变成「秩序」。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch06=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：信仰的扩散");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const origins=[
+    { x:0.64, y:0.48, c:"india", lab:"佛教", from:"恒河流域 · 前3世纪起", t0:0.8,  dx:1,  dy:-0.42, to:"东亚" },
+    { x:0.33, y:0.38, c:"west",  lab:"基督教", from:"黎凡特 · 1世纪起",  t0:3.8,  dx:-0.9, dy:0.34, to:"欧洲" },
+    { x:0.44, y:0.62, c:"islam", lab:"伊斯兰教", from:"汉志 · 7世纪起", t0:6.8,  dx:-0.7, dy:0.62, to:"北非 · 伊比利亚" }
+  ];
+  const END=12;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 淡淡的海岸线装饰 */
+    ctx.strokeStyle=hexA(p.line,0.5); ctx.lineWidth=1;
+    ctx.beginPath(); ctx.moveTo(w*0.06,h*0.72); ctx.bezierCurveTo(w*0.3,h*0.6,w*0.5,h*0.78,w*0.72,h*0.66); ctx.bezierCurveTo(w*0.84,h*0.6,w*0.9,h*0.7,w*0.96,h*0.64); ctx.stroke();
+    origins.forEach((o,i)=>{
+      if(t<o.t0) return;
+      const col=laneC(o.c);
+      const x=o.x*w, y=o.y*h;
+      /* 扩散波 */
+      for(let j=0;j<3;j++){
+        const age=t-o.t0-j*1.1;
+        if(age<=0) continue;
+        const r=8+age*26;
+        ctx.strokeStyle=hexA(col,0.5*Math.max(0,1-age/4.2));
+        ctx.lineWidth=2;
+        ctx.beginPath(); ctx.arc(x,y,r,0,6.283); ctx.stroke();
+      }
+      const g=ctx.createRadialGradient(x,y,2,x,y,40);
+      g.addColorStop(0,hexA(col,0.3)); g.addColorStop(1,hexA(col,0));
+      ctx.fillStyle=g; ctx.beginPath(); ctx.arc(x,y,40,0,6.283); ctx.fill();
+      dot(ctx,x,y,5.5,col,hexA(p.paper,0.9));
+      txt(ctx,x,y-14,o.lab,{font:"700 14px "+KAI,color:p.ink,align:"center"});
+      txt(ctx,x,y+18,o.from,{font:"10.5px "+FANG,color:p.ink3,align:"center"});
+      /* 方向箭头 */
+      const ak=clamp((t-o.t0-1.6)/1.2,0,1);
+      if(ak>0){
+        const ax=x+o.dx*w*0.16*ak, ay=y+o.dy*h*0.5*ak;
+        ctx.strokeStyle=hexA(col,0.8); ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(x+o.dx*w*0.05, y+o.dy*h*0.16); ctx.lineTo(ax,ay); ctx.stroke();
+        txt(ctx,ax,ay+14,"→ "+o.to,{font:"12px "+FANG,color:col,align:"center"});
+      }
+    });
+    cap.textContent = t<3.8 ? "佛教从恒河出发，翻过帕米尔，走向东亚。"
+      : t<6.8 ? "基督教从黎凡特出发，一路向西，成为罗马的国教。"
+      : t<10 ? "伊斯兰从汉志出发，百年间席卷中东、北非与伊比利亚。"
+      : "三大宗教、三条路线、三个文明圈：信仰是古代世界最强大的「传播学」。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch07=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：知识的传递");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const pts=[
+    { x:0.10, y:0.44, n:"长安" },
+    { x:0.34, y:0.32, n:"撒马尔罕" },
+    { x:0.56, y:0.44, n:"巴格达" },
+    { x:0.52, y:0.70, n:"开罗" },
+    { x:0.20, y:0.70, n:"科尔多瓦" }
+  ];
+  const segs=[]; let total=0;
+  for(let i=0;i<pts.length-1;i++){
+    const a=pts[i], b=pts[i+1];
+    const len=Math.hypot(b.x-a.x,b.y-a.y);
+    segs.push({ a,b,len,acc:total }); total+=len;
+  }
+  function along(s){
+    const d=s*total;
+    for(const sg of segs){
+      if(d<=sg.acc+sg.len){
+        const k=(d-sg.acc)/sg.len;
+        return { x:lerp(sg.a.x,sg.b.x,k), y:lerp(sg.a.y,sg.b.y,k) };
+      }
+    }
+    const l=pts[pts.length-1]; return { x:l.x, y:l.y };
+  }
+  const milestones=[
+    { at:2.6, s:0.30, lab:"造纸术西传 · 751", c:"trade" },
+    { at:4.8, s:0.58, lab:"智慧宫翻译运动 · 约830", c:"thought" },
+    { at:6.8, s:0.88, lab:"希腊典籍回流欧洲 · 约1000", c:"thought" }
+  ];
+  const END=12;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 路线生长 */
+    const k=clamp(t/8.5,0,1);
+    ctx.strokeStyle=hexA(p.gold,0.85); ctx.lineWidth=2.5; ctx.lineCap="round";
+    ctx.beginPath();
+    let acc=0, drawn=false;
+    ctx.moveTo(pts[0].x*w,pts[0].y*h);
+    for(const sg of segs){
+      acc+=sg.len;
+      const kk=clamp(k*total- (acc-sg.len),0,sg.len);
+      if(kk>0){
+        const q={ x:lerp(sg.a.x,sg.b.x,kk/sg.len), y:lerp(sg.a.y,sg.b.y,kk/sg.len) };
+        ctx.lineTo(q.x*w,q.y*h); drawn=true;
+      }
+    }
+    if(drawn) ctx.stroke();
+    /* 知识光点 */
+    if(k>0.2 && t<9.5){
+      for(let j=0;j<3;j++){
+        const s=((t*0.09+j*0.33)%1)*k;
+        const q=along(s);
+        dot(ctx,q.x*w,q.y*h,3.4,p.gold);
+      }
+    }
+    /* 节点 */
+    pts.forEach((nd,i)=>{
+      const appear=k>= i/(pts.length-1)*0.95;
+      if(!appear) return;
+      dot(ctx,nd.x*w,nd.y*h,4.5,p.ink2,hexA(p.paper,0.9));
+      txt(ctx,nd.x*w,nd.y*h+(nd.n==="撒马尔罕"?-16:20),nd.n,{font:"12.5px "+KAI,color:p.ink,align:"center"});
+    });
+    /* 里程碑 */
+    milestones.forEach(ms=>{
+      if(t<ms.at) return;
+      const q=along(ms.s);
+      const col= ms.c==="trade"? p.lanW : p.lanS;
+      const bx=q.x*w, by=q.y*h+(q.y<0.5?-34:34);
+      chip(ctx,bx,by,ms.lab,"c");
+      dot(ctx,q.x*w,q.y*h,3,col);
+    });
+    cap.textContent = t<2.6 ? "从长安出发：驼队驮着丝绸，也驮着纸张与技术。"
+      : t<4.8 ? "造纸术沿商路西行——知识的「存储成本」开始下降。"
+      : t<6.8 ? "巴格达的智慧宫：把希腊、印度、波斯的知识翻译成阿拉伯文。"
+      : t<9.5 ? "典籍继续向西：托莱多与科尔多瓦成了欧洲的「知识中转站」。"
+      : "知识走了一千年，把欧亚大陆缝成了一张网——网络在哪里，繁荣就在哪里。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch08=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：蒙古风暴");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const center={ x:0.50, y:0.26 };
+  const cities=[
+    { x:0.82, y:0.32, n:"大都 · 北京", at:1.8 },
+    { x:0.52, y:0.46, n:"撒马尔罕", at:3.2 },
+    { x:0.34, y:0.64, n:"巴格达", at:4.8 },
+    { x:0.16, y:0.36, n:"基辅 · 东欧", at:6.4 }
+  ];
+  const END=12;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    const cx=center.x*w, cy=center.y*h;
+    /* 扩张的版图光晕（层叠椭圆） */
+    const k=ease(clamp(t/8.5,0,1));
+    const cols=[p.lanS,p.gold,p.seal];
+    for(let j=0;j<3;j++){
+      const kk=ease(clamp((t-j*1.2)/8.5,0,1));
+      if(kk<=0) continue;
+      ctx.fillStyle=hexA(cols[j],0.10);
+      ctx.beginPath();
+      ctx.ellipse(cx,cy, w*0.46*kk, h*0.34*kk, 0, 0, 6.283);
+      ctx.fill();
+    }
+    ctx.strokeStyle=hexA(p.lanS,0.55); ctx.lineWidth=2;
+    ctx.beginPath(); ctx.ellipse(cx,cy, w*0.46*k, h*0.34*k, 0, 0, 6.283); ctx.stroke();
+    /* 脉冲环 */
+    if(t<9){
+      const rp=((t*0.5)%1);
+      ctx.strokeStyle=hexA(p.seal,0.4*(1-rp));
+      ctx.beginPath(); ctx.ellipse(cx,cy, w*0.46*rp, h*0.34*rp, 0, 0, 6.283); ctx.stroke();
+    }
+    /* 驿站路线 */
+    cities.forEach(c=>{
+      const appear=clamp((t-(c.at-0.8))/1.4,0,1);
+      if(appear<=0) return;
+      const X=c.x*w, Y=c.y*h;
+      ctx.setLineDash([7,6]);
+      ctx.lineDashOffset=(1-appear)*60;
+      ctx.strokeStyle=hexA(p.gold,0.85);
+      ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(X,Y); ctx.stroke();
+      ctx.setLineDash([]);
+      if(appear>=1){
+        dot(ctx,X,Y,4,p.seal,hexA(p.paper,0.9));
+        txt(ctx,X,Y+18,c.n,{font:"12px "+KAI,color:p.ink,align:"center"});
+      }
+    });
+    dot(ctx,cx,cy,6,p.lanS,hexA(p.paper,0.9));
+    txt(ctx,cx,cy-16,"草原 · 蒙古",{font:"700 14px "+KAI,color:p.lanS,align:"center"});
+    txt(ctx,cx,cy+20,"1206 起",{font:"11px "+FANG,color:p.ink3,align:"center"});
+    /* 年份事件标签 */
+    const events=[[2.2,"1220s · 西征花剌子模"],[4.2,"1241 · 兵锋抵达东欧"],[6.8,"1279 · 南宋灭亡"],[9,"一个世纪内：从太平洋到多瑙河"]];
+    events.forEach(e=>{
+      if(t<e[0]) return;
+      ctx.globalAlpha=clamp((t-e[0])/0.6,0,1);
+      chip(ctx,w*0.5,h*0.88,e[1],"c");
+      ctx.globalAlpha=1;
+    });
+    cap.textContent = t<2.2 ? "1206：铁木真统一草原，风暴开始积聚。"
+      : t<4.2 ? "驿站（站赤）网络先行：情报与军队以当时最快的速度移动。"
+      : t<6.8 ? "西征与南下并行：欧亚大陆第一次被一个政权「连成一片」。"
+      : "蒙古帝国速起速裂，但它留下的「连接」不会消失：商路、技术、疾病从此传播得更快。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch09=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：大航海");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const routes=[
+    { n:"郑和 · 1405-1433", c:"east",  t0:0.8,  pts:[[0.70,0.42],[0.72,0.55],[0.60,0.58],[0.50,0.68]] },
+    { n:"哥伦布 · 1492",    c:"west",  t0:3.4,  pts:[[0.40,0.42],[0.30,0.46],[0.24,0.53]] },
+    { n:"达伽马 · 1498",    c:"gold",  t0:5.6,  pts:[[0.42,0.40],[0.45,0.58],[0.47,0.72],[0.57,0.60],[0.60,0.57]] },
+    { n:"麦哲伦 · 1519-1522", c:"seal", t0:7.6, pts:[[0.40,0.42],[0.26,0.58],[0.24,0.66],[0.42,0.74],[0.62,0.68],[0.70,0.60]] }
+  ];
+  function ptsLen(pts){ let L=0; for(let i=0;i<pts.length-1;i++) L+=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]); return L; }
+  function along(pts,s){
+    const L=ptsLen(pts); let d=s*L;
+    for(let i=0;i<pts.length-1;i++){
+      const seg=Math.hypot(pts[i+1][0]-pts[i][0],pts[i+1][1]-pts[i][1]);
+      if(d<=seg){
+        const k=d/seg;
+        return { x:lerp(pts[i][0],pts[i+1][0],k), y:lerp(pts[i][1],pts[i+1][1],k) };
+      }
+      d-=seg;
+    }
+    const l=pts[pts.length-1]; return { x:l[0], y:l[1] };
+  }
+  const END=12.5;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 海图：经纬网格 + 大陆色块 */
+    const CX=w*0.5, CY=h*0.52, R=h*0.42;
+    ctx.strokeStyle=hexA(p.lanW,0.4); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.arc(CX,CY,R,0,6.283); ctx.stroke();
+    ctx.strokeStyle=hexA(p.lanW,0.22); ctx.lineWidth=1;
+    for(let i=1;i<4;i++){
+      ctx.beginPath(); ctx.ellipse(CX,CY,R,R*(1-i*0.24),0,0,6.283); ctx.stroke();
+    }
+    for(let i=0;i<6;i++){
+      ctx.beginPath(); ctx.ellipse(CX,CY,R*(0.35+i*0.13),R,0,0,6.283); ctx.stroke();
+    }
+    /* 大陆示意 */
+    const blobs=[
+      [0.42,0.38,0.055,"欧洲"],[0.46,0.60,0.065,"非洲"],[0.64,0.42,0.075,"亚洲"],
+      [0.24,0.50,0.055,"美洲"],[0.58,0.56,0.035,"印度"],[0.70,0.58,0.035,"东南亚"]
+    ];
+    blobs.forEach(b=>{
+      ctx.fillStyle=hexA(p.ink2,0.13);
+      ctx.beginPath(); ctx.ellipse(b[0]*w,b[1]*h,b[2]*w,b[2]*w*0.72,0,0,6.283); ctx.fill();
+      txt(ctx,b[0]*w,b[1]*h+4,b[3],{font:"10.5px "+FANG,color:p.ink3,align:"center"});
+    });
+    /* 航线 */
+    routes.forEach(r=>{
+      const col = r.c==="gold"?p.gold : r.c==="seal"?p.seal : laneC(r.c);
+      const k=clamp((t-r.t0)/(r.t0<4?3:3.4),0,1);
+      if(k<=0) return;
+      ctx.strokeStyle=hexA(col,0.9); ctx.lineWidth=2.2; ctx.lineCap="round";
+      ctx.beginPath();
+      const L=ptsLen(r.pts); let d=0;
+      ctx.moveTo(r.pts[0][0]*w,r.pts[0][1]*h);
+      for(let i=0;i<r.pts.length-1;i++){
+        const seg=Math.hypot(r.pts[i+1][0]-r.pts[i][0],r.pts[i+1][1]-r.pts[i][1]);
+        if(d+seg<=L*k){
+          ctx.lineTo(r.pts[i+1][0]*w,r.pts[i+1][1]*h); d+=seg;
+        } else {
+          const kk=(L*k-d)/seg;
+          ctx.lineTo(lerp(r.pts[i][0],r.pts[i+1][0],kk)*w, lerp(r.pts[i][1],r.pts[i+1][1],kk)*h);
+          d=L;
+          break;
+        }
+      }
+      ctx.stroke();
+      /* 船点 */
+      const q=along(r.pts,k);
+      ctx.fillStyle=col;
+      ctx.beginPath();
+      ctx.moveTo(q.x*w,q.y*h-6); ctx.lineTo(q.x*w-4,q.y*h+4); ctx.lineTo(q.x*w+4,q.y*h+4); ctx.closePath(); ctx.fill();
+      if(k>=1){
+        const e=r.pts[r.pts.length-1];
+        txt(ctx,e[0]*w+14,e[1]*h+16,r.n,{font:"11px "+FANG,color:col});
+      }
+    });
+    /* 罗盘 */
+    const rx=w*0.92, ry=h*0.14;
+    ctx.strokeStyle=hexA(p.ink3,0.6); ctx.lineWidth=1.2;
+    ctx.beginPath(); ctx.arc(rx,ry,14,0,6.283); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(rx,ry-10); ctx.lineTo(rx,ry+10); ctx.moveTo(rx-10,ry); ctx.lineTo(rx+10,ry); ctx.stroke();
+    txt(ctx,rx,ry-20,"N",{font:"10px Georgia,serif",color:p.ink3,align:"center"});
+    cap.textContent = t<3.4 ? "1405：郑和船队从中国出海——此时印度洋上的「高速公路」已经繁忙。"
+      : t<5.6 ? "1492：哥伦布向西横渡大西洋——欧洲与美洲的持续接触由此开始。"
+      : t<7.6 ? "1498：达伽马绕好望角抵达印度——香料航路打通，海洋成为新的权力舞台。"
+      : t<10 ? "1519-1522：麦哲伦船队第一次环球航行——地球被证明是一个「圈」。"
+      : "航海把四大洋连成一张网：物种、白银、疾病与征服，从此同步流动。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch10=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：白银环流");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const nodes=[
+    { x:0.14, y:0.55, n:"美洲 · 波托西银矿", c:"americas" },
+    { x:0.44, y:0.22, n:"欧洲 · 塞维利亚/阿姆斯特丹", c:"west" },
+    { x:0.84, y:0.48, n:"亚洲 · 中国/印度", c:"east" },
+    { x:0.70, y:0.76, n:"马尼拉", c:"gold" }
+  ];
+  const arcs=[
+    { a:0, b:1, c:"americas", lab:"白银 → 欧洲", t0:1.0 },
+    { a:1, b:2, c:"west",     lab:"白银 → 亚洲购货", t0:3.0 },
+    { a:2, b:1, c:"east",     lab:"丝 · 茶 · 瓷 → 欧洲", t0:5.0, lift:-0.10 },
+    { a:0, b:3, c:"americas", lab:"白银 → 马尼拉", t0:6.6 },
+    { a:3, b:2, c:"gold",     lab:"马尼拉大帆船 → 中国", t0:8.2 }
+  ];
+  function arcPath(ax,ay,bx,by,lift){
+    const mx=(ax+bx)/2, my=(ay+by)/2;
+    const dx=bx-ax, dy=by-ay;
+    return { cx:mx-dy*0.22+(lift||0)*0, cy:my+dx*0.22+(lift||0)*100 };
+  }
+  const END=12.5;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 弧形航线 */
+    arcs.forEach(ar=>{
+      const A=nodes[ar.a], B=nodes[ar.b];
+      const k=clamp((t-ar.t0)/2.2,0,1);
+      if(k<=0) return;
+      const col = ar.c==="gold"?p.gold:laneC(ar.c);
+      const ax=A.x*w, ay=A.y*h, bx=B.x*w, by=B.y*h;
+      const mx=(ax+bx)/2, my=(ay+by)/2, dx=bx-ax, dy=by-ay;
+      const lift=(ar.lift||0.14)*Math.hypot(dx,dy);
+      const cx=mx-dy/Math.hypot(dx,dy)*lift, cy=my+dx/Math.hypot(dx,dy)*lift;
+      ctx.strokeStyle=hexA(col,0.8); ctx.lineWidth=2.4;
+      ctx.beginPath();
+      const steps=Math.max(2,Math.round(k*44));
+      for(let i=0;i<=steps;i++){
+        const s=(i/steps)*k, u=1-s;
+        const X=u*u*ax+2*u*s*cx+s*s*bx, Y=u*u*ay+2*u*s*cy+s*s*by;
+        i?ctx.lineTo(X,Y):ctx.moveTo(X,Y);
+      }
+      ctx.stroke();
+      if(k>=1 && t<10){
+        for(let j=0;j<2;j++){
+          const s=((t*0.2+j*0.5)%1), u=1-s;
+          const X=u*u*ax+2*u*s*cx+s*s*bx, Y=u*u*ay+2*u*s*cy+s*s*by;
+          dot(ctx,X,Y,3.4,col);
+        }
+      }
+      if(k>0.4){
+        const s=0.5, u=1-s;
+        const X=u*u*ax+2*u*s*cx+s*s*bx, Y=u*u*ay+2*u*s*cy+s*s*by;
+        txt(ctx,X,Y-8,ar.lab,{font:"11.5px "+FANG,color:col,align:"center"});
+      }
+    });
+    /* 节点 */
+    nodes.forEach(nd=>{
+      const col = nd.c==="gold"?p.gold:laneC(nd.c);
+      dot(ctx,nd.x*w,nd.y*h,5.5,col,hexA(p.paper,0.9));
+      txt(ctx,nd.x*w,nd.y*h+(nd.n==="欧洲 · 塞维利亚/阿姆斯特丹"?-14:20),nd.n,{font:"12px "+KAI,color:p.ink,align:"center"});
+    });
+    /* 中央说明 */
+    const kk=clamp((t-10)/1.6,0,1);
+    if(kk>0){
+      ctx.globalAlpha=kk;
+      chip(ctx,w*0.5,h*0.06,"一圈白银 = 一次全球化：谁的银子，买谁的货，由航线决定","c");
+      ctx.globalAlpha=1;
+    }
+    cap.textContent = t<3 ? "16世纪：美洲银矿的银子装上西班牙船队。"
+      : t<5 ? "银子到了欧洲，又转手去亚洲——买丝绸、茶叶与瓷器。"
+      : t<6.6 ? "货物反向流回欧洲：贸易环流成形，世界市场开始呼吸。"
+      : t<8.2 ? "另一条路线：美洲银直接横渡太平洋，驶向马尼拉。"
+      : "马尼拉的银子最终流入中国——全球贸易的闭环完成，谁也无法再「退出」这张网。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch11=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：工业起飞曲线");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const X0=0.14, X1=0.90, Y0=0.80, Y1=0.20;
+  const px=y=>X0+(y-1750)/(1914-1750)*(X1-X0);
+  const py=v=>Y0-v*(Y0-Y1);
+  const uk=[], cn=[];
+  for(let y=1750;y<=1914;y+=6){
+    const s=(y-1750)/(1914-1750);
+    uk.push([y, 0.05+Math.pow(s,2.3)*0.90]);
+    cn.push([y, 0.04+s*0.09]);
+  }
+  const END=12;
+  function drawCurve(data,k,col,lw){
+    ctx.strokeStyle=col; ctx.lineWidth=lw; ctx.lineCap="round";
+    ctx.beginPath();
+    let started=false;
+    data.forEach(d=>{
+      const s=(d[0]-1750)/(1914-1750);
+      if(s>k) return;
+      const X=px(d[0])*env.w, Y=py(d[1])*env.h;
+      started?ctx.lineTo(X,Y):ctx.moveTo(X,Y);
+      started=true;
+    });
+    if(started) ctx.stroke();
+  }
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 坐标轴 */
+    ctx.strokeStyle=hexA(p.ink3,0.7); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(X0*w,Y0*h); ctx.lineTo(X1*w,Y0*h); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(X0*w,Y1*h-8); ctx.lineTo(X0*w,Y0*h); ctx.stroke();
+    [[1750,"1750"],[1800,"1800"],[1850,"1850"],[1900,"1900"],[1914,"1914"]].forEach(q=>{
+      const X=px(q[0])*w;
+      ctx.strokeStyle=hexA(p.ink3,0.5);
+      ctx.beginPath(); ctx.moveTo(X,Y0*h); ctx.lineTo(X,Y0*h+5); ctx.stroke();
+      txt(ctx,X,Y0*h+18,q[1],{font:"10.5px Georgia,serif",color:p.ink3,align:"center"});
+    });
+    txt(ctx,X0*w-8,Y1*h-14,"人均产出（示意）",{font:"11px "+FANG,color:p.ink3});
+    /* 曲线 */
+    const k=clamp(t/7,0,1);
+    drawCurve(cn,k,hexA(laneC("east"),0.9),2.6);
+    drawCurve(uk,k,hexA(laneC("west"),0.95),2.8);
+    /* 蒸汽小图标 */
+    if(t>3.4){
+      const sx=px(1800)*w, sy=py(0.34)*h;
+      ctx.globalAlpha=clamp((t-3.4)/1,0,1)*0.7;
+      for(let j=0;j<3;j++){
+        const rr=3+j*2.4, yy=sy-10-j*9-((t*8)%10);
+        ctx.strokeStyle=hexA(p.gold,0.7);
+        ctx.lineWidth=1.4;
+        ctx.beginPath(); ctx.arc(sx, yy, rr, 0, 6.283); ctx.stroke();
+      }
+      ctx.globalAlpha=1;
+      txt(ctx,sx+10,sy-38,"蒸汽机 · 1769",{font:"11px "+FANG,color:p.gold});
+    }
+    /* 末端标签 */
+    if(k>0.96){
+      const ex=px(1914)*w;
+      chip(ctx,ex+6,py(uk[uk.length-1][1])*h,"英国 / 西欧","c");
+      chip(ctx,ex+6,py(cn[cn.length-1][1])*h,"中国 / 印度","c");
+    }
+    /* 大分流注释 */
+    const kk=clamp((t-7.5)/1.5,0,1);
+    if(kk>0){
+      ctx.globalAlpha=kk;
+      chip(ctx,w*0.5,h*0.08,"大分流：同样的起点，不同的斜率——为什么？","c");
+      ctx.globalAlpha=1;
+    }
+    cap.textContent = t<3.4 ? "1750：两条曲线站在几乎同样的位置。"
+      : t<5.5 ? "蒸汽机、煤与殖民地市场：英国的斜率开始变化。"
+      : t<7.5 ? "铁路与电报把增长变成自动程序——曲线越抬越陡。"
+      : t<9.5 ? "到1914年，差距拉开数倍——「大分流」完成。"
+      : "彭慕兰等学者追问：是制度、资源还是偶然？争论至今未完。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+FACTORY.ch12=function(player){
+  const stage=player.stage;
+  const cv=document.createElement("canvas");
+  cv.setAttribute("role","img"); cv.setAttribute("aria-label","动态图版：百年加速");
+  stage.appendChild(cv);
+  const env=setupCanvas(cv,16/9); const ctx=env.ctx;
+  const cap=mkCap(stage);
+  const ms=[
+    { y:1914, lab:"一战爆发", t0:1.0 },
+    { y:1945, lab:"二战结束 · 联合国", t0:3.0 },
+    { y:1969, lab:"阿波罗登月", t0:5.0 },
+    { y:1991, lab:"互联网 · 冷战终结", t0:6.6 },
+    { y:2001, lab:"全球化高峰", t0:8.0 },
+    { y:2022, lab:"AI 大爆发", t0:9.4 }
+  ];
+  const X0=0.08, X1=0.94, Y0=0.82, Y1=0.16;
+  const px=y=>X0+(y-1914)/(2026-1914)*(X1-X0);
+  const py=s=>Y0-Math.pow(s,2.4)*(Y0-Y1);
+  const END=12;
+  function draw(t){
+    const p=pal(); const w=env.w,h=env.h;
+    bg(env);
+    /* 轴 */
+    ctx.strokeStyle=hexA(p.ink3,0.6); ctx.lineWidth=1.5;
+    ctx.beginPath(); ctx.moveTo(X0*w,Y0*h); ctx.lineTo(X1*w,Y0*h); ctx.stroke();
+    txt(ctx,X0*w-6,Y1*h-12,"「变化的速度」（示意）",{font:"11px "+FANG,color:p.ink3});
+    /* 加速曲线 */
+    const k=clamp(t/9.5,0,1);
+    ctx.strokeStyle=hexA(p.seal,0.9); ctx.lineWidth=2.8; ctx.lineCap="round";
+    ctx.beginPath();
+    let started=false;
+    for(let i=0;i<=100;i++){
+      const s=i/100;
+      if(s>k) break;
+      const X=px(1914+s*(2026-1914))*w, Y=py(s)*h;
+      started?ctx.lineTo(X,Y):ctx.moveTo(X,Y);
+      started=true;
+    }
+    if(started) ctx.stroke();
+    /* 里程碑 */
+    ms.forEach((m,i)=>{
+      if(t<m.t0) return;
+      const s=(m.y-1914)/(2026-1914);
+      const X=px(m.y)*w, Y=py(s)*h;
+      const a=clamp((t-m.t0)/0.6,0,1);
+      ctx.globalAlpha=a;
+      dot(ctx,X,Y,4.5,p.gold,hexA(p.paper,0.9));
+      ctx.strokeStyle=hexA(p.ink3,0.5); ctx.lineWidth=1;
+      const up=(i%2===0);
+      const ly=up?Y-16:Y+16;
+      ctx.beginPath(); ctx.moveTo(X,Y); ctx.lineTo(X,ly); ctx.stroke();
+      txt(ctx,X,ly+(up?-12:14),m.y+"",{font:"11px Georgia,serif",color:p.ink3,align:"center"});
+      chip(ctx,X,ly+(up?-28:30),m.lab,"c");
+      ctx.globalAlpha=1;
+    });
+    /* 对比条 */
+    const kk=clamp((t-10.5)/1.2,0,1);
+    if(kk>0){
+      ctx.globalAlpha=kk;
+      chip(ctx,w*0.5,h*0.06,"过去一百年的变化，超过此前一万年的总和","c");
+      ctx.globalAlpha=1;
+    }
+    cap.textContent = t<3 ? "1914：欧洲跌入第一次世界大战——旧世界秩序开始解体。"
+      : t<5 ? "1945：战争结束，联合国成立；核时代与冷战同时开幕。"
+      : t<6.6 ? "1969：人类第一次站上另一个天体——技术的天花板被抬高。"
+      : t<8 ? "1991：互联网商业化与冷战终结，世界开始「实时」连接。"
+      : t<9.4 ? "2001：全球化抵达高峰，供应链绕地球一圈。"
+      : "2022：生成式 AI 爆发——这一次，加速的是「智能」本身。";
+  }
+  env.onresize=()=>draw(player.t||0,0.001);
+  return {draw,END,recolor(){}};
+};
+
+
+/* ---------- 挂载与调度 ---------- */
+const players=[];
+let rafOn=false;
+function loop(ts){
+  let any=false;
+  for(const p of players){ if(p.playing && p.step(ts)) any=true; }
+  if(any && !document.hidden){ requestAnimationFrame(loop); } else { rafOn=false; }
+}
+function kick(){ if(!rafOn && !document.hidden){ rafOn=true; requestAnimationFrame(loop); } }
+document.addEventListener("visibilitychange",()=>{
+  if(!document.hidden){ players.forEach(p=>{ if(p.playing) p.last=performance.now(); }); kick(); }
+});
+if("IntersectionObserver" in window){
+  const io=new IntersectionObserver(es=>{
+    es.forEach(en=>{
+      const p=en.target.__p; if(!p) return;
+      en.target.__visible=en.isIntersecting;
+      if(en.isIntersecting){
+        if(!p.mounted) p.mount();
+        else if(!NOANIM && p.demo && p.t<(p.demo.END||10)) p.resume();
+      } else p.stop();
+    });
+  },{threshold:0.22});
+  document.querySelectorAll(".plate").forEach(plate=>{
+    const p=new Player(plate); plate.__p=p; players.push(p); io.observe(plate);
+  });
+}else{
+  document.querySelectorAll(".plate").forEach(plate=>{
+    const p=new Player(plate); plate.__p=p; players.push(p); plate.__visible=true; p.mount();
+  });
+}
+let rzT=0;
+window.addEventListener("resize",()=>{
+  clearTimeout(rzT);
+  rzT=setTimeout(()=>{ players.forEach(p=>{ if(p.demo){ try{ p.demo.draw(p.t||0,0.001); }catch(e){} } }); },200);
+});
+window.addEventListener("civ:theme",()=>{
+  players.forEach(p=>{ if(p.demo){ try{ p.demo.draw(p.t||0,0.001); }catch(e){} } });
+});
+window.__demos=players;
+})();
+</script>
+</body>
+</html>

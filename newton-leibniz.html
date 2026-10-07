@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="color-scheme" content="dark light" />
+<title>牛顿-莱布尼茨公式 · 面积变身高度差（交互演示）</title>
+<style>
+  :root{
+    --bg-glow:#16233f; --bg0:#0a101d; --bg1:#070b14;
+    --txt:#e7eef9; --dim:#8fa3c2; --dim2:#5f7392;
+    --sky:#4cc3ff; --pink:#ff6fae; --amber:#ffc44d; --mint:#5bffd0; --violet:#a78bfa;
+    --card:rgba(255,255,255,.035); --card-bd:rgba(255,255,255,.08);
+    --stage-bg:rgba(255,255,255,.022);
+    --chip-bg:rgba(255,255,255,.04); --chip-bd:rgba(255,255,255,.1);
+    --track:rgba(255,255,255,.14);
+    --eq-sub:#a8bbd6; --eq-dim:#7d90ad;
+  }
+  body.light{
+    --bg-glow:#dbe9ff; --bg0:#f2f6fc; --bg1:#eaeff8;
+    --txt:#16233b; --dim:#5b6b85; --dim2:#8494ad;
+    --sky:#0b83d8; --pink:#d6377e; --amber:#d97706; --mint:#0d9488; --violet:#7c3aed;
+    --card:rgba(255,255,255,.75); --card-bd:rgba(22,35,59,.10);
+    --stage-bg:rgba(255,255,255,.75);
+    --chip-bg:rgba(255,255,255,.8); --chip-bd:rgba(22,35,59,.14);
+    --track:rgba(22,35,59,.15);
+    --eq-sub:#41536f; --eq-dim:#66788f;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    min-height:100vh; color:var(--txt);
+    background: radial-gradient(1100px 620px at 78% -12%, var(--bg-glow) 0%, var(--bg0) 52%, var(--bg1) 100%) fixed;
+    font:15px/1.65 "Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",system-ui,sans-serif;
+    padding:20px clamp(12px,2.6vw,34px) 26px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .m{font-family:Georgia,"Times New Roman",serif; font-style:italic;}
+  header{max-width:1500px;margin:0 auto;}
+  .headline{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 22px;}
+  h1{font-size:clamp(19px,2.3vw,26px);margin:0;letter-spacing:.3px;white-space:nowrap;}
+  h1 .hl{color:var(--sky)} h1 .hl2{color:var(--amber)}
+  .hero{font-size:clamp(16px,1.9vw,20px);color:var(--txt);opacity:.92;}
+  .ghost-btn{margin-left:auto;padding:7px 13px;border-radius:10px;background:var(--chip-bg);border:1px solid var(--chip-bd);
+        color:var(--txt);opacity:.85;cursor:pointer;font-size:13px;font-family:inherit;transition:.15s;}
+  .ghost-btn:hover{opacity:1;border-color:var(--sky);color:var(--sky)}
+  .sub{color:var(--dim);font-size:13px;margin:2px 0 12px;}
+  #tabs{display:flex;flex-wrap:wrap;gap:8px;margin:2px 0 14px;}
+  .tab{padding:7px 15px;border-radius:999px;background:var(--chip-bg);border:1px solid var(--chip-bd);
+       color:var(--txt);opacity:.85;cursor:pointer;font-size:14px;transition:.16s;font-family:inherit;}
+  .tab .m{font-size:15px}
+  .tab:hover{opacity:1;transform:translateY(-1px)}
+  .tab.on{opacity:1;border-color:var(--sky);color:var(--sky);box-shadow:0 0 0 1px color-mix(in srgb,var(--sky) 35%,transparent), 0 6px 20px color-mix(in srgb,var(--sky) 18%,transparent);}
+  main{display:grid;grid-template-columns:minmax(0,1fr) 352px;gap:16px;align-items:start;max-width:1500px;margin:0 auto;}
+  @media (max-width:1020px){ main{grid-template-columns:1fr} }
+  #stage{position:relative;border-radius:18px;background:var(--stage-bg);border:1px solid var(--card-bd);
+         overflow:hidden;height:clamp(540px,74vh,800px);box-shadow:0 24px 60px rgba(0,0,0,.18);}
+  #cv{display:block;touch-action:none;cursor:crosshair;}
+  .hint{position:absolute;top:10px;right:14px;font-size:12px;color:var(--dim);
+        background:color-mix(in srgb,var(--stage-bg) 70%, #000 12%);padding:6px 11px;border-radius:9px;
+        border:1px solid var(--card-bd);pointer-events:none;backdrop-filter:blur(4px);}
+  .cta{width:100%;padding:13px 14px;border:0;border-radius:13px;cursor:pointer;font-size:15px;font-weight:800;
+       color:#062033;font-family:inherit;
+       background:linear-gradient(135deg,#59d0ff,#63ffd2);
+       box-shadow:0 10px 30px rgba(76,195,255,.28);transition:transform .15s,box-shadow .2s,background .2s;}
+  .cta:hover{transform:translateY(-1px)}
+  .cta.rev{background:linear-gradient(135deg,#ffd166,#ffab7a);color:#3a1c05;box-shadow:0 10px 30px rgba(255,190,90,.3);}
+  .cta.small{width:auto;position:absolute;right:14px;bottom:14px;padding:10px 18px;border-radius:999px;font-size:13.5px;
+             box-shadow:0 8px 26px rgba(0,0,0,.25);opacity:.96;}
+  .cta.blink{animation:pulse 2.4s ease-in-out infinite;}
+  @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(76,195,255,.5)}50%{box-shadow:0 0 0 13px rgba(76,195,255,0)}}
+  aside{display:flex;flex-direction:column;gap:13px;min-width:0}
+  .card{background:var(--card);border:1px solid var(--card-bd);border-radius:16px;padding:14px 16px 15px;}
+  .card h3{font-size:12.5px;letter-spacing:.14em;color:var(--dim);font-weight:700;margin:0 0 10px;}
+  .row{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;color:var(--dim);margin-top:9px;}
+  .row .val{color:var(--txt);font-weight:700;font-size:14px}
+  input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:26px;background:transparent;cursor:pointer;margin:2px 0 0;}
+  input[type=range]::-webkit-slider-runnable-track{height:6px;border-radius:3px;background:var(--track);}
+  input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:18px;height:18px;border-radius:50%;margin-top:-6px;
+      background:#fff;border:2.5px solid var(--sky);box-shadow:0 0 12px color-mix(in srgb,var(--sky) 55%,transparent);}
+  input[type=range]::-moz-range-track{height:6px;border-radius:3px;background:var(--track);}
+  input[type=range]::-moz-range-thumb{width:14px;height:14px;border:2.5px solid var(--sky);background:#fff;border-radius:50%;}
+  .tip{font-size:12px;color:var(--dim2);margin:10px 0 0;line-height:1.7;}
+  #eq{font-size:16.5px;line-height:1.75;}
+  .eq-line{display:flex;flex-wrap:wrap;align-items:center;gap:5px;white-space:nowrap;overflow-x:auto;}
+  .intg{font-family:Georgia,serif;font-size:27px;line-height:.75;}
+  .lims{display:inline-flex;flex-direction:column;font-size:11px;line-height:1.1;margin:0 4px 0 1px;color:var(--eq-sub);text-align:center;}
+  .eqop{color:var(--eq-dim);padding:0 2px}
+  .brk{color:var(--amber)}
+  .dx{margin-left:1px}
+  .eqsub{color:var(--eq-sub);font-size:14.5px}
+  .eqout b{color:var(--mint);font-size:23px;font-weight:800;letter-spacing:.02em}
+  .eq-note{font-size:12px;color:var(--eq-dim);line-height:1.8;margin:9px 0 8px;white-space:normal}
+  .badge{display:inline-flex;align-items:center;gap:5px;padding:5px 11px;border-radius:999px;font-size:12.5px;font-weight:600;
+         background:color-mix(in srgb,var(--mint) 14%,transparent);color:var(--mint);border:1px solid color-mix(in srgb,var(--mint) 30%,transparent);}
+  .chips{display:flex;flex-wrap:wrap;gap:8px}
+  .chip{padding:7px 12px;border-radius:10px;border:1px solid var(--chip-bd);background:var(--chip-bg);color:var(--txt);opacity:.85;
+        font-size:13px;cursor:pointer;transition:.15s;font-family:inherit;}
+  .chip:hover{opacity:1;border-color:var(--sky);color:var(--sky)}
+  footer{max-width:1500px;margin:16px auto 0;color:var(--dim);font-size:12.5px;}
+  .legend{display:flex;gap:4px 18px;flex-wrap:wrap;margin-bottom:8px}
+  .legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px;}
+  .tips{display:flex;flex-wrap:wrap;gap:4px 20px;color:var(--dim2);line-height:1.9}
+  .foot-note{margin-top:10px;color:var(--dim2);font-size:11.5px;opacity:.8}
+  @media print{ #stage{height:760px} aside{break-inside:avoid} }
+</style>
+</head>
+<body>
+<header>
+  <div class="headline">
+    <h1>牛顿–莱布尼茨公式 · <span class="hl">面积</span>变身<span class="hl2">高度差</span></h1>
+    <div class="hero m">∫<sub>a</sub><sup>b</sup> f(x)&nbsp;dx = F(b) − F(a)</div>
+    <button id="themeBtn" class="ghost-btn" title="切换明暗主题">🌙 切到暗色</button>
+  </div>
+  <div class="sub">同样一笔账，左边要加很多次，右边只要减一次 —— 点一下「变身」，亲眼看面积垒成高度差。</div>
+</header>
+
+<nav id="tabs"></nav>
+
+<main>
+  <section id="stage">
+    <canvas id="cv"></canvas>
+    <div class="hint">🖐 拖动 a / b 竖线调整区间</div>
+    <button id="stageBtn" class="cta small blink">✨ 变身</button>
+  </section>
+
+  <aside>
+    <div class="card">
+      <h3>变身控制</h3>
+      <button id="playBtn" class="cta">✨ 面积变身高度差</button>
+      <div class="row"><span>变身进度</span><span class="val" id="mv">0%</span></div>
+      <input type="range" id="morphRange" min="0" max="1000" value="0" step="1" aria-label="变身进度">
+      <div class="row"><span>切片数 N</span><span class="val" id="nv">100</span></div>
+      <input type="range" id="nRange" min="10" max="200" value="100" step="1" aria-label="切片数量">
+      <p class="tip">进度条可以停在中间：每一小条面积，都会被压成一段高度，垒进右下角的“量筒”。</p>
+    </div>
+
+    <div class="card">
+      <h3>区间 a → b</h3>
+      <div class="row"><span class="m">a</span><span class="val m" id="av">0</span></div>
+      <input type="range" id="sa" step="0.001" aria-label="积分下限 a">
+      <div class="row"><span class="m">b</span><span class="val m" id="bv">π</span></div>
+      <input type="range" id="sb" step="0.001" aria-label="积分上限 b">
+    </div>
+
+    <div class="card">
+      <h3>两种算法 · 同一结果</h3>
+      <div id="eq"></div>
+    </div>
+
+    <div class="card">
+      <h3>试试这些例子</h3>
+      <div id="presets" class="chips"></div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="legend">
+    <span><i style="background:var(--sky)"></i>正面积（往上垒）</span>
+    <span><i style="background:var(--pink)"></i>负面积（往下拉）</span>
+    <span><i style="background:var(--amber)"></i>原函数 F(x)</span>
+    <span><i style="background:var(--mint)"></i>高度差 ΔF = F(b) − F(a)</span>
+  </div>
+  <div class="tips">
+    <span>🖐 拖动图上 a / b 竖线，或侧边滑块改区间</span>
+    <span>✨ 点「面积变身高度差」，看切片飞过去垒成 ΔF</span>
+    <span>🎚 拉进度条逐帧观察；调「切片数」看累加的粗细</span>
+    <span>🧮 换不同函数试试：sin / x² / 1÷x 各有花样</span>
+  </div>
+  <div class="foot-note">单文件交互演示 · 双击即可打开 · 生成于 2026-10-06</div>
+</footer>
+
+<script>
+'use strict';
+/* =========================================================
+   牛顿-莱布尼茨公式交互演示：面积（切片累加）⇄ 高度差（F(b)−F(a)）
+   纯 Canvas 手绘，零外部依赖
+   ========================================================= */
+const $ = s => document.querySelector(s);
+const NEG = '−';                        // 数学减号
+const FONT = '"Segoe UI","PingFang SC","Microsoft YaHei",system-ui,sans-serif';
+const MIFONT = 'Georgia,"Times New Roman",serif';
+const fnt = (px, w) => `${w ? w + ' ' : ''}${px}px ${FONT}`;
+const mif = (px, italic) => `${italic ? 'italic ' : ''}${px}px ${MIFONT}`;
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp01 = t => t < 0 ? 0 : t > 1 ? 1 : t;
+const easeInOut = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+
+/* ---------------- 数字与公式格式化 ---------------- */
+function fmtShort(x) {
+  if (Math.abs(x) < 5e-4) return '0';
+  const r2 = Math.round(x * 2) / 2;
+  if (Math.abs(x - r2) < 5e-4 && Math.abs(x) <= 24) return String(r2).replace('-', NEG);
+  return (Math.abs(x) >= 10 ? x.toFixed(1) : x.toFixed(2)).replace('-', NEG);
+}
+const PIFR = [[1,1,'π'],[1,2,'π/2'],[1,3,'π/3'],[1,4,'π/4'],[1,6,'π/6'],
+  [2,1,'2π'],[2,3,'2π/3'],[3,1,'3π'],[3,2,'3π/2'],[3,4,'3π/4'],[4,1,'4π'],[4,3,'4π/3'],
+  [5,6,'5π/6'],[5,4,'5π/4'],[5,3,'5π/3'],[7,6,'7π/6'],[7,4,'7π/4'],[11,6,'11π/6'],[6,1,'6π']];
+function fmtPi(x) {
+  if (Math.abs(x) < 4e-3) return '0';
+  const r = x / Math.PI;
+  for (const [p, q, s] of PIFR) {
+    if (Math.abs(r - p / q) < 4e-3) return s;
+    if (Math.abs(r + p / q) < 4e-3) return NEG + s;
+  }
+  if (Math.abs(x - Math.E) < 4e-3) return 'e';
+  if (Math.abs(x + Math.E) < 4e-3) return NEG + 'e';
+  return fmtShort(x);
+}
+function fmtN(x) {
+  if (!Number.isFinite(x)) return '—';
+  if (Math.abs(x) < 5e-4) return '0.000';
+  return x.toFixed(3).replace('-', NEG);
+}
+function fmtTick(v) {
+  if (Math.abs(v) < 1e-9) return '0';
+  const r = Math.round(v * 100) / 100;
+  let s = Number.isInteger(r) ? String(r) : r.toFixed(2).replace(/0+$/, '').replace(/\.$/, '');
+  return s.replace('-', NEG);
+}
+function niceStep(range, target) {
+  const raw = range / Math.max(1, target);
+  const mag = Math.pow(10, Math.floor(Math.log10(raw)));
+  const n = raw / mag;
+  const mult = n < 1.5 ? 1 : n < 3.5 ? 2 : n < 7.5 ? 5 : 10;
+  return mult * mag;
+}
+
+/* ---------------- 函数库（基本初等函数） ---------------- */
+const CFG = {
+  sin: { order: 1, label: 'sin x', fhtml: 'sin x', Fhtml: NEG + 'cos x', ftxt: 'sin x', Ftxt: NEG + 'cos x',
+    f: Math.sin, F: x => -Math.cos(x), domain: [-0.65, 7.0], def: [0, Math.PI], piGrid: true,
+    presets: [[0, Math.PI], [0, 2 * Math.PI], [Math.PI / 2, 3 * Math.PI / 2], [Math.PI, 2 * Math.PI]] },
+  cos: { order: 2, label: 'cos x', fhtml: 'cos x', Fhtml: 'sin x', ftxt: 'cos x', Ftxt: 'sin x',
+    f: Math.cos, F: Math.sin, domain: [-0.65, 7.0], def: [0, Math.PI], piGrid: true,
+    presets: [[0, Math.PI / 2], [0, Math.PI], [Math.PI / 2, Math.PI], [0, 2 * Math.PI]] },
+  x2: { order: 3, label: 'x²', fhtml: 'x²', Fhtml: 'x³⁄3', ftxt: 'x²', Ftxt: 'x³/3',
+    f: x => x * x, F: x => x * x * x / 3, domain: [-2.1, 2.1], def: [-1, 2], piGrid: false,
+    presets: [[-1, 2], [0, 1], [-2, 2], [1, 2]] },
+  x3: { order: 4, label: 'x³', fhtml: 'x³', Fhtml: 'x⁴⁄4', ftxt: 'x³', Ftxt: 'x⁴/4',
+    f: x => x * x * x, F: x => x * x * x * x / 4, domain: [-2.1, 2.1], def: [-1, 2], piGrid: false,
+    presets: [[-1, 2], [0, 2], [-2, 2], [-1, 1]] },
+  ex: { order: 5, label: 'eˣ', fhtml: 'eˣ', Fhtml: 'eˣ', ftxt: 'eˣ', Ftxt: 'eˣ',
+    f: Math.exp, F: Math.exp, domain: [-2.6, 2.3], def: [0, 1], piGrid: false,
+    presets: [[0, 1], [0, 2], [-1, 1], [-2, 0]] },
+  inv: { order: 6, label: '1/x', fhtml: '1⁄x', Fhtml: 'ln x', ftxt: '1/x', Ftxt: 'ln x',
+    f: x => 1 / x, F: Math.log, domain: [0.16, 4.3], def: [1, Math.E], piGrid: false,
+    presets: [[1, Math.E], [1, 2], [1, 4], [0.5, 3]] },
+  sqrt: { order: 7, label: '√x', fhtml: '√x', Fhtml: '⅔·x<sup>3/2</sup>', ftxt: '√x', Ftxt: '⅔·x^(3/2)',
+    f: x => Math.sqrt(Math.max(0, x)), F: x => (Math.max(0, x) ** 1.5) * 2 / 3, domain: [0, 4.4], def: [0, 4], piGrid: false,
+    presets: [[0, 4], [1, 4], [0, 1], [1, 2]] },
+  ln: { order: 8, label: 'ln x', fhtml: 'ln x', Fhtml: 'x·ln x − x', ftxt: 'ln x', Ftxt: 'x·ln x − x',
+    f: Math.log, F: x => x * Math.log(x) - x, domain: [0.14, 4.2], def: [1, Math.E], piGrid: false,
+    presets: [[1, Math.E], [1, 2], [0.5, 2], [1, 4]] },
+};
+function computeRange(fn, domain) {
+  let mn = Infinity, mx = -Infinity;
+  for (let i = 0; i <= 600; i++) {
+    const x = domain[0] + (domain[1] - domain[0]) * i / 600;
+    const y = fn(x);
+    if (Number.isFinite(y)) { if (y < mn) mn = y; if (y > mx) mx = y; }
+  }
+  if (!Number.isFinite(mn)) { mn = -1; mx = 1; }
+  mn = Math.min(mn, 0); mx = Math.max(mx, 0);
+  const pad = (mx - mn) * 0.13 || 1;
+  return [mn - pad, mx + pad];
+}
+for (const k in CFG) { CFG[k].fr = computeRange(CFG[k].f, CFG[k].domain); CFG[k].Fr = computeRange(CFG[k].F, CFG[k].domain); }
+
+/* ---------------- 主题色板 ---------------- */
+function palette() {
+  const light = document.body.classList.contains('light');
+  return light ? {
+    grid: 'rgba(22,35,59,.06)', gridZero: 'rgba(22,35,59,.20)', frame: 'rgba(22,35,59,.12)',
+    tick: '#8494ad', titleDim: '#66788f',
+    curveF: '#0b83d8', areaPos: 'rgba(11,131,216,.22)', areaNeg: 'rgba(214,55,126,.20)',
+    slicePos: 'rgba(11,131,216,.75)', sliceNeg: 'rgba(214,55,126,.68)',
+    curveB: '#d97706', mint: '#0d9488', bound: '#7c3aed', dot: '#b45309', dotRing: '#ffffff',
+    txt: '#16233b'
+  } : {
+    grid: 'rgba(255,255,255,.055)', gridZero: 'rgba(255,255,255,.20)', frame: 'rgba(255,255,255,.08)',
+    tick: '#5f7392', titleDim: '#8fa3c2',
+    curveF: '#4cc3ff', areaPos: 'rgba(76,195,255,.32)', areaNeg: 'rgba(255,111,174,.28)',
+    slicePos: 'rgba(76,195,255,.95)', sliceNeg: 'rgba(255,111,174,.92)',
+    curveB: '#ffc44d', mint: '#5bffd0', bound: '#a78bfa', dot: '#ffc44d', dotRing: '#0a101d',
+    txt: '#e7eef9'
+  };
+}
+const mq = window.matchMedia('(prefers-color-scheme: light)');
+function applyTheme() {
+  const light = state.userTheme ? state.userTheme === 'light' : mq.matches;
+  document.body.classList.toggle('light', light);
+  const b = $('#themeBtn');
+  if (b) b.textContent = light ? '🌙 切到暗色' : '☀️ 切到亮色';
+  draw();
+}
+if (mq.addEventListener) mq.addEventListener('change', () => { if (!state.userTheme) applyTheme(); });
+
+/* ---------------- 状态 ---------------- */
+const state = {
+  key: 'sin', a: 0, b: Math.PI,
+  morph: 0, target: 0, dir: 1,
+  N: 100, drag: null, hover: null,
+  userTheme: null,
+};
+const cur = () => CFG[state.key];
+const ORDER = Object.keys(CFG).sort((p, q) => CFG[p].order - CFG[q].order);
+
+/* ---------------- Canvas 基础 ---------------- */
+const cv = $('#cv');
+const ctx = cv.getContext('2d');
+let W = 0, H = 0, DPR = 1;
+let topP = { x: 0, y: 0, w: 0, h: 0 }, botP = { x: 0, y: 0, w: 0, h: 0 }, gapPx = 56;
+
+function resize() {
+  const r = cv.parentElement.getBoundingClientRect();
+  DPR = Math.min(window.devicePixelRatio || 1, 2);
+  W = Math.max(320, r.width); H = Math.max(360, r.height);
+  cv.width = Math.round(W * DPR); cv.height = Math.round(H * DPR);
+  cv.style.width = W + 'px'; cv.style.height = H + 'px';
+  ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+  draw();
+}
+function computeLayout() {
+  const mL = 56, mR = 26, mT = 34, mB = 42;
+  gapPx = Math.min(64, Math.max(44, H * 0.085));
+  const ph = (H - mT - mB - gapPx) / 2;
+  topP = { x: mL, y: mT, w: W - mL - mR, h: ph };
+  botP = { x: mL, y: mT + ph + gapPx, w: W - mL - mR, h: ph };
+}
+function sx(panel, x) {
+  const C = cur();
+  return panel.x + (x - C.domain[0]) / (C.domain[1] - C.domain[0]) * panel.w;
+}
+function makeY(panel, range) {
+  return y => panel.y + (range[1] - y) / (range[1] - range[0]) * panel.h;
+}
+function rrPath(x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+function arrowHead(x, y, ang, s = 7) {
+  ctx.beginPath();
+  ctx.moveTo(x, y); ctx.lineTo(x - s * Math.cos(ang - .5), y - s * Math.sin(ang - .5));
+  ctx.moveTo(x, y); ctx.lineTo(x - s * Math.cos(ang + .5), y - s * Math.sin(ang + .5));
+  ctx.stroke();
+}
+
+/* ---------------- 绘制 ---------------- */
+function draw() {
+  if (!W) return;
+  const PL = palette();
+  const C = cur();
+  computeLayout();
+  ctx.clearRect(0, 0, W, H);
+  const yf = makeY(topP, C.fr), yF = makeY(botP, C.Fr);
+
+  drawPanel(topP, C.fr, yf, PL, false);
+  drawPanel(botP, C.Fr, yF, PL, true);
+
+  drawCurveTitle(topP, `f(x) = ${C.ftxt}`, PL.curveF, '高度 → 切片累加', PL, PL.curveF);
+  drawCurveTitle(botP, `F(x) = ${C.Ftxt}`, PL.curveB, '累加 → 高度', PL, PL.curveB, true);
+
+  // 上面板：面积
+  drawAreaFill(yf, PL);
+  drawCurve(topP, C.f, yf, PL.curveF, 2.6, 1, PL);
+  // 下面板：原函数（先淡后亮，让切片有“夹层”感）
+  drawCurve(botP, C.F, yF, PL.curveB, 2.4, .32, PL);
+
+  // 切片 / 垒高动画
+  const slices = buildSlices();
+  drawSlices(slices, yf, yF, PL);
+  drawCurve(botP, C.F, yF, PL.curveB, 2.4, .95, PL);
+
+  // 引导与标注
+  drawGuides(yF, PL);
+  drawBounds(PL);
+  drawNarration(PL);
+}
+
+function drawPanel(p, range, yMap, PL, showLabels) {
+  const C = cur();
+  const [d0, d1] = C.domain;
+  rrPath(p.x, p.y, p.w, p.h, 12);
+  ctx.strokeStyle = PL.frame; ctx.lineWidth = 1; ctx.stroke();
+
+  // 横向网格 + y 刻度
+  const yr = range[1] - range[0];
+  const stepY = niceStep(yr, Math.max(3, Math.round(p.h / 62)));
+  ctx.font = fnt(11); ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let k = Math.ceil(range[0] / stepY); k * stepY <= range[1] + 1e-9; k++) {
+    const v = k * stepY, Y = yMap(v);
+    if (Y < p.y - 2 || Y > p.y + p.h + 2) continue;
+    const isZero = Math.abs(v) < stepY / 1000;
+    ctx.strokeStyle = isZero ? PL.gridZero : PL.grid;
+    ctx.beginPath(); ctx.moveTo(p.x, Y); ctx.lineTo(p.x + p.w, Y); ctx.stroke();
+    ctx.fillStyle = PL.tick;
+    ctx.fillText(fmtTick(v), p.x - 9, Y);
+  }
+
+  // 纵向网格 + x 刻度（只在下面板标刻度）
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  let lastX = -1e9;
+  if (C.piGrid) {
+    const s = Math.PI / 4;
+    for (let k = Math.ceil(d0 / s); k * s <= d1 + 1e-9; k++) {
+      const v = k * s, X = sx(p, v);
+      if (X < p.x - 1 || X > p.x + p.w + 1) continue;
+      const major = k % 2 === 0;
+      ctx.strokeStyle = major ? PL.grid : PL.grid.replace(/[\d.]+\)$/, m => (parseFloat(m) * 0.55).toFixed(3) + ')');
+      ctx.beginPath(); ctx.moveTo(X, p.y); ctx.lineTo(X, p.y + p.h); ctx.stroke();
+      if (showLabels && major && X - lastX > 46 && X > p.x + 8 && X < p.x + p.w - 8) {
+        ctx.fillStyle = PL.tick; ctx.fillText(fmtPi(v), X, p.y + p.h + 7); lastX = X;
+      }
+    }
+  } else {
+    const stepX = niceStep(d1 - d0, Math.max(4, Math.round(p.w / 130)));
+    for (let k = Math.ceil(d0 / stepX); k * stepX <= d1 + 1e-9; k++) {
+      const v = k * stepX, X = sx(p, v);
+      if (X < p.x - 1 || X > p.x + p.w + 1) continue;
+      ctx.strokeStyle = PL.grid;
+      ctx.beginPath(); ctx.moveTo(X, p.y); ctx.lineTo(X, p.y + p.h); ctx.stroke();
+      if (showLabels && X - lastX > 42 && X > p.x + 8 && X < p.x + p.w - 8) {
+        ctx.fillStyle = PL.tick; ctx.fillText(fmtPi(v), X, p.y + p.h + 7); lastX = X;
+      }
+    }
+  }
+}
+
+function drawCurveTitle(p, text, color, sub, PL, subColor) {
+  ctx.textAlign = 'left'; ctx.textBaseline = 'alphabetic';
+  ctx.font = fnt(13.5, '700');
+  ctx.fillStyle = color;
+  ctx.fillText(text, p.x + 2, p.y - 10);
+  const tw = ctx.measureText(text).width;
+  ctx.font = fnt(11.5);
+  ctx.fillStyle = PL.titleDim;
+  ctx.fillText('· ' + sub, p.x + 14 + tw, p.y - 10);
+}
+
+function drawCurve(p, fn, yMap, color, width, alpha, PL) {
+  const C = cur();
+  const [d0, d1] = C.domain;
+  ctx.save();
+  ctx.beginPath();
+  const n = Math.max(140, Math.floor(p.w / 2));
+  let started = false;
+  for (let i = 0; i <= n; i++) {
+    const x = d0 + (d1 - d0) * i / n;
+    const y = fn(x);
+    if (!Number.isFinite(y)) { started = false; continue; }
+    const X = sx(p, x), Y = yMap(y);
+    if (!started) { ctx.moveTo(X, Y); started = true; } else ctx.lineTo(X, Y);
+  }
+  ctx.lineJoin = 'round'; ctx.lineCap = 'round';
+  ctx.lineWidth = width; ctx.globalAlpha = alpha;
+  ctx.strokeStyle = color;
+  ctx.shadowColor = color; ctx.shadowBlur = alpha > .6 ? 13 : 0;
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawAreaFill(yf, PL) {
+  const C = cur();
+  const a = state.a, b = state.b;
+  const base = yf(0);
+  const path = new Path2D();
+  const n = Math.max(80, Math.floor(topP.w / 2));
+  path.moveTo(sx(topP, a), base);
+  for (let i = 0; i <= n; i++) {
+    const x = a + (b - a) * i / n;
+    path.lineTo(sx(topP, x), yf(C.f(x)));
+  }
+  path.lineTo(sx(topP, b), base);
+  path.closePath();
+  const fade = 1 - .78 * state.morph;
+  ctx.save();
+  ctx.globalAlpha = fade;
+  // 正面积（基线以上）
+  ctx.save(); ctx.beginPath(); ctx.rect(topP.x - 2, topP.y - 2, topP.w + 4, base - (topP.y - 2)); ctx.clip();
+  ctx.fillStyle = PL.areaPos; ctx.fill(path); ctx.restore();
+  // 负面积（基线以下）
+  ctx.save(); ctx.beginPath(); ctx.rect(topP.x - 2, base, topP.w + 4, topP.y + topP.h - base + 2); ctx.clip();
+  ctx.fillStyle = PL.areaNeg; ctx.fill(path); ctx.restore();
+  // 轮廓
+  ctx.globalAlpha = fade * .55; ctx.strokeStyle = PL.curveF;
+  ctx.lineWidth = 1; ctx.stroke(path);
+  ctx.restore();
+}
+
+/* ---------------- 切片与“垒高”动画 ---------------- */
+function buildSlices() {
+  const C = cur();
+  const a = state.a, b = state.b, N = state.N;
+  const dx = (b - a) / N;
+  const arr = [];
+  let cum = C.F(a);
+  for (let i = 0; i < N; i++) {
+    const x0 = a + i * dx;
+    const xm = x0 + dx / 2;
+    const v = C.f(xm) * dx;
+    arr.push({ i, x0, x1: x0 + dx, xm, v, cum0: cum, cum1: cum + v });
+    cum += v;
+  }
+  return arr;
+}
+function tubeX() { return botP.x + botP.w - 44; }
+
+function drawSlices(slices, yf, yF, PL) {
+  const C = cur();
+  const gp = state.morph;
+  const colX = tubeX(), halfW = 15;
+  const S = .55; // 错峰比例
+  const N = slices.length;
+  for (const s of slices) {
+    const idx = state.dir >= 0 ? s.i : (N - 1 - s.i);
+    const st = S * idx / Math.max(1, N - 1);
+    const t = clamp01((gp - st) / (1 - S));
+    const e = easeInOut(t);
+
+    // 起点：上面板的小矩形
+    let sx0 = sx(topP, s.x0), sx1 = sx(topP, s.x1);
+    const yc = yf(C.f(s.xm)), yz = yf(0);
+    let sy0 = Math.min(yc, yz), sy1 = Math.max(yc, yz);
+    if (sy1 - sy0 < .8) sy1 = sy0 + .8;
+
+    // 终点：量筒里的一段“水位”
+    let dy0 = yF(s.cum1), dy1 = yF(s.cum0);
+    if (dy1 < dy0) { const t2 = dy0; dy0 = dy1; dy1 = t2; }
+    if (dy1 - dy0 < 1.15) { const c = (dy0 + dy1) / 2; dy0 = c - .8; dy1 = c + .8; }
+
+    const rx0 = lerp(sx0, colX - halfW, e), rx1 = lerp(sx1, colX + halfW, e);
+    const ry0 = lerp(sy0, dy0, e), ry1 = lerp(sy1, dy1, e);
+    const w = Math.max(1, (rx1 - rx0) - (e < .02 ? .8 : 0));
+    const h = Math.max(1, ry1 - ry0);
+
+    ctx.globalAlpha = .55 + .38 * Math.sin(Math.PI * e);
+    ctx.fillStyle = s.v >= 0 ? PL.slicePos : PL.sliceNeg;
+    ctx.fillRect(rx0, ry0, w, h);
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawGuides(yF, PL) {
+  const C = cur();
+  const a = state.a, b = state.b;
+  const m = state.morph;
+  const Fa = C.F(a), Fb = C.F(b);
+  const Xa = sx(botP, a), Xb = sx(botP, b);
+  const yA = yF(Fa), yB = yF(Fb);
+
+  // F(a) 参考水平线
+  ctx.save();
+  ctx.setLineDash([4, 6]);
+  ctx.strokeStyle = PL.tick; ctx.globalAlpha = .35 + .3 * m; ctx.lineWidth = 1;
+  ctx.beginPath(); ctx.moveTo(Xa, yA); ctx.lineTo(Xb, yA); ctx.stroke();
+  ctx.restore();
+
+  // x=b 处的高度差箭头
+  const y0 = Math.min(yA, yB), y1 = Math.max(yA, yB);
+  const hgt = y1 - y0;
+  ctx.save();
+  ctx.globalAlpha = .38 + .62 * m;
+  ctx.strokeStyle = PL.mint; ctx.lineWidth = 2.2; ctx.lineCap = 'round';
+  if (hgt > 12) {
+    ctx.beginPath(); ctx.moveTo(Xb, y0 + 8); ctx.lineTo(Xb, y1 - 8); ctx.stroke();
+    arrowHead(Xb, y0 + 1, -Math.PI / 2, 6.5);
+    arrowHead(Xb, y1 - 1, Math.PI / 2, 6.5);
+  } else if (hgt > 1.5) {
+    ctx.beginPath(); ctx.moveTo(Xb, y0); ctx.lineTo(Xb, y1); ctx.stroke();
+  } else {
+    ctx.beginPath(); ctx.arc(Xb, yA, 5, 0, 7); ctx.stroke();
+  }
+  ctx.restore();
+
+  // 量筒（垒起来的切片）边框 + 连接虚线 + 标签
+  if (m > .02) {
+    const colX = tubeX(), halfW = 15;
+    ctx.save();
+    ctx.globalAlpha = .12 + .88 * m;
+    ctx.strokeStyle = PL.mint; ctx.lineWidth = 1.6;
+    if (hgt > 4) {
+      ctx.beginPath();
+      ctx.moveTo(colX - halfW, y0); ctx.lineTo(colX - halfW, y1);
+      ctx.moveTo(colX + halfW, y0); ctx.lineTo(colX + halfW, y1);
+      ctx.moveTo(colX - halfW - 6, y0); ctx.lineTo(colX + halfW + 6, y0);
+      ctx.moveTo(colX - halfW - 6, y1); ctx.lineTo(colX + halfW + 6, y1);
+      ctx.stroke();
+    } else {
+      ctx.beginPath(); ctx.arc(colX, yA, 6, 0, 7); ctx.stroke();
+    }
+    ctx.setLineDash([4, 5]); ctx.globalAlpha *= .55; ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(Xb, yA); ctx.lineTo(colX - halfW - 2, yA);
+    ctx.moveTo(Xb, yB); ctx.lineTo(colX - halfW - 2, yB);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 标签（靠右时自动右对齐，避免出界）
+    const val = Fb - Fa;
+    const label = Math.abs(val) < 5e-4 ? 'ΔF = 0（回到原高度）' : `ΔF = ${fmtN(val)}`;
+    ctx.font = fnt(12.5, '700'); ctx.fillStyle = PL.mint;
+    ctx.textAlign = 'center';
+    const ty = y0 - 12 > botP.y + 8 ? y0 - 12 : Math.min(botP.y + botP.h - 6, y1 + 20);
+    ctx.textBaseline = 'alphabetic';
+    const tw = ctx.measureText(label).width;
+    let tx = colX;
+    if (tx + tw / 2 > botP.x + botP.w - 4) { ctx.textAlign = 'right'; tx = botP.x + botP.w - 4; }
+    if (tx - tw / 2 < botP.x + 4) { ctx.textAlign = 'left'; tx = botP.x + 4; }
+    ctx.fillText(label, tx, ty);
+    ctx.restore();
+  }
+
+  // 两端圆点与数值
+  dotMark(Xa, yA, `F(a) ${fmtN(Fa)}`, PL, Xa < botP.x + botP.w * .55 ? 1 : -1);
+  dotMark(Xb, yB, `F(b) ${fmtN(Fb)}`, PL, Xb < botP.x + botP.w * .72 ? 1 : -1);
+}
+function dotMark(x, y, label, PL, dir) {
+  ctx.save();
+  ctx.beginPath(); ctx.arc(x, y, 4.6, 0, 7);
+  ctx.fillStyle = PL.dot; ctx.fill();
+  ctx.lineWidth = 2; ctx.strokeStyle = PL.dotRing; ctx.stroke();
+  ctx.font = fnt(11, '600'); ctx.fillStyle = PL.txt; ctx.globalAlpha = .92;
+  ctx.textAlign = dir > 0 ? 'left' : 'right'; ctx.textBaseline = 'middle';
+  ctx.fillText(label, x + dir * 10, y - 1);
+  ctx.restore();
+}
+
+function drawBounds(PL) {
+  const C = cur();
+  const zeroY = makeY(topP, C.fr)(0);
+  const items = [['a', state.a], ['b', state.b]];
+  for (const [name, v] of items) {
+    const X = sx(topP, v);
+    const active = state.drag === name || state.hover === name;
+    ctx.save();
+    const col = PL.bound;
+    ctx.globalAlpha = active ? .95 : .5;
+    ctx.strokeStyle = col; ctx.lineWidth = active ? 1.8 : 1.2;
+    ctx.setLineDash([5, 6]);
+    ctx.beginPath();
+    ctx.moveTo(X, topP.y); ctx.lineTo(X, topP.y + topP.h);
+    ctx.moveTo(X, botP.y); ctx.lineTo(X, botP.y + botP.h);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    // 药丸手柄（落在上面板的零线上，像滑块）
+    const w = 24, h = 20, px = X - w / 2, py = zeroY - h / 2;
+    rrPath(px, py, w, h, 7);
+    const g = ctx.createLinearGradient(px, py, px, py + h);
+    g.addColorStop(0, '#b39cff'); g.addColorStop(1, '#7c5cff');
+    ctx.globalAlpha = 1;
+    if (active) { ctx.shadowColor = '#8b5cf6'; ctx.shadowBlur = 16; }
+    ctx.fillStyle = g; ctx.fill();
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = '#0f0a22'; ctx.font = fnt(13, '800');
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText(name, X, py + h / 2 + .5);
+    ctx.restore();
+  }
+}
+
+function drawNarration(PL) {
+  const m = state.morph;
+  const cx = topP.x + topP.w / 2;
+  const cy = topP.y + topP.h + gapPx / 2;
+  let txt, col;
+  if (m < .04) { txt = `面积 = ${state.N} 条小切片的累加`; col = PL.titleDim; }
+  else if (m < .94) { txt = '小切片正被一条条搬下去、垒起来……'; col = PL.curveF; }
+  else { txt = '垒出来的总高度 = F(b) − F(a) ✓'; col = PL.mint; }
+  ctx.save();
+  ctx.font = fnt(13, '600'); ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.globalAlpha = .95; ctx.fillStyle = col;
+  ctx.fillText(txt, cx, cy);
+  ctx.restore();
+}
+
+/* ---------------- 交互：拖动 a / b ---------------- */
+function toCanvas(e) {
+  const r = cv.getBoundingClientRect();
+  return { x: e.clientX - r.left, y: e.clientY - r.top };
+}
+function pickBound(pt) {
+  if (!W) return null;
+  const lim = 16;
+  if (pt.y < topP.y - 30 || pt.y > botP.y + botP.h + 10) return null;
+  if (pt.x < topP.x - 30 || pt.x > topP.x + topP.w + 30) return null;
+  const da = Math.abs(pt.x - sx(topP, state.a));
+  const db = Math.abs(pt.x - sx(topP, state.b));
+  if (da > lim && db > lim) return null;
+  return da <= db ? 'a' : 'b';
+}
+function pixToX(px) {
+  const C = cur();
+  return C.domain[0] + (px - topP.x) / topP.w * (C.domain[1] - C.domain[0]);
+}
+function constrain(which, x) {
+  const C = cur();
+  const [d0, d1] = C.domain;
+  const gap = Math.max(1e-3, (d1 - d0) * .03);
+  x = Math.max(d0, Math.min(d1, x));
+  const st = C.piGrid ? Math.PI / 12 : .5;
+  const near = Math.round(x / st) * st;
+  if (Math.abs(x - near) < Math.max(.03, (d1 - d0) * .013)) x = near;
+  if (which === 'a') return Math.max(d0, Math.min(x, state.b - gap));
+  return Math.min(d1, Math.max(x, state.a + gap));
+}
+cv.addEventListener('pointerdown', e => {
+  const pt = toCanvas(e);
+  const hit = pickBound(pt);
+  if (hit) {
+    state.drag = hit;
+    try { cv.setPointerCapture(e.pointerId); } catch (_) { /* 合成事件下无活动指针 */ }
+    draw();
+  }
+});
+cv.addEventListener('pointermove', e => {
+  const pt = toCanvas(e);
+  if (state.drag) {
+    const x = constrain(state.drag, pixToX(pt.x));
+    if (state.drag === 'a') state.a = x; else state.b = x;
+    refresh();
+  } else {
+    const h = pickBound(pt);
+    if (h !== state.hover) {
+      state.hover = h;
+      cv.style.cursor = h ? 'ew-resize' : 'crosshair';
+      draw();
+    }
+  }
+});
+function endDrag() { if (state.drag) { state.drag = null; draw(); } }
+window.addEventListener('pointerup', endDrag);
+window.addEventListener('pointercancel', endDrag);
+cv.addEventListener('dblclick', () => { const C = cur(); state.a = C.def[0]; state.b = C.def[1]; refresh(); });
+
+/* ---------------- 变身动画 ---------------- */
+let animRaf = null, lastT = 0;
+function setTargetMorph(t) {
+  state.target = t;
+  state.dir = t >= state.morph ? 1 : -1;
+  if (!animRaf) { lastT = performance.now(); animRaf = requestAnimationFrame(tickAnim); }
+  updateBtns();
+}
+function tickAnim(now) {
+  const dt = Math.min(48, now - lastT); lastT = now;
+  const d = state.target - state.morph;
+  if (Math.abs(d) < .003) {
+    state.morph = state.target; animRaf = null;
+    syncMorphUI(); draw(); updateBtns(); return;
+  }
+  const step = dt / 1500; // 全程约 1.5 秒
+  state.morph += Math.sign(d) * step;
+  if ((state.target - state.morph) * d <= 0) state.morph = state.target;
+  syncMorphUI(); draw();
+  animRaf = requestAnimationFrame(tickAnim);
+}
+function cancelAnim() { if (animRaf) { cancelAnimationFrame(animRaf); animRaf = null; } }
+
+/* ---------------- 区间滑动 ---------------- */
+let tweenRaf = null;
+function tweenAB(na, nb, dur = 420) {
+  cancelAnim();
+  const a0 = state.a, b0 = state.b, t0 = performance.now();
+  if (tweenRaf) cancelAnimationFrame(tweenRaf);
+  const stepFn = now => {
+    let t = (now - t0) / dur; if (t > 1) t = 1;
+    const e = easeInOut(t);
+    state.a = lerp(a0, na, e); state.b = lerp(b0, nb, e);
+    refresh();
+    if (t < 1) tweenRaf = requestAnimationFrame(stepFn); else tweenRaf = null;
+  };
+  tweenRaf = requestAnimationFrame(stepFn);
+}
+
+/* ---------------- 界面同步 ---------------- */
+function buildTabs() {
+  const nav = $('#tabs');
+  nav.innerHTML = '';
+  for (const k of ORDER) {
+    const b = document.createElement('button');
+    b.className = 'tab' + (k === state.key ? ' on' : '');
+    b.innerHTML = `<span class="m">${CFG[k].label}</span>`;
+    b.onclick = () => { if (k !== state.key) setFn(k); };
+    nav.appendChild(b);
+  }
+}
+function setPresets() {
+  const box = $('#presets'); box.innerHTML = '';
+  for (const [pa, pb] of cur().presets) {
+    const c = document.createElement('button');
+    c.className = 'chip';
+    c.innerHTML = `<span class="m">${fmtPi(pa)}</span> → <span class="m">${fmtPi(pb)}</span>`;
+    c.onclick = () => tweenAB(pa, pb);
+    box.appendChild(c);
+  }
+}
+function syncSliders() {
+  const C = cur();
+  const sa = $('#sa'), sb = $('#sb');
+  sa.min = C.domain[0]; sa.max = C.domain[1];
+  sb.min = C.domain[0]; sb.max = C.domain[1];
+  sa.value = state.a; sb.value = state.b;
+  $('#av').textContent = fmtPi(state.a);
+  $('#bv').textContent = fmtPi(state.b);
+}
+function syncMorphUI() {
+  $('#morphRange').value = Math.round(state.morph * 1000);
+  $('#mv').textContent = Math.round(state.morph * 100) + '%';
+}
+function updateBtns() {
+  const back = state.morph > .5;
+  for (const id of ['#playBtn', '#stageBtn']) {
+    const b = $(id);
+    b.textContent = back ? '↩ 还原成面积' : (id === '#stageBtn' ? '✨ 变身' : '✨ 面积变身高度差');
+    b.classList.toggle('rev', back);
+  }
+}
+function renderEq() {
+  const C = cur();
+  const a = state.a, b = state.b;
+  const Fa = C.F(a), Fb = C.F(b);
+  const val = Fb - Fa;
+  // 累加视角：N 条中点小切片
+  let riem = 0;
+  const dxs = (b - a) / state.N;
+  for (let i = 0; i < state.N; i++) riem += C.f(a + (i + .5) * dxs) * dxs;
+  const intg = `<span class="intg">∫</span><span class="lims"><span class="hi">${fmtPi(b)}</span><span class="lo">${fmtPi(a)}</span></span>`;
+  $('#eq').innerHTML = `
+    <div class="eq-line">${intg}<span class="m">${C.fhtml}</span><span class="m dx">dx</span>
+      <span class="eqop">=</span>
+      <span class="brk">[<span class="m">${C.Fhtml}</span>]<sub>${fmtPi(a)}</sub><sup>${fmtPi(b)}</sup></span></div>
+    <div class="eq-line eqsub">= ${fmtN(Fb)} − (${fmtN(Fa)})</div>
+    <div class="eq-line eqout">= <b>${fmtN(val)}</b></div>
+    <p class="eq-note">累加视角：${state.N} 条小切片相加 ≈ ${fmtN(riem)}　·　原函数视角：一次减法 = ${fmtN(val)}</p>
+    <span class="badge">✓ 面积 = 高度差</span>`;
+}
+function refresh() {
+  syncSliders();
+  renderEq();
+  draw();
+}
+
+/* ---------------- 函数切换 ---------------- */
+function setFn(key) {
+  state.key = key;
+  const C = CFG[key];
+  state.a = C.def[0]; state.b = C.def[1];
+  cancelAnim(); state.morph = 0; state.target = 0; state.dir = 1;
+  if (tweenRaf) { cancelAnimationFrame(tweenRaf); tweenRaf = null; }
+  buildTabs(); setPresets(); syncSliders(); syncMorphUI();
+  renderEq(); draw(); updateBtns();
+}
+
+/* 深链：#fn=sin&a=0&b=3.14&morph=1 可分享当前状态 */
+function applyHash() {
+  if (!location.hash || location.hash.length < 2) return;
+  const h = new URLSearchParams(location.hash.slice(1));
+  const fn = h.get('fn');
+  if (fn && CFG[fn]) {
+    state.key = fn;
+    const C0 = CFG[fn];
+    state.a = C0.def[0]; state.b = C0.def[1]; // 先回到该函数的默认区间
+    buildTabs(); setPresets();
+  }
+  const C = CFG[state.key];
+  const na = parseFloat(h.get('a')), nb = parseFloat(h.get('b'));
+  if (Number.isFinite(na)) state.a = Math.max(C.domain[0], Math.min(C.domain[1], na));
+  if (Number.isFinite(nb)) state.b = Math.max(C.domain[0], Math.min(C.domain[1], nb));
+  if (state.b - state.a < (C.domain[1] - C.domain[0]) * .03) state.b = Math.min(C.domain[1], state.a + (C.domain[1] - C.domain[0]) * .05);
+  const nm = parseFloat(h.get('morph'));
+  if (Number.isFinite(nm)) { state.morph = clamp01(nm); state.target = state.morph; }
+  syncSliders(); syncMorphUI(); renderEq(); draw(); updateBtns();
+}
+
+/* ---------------- 事件绑定 ---------------- */
+$('#playBtn').onclick = () => { cancelAnim(); setTargetMorph(state.morph > .5 ? 0 : 1); $('#stageBtn').classList.remove('blink'); };
+$('#stageBtn').onclick = () => { cancelAnim(); setTargetMorph(state.morph > .5 ? 0 : 1); $('#stageBtn').classList.remove('blink'); };
+$('#stageBtn').classList.add('blink');
+$('#morphRange').oninput = e => {
+  cancelAnim();
+  const v = +e.target.value / 1000;
+  state.dir = v >= state.morph ? 1 : -1;
+  state.morph = v; state.target = v;
+  syncMorphUI(); draw(); updateBtns();
+};
+$('#nRange').oninput = e => {
+  state.N = +e.target.value;
+  $('#nv').textContent = state.N;
+  renderEq(); draw();
+};
+$('#sa').oninput = e => { state.a = constrain('a', +e.target.value); refresh(); };
+$('#sb').oninput = e => { state.b = constrain('b', +e.target.value); refresh(); };
+$('#themeBtn').onclick = () => {
+  const curLight = document.body.classList.contains('light');
+  state.userTheme = curLight ? 'dark' : 'light';
+  applyTheme();
+};
+
+/* ---------------- 启动 ---------------- */
+const ro = new ResizeObserver(() => resize());
+ro.observe($('#stage'));
+applyTheme();
+setFn('sin');
+applyHash();
+resize();
+</script>
+</body>
+</html>
