@@ -39,6 +39,16 @@
 | 10 | **地球 46 亿年 · 交互式地质图鉴** | 17 章长卷 + 真实年代/24 小时双轨时钟 | [打开](earth-timeline.html) |
 | 11 | **人类文明一万年 · 交互式文明长卷** | 从农业革命到现代文明的交互长卷 | [打开](civilization-timeline.html) |
 
+## 🔗 系列作品
+
+同作者的其它交互作品集：
+
+| 项目 | 简介 | 链接 |
+|---|---|---|
+| 🖥️ **os-lab · 立体课本** | 操作系统运行实验台：从按下电源到进程运行的全流程 3D 互动教学 | [在线玩](https://aizenhi.github.io/os-lab/) · [仓库](https://github.com/AIzenHi/os-lab) |
+| ☯️ **yijing-qimen · 易学实验室** | 易经六十四卦图鉴 + 奇门遁甲排盘实验室（含 Python 排盘引擎） | [在线玩](https://aizenhi.github.io/yijing-qimen/) · [仓库](https://github.com/AIzenHi/yijing-qimen) |
+| 📊 **gh-rank** | 本地 GitHub 排行榜 + AI 通俗解读 | [仓库](https://github.com/AIzenHi/gh-rank) |
+
 ## 使用方式
 
 | 方式 | 做法 |
